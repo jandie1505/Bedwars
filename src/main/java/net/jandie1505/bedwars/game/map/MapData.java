@@ -9,11 +9,24 @@ import java.util.List;
 public class MapData {
     private final World world;
     private final List<TeamData> teams;
-    private final List<SpawnpointData> spawnpoints;
+    private final int respawnCountdown;
 
-    public MapData(World world) {
+    public MapData(World world, List<TeamData> teams, int respawnCountdown) {
         this.world = world;
         this.teams = Collections.synchronizedList(new ArrayList<>());
-        this.spawnpoints = Collections.synchronizedList(new ArrayList<>());
+        this.teams.addAll(teams);
+        this.respawnCountdown = respawnCountdown;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public List<TeamData> getTeams() {
+        return teams;
+    }
+
+    public int getRespawnCountdown() {
+        return this.respawnCountdown;
     }
 }
