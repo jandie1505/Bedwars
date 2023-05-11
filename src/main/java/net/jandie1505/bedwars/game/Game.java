@@ -3,6 +3,7 @@ package net.jandie1505.bedwars.game;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.map.MapData;
+import net.jandie1505.bedwars.game.map.TeamData;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -41,6 +42,22 @@ public class Game implements GamePart {
             }
 
             PlayerData playerData = this.players.get(playerId);
+
+            // Check player for invalid values
+
+            TeamData teamData = null;
+            try {
+                teamData = this.mapData.getTeams().get(playerData.getTeam());
+            } catch (IndexOutOfBoundsException ignored) {
+                // Player is getting removed when exception is thrown
+            }
+
+            if (teamData == null) {
+                this.players.remove(playerId);
+                continue;
+            }
+
+            // Player respawn
 
             if (playerData.isAlive()) {
 
