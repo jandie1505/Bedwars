@@ -2,24 +2,61 @@ package net.jandie1505.bedwars;
 
 import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
-import org.bukkit.World;
+import net.jandie1505.bedwars.lobby.Lobby;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Bedwars extends JavaPlugin {
     private ConfigManager configManager;
-    private World waitingLobby;
     private List<UUID> bypassingPlayers;
+    private GamePart game;
+    private int exceptionCount;
 
     @Override
     public void onEnable() {
         this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.yml");
         this.bypassingPlayers = Collections.synchronizedList(new ArrayList<>());
+        this.exceptionCount = 0;
+
+        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
+
+            try {
+
+                if (this.game != null) {
+
+                    try {
+
+                        GameStatus gameStatus = this.game.tick();
+
+                        if (gameStatus == GameStatus.NEXT_STATUS) {
+                            this.game = this.game.getNextStatus();
+                        } else if (gameStatus == GameStatus.ABORT) {
+                            this.game = null;
+                        }
+
+                    } catch (Exception e) {
+                        this.getLogger().warning("Exception in game: " + e + "\nMessage: " + e.getMessage() + "\nStacktrace: " + Arrays.toString(e.getStackTrace()) + "--- END ---");
+                        this.game = null;
+                    }
+
+                }
+
+                if (this.exceptionCount > 0) {
+                    this.exceptionCount--;
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                this.exceptionCount++;
+            }
+
+            if (this.exceptionCount >= 3) {
+                this.getServer().getPluginManager().disablePlugin(this);
+            }
+
+        }, 0, 10);
     }
 
     public ConfigManager getConfigManager() {
@@ -46,5 +83,19 @@ public class Bedwars extends JavaPlugin {
 
     public void clearBypassingPlayers() {
         this.bypassingPlayers.clear();
+    }
+
+    public void stopGame() {
+        this.game = null;
+    }
+
+    public void startGame() {
+        if (this.game == null) {
+            this.game = new Lobby(this);
+        }
+    }
+
+    public GamePart getGame() {
+        return this.game;
     }
 }
