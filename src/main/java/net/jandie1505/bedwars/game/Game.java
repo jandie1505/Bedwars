@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game;
 
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
+import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.map.MapData;
 import net.jandie1505.bedwars.game.map.TeamData;
 import net.jandie1505.bedwars.game.player.PlayerData;
@@ -29,7 +30,8 @@ public class Game implements GamePart {
         this.time = this.maxTime;
     }
 
-    public int tick() {
+    @Override
+    public GameStatus tick() {
 
         // PLAYER MANAGEMENT
 
@@ -49,7 +51,7 @@ public class Game implements GamePart {
             try {
                 teamData = this.mapData.getTeams().get(playerData.getTeam());
             } catch (IndexOutOfBoundsException ignored) {
-                // Player is getting removed when exception is thrown
+                // Player is getting removed when exception is thrown because teamData will then be null
             }
 
             if (teamData == null) {
@@ -92,7 +94,11 @@ public class Game implements GamePart {
         // TIME
 
         if (this.timeStep >= 1) {
-            this.time--;
+            if (this.time > 0) {
+                this.time--;
+            } else {
+                return GameStatus.NEXT_STATUS;
+            }
         }
 
         // TIME STEP
@@ -103,7 +109,12 @@ public class Game implements GamePart {
             this.timeStep = 1;
         }
 
-        return 0;
+        return GameStatus.NORMAL;
+    }
+
+    @Override
+    public GamePart getNextStatus() {
+        return null;
     }
 
     public boolean respawnPlayer(Player player) {

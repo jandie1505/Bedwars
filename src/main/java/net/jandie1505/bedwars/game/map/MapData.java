@@ -2,8 +2,6 @@ package net.jandie1505.bedwars.game.map;
 
 import org.bukkit.World;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class MapData {
@@ -13,8 +11,7 @@ public class MapData {
 
     public MapData(World world, List<TeamData> teams, int respawnCountdown) {
         this.world = world;
-        this.teams = Collections.synchronizedList(new ArrayList<>());
-        this.teams.addAll(teams);
+        this.teams = List.copyOf(teams);
         this.respawnCountdown = respawnCountdown;
     }
 
