@@ -33,6 +33,13 @@ public class Game implements GamePart {
     @Override
     public GameStatus tick() {
 
+        // STOP IF WORLD NOT LOADED
+
+        if (this.mapData.getWorld() == null || !this.plugin.getServer().getWorlds().contains(this.mapData.getWorld())) {
+            this.plugin.getLogger().warning("Bedwars game end because world is not loaded");
+            return GameStatus.ABORT;
+        }
+
         // PLAYER MANAGEMENT
 
         for (Player player : this.plugin.getServer().getOnlinePlayers()) {
