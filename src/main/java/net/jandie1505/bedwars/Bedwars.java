@@ -24,6 +24,8 @@ public class Bedwars extends JavaPlugin {
         this.getCommand("bedwars").setExecutor(new BedwarsCommand(this));
         this.getCommand("bedwars").setTabCompleter(new BedwarsCommand(this));
 
+        this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
+
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
 
             try {

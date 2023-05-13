@@ -71,18 +71,22 @@ public class Game implements GamePart {
 
             } else {
 
-                player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 20, 0);
-                player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
-
                 if (!this.plugin.isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
                     player.setGameMode(GameMode.SPECTATOR);
                 }
 
                 if (this.timeStep >= 1) {
                     if (playerData.getRespawnCountdown() > 0) {
+
+                        player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 20, 0);
+                        player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
+
                         playerData.setRespawnCountdown(playerData.getRespawnCountdown() - 1);
+
                     } else {
+
                         this.respawnPlayer(player);
+
                     }
                 }
 
