@@ -1,0 +1,19 @@
+main: net.jandie1505.bedwars.Bedwars
+name: Bedwars
+version: 1.0
+api-version: 1.13
+permissions:
+  bedwars.admin:
+    default: op
+    description: admin permission
+  bedwars.*:
+    default: op
+    children:
+      - bedwars.admin
+    description: wildcard permission
+commands:
+  bedwars:
+    description: main command
+    usage: /bedwars
+author: jandie1505
+website: jandie1505.net

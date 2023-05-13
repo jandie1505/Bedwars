@@ -7,10 +7,10 @@ public class PlayerData {
     private int respawnCountdown;
     private int team;
 
-    public PlayerData() {
+    public PlayerData(int team) {
         this.alive = false;
         this.respawnCountdown = 0;
-        this.team = 0;
+        this.team = team;
     }
 
     public boolean isAlive() {

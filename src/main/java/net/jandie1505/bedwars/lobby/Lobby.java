@@ -8,10 +8,7 @@ import net.jandie1505.bedwars.game.map.MapData;
 import net.jandie1505.bedwars.game.map.TeamData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -25,6 +22,7 @@ public class Lobby implements GamePart {
     private int time;
     private List<UUID> players;
     private World map;
+    private boolean forcestart;
 
     public Lobby(Bedwars plugin) {
         this.plugin = plugin;
@@ -32,6 +30,7 @@ public class Lobby implements GamePart {
         this.time = 60;
         this.players = Collections.synchronizedList(new ArrayList<>());
         this.map = null;
+        this.forcestart = false;
     }
 
     @Override
@@ -71,6 +70,12 @@ public class Lobby implements GamePart {
             }
         }
 
+        // FORCE START
+
+        if (this.forcestart) {
+            return GameStatus.NEXT_STATUS;
+        }
+
         // TIME STEP
 
         if (this.timeStep >= 1) {
@@ -84,15 +89,41 @@ public class Lobby implements GamePart {
 
     @Override
     public GamePart getNextStatus() {
-        return new Game(
+        World world = this.plugin.getServer().createWorld(new WorldCreator("map"));
+        Game game = new Game(
                 this.plugin,
                 new MapData(
-                        this.plugin.getServer().createWorld(new WorldCreator("map")),
-                        List.of(),
+                        world,
+                        List.of(
+                                new TeamData(
+                                        "TEAM 1",
+                                        ChatColor.GREEN,
+                                        List.of(
+                                                new Location(world, 10, 10, 10, 0, 0)
+                                        )
+                                ),
+                                new TeamData(
+                                        "TEAM 2",
+                                        ChatColor.RED,
+                                        List.of(
+                                                new Location(world, -10, -10, -10, 0, 0)
+                                        )
+                                )
+                        ),
                         5
                 ),
                 900
         );
+
+        for (UUID playerId : this.getPlayers()) {
+            game.addPlayer(playerId, 0);
+        }
+
+        return game;
+    }
+
+    public void forcestart() {
+        this.forcestart = true;
     }
 
     public Bedwars getPlugin() {

@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars;
 
+import net.jandie1505.bedwars.commands.BedwarsCommand;
 import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.lobby.Lobby;
@@ -19,6 +20,9 @@ public class Bedwars extends JavaPlugin {
         this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.yml");
         this.bypassingPlayers = Collections.synchronizedList(new ArrayList<>());
         this.exceptionCount = 0;
+
+        this.getCommand("bedwars").setExecutor(new BedwarsCommand(this));
+        this.getCommand("bedwars").setTabCompleter(new BedwarsCommand(this));
 
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
 
@@ -63,14 +67,8 @@ public class Bedwars extends JavaPlugin {
         return this.configManager;
     }
 
-    public boolean addBypassingPlayer(Player player) {
-
-        if (player == null) {
-            return false;
-        }
-
-        return this.bypassingPlayers.add(player.getUniqueId());
-
+    public boolean addBypassingPlayer(UUID playerId) {
+        return this.bypassingPlayers.add(playerId);
     }
 
     public boolean removeBypassingPlayer(UUID playerId) {
@@ -83,6 +81,10 @@ public class Bedwars extends JavaPlugin {
 
     public void clearBypassingPlayers() {
         this.bypassingPlayers.clear();
+    }
+
+    public boolean isPlayerBypassing(UUID playerId) {
+        return this.bypassingPlayers.contains(playerId);
     }
 
     public void stopGame() {

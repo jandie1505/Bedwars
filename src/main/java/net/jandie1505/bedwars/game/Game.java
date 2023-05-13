@@ -35,15 +35,13 @@ public class Game implements GamePart {
 
         // PLAYER MANAGEMENT
 
-        for (UUID playerId : this.getPlayers().keySet()) {
-            Player player = this.plugin.getServer().getPlayer(playerId);
+        for (Player player : this.plugin.getServer().getOnlinePlayers()) {
 
-            if (player == null) {
-                this.players.remove(playerId);
+            if (!this.players.containsKey(player.getUniqueId())) {
                 continue;
             }
 
-            PlayerData playerData = this.players.get(playerId);
+            PlayerData playerData = this.players.get(player.getUniqueId());
 
             // Check player for invalid values
 
@@ -55,7 +53,7 @@ public class Game implements GamePart {
             }
 
             if (teamData == null) {
-                this.players.remove(playerId);
+                this.players.remove(player.getUniqueId());
                 continue;
             }
 
@@ -67,7 +65,7 @@ public class Game implements GamePart {
                     playerData.setRespawnCountdown(this.mapData.getRespawnCountdown());
                 }
 
-                if (player.getGameMode() != GameMode.SURVIVAL) {
+                if (!this.plugin.isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
                     player.setGameMode(GameMode.SURVIVAL);
                 }
 
@@ -76,7 +74,7 @@ public class Game implements GamePart {
                 player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 20, 0);
                 player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
 
-                if (player.getGameMode() != GameMode.SPECTATOR) {
+                if (!this.plugin.isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
                     player.setGameMode(GameMode.SPECTATOR);
                 }
 
@@ -134,8 +132,20 @@ public class Game implements GamePart {
         return true;
     }
 
+    public boolean addPlayer(UUID playerId, int team) {
+        return this.players.put(playerId, new PlayerData(team)) != null;
+    }
+
+    public boolean removePlayer(UUID playerId) {
+        return this.players.remove(playerId) != null;
+    }
+
     public Bedwars getPlugin() {
         return this.plugin;
+    }
+
+    public MapData getMapData() {
+        return this.mapData;
     }
 
     public Map<UUID, PlayerData> getPlayers() {
