@@ -10,11 +10,13 @@ public class TeamData {
     private final String name;
     private final ChatColor color;
     private final List<Location> spawnpoints;
+    private final List<Location> bedLocations;
 
-    public TeamData(String name, ChatColor color, List<Location> spawnpoints) {
+    public TeamData(String name, ChatColor color, List<Location> spawnpoints, List<Location> bedLocations) {
         this.name = name;
         this.color = color;
         this.spawnpoints = List.copyOf(spawnpoints);
+        this.bedLocations = List.copyOf(bedLocations);
     }
 
     public String getName() {
@@ -36,5 +38,9 @@ public class TeamData {
         }
 
         return this.spawnpoints.get(new Random().nextInt(this.spawnpoints.size()));
+    }
+
+    public List<Location> getBedLocations() {
+        return List.copyOf(this.bedLocations);
     }
 }

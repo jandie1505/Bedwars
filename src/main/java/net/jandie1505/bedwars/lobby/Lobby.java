@@ -96,17 +96,23 @@ public class Lobby implements GamePart {
                         world,
                         List.of(
                                 new TeamData(
-                                        "TEAM 1",
+                                        "Green",
                                         ChatColor.GREEN,
                                         List.of(
                                                 new Location(world, 55, 1, 0, 0, 0)
+                                        ),
+                                        List.of(
+                                                new Location(world, 44, 1, 0)
                                         )
                                 ),
                                 new TeamData(
-                                        "TEAM 2",
+                                        "Red",
                                         ChatColor.RED,
                                         List.of(
                                                 new Location(world, -63, 1, 0, 0, 0)
+                                        ),
+                                        List.of(
+                                                new Location(world, -52, 1, 0, 0, 0)
                                         )
                                 )
                         ),
