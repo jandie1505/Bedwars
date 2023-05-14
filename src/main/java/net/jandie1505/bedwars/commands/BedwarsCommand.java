@@ -7,10 +7,14 @@ import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.lobby.Lobby;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.*;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,6 +61,10 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 break;
             case "mapteleport":
                 this.mapTeleportSubcommand(sender);
+                break;
+            case "world":
+            case "worlds":
+                this.worldsSubcommand(sender, args);
                 break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
@@ -337,6 +345,151 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
     }
 
+    public void worldsSubcommand(CommandSender sender, String[] args) {
+
+        if (!this.hasAdminPermission(sender)) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage("§cUsage: /bedwars world list/load/unload");
+            return;
+        }
+
+        switch (args[1]) {
+            case "list": {
+
+                String message = "§7Loaded worlds:\n";
+
+                int i = 0;
+                for (World world : List.copyOf(this.plugin.getServer().getWorlds())) {
+
+                    message = message + "§7[" + i + "] " + world.getName() + " (" + world.getUID() + ");\n";
+                    i++;
+
+                }
+
+                sender.sendMessage(message);
+
+                return;
+            }
+            case "load": {
+
+                if (args.length < 3) {
+                    sender.sendMessage("§cYou need to specify a world name");
+                    return;
+                }
+
+                if (this.plugin.getServer().getWorld(args[2]) != null) {
+                    sender.sendMessage("§cWorld already loaded");
+                    return;
+                }
+
+                sender.sendMessage("§eLoading/creating world...");
+                this.plugin.getServer().createWorld(new WorldCreator(args[2]));
+                sender.sendMessage("§aWorld successfully loaded/created");
+
+                return;
+            }
+            case "unload": {
+
+                if (args.length < 3) {
+                    sender.sendMessage("§cYou need to specify a world name/uid/index");
+                    return;
+                }
+
+                World world = null;
+
+                try {
+                    world = this.plugin.getServer().getWorld(UUID.fromString(args[2]));
+                } catch (IllegalArgumentException e) {
+
+                    try {
+                        world = this.plugin.getServer().getWorlds().get(Integer.parseInt(args[2]));
+                    } catch (IllegalArgumentException e2) {
+                        world = this.plugin.getServer().getWorld(args[2]);
+                    }
+
+                }
+
+                if (world == null) {
+                    sender.sendMessage("§cWorld is not loaded");
+                    return;
+                }
+
+                boolean save = false;
+
+                if (args.length >= 4) {
+                    save = Boolean.parseBoolean(args[3]);
+                }
+
+                this.plugin.getServer().unloadWorld(world, save);
+                sender.sendMessage("§aUnloaded world (save=" + save + ")");
+
+                return;
+            }
+            case "teleport": {
+
+                if (args.length < 3) {
+                    sender.sendMessage("§cYou need to specify a world name/uid/index");
+                    return;
+                }
+
+                World world = null;
+
+                try {
+                    world = this.plugin.getServer().getWorld(UUID.fromString(args[2]));
+                } catch (IllegalArgumentException e) {
+
+                    try {
+                        world = this.plugin.getServer().getWorlds().get(Integer.parseInt(args[2]));
+                    } catch (IllegalArgumentException e2) {
+                        world = this.plugin.getServer().getWorld(args[2]);
+                    }
+
+                }
+
+                if (world == null) {
+                    sender.sendMessage("§cWorld is not loaded");
+                    return;
+                }
+
+                Location location = new Location(world, 0, 0, 0, 0, 0);
+
+                if (args.length >= 4) {
+
+                    Player player = this.getPlayer(args[3]);
+
+                    if (player == null) {
+                        sender.sendMessage("§cPlayer not online");
+                        return;
+                    }
+
+                    player.teleport(location);
+                    sender.sendMessage("§aTeleporting " + player.getName() + " to " + world.getName());
+
+                } else {
+
+                    if (!(sender instanceof Player)) {
+                        sender.sendMessage("§cYou need to be a player to teleport yourself");
+                        return;
+                    }
+
+                    ((Player) sender).teleport(location);
+                    sender.sendMessage("§aTeleporting yourself to " + world.getName());
+
+                }
+
+                return;
+            }
+            default:
+                sender.sendMessage("§cUnknown subcommand");
+                return;
+        }
+
+    }
+
     public void mapTeleportSubcommand(CommandSender sender) {
 
         if (!this.hasAdminPermission(sender)) {
@@ -380,6 +533,20 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             return offlinePlayer.getUniqueId();
 
         }
+
+    }
+
+    public Player getPlayer(String input) {
+
+        Player player;
+
+        try {
+            player = this.plugin.getServer().getPlayer(UUID.fromString(input));
+        } catch (IllegalArgumentException e) {
+            player = this.plugin.getServer().getPlayer(input);
+        }
+
+        return player;
 
     }
 

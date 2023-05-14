@@ -99,20 +99,20 @@ public class Lobby implements GamePart {
                                         "TEAM 1",
                                         ChatColor.GREEN,
                                         List.of(
-                                                new Location(world, 10, 10, 10, 0, 0)
+                                                new Location(world, 55, 1, 0, 0, 0)
                                         )
                                 ),
                                 new TeamData(
                                         "TEAM 2",
                                         ChatColor.RED,
                                         List.of(
-                                                new Location(world, -10, -10, -10, 0, 0)
+                                                new Location(world, -63, 1, 0, 0, 0)
                                         )
                                 )
                         ),
                         5
                 ),
-                900
+                3600
         );
 
         for (UUID playerId : this.getPlayers()) {
