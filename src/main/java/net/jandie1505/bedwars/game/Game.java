@@ -7,12 +7,12 @@ import net.jandie1505.bedwars.game.map.MapData;
 import net.jandie1505.bedwars.game.map.TeamData;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Game implements GamePart {
     private final Bedwars plugin;
@@ -157,6 +157,27 @@ public class Game implements GamePart {
 
     public MapData getMapData() {
         return this.mapData;
+    }
+
+    public boolean hasBed(int teamId) {
+
+        TeamData teamData = this.mapData.getTeams().get(0);
+
+        if (teamData == null) {
+            return false;
+        }
+
+        for (Location location : List.copyOf(teamData.getBedLocations())) {
+
+            Block block = this.mapData.getWorld().getBlockAt(location);
+
+            if (block instanceof Bed) {
+                return true;
+            }
+
+        }
+
+        return false;
     }
 
     public Map<UUID, PlayerData> getPlayers() {
