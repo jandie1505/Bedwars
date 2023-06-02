@@ -4,8 +4,8 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.game.map.MapData;
-import net.jandie1505.bedwars.game.map.TeamData;
+import net.jandie1505.bedwars.lobby.map.LobbyMapData;
+import net.jandie1505.bedwars.lobby.map.LobbyTeamData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -98,9 +98,9 @@ public class Lobby implements GamePart {
         Game game = new Game(
                 this.plugin,
                 world,
-                new MapData(5),
+                new LobbyMapData(5),
                 List.of(
-                        new TeamData(
+                        new LobbyTeamData(
                                 "Green",
                                 ChatColor.GREEN,
                                 List.of(
@@ -110,7 +110,7 @@ public class Lobby implements GamePart {
                                         new Location(world, 44, 1, 0)
                                 )
                         ),
-                        new TeamData(
+                        new LobbyTeamData(
                                 "Red",
                                 ChatColor.RED,
                                 List.of(

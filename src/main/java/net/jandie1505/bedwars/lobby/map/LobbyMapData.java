@@ -1,13 +1,9 @@
-package net.jandie1505.bedwars.game.map;
+package net.jandie1505.bedwars.lobby.map;
 
-import org.bukkit.World;
-
-import java.util.List;
-
-public class MapData {
+public class LobbyMapData {
     private final int respawnCountdown;
 
-    public MapData(int respawnCountdown) {
+    public LobbyMapData(int respawnCountdown) {
         this.respawnCountdown = respawnCountdown;
     }
 

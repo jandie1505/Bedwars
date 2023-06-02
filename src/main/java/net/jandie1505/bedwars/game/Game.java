@@ -3,8 +3,9 @@ package net.jandie1505.bedwars.game;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
-import net.jandie1505.bedwars.game.map.MapData;
-import net.jandie1505.bedwars.game.map.TeamData;
+import net.jandie1505.bedwars.game.map.BedwarsTeam;
+import net.jandie1505.bedwars.lobby.map.LobbyMapData;
+import net.jandie1505.bedwars.lobby.map.LobbyTeamData;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -21,19 +22,23 @@ import java.util.*;
 public class Game implements GamePart {
     private final Bedwars plugin;
     private final World world;
-    private final MapData mapData;
-    private final List<TeamData> teams;
+    private final LobbyMapData lobbyMapData;
+    private final List<BedwarsTeam> teams;
     private final Map<UUID, PlayerData> players;
     private int maxTime;
     private int timeStep;
     private int time;
 
-    public Game(Bedwars plugin, World world, MapData mapData, List<TeamData> teams, int maxTime) {
+    public Game(Bedwars plugin, World world, LobbyMapData lobbyMapData, List<LobbyTeamData> teams, int maxTime) {
         this.plugin = plugin;
         this.world = world;
-        this.mapData = mapData;
+        this.lobbyMapData = lobbyMapData;
         this.teams = Collections.synchronizedList(new ArrayList<>());
-        this.teams.addAll(teams);
+
+        for (LobbyTeamData teamData : List.copyOf(teams)) {
+            this.teams.add(new BedwarsTeam(this, teamData));
+        }
+
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.maxTime = maxTime;
         this.time = this.maxTime;
@@ -61,14 +66,14 @@ public class Game implements GamePart {
 
             // Check player for invalid values
 
-            TeamData teamData = null;
+            BedwarsTeam team = null;
             try {
-                teamData = this.teams.get(playerData.getTeam());
+                team = this.teams.get(playerData.getTeam());
             } catch (IndexOutOfBoundsException ignored) {
                 // Player is getting removed when exception is thrown because teamData will then be null
             }
 
-            if (teamData == null) {
+            if (team == null) {
                 this.players.remove(player.getUniqueId());
                 continue;
             }
@@ -77,8 +82,8 @@ public class Game implements GamePart {
 
             if (playerData.isAlive()) {
 
-                if (playerData.getRespawnCountdown() != this.mapData.getRespawnCountdown()) {
-                    playerData.setRespawnCountdown(this.mapData.getRespawnCountdown());
+                if (playerData.getRespawnCountdown() != this.lobbyMapData.getRespawnCountdown()) {
+                    playerData.setRespawnCountdown(this.lobbyMapData.getRespawnCountdown());
                 }
 
                 if (!this.plugin.isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
@@ -125,11 +130,19 @@ public class Game implements GamePart {
 
             sidebarDisplayStrings.add("");
 
+            /*
             for (TeamData team : this.getTeams()) {
 
                 sidebarDisplayStrings.add(team.getColor() + team.getName() + ": ");
 
             }
+
+             */
+
+            if (player.getScoreboard() != scoreboard) {
+                player.setScoreboard(scoreboard);
+            }
+
         }
 
         // TIME
@@ -187,19 +200,19 @@ public class Game implements GamePart {
         return this.plugin;
     }
 
-    public MapData getMapData() {
-        return this.mapData;
+    public LobbyMapData getMapData() {
+        return this.lobbyMapData;
     }
 
     public boolean hasBed(int teamId) {
 
-        TeamData teamData = this.teams.get(0);
+        BedwarsTeam team = this.teams.get(0);
 
-        if (teamData == null) {
+        if (team == null) {
             return false;
         }
 
-        for (Location location : List.copyOf(teamData.getBedLocations())) {
+        for (Location location : List.copyOf(team.getBedLocations())) {
 
             Block block = this.world.getBlockAt(location);
 
@@ -220,7 +233,7 @@ public class Game implements GamePart {
         return this.world;
     }
 
-    public List<TeamData> getTeams() {
+    public List<BedwarsTeam> getTeams() {
         return List.copyOf(this.teams);
     }
 }
