@@ -5,6 +5,7 @@ import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.lobby.map.LobbyTeamData;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.data.type.Bed;
 
 import java.util.*;
@@ -73,7 +74,7 @@ public class BedwarsTeam {
 
         for (Location bedLocation : this.getBedLocations()) {
 
-            if (bedLocation.getBlock() instanceof Bed) {
+            if (bedLocation.getBlock().getBlockData() instanceof Bed) {
                 beds++;
             }
 
