@@ -3,7 +3,11 @@ package net.jandie1505.bedwars;
 import net.jandie1505.bedwars.commands.BedwarsCommand;
 import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
+import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.lobby.Lobby;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,12 +18,14 @@ public class Bedwars extends JavaPlugin {
     private List<UUID> bypassingPlayers;
     private GamePart game;
     private int exceptionCount;
+    private List<World> managedWorlds;
 
     @Override
     public void onEnable() {
         this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.yml");
         this.bypassingPlayers = Collections.synchronizedList(new ArrayList<>());
         this.exceptionCount = 0;
+        this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
 
         this.getCommand("bedwars").setExecutor(new BedwarsCommand(this));
         this.getCommand("bedwars").setTabCompleter(new BedwarsCommand(this));
@@ -29,6 +35,8 @@ public class Bedwars extends JavaPlugin {
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
 
             try {
+
+                // Manage game
 
                 if (this.game != null) {
 
@@ -49,6 +57,21 @@ public class Bedwars extends JavaPlugin {
 
                 }
 
+                // Manage worlds
+
+                for (World world : List.copyOf(this.managedWorlds)) {
+
+                    if (world == null || !this.getServer().getWorlds().contains(world) || this.getServer().getWorlds().get(0) == world) {
+                        this.managedWorlds.remove(world);
+                        continue;
+                    }
+
+                    if (!(this.game instanceof Lobby || this.game instanceof Game) || (this.game instanceof Game && ((Game) this.game).getWorld() != world)) {
+                        this.unloadWorld(world);
+                    }
+
+                }
+
                 if (this.exceptionCount > 0) {
                     this.exceptionCount--;
                 }
@@ -63,6 +86,70 @@ public class Bedwars extends JavaPlugin {
             }
 
         }, 0, 10);
+    }
+
+    public void onDisable() {
+        this.getLogger().info("Disabling " + this.getName());
+
+        this.stopGame();
+
+        for (World world : List.copyOf(this.managedWorlds)) {
+            this.unloadWorld(world);
+        }
+
+        this.getLogger().info(this.getName() + " was successfully disabled");
+    }
+
+    public World loadWorld(String name) {
+
+        World world = this.getServer().getWorld(name);
+
+        if (world != null) {
+            this.managedWorlds.add(world);
+            world.setAutoSave(false);
+            this.getLogger().info("World [" + this.getServer().getWorlds().indexOf(world) + "] " + world.getUID() + " (" + world.getName() + ") is already loaded and was added to managed worlds");
+            return world;
+        }
+
+        world = this.getServer().createWorld(new WorldCreator(name));
+
+        if (world != null) {
+            this.managedWorlds.add(world);
+            world.setAutoSave(false);
+            this.getLogger().info("Loaded world [" + this.getServer().getWorlds().indexOf(world) + "] " + world.getUID() + " (" + world.getName() + ")");
+        } else {
+            this.getLogger().warning("Error while loading world " + name);
+        }
+
+        return world;
+
+    }
+
+    public boolean unloadWorld(World world) {
+
+        if (world == null || this.getServer().getWorlds().get(0) == world || !this.managedWorlds.contains(world) || !this.getServer().getWorlds().contains(world)) {
+            return false;
+        }
+
+        UUID uid = world.getUID();
+        int index = this.getServer().getWorlds().indexOf(world);
+        String name = world.getName();
+
+        for (Player player : world.getPlayers()) {
+            player.teleport(new Location(this.getServer().getWorlds().get(0), 0, 0, 0));
+        }
+
+        boolean success = this.getServer().unloadWorld(world, false);
+
+        if (success) {
+            this.managedWorlds.remove(world);
+            this.getLogger().info("Unloaded world [" + index + "] " + uid + " (" + name + ")");
+        } else {
+            this.getLogger().warning("Error white unloading world [" + index + "] " + uid + " (" + name + ")");
+        }
+
+        return success;
+
     }
 
     public ConfigManager getConfigManager() {

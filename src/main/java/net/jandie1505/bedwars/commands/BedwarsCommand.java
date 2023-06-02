@@ -507,7 +507,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        ((Player) sender).teleport(new Location(((Game) this.plugin.getGame()).getMapData().getWorld(), 0, 0, 0, 0, 0));
+        ((Player) sender).teleport(new Location(((Game) this.plugin.getGame()).getWorld(), 0, 0, 0, 0, 0));
         sender.sendMessage("§aTeleporting to map...");
 
     }

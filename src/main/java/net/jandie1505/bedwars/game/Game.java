@@ -6,9 +6,9 @@ import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.map.MapData;
 import net.jandie1505.bedwars.game.map.TeamData;
 import net.jandie1505.bedwars.game.player.PlayerData;
-import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
@@ -20,14 +20,16 @@ import java.util.*;
 
 public class Game implements GamePart {
     private final Bedwars plugin;
+    private final World world;
     private final MapData mapData;
     private final Map<UUID, PlayerData> players;
     private int maxTime;
     private int timeStep;
     private int time;
 
-    public Game(Bedwars plugin, MapData mapData, int maxTime) {
+    public Game(Bedwars plugin, World world, MapData mapData, int maxTime) {
         this.plugin = plugin;
+        this.world = world;
         this.mapData = mapData;
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.maxTime = maxTime;
@@ -39,7 +41,7 @@ public class Game implements GamePart {
 
         // STOP IF WORLD NOT LOADED
 
-        if (this.mapData.getWorld() == null || !this.plugin.getServer().getWorlds().contains(this.mapData.getWorld())) {
+        if (this.world == null || !this.plugin.getServer().getWorlds().contains(this.world)) {
             this.plugin.getLogger().warning("Bedwars game end because world is not loaded");
             return GameStatus.ABORT;
         }
@@ -196,7 +198,7 @@ public class Game implements GamePart {
 
         for (Location location : List.copyOf(teamData.getBedLocations())) {
 
-            Block block = this.mapData.getWorld().getBlockAt(location);
+            Block block = this.world.getBlockAt(location);
 
             if (block instanceof Bed) {
                 return true;
@@ -209,5 +211,9 @@ public class Game implements GamePart {
 
     public Map<UUID, PlayerData> getPlayers() {
         return Map.copyOf(this.players);
+    }
+
+    public World getWorld() {
+        return this.world;
     }
 }

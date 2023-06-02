@@ -89,9 +89,15 @@ public class Lobby implements GamePart {
 
     @Override
     public GamePart getNextStatus() {
-        World world = this.plugin.getServer().createWorld(new WorldCreator("map"));
+        World world = this.plugin.loadWorld("map");
+
+        if (world == null) {
+            return null;
+        }
+
         Game game = new Game(
                 this.plugin,
+                world,
                 new MapData(
                         world,
                         List.of(
