@@ -174,9 +174,9 @@ public class Game implements GamePart {
                     sidebardisplay.getScore(paragraphs).setScore(reverseIsidebar);
                 } else {
                     sidebardisplay.getScore(sidebarEntry).setScore(reverseIsidebar);
-                    reverseIsidebar--;
                 }
 
+                reverseIsidebar--;
             }
 
             if (sidebardisplay.getDisplaySlot() != DisplaySlot.SIDEBAR) {
