@@ -1,18 +1,15 @@
 package net.jandie1505.bedwars.game.generators;
 
 import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.game.map.BedwarsTeam;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public class TeamGenerator extends Generator {
-    private final BedwarsTeam team;
+public class PublicGenerator extends Generator {
 
-    public TeamGenerator(Game game, ItemStack item, Location location, BedwarsTeam team, List<Double> upgradeSteps) {
+    public PublicGenerator(Game game, ItemStack item, Location location, List<Double> upgradeSteps) {
         super(game, item, location, 128, upgradeSteps);
-        this.team = team;
     }
 
     @Override
@@ -22,6 +19,6 @@ public class TeamGenerator extends Generator {
 
     @Override
     public int getLevel() {
-        return this.team.getForgeUpgrade();
+        return 0;
     }
 }

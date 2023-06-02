@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.generators.Generator;
+import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.map.BedwarsTeam;
 import net.jandie1505.bedwars.game.map.MapConfig;
@@ -31,7 +32,7 @@ public class Game implements GamePart {
     private int timeStep;
     private int time;
 
-    public Game(Bedwars plugin, World world, MapConfig mapConfig, List<LobbyTeamData> teams, int maxTime) {
+    public Game(Bedwars plugin, World world, MapConfig mapConfig, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, int maxTime) {
         this.plugin = plugin;
         this.world = world;
         this.mapConfig = mapConfig;
@@ -52,11 +53,18 @@ public class Game implements GamePart {
                         generatorData.getItem(),
                         generatorData.getLocation(),
                         team,
-                        generatorData.getStartLevel(),
-                        generatorData.getBaseSpeed(),
-                        generatorData.getSpeedDivisor()
+                        generatorData.getUpgradeSteps()
                 ));
             }
+        }
+
+        for (LobbyGeneratorData generatorData : generators) {
+            this.generators.add(new PublicGenerator(
+                    this,
+                    generatorData.getItem(),
+                    generatorData.getLocation(),
+                    generatorData.getUpgradeSteps()
+            ));
         }
     }
 

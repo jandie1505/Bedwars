@@ -117,16 +117,16 @@ public class Lobby implements GamePart {
                                         new LobbyGeneratorData(
                                                 new Location(world, 63.5, 1, 7.5),
                                                 new ItemStack(Material.IRON_INGOT),
-                                                0,
-                                                1.0,
-                                                1.0
+                                                List.of(
+                                                        0.5
+                                                )
                                         ),
                                         new LobbyGeneratorData(
                                                 new Location(world, 63.5, 1, -7.5),
                                                 new ItemStack(Material.GOLD_INGOT),
-                                                0,
-                                                4,
-                                                4
+                                                List.of(
+                                                        8.0
+                                                )
                                         )
                                 )
                         ),
@@ -143,17 +143,47 @@ public class Lobby implements GamePart {
                                         new LobbyGeneratorData(
                                                 new Location(world, -70.5, 1, -6.5),
                                                 new ItemStack(Material.IRON_INGOT),
-                                                0,
-                                                1.0,
-                                                1.0
+                                                List.of(
+                                                        0.5
+                                                )
                                         ),
                                         new LobbyGeneratorData(
                                                 new Location(world, -70.5, 1, 8.5),
                                                 new ItemStack(Material.GOLD_INGOT),
-                                                0,
-                                                4,
-                                                4
+                                                List.of(
+                                                        8.0
+                                                )
                                         )
+                                )
+                        )
+                ),
+                List.of(
+                        new LobbyGeneratorData(
+                                new Location(world, -8, 1, 8),
+                                new ItemStack(Material.EMERALD),
+                                List.of(
+                                        40.0
+                                )
+                        ),
+                        new LobbyGeneratorData(
+                                new Location(world, -8, 1, -8),
+                                new ItemStack(Material.DIAMOND),
+                                List.of(
+                                        40.0
+                                )
+                        ),
+                        new LobbyGeneratorData(
+                                new Location(world, 8, 1, -8),
+                                new ItemStack(Material.EMERALD),
+                                List.of(
+                                        40.0
+                                )
+                        ),
+                        new LobbyGeneratorData(
+                                new Location(world, 8, 1, 8),
+                                new ItemStack(Material.DIAMOND),
+                                List.of(
+                                        40.0
                                 )
                         )
                 ),

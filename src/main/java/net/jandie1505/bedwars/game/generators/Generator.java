@@ -6,6 +6,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Generator {
@@ -13,19 +14,15 @@ public abstract class Generator {
     private final ItemStack item;
     private final Location location;
     private final int maxNearbyItems;
-    private final int startLevel;
-    private final double baseSpeed;
-    private final double perUpgradeDivisor;
+    private final List<Double> upgradeSteps;
     private int generatorTimer;
 
-    public Generator(Game game, ItemStack item, Location location, int maxNearbyItems, int startLevel, double baseSpeed, double perUpgradeDivisor) {
+    public Generator(Game game, ItemStack item, Location location, int maxNearbyItems, List<Double> upgradeSteps) {
         this.game = game;
         this.item = item;
         this.location = location;
         this.maxNearbyItems = maxNearbyItems;
-        this.startLevel = startLevel;
-        this.baseSpeed = baseSpeed;
-        this.perUpgradeDivisor = perUpgradeDivisor;
+        this.upgradeSteps = new ArrayList<>(upgradeSteps);
         this.generatorTimer = 0;
     }
 
@@ -34,19 +31,17 @@ public abstract class Generator {
     public abstract int getLevel();
 
     public double getSpeed() {
-        double speed = this.baseSpeed;
+        int level = this.getLevel();
 
-        if (this.perUpgradeDivisor == 0) {
-            return speed;
+        if (this.upgradeSteps.size() == 0) {
+            return 0;
         }
 
-        for (int i = 0; i < this.getLevel(); i++) {
-
-            speed = speed - (speed / this.perUpgradeDivisor);
-
+        if (level >= this.upgradeSteps.size()) {
+            level = (this.upgradeSteps.size() - 1);
         }
 
-        return speed;
+        return this.upgradeSteps.get(level);
     }
 
     public Game getGame() {
@@ -55,7 +50,7 @@ public abstract class Generator {
 
     public void tick() {
 
-        if (!this.isEnabled() || this.getLevel() < this.startLevel) {
+        if (!this.isEnabled()) {
             return;
         }
 

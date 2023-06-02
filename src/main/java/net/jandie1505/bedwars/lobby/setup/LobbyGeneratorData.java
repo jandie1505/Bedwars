@@ -3,19 +3,17 @@ package net.jandie1505.bedwars.lobby.setup;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
+
 public class LobbyGeneratorData {
     private final Location location;
     private final ItemStack item;
-    private final int startLevel;
-    private final double baseSpeed;
-    private final double speedDivisor;
+    private final List<Double> upgradeSteps;
 
-    public LobbyGeneratorData(Location location, ItemStack item, int startLevel, double baseSpeed, double speedDivisor) {
+    public LobbyGeneratorData(Location location, ItemStack item, List<Double> upgradeSteps) {
         this.location = location;
         this.item = item;
-        this.startLevel = startLevel;
-        this.baseSpeed = baseSpeed;
-        this.speedDivisor = speedDivisor;
+        this.upgradeSteps = upgradeSteps;
     }
 
     public Location getLocation() {
@@ -26,15 +24,7 @@ public class LobbyGeneratorData {
         return item;
     }
 
-    public int getStartLevel() {
-        return startLevel;
-    }
-
-    public double getBaseSpeed() {
-        return baseSpeed;
-    }
-
-    public double getSpeedDivisor() {
-        return speedDivisor;
+    public List<Double> getUpgradeSteps() {
+        return List.copyOf(this.upgradeSteps);
     }
 }
