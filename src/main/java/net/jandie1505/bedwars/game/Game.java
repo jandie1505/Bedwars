@@ -14,6 +14,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Criteria;
+import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 
@@ -166,6 +167,10 @@ public class Game implements GamePart {
             for (String sidebarEntry : sidebarDisplayStrings) {
                 sidebardisplay.getScore(sidebarEntry).setScore(reverseIsidebar);
                 reverseIsidebar--;
+            }
+
+            if (sidebardisplay.getDisplaySlot() != DisplaySlot.SIDEBAR) {
+                sidebardisplay.setDisplaySlot(DisplaySlot.SIDEBAR);
             }
 
             if (player.getScoreboard() != scoreboard) {
