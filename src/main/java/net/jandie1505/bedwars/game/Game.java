@@ -6,11 +6,15 @@ import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.map.MapData;
 import net.jandie1505.bedwars.game.map.TeamData;
 import net.jandie1505.bedwars.game.player.PlayerData;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Criteria;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
 
@@ -96,6 +100,29 @@ public class Game implements GamePart {
 
                     }
                 }
+
+            }
+
+            // Scoreboard
+
+            Scoreboard scoreboard = playerData.getScoreboard();
+
+            for (String name : List.copyOf(scoreboard.getEntries())) {
+                scoreboard.resetScores(name);
+            }
+
+            if (scoreboard.getObjective("sidebardisplay") == null) {
+                scoreboard.registerNewObjective("sidebardisplay", Criteria.DUMMY, "§6§lBEDWARS");
+            }
+
+            Objective sidebardisplay = scoreboard.getObjective("sidebardisplay");
+            List<String> sidebarDisplayStrings = new ArrayList<>();
+
+            sidebarDisplayStrings.add("");
+
+            for (TeamData team : this.mapData.getTeams()) {
+
+                sidebarDisplayStrings.add(team.getColor() + team.getName() + ": ");
 
             }
         }
