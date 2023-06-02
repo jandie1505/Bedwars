@@ -165,8 +165,18 @@ public class Game implements GamePart {
 
             int reverseIsidebar = sidebarDisplayStrings.size();
             for (String sidebarEntry : sidebarDisplayStrings) {
-                sidebardisplay.getScore(sidebarEntry).setScore(reverseIsidebar);
-                reverseIsidebar--;
+
+                if (sidebarEntry.equalsIgnoreCase("")) {
+                    String paragraphs = "§";
+                    for (int i = 0; i < reverseIsidebar; i++) {
+                        paragraphs = paragraphs + "§";
+                    }
+                    sidebardisplay.getScore(paragraphs).setScore(reverseIsidebar);
+                } else {
+                    sidebardisplay.getScore(sidebarEntry).setScore(reverseIsidebar);
+                    reverseIsidebar--;
+                }
+
             }
 
             if (sidebardisplay.getDisplaySlot() != DisplaySlot.SIDEBAR) {
