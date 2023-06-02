@@ -151,7 +151,7 @@ public class Game implements GamePart {
                      teamStatusIndicator = teamStatusIndicator + " §7(you)";
                  }
 
-                sidebarDisplayStrings.add(team.getColor() + team.getName() + ": §r" + teamStatusIndicator);
+                sidebarDisplayStrings.add(iTeam.getColor() + iTeam.getName() + ": §r" + teamStatusIndicator);
 
             }
 
