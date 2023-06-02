@@ -137,9 +137,9 @@ public class Game implements GamePart {
 
                 if (iTeam.isAlive()) {
                     if (iTeam.hasBed() > 1) {
-                        teamStatusIndicator = "§a" + iTeam.hasBed() + "\u2705";
+                        teamStatusIndicator = "§a" + iTeam.hasBed() + "\u2713";
                     } else if (iTeam.hasBed() == 1) {
-                        teamStatusIndicator = "§a\u2705";
+                        teamStatusIndicator = "§a\u2713";
                     } else {
                         teamStatusIndicator = "§6" + iTeam.getPlayers().size();
                     }
