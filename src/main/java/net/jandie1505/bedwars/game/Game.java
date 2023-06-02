@@ -3,15 +3,15 @@ package net.jandie1505.bedwars.game;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
+import net.jandie1505.bedwars.game.generators.Generator;
+import net.jandie1505.bedwars.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.map.BedwarsTeam;
-import net.jandie1505.bedwars.lobby.map.LobbyMapData;
-import net.jandie1505.bedwars.lobby.map.LobbyTeamData;
+import net.jandie1505.bedwars.game.map.MapConfig;
 import net.jandie1505.bedwars.game.player.PlayerData;
+import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
+import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -23,26 +23,40 @@ import java.util.*;
 public class Game implements GamePart {
     private final Bedwars plugin;
     private final World world;
-    private final LobbyMapData lobbyMapData;
+    private final MapConfig mapConfig;
     private final List<BedwarsTeam> teams;
     private final Map<UUID, PlayerData> players;
+    private final List<Generator> generators;
     private int maxTime;
     private int timeStep;
     private int time;
 
-    public Game(Bedwars plugin, World world, LobbyMapData lobbyMapData, List<LobbyTeamData> teams, int maxTime) {
+    public Game(Bedwars plugin, World world, MapConfig mapConfig, List<LobbyTeamData> teams, int maxTime) {
         this.plugin = plugin;
         this.world = world;
-        this.lobbyMapData = lobbyMapData;
+        this.mapConfig = mapConfig;
         this.teams = Collections.synchronizedList(new ArrayList<>());
-
-        for (LobbyTeamData teamData : List.copyOf(teams)) {
-            this.teams.add(new BedwarsTeam(this, teamData));
-        }
-
         this.players = Collections.synchronizedMap(new HashMap<>());
+        this.generators = Collections.synchronizedList(new ArrayList<>());
         this.maxTime = maxTime;
         this.time = this.maxTime;
+
+        for (LobbyTeamData teamData : List.copyOf(teams)) {
+            BedwarsTeam team = new BedwarsTeam(this, teamData);
+
+            this.teams.add(team);
+
+            for (LobbyGeneratorData generatorData : teamData.getGenerators()) {
+                this.generators.add(new TeamGenerator(
+                        this,
+                        generatorData.getItem(),
+                        generatorData.getLocation(),
+                        team,
+                        generatorData.getBaseSpeed(),
+                        generatorData.getSpeedMultiplier()
+                ));
+            }
+        }
     }
 
     @Override
@@ -83,8 +97,8 @@ public class Game implements GamePart {
 
             if (playerData.isAlive()) {
 
-                if (playerData.getRespawnCountdown() != this.lobbyMapData.getRespawnCountdown()) {
-                    playerData.setRespawnCountdown(this.lobbyMapData.getRespawnCountdown());
+                if (playerData.getRespawnCountdown() != this.mapConfig.getRespawnCountdown()) {
+                    playerData.setRespawnCountdown(this.mapConfig.getRespawnCountdown());
                 }
 
                 if (!this.plugin.isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
@@ -189,6 +203,12 @@ public class Game implements GamePart {
 
         }
 
+        // GENERATORS
+
+        for (Generator generator : this.getGenerators()) {
+            generator.tick();
+        }
+
         // TIME
 
         if (this.timeStep >= 1) {
@@ -244,8 +264,8 @@ public class Game implements GamePart {
         return this.plugin;
     }
 
-    public LobbyMapData getMapData() {
-        return this.lobbyMapData;
+    public MapConfig getMapData() {
+        return this.mapConfig;
     }
 
     public Map<UUID, PlayerData> getPlayers() {
@@ -258,5 +278,9 @@ public class Game implements GamePart {
 
     public List<BedwarsTeam> getTeams() {
         return List.copyOf(this.teams);
+    }
+
+    public List<Generator> getGenerators() {
+        return List.copyOf(this.generators);
     }
 }

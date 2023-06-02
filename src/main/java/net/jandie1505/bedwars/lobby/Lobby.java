@@ -4,12 +4,14 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.lobby.map.LobbyMapData;
-import net.jandie1505.bedwars.lobby.map.LobbyTeamData;
+import net.jandie1505.bedwars.game.map.MapConfig;
+import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
+import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,7 +100,9 @@ public class Lobby implements GamePart {
         Game game = new Game(
                 this.plugin,
                 world,
-                new LobbyMapData(5),
+                new MapConfig(
+                        5
+                ),
                 List.of(
                         new LobbyTeamData(
                                 "Green",
@@ -108,6 +112,20 @@ public class Lobby implements GamePart {
                                 ),
                                 List.of(
                                         new Location(world, 44, 1, 0)
+                                ),
+                                List.of(
+                                        new LobbyGeneratorData(
+                                                new Location(world, 63.5, 1, 7.5),
+                                                new ItemStack(Material.IRON_INGOT),
+                                                1.0,
+                                                1.0
+                                        ),
+                                        new LobbyGeneratorData(
+                                                new Location(world, 63.5, 1, -7.5),
+                                                new ItemStack(Material.GOLD_INGOT),
+                                                4,
+                                                4
+                                        )
                                 )
                         ),
                         new LobbyTeamData(
@@ -118,6 +136,20 @@ public class Lobby implements GamePart {
                                 ),
                                 List.of(
                                         new Location(world, -52, 1, 0, 0, 0)
+                                ),
+                                List.of(
+                                        new LobbyGeneratorData(
+                                                new Location(world, -70.5, 1, -6.5),
+                                                new ItemStack(Material.IRON_INGOT),
+                                                1.0,
+                                                1.0
+                                        ),
+                                        new LobbyGeneratorData(
+                                                new Location(world, -70.5, 1, 8.5),
+                                                new ItemStack(Material.GOLD_INGOT),
+                                                4,
+                                                4
+                                        )
                                 )
                         )
                 ),

@@ -2,10 +2,9 @@ package net.jandie1505.bedwars.game.map;
 
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
-import net.jandie1505.bedwars.lobby.map.LobbyTeamData;
+import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.data.type.Bed;
 
 import java.util.*;
@@ -16,6 +15,12 @@ public class BedwarsTeam {
     private final ChatColor color;
     private final List<Location> spawnpoints;
     private final List<Location> bedLocations;
+    private int attackDamageUpgrade;
+    private int protectionUpgrade;
+    private int hasteUpgrade;
+    private int forgeUpgrade;
+    private int healPoolUpgrade;
+    private int dragonBuffUpgrade;
 
     public BedwarsTeam(Game game, LobbyTeamData teamData) {
         this.game = game;
@@ -23,6 +28,12 @@ public class BedwarsTeam {
         this.color = teamData.getColor();
         this.spawnpoints = Collections.synchronizedList(new ArrayList<>(teamData.getSpawnpoints()));
         this.bedLocations = Collections.synchronizedList(new ArrayList<>(teamData.getBedLocations()));
+        this.attackDamageUpgrade = 0;
+        this.protectionUpgrade = 0;
+        this.hasteUpgrade = 0;
+        this.forgeUpgrade = 0;
+        this.healPoolUpgrade = 0;
+        this.dragonBuffUpgrade = 0;
     }
 
     public String getName() {
@@ -87,4 +98,55 @@ public class BedwarsTeam {
         return this.getPlayers().size() > 0;
     }
 
+    public Game getGame() {
+        return game;
+    }
+
+    public int getAttackDamageUpgrade() {
+        return attackDamageUpgrade;
+    }
+
+    public void setAttackDamageUpgrade(int attackDamageUpgrade) {
+        this.attackDamageUpgrade = attackDamageUpgrade;
+    }
+
+    public int getProtectionUpgrade() {
+        return protectionUpgrade;
+    }
+
+    public void setProtectionUpgrade(int protectionUpgrade) {
+        this.protectionUpgrade = protectionUpgrade;
+    }
+
+    public int getHasteUpgrade() {
+        return hasteUpgrade;
+    }
+
+    public void setHasteUpgrade(int hasteUpgrade) {
+        this.hasteUpgrade = hasteUpgrade;
+    }
+
+    public int getForgeUpgrade() {
+        return forgeUpgrade;
+    }
+
+    public void setForgeUpgrade(int forgeUpgrade) {
+        this.forgeUpgrade = forgeUpgrade;
+    }
+
+    public int getHealPoolUpgrade() {
+        return healPoolUpgrade;
+    }
+
+    public void setHealPoolUpgrade(int healPoolUpgrade) {
+        this.healPoolUpgrade = healPoolUpgrade;
+    }
+
+    public int getDragonBuffUpgrade() {
+        return dragonBuffUpgrade;
+    }
+
+    public void setDragonBuffUpgrade(int dragonBuffUpgrade) {
+        this.dragonBuffUpgrade = dragonBuffUpgrade;
+    }
 }
