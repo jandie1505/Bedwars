@@ -130,14 +130,43 @@ public class Game implements GamePart {
 
             sidebarDisplayStrings.add("");
 
-            /*
-            for (TeamData team : this.getTeams()) {
+            for (BedwarsTeam iTeam : this.getTeams()) {
 
-                sidebarDisplayStrings.add(team.getColor() + team.getName() + ": ");
+                String teamStatusIndicator = "";
+
+                if (iTeam.isAlive()) {
+                    if (iTeam.hasBed() > 1) {
+                        teamStatusIndicator = "§a" + iTeam.hasBed() + "\u2705";
+                    } else if (iTeam.hasBed() == 1) {
+                        teamStatusIndicator = "§a\u2705";
+                    } else {
+                        teamStatusIndicator = "§6" + iTeam.getPlayers().size();
+                    }
+                } else {
+                    teamStatusIndicator = "§c\u274C";
+                }
+
+                 if (iTeam == team) {
+                     teamStatusIndicator = teamStatusIndicator + " §7(you)";
+                 }
+
+                sidebarDisplayStrings.add(team.getColor() + team.getName() + ": §r" + teamStatusIndicator);
 
             }
 
-             */
+            sidebarDisplayStrings.add("");
+
+            sidebarDisplayStrings.add("Kills: §a" + playerData.getKills());
+            sidebarDisplayStrings.add("Beds broken: §a" + playerData.getBedsBroken());
+            sidebarDisplayStrings.add("Deaths: §a" + playerData.getDeaths());
+
+            sidebarDisplayStrings.add("");
+
+            int reverseIsidebar = sidebarDisplayStrings.size();
+            for (String sidebarEntry : sidebarDisplayStrings) {
+                sidebardisplay.getScore(sidebarEntry).setScore(reverseIsidebar);
+                reverseIsidebar--;
+            }
 
             if (player.getScoreboard() != scoreboard) {
                 player.setScoreboard(scoreboard);
@@ -202,27 +231,6 @@ public class Game implements GamePart {
 
     public LobbyMapData getMapData() {
         return this.lobbyMapData;
-    }
-
-    public boolean hasBed(int teamId) {
-
-        BedwarsTeam team = this.teams.get(0);
-
-        if (team == null) {
-            return false;
-        }
-
-        for (Location location : List.copyOf(team.getBedLocations())) {
-
-            Block block = this.world.getBlockAt(location);
-
-            if (block instanceof Bed) {
-                return true;
-            }
-
-        }
-
-        return false;
     }
 
     public Map<UUID, PlayerData> getPlayers() {
