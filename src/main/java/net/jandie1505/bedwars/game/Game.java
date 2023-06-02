@@ -137,9 +137,9 @@ public class Game implements GamePart {
 
                 if (iTeam.isAlive()) {
                     if (iTeam.hasBed() > 1) {
-                        teamStatusIndicator = "§a" + iTeam.hasBed() + "\u2713";
+                        teamStatusIndicator = "§a" + iTeam.hasBed() + "§l\u2713";
                     } else if (iTeam.hasBed() == 1) {
-                        teamStatusIndicator = "§a\u2713";
+                        teamStatusIndicator = "§a§l\u2713";
                     } else {
                         teamStatusIndicator = "§6" + iTeam.getPlayers().size();
                     }
@@ -151,7 +151,7 @@ public class Game implements GamePart {
                      teamStatusIndicator = teamStatusIndicator + " §7(you)";
                  }
 
-                sidebarDisplayStrings.add(iTeam.getColor() + iTeam.getName() + ": §r" + teamStatusIndicator);
+                sidebarDisplayStrings.add(iTeam.getColor() + iTeam.getName() + "§r: " + teamStatusIndicator);
 
             }
 
