@@ -22,15 +22,18 @@ public class Game implements GamePart {
     private final Bedwars plugin;
     private final World world;
     private final MapData mapData;
+    private final List<TeamData> teams;
     private final Map<UUID, PlayerData> players;
     private int maxTime;
     private int timeStep;
     private int time;
 
-    public Game(Bedwars plugin, World world, MapData mapData, int maxTime) {
+    public Game(Bedwars plugin, World world, MapData mapData, List<TeamData> teams, int maxTime) {
         this.plugin = plugin;
         this.world = world;
         this.mapData = mapData;
+        this.teams = Collections.synchronizedList(new ArrayList<>());
+        this.teams.addAll(teams);
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.maxTime = maxTime;
         this.time = this.maxTime;
@@ -60,7 +63,7 @@ public class Game implements GamePart {
 
             TeamData teamData = null;
             try {
-                teamData = this.mapData.getTeams().get(playerData.getTeam());
+                teamData = this.teams.get(playerData.getTeam());
             } catch (IndexOutOfBoundsException ignored) {
                 // Player is getting removed when exception is thrown because teamData will then be null
             }
@@ -122,7 +125,7 @@ public class Game implements GamePart {
 
             sidebarDisplayStrings.add("");
 
-            for (TeamData team : this.mapData.getTeams()) {
+            for (TeamData team : this.getTeams()) {
 
                 sidebarDisplayStrings.add(team.getColor() + team.getName() + ": ");
 
@@ -164,7 +167,7 @@ public class Game implements GamePart {
         PlayerData playerData = this.players.get(player.getUniqueId());
 
         playerData.setAlive(true);
-        player.teleport(this.mapData.getTeams().get(playerData.getTeam()).getRandomSpawnpoint());
+        player.teleport(this.teams.get(playerData.getTeam()).getRandomSpawnpoint());
         player.resetTitle();
 
         player.sendMessage("§bRespawning...");
@@ -190,7 +193,7 @@ public class Game implements GamePart {
 
     public boolean hasBed(int teamId) {
 
-        TeamData teamData = this.mapData.getTeams().get(0);
+        TeamData teamData = this.teams.get(0);
 
         if (teamData == null) {
             return false;
@@ -215,5 +218,9 @@ public class Game implements GamePart {
 
     public World getWorld() {
         return this.world;
+    }
+
+    public List<TeamData> getTeams() {
+        return List.copyOf(this.teams);
     }
 }

@@ -5,16 +5,10 @@ import org.bukkit.World;
 import java.util.List;
 
 public class MapData {
-    private final List<TeamData> teams;
     private final int respawnCountdown;
 
-    public MapData(World world, List<TeamData> teams, int respawnCountdown) {
-        this.teams = List.copyOf(teams);
+    public MapData(int respawnCountdown) {
         this.respawnCountdown = respawnCountdown;
-    }
-
-    public List<TeamData> getTeams() {
-        return teams;
     }
 
     public int getRespawnCountdown() {

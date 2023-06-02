@@ -98,31 +98,28 @@ public class Lobby implements GamePart {
         Game game = new Game(
                 this.plugin,
                 world,
-                new MapData(
-                        world,
-                        List.of(
-                                new TeamData(
-                                        "Green",
-                                        ChatColor.GREEN,
-                                        List.of(
-                                                new Location(world, 55, 1, 0, 0, 0)
-                                        ),
-                                        List.of(
-                                                new Location(world, 44, 1, 0)
-                                        )
+                new MapData(5),
+                List.of(
+                        new TeamData(
+                                "Green",
+                                ChatColor.GREEN,
+                                List.of(
+                                        new Location(world, 55, 1, 0, 0, 0)
                                 ),
-                                new TeamData(
-                                        "Red",
-                                        ChatColor.RED,
-                                        List.of(
-                                                new Location(world, -63, 1, 0, 0, 0)
-                                        ),
-                                        List.of(
-                                                new Location(world, -52, 1, 0, 0, 0)
-                                        )
+                                List.of(
+                                        new Location(world, 44, 1, 0)
                                 )
                         ),
-                        5
+                        new TeamData(
+                                "Red",
+                                ChatColor.RED,
+                                List.of(
+                                        new Location(world, -63, 1, 0, 0, 0)
+                                ),
+                                List.of(
+                                        new Location(world, -52, 1, 0, 0, 0)
+                                )
+                        )
                 ),
                 3600
         );
