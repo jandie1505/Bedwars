@@ -52,8 +52,9 @@ public class Game implements GamePart {
                         generatorData.getItem(),
                         generatorData.getLocation(),
                         team,
+                        generatorData.getStartLevel(),
                         generatorData.getBaseSpeed(),
-                        generatorData.getSpeedMultiplier()
+                        generatorData.getSpeedDivisor()
                 ));
             }
         }

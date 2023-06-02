@@ -7,18 +7,19 @@ import org.bukkit.inventory.ItemStack;
 
 public class TeamGenerator extends Generator {
     private final BedwarsTeam team;
-    private final double baseSpeed;
-    private final double perUpgradeMultiplier;
 
-    public TeamGenerator(Game game, ItemStack item, Location location, BedwarsTeam team, double baseSpeed, double perUpgradeMultiplier) {
-        super(game, item, location, 128);
+    public TeamGenerator(Game game, ItemStack item, Location location, BedwarsTeam team, int startLevel, double baseSpeed, double perUpgradeDivisor) {
+        super(game, item, location, 128, startLevel, baseSpeed, perUpgradeDivisor);
         this.team = team;
-        this.baseSpeed = baseSpeed;
-        this.perUpgradeMultiplier = perUpgradeMultiplier;
     }
 
     @Override
-    public double getSpeed() {
-        return this.baseSpeed + ((this.team.getForgeUpgrade() + 1) * this.perUpgradeMultiplier);
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public int getLevel() {
+        return this.team.getForgeUpgrade();
     }
 }

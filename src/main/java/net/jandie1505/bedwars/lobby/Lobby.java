@@ -117,12 +117,14 @@ public class Lobby implements GamePart {
                                         new LobbyGeneratorData(
                                                 new Location(world, 63.5, 1, 7.5),
                                                 new ItemStack(Material.IRON_INGOT),
+                                                0,
                                                 1.0,
                                                 1.0
                                         ),
                                         new LobbyGeneratorData(
                                                 new Location(world, 63.5, 1, -7.5),
                                                 new ItemStack(Material.GOLD_INGOT),
+                                                0,
                                                 4,
                                                 4
                                         )
@@ -141,12 +143,14 @@ public class Lobby implements GamePart {
                                         new LobbyGeneratorData(
                                                 new Location(world, -70.5, 1, -6.5),
                                                 new ItemStack(Material.IRON_INGOT),
+                                                0,
                                                 1.0,
                                                 1.0
                                         ),
                                         new LobbyGeneratorData(
                                                 new Location(world, -70.5, 1, 8.5),
                                                 new ItemStack(Material.GOLD_INGOT),
+                                                0,
                                                 4,
                                                 4
                                         )

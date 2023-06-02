@@ -6,14 +6,16 @@ import org.bukkit.inventory.ItemStack;
 public class LobbyGeneratorData {
     private final Location location;
     private final ItemStack item;
+    private final int startLevel;
     private final double baseSpeed;
-    private final double speedMultiplier;
+    private final double speedDivisor;
 
-    public LobbyGeneratorData(Location location, ItemStack item, double baseSpeed, double speedMultiplier) {
+    public LobbyGeneratorData(Location location, ItemStack item, int startLevel, double baseSpeed, double speedDivisor) {
         this.location = location;
         this.item = item;
+        this.startLevel = startLevel;
         this.baseSpeed = baseSpeed;
-        this.speedMultiplier = speedMultiplier;
+        this.speedDivisor = speedDivisor;
     }
 
     public Location getLocation() {
@@ -24,11 +26,15 @@ public class LobbyGeneratorData {
         return item;
     }
 
+    public int getStartLevel() {
+        return startLevel;
+    }
+
     public double getBaseSpeed() {
         return baseSpeed;
     }
 
-    public double getSpeedMultiplier() {
-        return speedMultiplier;
+    public double getSpeedDivisor() {
+        return speedDivisor;
     }
 }

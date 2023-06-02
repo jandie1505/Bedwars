@@ -13,23 +13,52 @@ public abstract class Generator {
     private final ItemStack item;
     private final Location location;
     private final int maxNearbyItems;
+    private final int startLevel;
+    private final double baseSpeed;
+    private final double perUpgradeDivisor;
     private int generatorTimer;
 
-    public Generator(Game game, ItemStack item, Location location, int maxNearbyItems) {
+    public Generator(Game game, ItemStack item, Location location, int maxNearbyItems, int startLevel, double baseSpeed, double perUpgradeDivisor) {
         this.game = game;
         this.item = item;
         this.location = location;
         this.maxNearbyItems = maxNearbyItems;
+        this.startLevel = startLevel;
+        this.baseSpeed = baseSpeed;
+        this.perUpgradeDivisor = perUpgradeDivisor;
         this.generatorTimer = 0;
     }
 
-    public abstract double getSpeed();
+    public abstract boolean isEnabled();
+
+    public abstract int getLevel();
+
+    public double getSpeed() {
+        double speed = this.baseSpeed;
+
+        if (this.perUpgradeDivisor == 0) {
+            return speed;
+        }
+
+        for (int i = 0; i < this.getLevel(); i++) {
+
+            speed = speed - (speed / this.perUpgradeDivisor);
+
+        }
+
+        return speed;
+    }
 
     public Game getGame() {
         return this.game;
     }
 
     public void tick() {
+
+        if (!this.isEnabled() || this.getLevel() < this.startLevel) {
+            return;
+        }
+
         double speed = this.getSpeed();
 
         if (speed <= 0) {
