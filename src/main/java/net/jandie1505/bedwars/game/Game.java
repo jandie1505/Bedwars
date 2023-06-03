@@ -32,6 +32,7 @@ public class Game implements GamePart {
     private final List<TimeAction> timeActions;
     private final int respawnCountdown;
     private final List<Location> playerPlacedBlocks;
+    private final Map<UUID, Scoreboard> playerScoreboards;
     private int maxTime;
     private int timeStep;
     private int time;
@@ -47,6 +48,7 @@ public class Game implements GamePart {
         this.timeActions = Collections.synchronizedList(new ArrayList<>());
         this.respawnCountdown = respawnCountdown;
         this.playerPlacedBlocks = Collections.synchronizedList(new ArrayList<>());
+        this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.maxTime = maxTime;
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
@@ -116,6 +118,21 @@ public class Game implements GamePart {
 
         for (Player player : this.plugin.getServer().getOnlinePlayers()) {
 
+            // Scoreboard
+
+            if (!this.playerScoreboards.containsKey(player.getUniqueId())) {
+                this.playerScoreboards.put(player.getUniqueId(), this.plugin.getServer().getScoreboardManager().getNewScoreboard());
+            }
+
+            if (this.timeStep >= 1) {
+                this.scoreboardTick(
+                        player,
+                        this.getSidebar(this.players.get(player.getUniqueId()))
+                );
+            }
+
+            // Continue if player is not ingame
+
             if (!this.players.containsKey(player.getUniqueId())) {
                 continue;
             }
@@ -171,16 +188,16 @@ public class Game implements GamePart {
 
             }
 
-            // Scoreboard
+        }
 
-            if (this.timeStep >= 1) {
-                this.scoreboardTick(
-                        player,
-                        playerData,
-                        this.getSidebar(playerData, team)
-                );
+        // SCOREBOARDS CLEANUP
+
+        for (UUID playerId : this.getPlayerScoreboards().keySet()) {
+            Player player = this.plugin.getServer().getPlayer(playerId);
+
+            if (player == null) {
+                this.playerScoreboards.remove(playerId);
             }
-
         }
 
         // GENERATORS
@@ -257,11 +274,17 @@ public class Game implements GamePart {
         return GameStatus.NORMAL;
     }
 
-    private void scoreboardTick(Player player, PlayerData playerData, List<String> sidebar) {
+    private void scoreboardTick(Player player, List<String> sidebar) {
+
+        // GET SCOREBOARD
+
+        Scoreboard scoreboard = this.playerScoreboards.get(player.getUniqueId());
+
+        if (scoreboard == null) {
+            return;
+        }
 
         // RESET SCOREBOARD
-
-        Scoreboard scoreboard = playerData.getScoreboard();
 
         for (String name : List.copyOf(scoreboard.getEntries())) {
             scoreboard.resetScores(name);
@@ -364,7 +387,7 @@ public class Game implements GamePart {
         }
     }
 
-    public List<String> getSidebar(PlayerData playerData, BedwarsTeam team) {
+    public List<String> getSidebar(PlayerData playerData) {
         List<String> sidebarDisplayStrings = new ArrayList<>();
 
         sidebarDisplayStrings.add("");
@@ -409,7 +432,7 @@ public class Game implements GamePart {
                 teamStatusIndicator = "§c\u274C";
             }
 
-            if (iTeam == team) {
+            if (playerData != null && iTeam == this.getTeams().get(playerData.getTeam())) {
                 teamStatusIndicator = teamStatusIndicator + " §7(you)";
             }
 
@@ -417,11 +440,16 @@ public class Game implements GamePart {
 
         }
 
-        sidebarDisplayStrings.add("");
-
-        sidebarDisplayStrings.add("Kills: §a" + playerData.getKills());
-        sidebarDisplayStrings.add("Beds broken: §a" + playerData.getBedsBroken());
-        sidebarDisplayStrings.add("Deaths: §a" + playerData.getDeaths());
+        if (playerData != null) {
+            sidebarDisplayStrings.add("");
+            sidebarDisplayStrings.add("Kills: §a" + playerData.getKills());
+            sidebarDisplayStrings.add("Beds broken: §a" + playerData.getBedsBroken());
+            sidebarDisplayStrings.add("Deaths: §a" + playerData.getDeaths());
+        } else {
+            sidebarDisplayStrings.add("");
+            sidebarDisplayStrings.add("You are");
+            sidebarDisplayStrings.add("spectator");
+        }
 
         sidebarDisplayStrings.add("");
 
@@ -524,5 +552,9 @@ public class Game implements GamePart {
 
     public List<Location> getPlayerPlacedBlocks() {
         return this.playerPlacedBlocks;
+    }
+
+    public Map<UUID, Scoreboard> getPlayerScoreboards() {
+        return Map.copyOf(this.playerScoreboards);
     }
 }

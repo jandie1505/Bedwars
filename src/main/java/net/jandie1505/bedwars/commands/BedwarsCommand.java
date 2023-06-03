@@ -183,7 +183,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         }
 
                         ((Game) this.plugin.getGame()).removePlayer(playerId);
-                        sender.sendMessage("§aPlayer added");
+                        sender.sendMessage("§aPlayer removed");
 
                         break;
                     }
