@@ -15,8 +15,9 @@ import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.scoreboard.*;
 
 import java.util.*;
@@ -84,6 +85,18 @@ public class Game implements GamePart {
         }
 
         Collections.sort(this.timeActions);
+
+        for (BedwarsTeam team : this.getTeams()) {
+
+            for (Location location : team.getShopVillagerLocations()) {
+                this.spawnItemShopVillager(team, location);
+            }
+
+            for (Location location : team.getUpgradesVillagerLocations()) {
+                this.spawnUpgradesVillager(team, location);
+            }
+
+        }
     }
 
     @Override
@@ -179,6 +192,39 @@ public class Game implements GamePart {
                     timeAction.execute();
                 }
 
+            }
+
+        }
+
+        // TEAM VILLAGER MANAGEMENT
+
+        for (BedwarsTeam team : this.getTeams()) {
+
+            boolean shopVillagerExists = false;
+            boolean upgradesVillagerExists = false;
+
+            for (Villager villager : List.copyOf(this.world.getEntitiesByClass(Villager.class))) {
+
+                if (villager.getScoreboardTags().contains("shop.team." + team.getId())) {
+                    shopVillagerExists = true;
+                }
+
+                if (villager.getScoreboardTags().contains("upgrades.team." + team.getId())) {
+                    upgradesVillagerExists = true;
+                }
+
+                if (shopVillagerExists && upgradesVillagerExists) {
+                    break;
+                }
+
+            }
+
+            if (!shopVillagerExists && !team.getShopVillagerLocations().isEmpty()) {
+                this.spawnItemShopVillager(team, team.getShopVillagerLocations().get(0));
+            }
+
+            if (!upgradesVillagerExists && !team.getUpgradesVillagerLocations().isEmpty()) {
+                this.spawnUpgradesVillager(team, team.getUpgradesVillagerLocations().get(0));
             }
 
         }
@@ -322,6 +368,22 @@ public class Game implements GamePart {
         player.sendMessage("§bRespawning...");
 
         return true;
+    }
+
+    public void spawnItemShopVillager(BedwarsTeam team, Location location) {
+        Villager villager = (Villager) this.world.spawnEntity(location, EntityType.VILLAGER);
+        villager.setAI(false);
+        villager.setCustomName("§6§lITEM SHOP");
+        villager.setInvulnerable(true);
+        villager.addScoreboardTag("shop.team." + team.getId());
+    }
+
+    public void spawnUpgradesVillager(BedwarsTeam team, Location location) {
+        Villager villager = (Villager) this.world.spawnEntity(location, EntityType.VILLAGER);
+        villager.setAI(false);
+        villager.setCustomName("§b§lTEAM UPGRADES");
+        villager.setInvulnerable(true);
+        villager.addScoreboardTag("upgrades.team." + team.getId());
     }
 
     public boolean addPlayer(UUID playerId, int team) {

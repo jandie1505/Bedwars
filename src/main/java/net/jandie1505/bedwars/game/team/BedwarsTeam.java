@@ -15,6 +15,8 @@ public class BedwarsTeam {
     private final ChatColor color;
     private final List<Location> spawnpoints;
     private final List<Location> bedLocations;
+    private final List<Location> shopVillagerLocations;
+    private final List<Location> upgradesVillagerLocations;
     private int attackDamageUpgrade;
     private int protectionUpgrade;
     private int hasteUpgrade;
@@ -28,6 +30,8 @@ public class BedwarsTeam {
         this.color = teamData.getColor();
         this.spawnpoints = Collections.synchronizedList(new ArrayList<>(teamData.getSpawnpoints()));
         this.bedLocations = Collections.synchronizedList(new ArrayList<>(teamData.getBedLocations()));
+        this.shopVillagerLocations = Collections.synchronizedList(new ArrayList<>(teamData.getShopVillagerLocations()));
+        this.upgradesVillagerLocations = Collections.synchronizedList(new ArrayList<>(teamData.getUpgradesVillagerLocations()));
         this.attackDamageUpgrade = 0;
         this.protectionUpgrade = 0;
         this.hasteUpgrade = 0;
@@ -59,6 +63,14 @@ public class BedwarsTeam {
 
     public List<Location> getBedLocations() {
         return List.copyOf(this.bedLocations);
+    }
+
+    public List<Location> getShopVillagerLocations() {
+        return List.copyOf(this.shopVillagerLocations);
+    }
+
+    public List<Location> getUpgradesVillagerLocations() {
+        return List.copyOf(this.upgradesVillagerLocations);
     }
 
     public int getId() {

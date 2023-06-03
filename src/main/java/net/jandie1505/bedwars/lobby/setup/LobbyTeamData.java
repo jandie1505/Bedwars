@@ -12,13 +12,17 @@ public class LobbyTeamData {
     private final List<Location> spawnpoints;
     private final List<Location> bedLocations;
     private final List<LobbyGeneratorData> generators;
+    private final List<Location> shopVillagerLocations;
+    private final List<Location> upgradesVillagerLocations;
 
-    public LobbyTeamData(String name, ChatColor color, List<Location> spawnpoints, List<Location> bedLocations, List<LobbyGeneratorData> generators) {
+    public LobbyTeamData(String name, ChatColor color, List<Location> spawnpoints, List<Location> bedLocations, List<LobbyGeneratorData> generators, List<Location> shopVillagerLocations, List<Location> upgradesVillagerLocations) {
         this.name = name;
         this.color = color;
         this.spawnpoints = List.copyOf(spawnpoints);
         this.bedLocations = List.copyOf(bedLocations);
         this.generators = List.copyOf(generators);
+        this.shopVillagerLocations = List.copyOf(shopVillagerLocations);
+        this.upgradesVillagerLocations = List.copyOf(upgradesVillagerLocations);
     }
 
     public String getName() {
@@ -39,6 +43,14 @@ public class LobbyTeamData {
 
     public List<LobbyGeneratorData> getGenerators() {
         return List.copyOf(this.generators);
+    }
+
+    public List<Location> getShopVillagerLocations() {
+        return List.copyOf(this.shopVillagerLocations);
+    }
+
+    public List<Location> getUpgradesVillagerLocations() {
+        return List.copyOf(this.upgradesVillagerLocations);
     }
 
 }

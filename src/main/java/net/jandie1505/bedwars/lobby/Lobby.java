@@ -125,6 +125,12 @@ public class Lobby implements GamePart {
                                                         8.0
                                                 )
                                         )
+                                ),
+                                List.of(
+                                        new Location(world, 55.5, 1, -9.5, 0, 0)
+                                ),
+                                List.of(
+                                        new Location(world, 55.0, 1, 9.5, -180, 0)
                                 )
                         ),
                         new LobbyTeamData(
@@ -151,6 +157,12 @@ public class Lobby implements GamePart {
                                                         8.0
                                                 )
                                         )
+                                ),
+                                List.of(
+                                        new Location(world, -63.5, 1, 9.5, -180, 0)
+                                ),
+                                List.of(
+                                        new Location(world, -63.5, 1, -9.5, 0, 0)
                                 )
                         )
                 ),
