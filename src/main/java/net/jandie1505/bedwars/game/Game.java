@@ -17,10 +17,7 @@ import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import org.bukkit.GameMode;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.scoreboard.Criteria;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.*;
 
 import java.util.*;
 
@@ -160,99 +157,8 @@ public class Game implements GamePart {
 
             // Scoreboard
 
-            Scoreboard scoreboard = playerData.getScoreboard();
-
-            for (String name : List.copyOf(scoreboard.getEntries())) {
-                scoreboard.resetScores(name);
-            }
-
-            if (scoreboard.getObjective("sidebardisplay") == null) {
-                scoreboard.registerNewObjective("sidebardisplay", Criteria.DUMMY, "§6§lBEDWARS");
-            }
-
-            Objective sidebardisplay = scoreboard.getObjective("sidebardisplay");
-            List<String> sidebarDisplayStrings = new ArrayList<>();
-
-            sidebarDisplayStrings.add("");
-
-            int timeActionCount = 0;
-            for (TimeAction timeAction : this.getTimeActions()) {
-
-                if (timeActionCount >= 2) {
-                    break;
-                }
-
-                if (timeAction.getScoreboardText() == null || timeAction.isCompleted()) {
-                    continue;
-                }
-
-                int inTime = this.time - timeAction.getTime();
-
-                sidebarDisplayStrings.add(timeAction.getScoreboardText() + " §rin §a" + Bedwars.getDurationFormat(inTime));
-
-                timeActionCount++;
-            }
-
-            if (timeActionCount < 2) {
-                sidebarDisplayStrings.add("Game End in §a" + Bedwars.getDurationFormat(this.time));
-            }
-
-            sidebarDisplayStrings.add("");
-
-            for (BedwarsTeam iTeam : this.getTeams()) {
-
-                String teamStatusIndicator = "";
-
-                if (iTeam.isAlive()) {
-                    if (iTeam.hasBed() > 1) {
-                        teamStatusIndicator = "§a" + iTeam.hasBed() + "§l\u2713";
-                    } else if (iTeam.hasBed() == 1) {
-                        teamStatusIndicator = "§a§l\u2713";
-                    } else {
-                        teamStatusIndicator = "§6" + iTeam.getPlayers().size();
-                    }
-                } else {
-                    teamStatusIndicator = "§c\u274C";
-                }
-
-                 if (iTeam == team) {
-                     teamStatusIndicator = teamStatusIndicator + " §7(you)";
-                 }
-
-                sidebarDisplayStrings.add(iTeam.getColor() + iTeam.getName() + "§r: " + teamStatusIndicator);
-
-            }
-
-            sidebarDisplayStrings.add("");
-
-            sidebarDisplayStrings.add("Kills: §a" + playerData.getKills());
-            sidebarDisplayStrings.add("Beds broken: §a" + playerData.getBedsBroken());
-            sidebarDisplayStrings.add("Deaths: §a" + playerData.getDeaths());
-
-            sidebarDisplayStrings.add("");
-
-            int reverseIsidebar = sidebarDisplayStrings.size();
-            for (String sidebarEntry : sidebarDisplayStrings) {
-
-                if (sidebarEntry.equalsIgnoreCase("")) {
-                    String paragraphs = "§";
-                    for (int i = 0; i < reverseIsidebar; i++) {
-                        paragraphs = paragraphs + "§";
-                    }
-                    sidebardisplay.getScore(paragraphs).setScore(reverseIsidebar);
-                } else {
-                    sidebardisplay.getScore(sidebarEntry).setScore(reverseIsidebar);
-                }
-
-                reverseIsidebar--;
-            }
-
-            if (sidebardisplay.getDisplaySlot() != DisplaySlot.SIDEBAR) {
-                sidebardisplay.setDisplaySlot(DisplaySlot.SIDEBAR);
-            }
-
-            if (player.getScoreboard() != scoreboard) {
-                player.setScoreboard(scoreboard);
+            if (this.timeStep >= 1) {
+                this.scoreboardTick(player, playerData, team);
             }
 
         }
@@ -296,6 +202,104 @@ public class Game implements GamePart {
         }
 
         return GameStatus.NORMAL;
+    }
+
+    private void scoreboardTick(Player player, PlayerData playerData, BedwarsTeam team) {
+
+        Scoreboard scoreboard = playerData.getScoreboard();
+
+        for (String name : List.copyOf(scoreboard.getEntries())) {
+            scoreboard.resetScores(name);
+        }
+
+        if (scoreboard.getObjective("sidebardisplay") == null) {
+            scoreboard.registerNewObjective("sidebardisplay", Criteria.DUMMY, "§6§lBEDWARS");
+        }
+
+        Objective sidebardisplay = scoreboard.getObjective("sidebardisplay");
+        List<String> sidebarDisplayStrings = new ArrayList<>();
+
+        sidebarDisplayStrings.add("");
+
+        int timeActionCount = 0;
+        for (TimeAction timeAction : this.getTimeActions()) {
+
+            if (timeActionCount >= 2) {
+                break;
+            }
+
+            if (timeAction.getScoreboardText() == null || timeAction.isCompleted()) {
+                continue;
+            }
+
+            int inTime = this.time - timeAction.getTime();
+
+            sidebarDisplayStrings.add(timeAction.getScoreboardText() + " §rin §a" + Bedwars.getDurationFormat(inTime));
+
+            timeActionCount++;
+        }
+
+        if (timeActionCount < 2) {
+            sidebarDisplayStrings.add("Game End in §a" + Bedwars.getDurationFormat(this.time));
+        }
+
+        sidebarDisplayStrings.add("");
+
+        for (BedwarsTeam iTeam : this.getTeams()) {
+
+            String teamStatusIndicator = "";
+
+            if (iTeam.isAlive()) {
+                if (iTeam.hasBed() > 1) {
+                    teamStatusIndicator = "§a" + iTeam.hasBed() + "§l\u2713";
+                } else if (iTeam.hasBed() == 1) {
+                    teamStatusIndicator = "§a§l\u2713";
+                } else {
+                    teamStatusIndicator = "§6" + iTeam.getPlayers().size();
+                }
+            } else {
+                teamStatusIndicator = "§c\u274C";
+            }
+
+            if (iTeam == team) {
+                teamStatusIndicator = teamStatusIndicator + " §7(you)";
+            }
+
+            sidebarDisplayStrings.add(iTeam.getColor() + iTeam.getName() + "§r: " + teamStatusIndicator);
+
+        }
+
+        sidebarDisplayStrings.add("");
+
+        sidebarDisplayStrings.add("Kills: §a" + playerData.getKills());
+        sidebarDisplayStrings.add("Beds broken: §a" + playerData.getBedsBroken());
+        sidebarDisplayStrings.add("Deaths: §a" + playerData.getDeaths());
+
+        sidebarDisplayStrings.add("");
+
+        int reverseIsidebar = sidebarDisplayStrings.size();
+        for (String sidebarEntry : sidebarDisplayStrings) {
+
+            if (sidebarEntry.equalsIgnoreCase("")) {
+                String paragraphs = "§";
+                for (int i = 0; i < reverseIsidebar; i++) {
+                    paragraphs = paragraphs + "§";
+                }
+                sidebardisplay.getScore(paragraphs).setScore(reverseIsidebar);
+            } else {
+                sidebardisplay.getScore(sidebarEntry).setScore(reverseIsidebar);
+            }
+
+            reverseIsidebar--;
+        }
+
+        if (sidebardisplay.getDisplaySlot() != DisplaySlot.SIDEBAR) {
+            sidebardisplay.setDisplaySlot(DisplaySlot.SIDEBAR);
+        }
+
+        if (player.getScoreboard() != scoreboard) {
+            player.setScoreboard(scoreboard);
+        }
     }
 
     @Override
