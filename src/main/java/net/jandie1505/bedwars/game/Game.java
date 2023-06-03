@@ -14,6 +14,7 @@ import net.jandie1505.bedwars.game.timeactions.TimeAction;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -173,7 +174,11 @@ public class Game implements GamePart {
             // Scoreboard
 
             if (this.timeStep >= 1) {
-                this.scoreboardTick(player, playerData, team);
+                this.scoreboardTick(
+                        player,
+                        playerData,
+                        this.getSidebar(playerData, team)
+                );
             }
 
         }
@@ -252,7 +257,9 @@ public class Game implements GamePart {
         return GameStatus.NORMAL;
     }
 
-    private void scoreboardTick(Player player, PlayerData playerData, BedwarsTeam team) {
+    private void scoreboardTick(Player player, PlayerData playerData, List<String> sidebar) {
+
+        // RESET SCOREBOARD
 
         Scoreboard scoreboard = playerData.getScoreboard();
 
@@ -260,11 +267,104 @@ public class Game implements GamePart {
             scoreboard.resetScores(name);
         }
 
+        // SIDEBAR
+
         if (scoreboard.getObjective("sidebardisplay") == null) {
             scoreboard.registerNewObjective("sidebardisplay", Criteria.DUMMY, "§6§lBEDWARS");
         }
 
         Objective sidebardisplay = scoreboard.getObjective("sidebardisplay");
+
+        List<String> sidebarDisplayStrings = List.copyOf(sidebar);
+
+        int reverseIsidebar = sidebarDisplayStrings.size();
+        for (String sidebarEntry : sidebarDisplayStrings) {
+
+            if (sidebarEntry.equalsIgnoreCase("")) {
+                String paragraphs = "§";
+                for (int i = 0; i < reverseIsidebar; i++) {
+                    paragraphs = paragraphs + "§";
+                }
+                sidebardisplay.getScore(paragraphs).setScore(reverseIsidebar);
+            } else {
+                sidebardisplay.getScore(sidebarEntry).setScore(reverseIsidebar);
+            }
+
+            reverseIsidebar--;
+        }
+
+        if (sidebardisplay.getDisplaySlot() != DisplaySlot.SIDEBAR) {
+            sidebardisplay.setDisplaySlot(DisplaySlot.SIDEBAR);
+        }
+
+        // TEAMS
+
+        for (BedwarsTeam bedwarsTeam : this.getTeams()) {
+
+            Team team = scoreboard.getTeam(String.valueOf(bedwarsTeam.getId()));
+
+            if (team == null) {
+
+                team = scoreboard.registerNewTeam(String.valueOf(bedwarsTeam.getId()));
+                team.setDisplayName(bedwarsTeam.getName());
+                team.setColor(bedwarsTeam.getColor());
+                team.setAllowFriendlyFire(false);
+                team.setCanSeeFriendlyInvisibles(true);
+                team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OTHER_TEAMS);
+                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+
+            }
+
+            for (UUID teamPlayerId : bedwarsTeam.getPlayers()) {
+
+                Player teamPlayer = this.plugin.getServer().getPlayer(teamPlayerId);
+
+                if (teamPlayer == null) {
+                    continue;
+                }
+
+                if (!team.getEntries().contains(teamPlayer.getName())) {
+                    team.addEntry(teamPlayer.getName());
+                }
+
+            }
+
+        }
+
+        Team spectatorTeam = scoreboard.getTeam("spectator");
+
+        if (spectatorTeam == null) {
+
+            spectatorTeam = scoreboard.registerNewTeam("spectator");
+            spectatorTeam.setDisplayName("SPECTATOR");
+            spectatorTeam.setColor(ChatColor.DARK_GRAY);
+            spectatorTeam.setAllowFriendlyFire(false);
+            spectatorTeam.setCanSeeFriendlyInvisibles(false);
+            spectatorTeam.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
+            spectatorTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
+
+        }
+
+        for (Player teamPlayer : this.plugin.getServer().getOnlinePlayers()) {
+
+            if (this.players.containsKey(teamPlayer.getUniqueId())) {
+                continue;
+            }
+
+            if (!spectatorTeam.getEntries().contains(teamPlayer.getName())) {
+                spectatorTeam.addEntry(teamPlayer.getName());
+            }
+
+        }
+
+        // SET SCOREBOARD
+
+        if (player.getScoreboard() != scoreboard) {
+            player.setScoreboard(scoreboard);
+        }
+    }
+
+    public List<String> getSidebar(PlayerData playerData, BedwarsTeam team) {
         List<String> sidebarDisplayStrings = new ArrayList<>();
 
         sidebarDisplayStrings.add("");
@@ -325,29 +425,7 @@ public class Game implements GamePart {
 
         sidebarDisplayStrings.add("");
 
-        int reverseIsidebar = sidebarDisplayStrings.size();
-        for (String sidebarEntry : sidebarDisplayStrings) {
-
-            if (sidebarEntry.equalsIgnoreCase("")) {
-                String paragraphs = "§";
-                for (int i = 0; i < reverseIsidebar; i++) {
-                    paragraphs = paragraphs + "§";
-                }
-                sidebardisplay.getScore(paragraphs).setScore(reverseIsidebar);
-            } else {
-                sidebardisplay.getScore(sidebarEntry).setScore(reverseIsidebar);
-            }
-
-            reverseIsidebar--;
-        }
-
-        if (sidebardisplay.getDisplaySlot() != DisplaySlot.SIDEBAR) {
-            sidebardisplay.setDisplaySlot(DisplaySlot.SIDEBAR);
-        }
-
-        if (player.getScoreboard() != scoreboard) {
-            player.setScoreboard(scoreboard);
-        }
+        return List.copyOf(sidebarDisplayStrings);
     }
 
     @Override
