@@ -30,6 +30,7 @@ public class Game implements GamePart {
     private final List<Generator> generators;
     private final List<TimeAction> timeActions;
     private final int respawnCountdown;
+    private final List<Location> playerPlacedBlocks;
     private int maxTime;
     private int timeStep;
     private int time;
@@ -44,6 +45,7 @@ public class Game implements GamePart {
         this.generators = Collections.synchronizedList(new ArrayList<>());
         this.timeActions = Collections.synchronizedList(new ArrayList<>());
         this.respawnCountdown = respawnCountdown;
+        this.playerPlacedBlocks = Collections.synchronizedList(new ArrayList<>());
         this.maxTime = maxTime;
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
@@ -440,5 +442,9 @@ public class Game implements GamePart {
 
     public List<TimeAction> getTimeActions() {
         return List.copyOf(this.timeActions);
+    }
+
+    public List<Location> getPlayerPlacedBlocks() {
+        return this.playerPlacedBlocks;
     }
 }
