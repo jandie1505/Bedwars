@@ -342,6 +342,15 @@ public class Game implements GamePart {
 
                 Player teamPlayer = this.plugin.getServer().getPlayer(teamPlayerId);
 
+                if (teamPlayer == player && this.plugin.isPlayerBypassing(player.getUniqueId())) {
+
+                    if (team.getEntries().contains(player.getName())) {
+                        team.removeEntry(player.getName());
+                    }
+
+                    continue;
+                }
+
                 if (teamPlayer == null) {
                     continue;
                 }
@@ -369,6 +378,15 @@ public class Game implements GamePart {
         }
 
         for (Player teamPlayer : this.plugin.getServer().getOnlinePlayers()) {
+
+            if (teamPlayer == player && this.plugin.isPlayerBypassing(player.getUniqueId())) {
+
+                if (spectatorTeam.getEntries().contains(player.getName())) {
+                    spectatorTeam.removeEntry(player.getName());
+                }
+
+                continue;
+            }
 
             if (this.players.containsKey(teamPlayer.getUniqueId())) {
                 continue;
