@@ -11,6 +11,7 @@ import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.time.Duration;
 import java.util.*;
 
 public class Bedwars extends JavaPlugin {
@@ -188,5 +189,18 @@ public class Bedwars extends JavaPlugin {
 
     public GamePart getGame() {
         return this.game;
+    }
+
+    public static String getDurationFormat(long seconds) {
+        Duration duration = Duration.ofSeconds(seconds);
+        String formattedTime;
+
+        if (duration.toHours() > 0) {
+            formattedTime = String.format("%d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart());
+        } else {
+            formattedTime = String.format("%d:%02d", duration.toMinutesPart(), duration.toSecondsPart());
+        }
+
+        return formattedTime;
     }
 }

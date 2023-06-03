@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game.generators;
 
 import net.jandie1505.bedwars.game.Game;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -19,6 +20,14 @@ public class PublicGenerator extends Generator {
 
     @Override
     public int getLevel() {
-        return 0;
+
+        if (this.getItem().getType() == Material.DIAMOND) {
+            return this.getGame().getPublicDiamondGeneratorLevel();
+        } else if (this.getItem().getType() == Material.EMERALD) {
+            return this.getGame().getPublicEmeraldGeneratorLevel();
+        } else {
+            return 0;
+        }
+
     }
 }

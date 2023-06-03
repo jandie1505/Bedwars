@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.map;
+package net.jandie1505.bedwars.game.team;
 
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;

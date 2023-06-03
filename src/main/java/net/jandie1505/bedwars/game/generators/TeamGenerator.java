@@ -1,7 +1,7 @@
 package net.jandie1505.bedwars.game.generators;
 
 import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.game.map.BedwarsTeam;
+import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 

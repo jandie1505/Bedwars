@@ -98,4 +98,15 @@ public abstract class Generator {
         this.game.getWorld().dropItem(this.location, item);
     }
 
+    public ItemStack getItem() {
+        return item;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public int getGeneratorTimer() {
+        return generatorTimer;
+    }
 }

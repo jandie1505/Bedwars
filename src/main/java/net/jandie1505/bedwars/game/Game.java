@@ -6,10 +6,13 @@ import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
-import net.jandie1505.bedwars.game.map.BedwarsTeam;
-import net.jandie1505.bedwars.game.map.MapConfig;
 import net.jandie1505.bedwars.game.player.PlayerData;
+import net.jandie1505.bedwars.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.timeactions.DiamondGeneratorUpgradeAction;
+import net.jandie1505.bedwars.game.timeactions.EmeraldGeneratorUpgradeAction;
+import net.jandie1505.bedwars.game.timeactions.TimeAction;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
+import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import org.bukkit.GameMode;
 import org.bukkit.World;
@@ -24,23 +27,29 @@ import java.util.*;
 public class Game implements GamePart {
     private final Bedwars plugin;
     private final World world;
-    private final MapConfig mapConfig;
     private final List<BedwarsTeam> teams;
     private final Map<UUID, PlayerData> players;
     private final List<Generator> generators;
+    private final List<TimeAction> timeActions;
+    private final int respawnCountdown;
     private int maxTime;
     private int timeStep;
     private int time;
+    private int publicEmeraldGeneratorLevel;
+    private int publicDiamondGeneratorLevel;
 
-    public Game(Bedwars plugin, World world, MapConfig mapConfig, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, int maxTime) {
+    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, int respawnCountdown, int maxTime) {
         this.plugin = plugin;
         this.world = world;
-        this.mapConfig = mapConfig;
         this.teams = Collections.synchronizedList(new ArrayList<>());
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.generators = Collections.synchronizedList(new ArrayList<>());
+        this.timeActions = Collections.synchronizedList(new ArrayList<>());
+        this.respawnCountdown = respawnCountdown;
         this.maxTime = maxTime;
         this.time = this.maxTime;
+        this.publicEmeraldGeneratorLevel = 0;
+        this.publicDiamondGeneratorLevel = 0;
 
         for (LobbyTeamData teamData : List.copyOf(teams)) {
             BedwarsTeam team = new BedwarsTeam(this, teamData);
@@ -66,6 +75,18 @@ public class Game implements GamePart {
                     generatorData.getUpgradeSteps()
             ));
         }
+
+        for (LobbyGeneratorUpgradeTimeActionData generatorUpgradeData : generatorUpgradeTimeActions) {
+
+            if (generatorUpgradeData.getGeneratorType() == 1) {
+                this.timeActions.add(new DiamondGeneratorUpgradeAction(this, generatorUpgradeData.getTime(), "§aDiamond Generators §ehave beed upgraded to §aLevel " + (generatorUpgradeData.getLevel() + 1), "Diamond " + (generatorUpgradeData.getLevel() + 1), generatorUpgradeData.getLevel()));
+            } else if (generatorUpgradeData.getGeneratorType() == 2) {
+                this.timeActions.add(new EmeraldGeneratorUpgradeAction(this, generatorUpgradeData.getTime(), "§aEmerald Generators §ehave beed upgraded to §aLevel " + (generatorUpgradeData.getLevel() + 1), "Emerald " + (generatorUpgradeData.getLevel() + 1), generatorUpgradeData.getLevel()));
+            }
+
+        }
+
+        Collections.sort(this.timeActions);
     }
 
     @Override
@@ -106,8 +127,8 @@ public class Game implements GamePart {
 
             if (playerData.isAlive()) {
 
-                if (playerData.getRespawnCountdown() != this.mapConfig.getRespawnCountdown()) {
-                    playerData.setRespawnCountdown(this.mapConfig.getRespawnCountdown());
+                if (playerData.getRespawnCountdown() != this.respawnCountdown) {
+                    playerData.setRespawnCountdown(this.respawnCountdown);
                 }
 
                 if (!this.plugin.isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
@@ -151,6 +172,30 @@ public class Game implements GamePart {
 
             Objective sidebardisplay = scoreboard.getObjective("sidebardisplay");
             List<String> sidebarDisplayStrings = new ArrayList<>();
+
+            sidebarDisplayStrings.add("");
+
+            int timeActionCount = 0;
+            for (TimeAction timeAction : this.getTimeActions()) {
+
+                if (timeActionCount >= 2) {
+                    break;
+                }
+
+                if (timeAction.getScoreboardText() == null || timeAction.isCompleted()) {
+                    continue;
+                }
+
+                int inTime = this.time - timeAction.getTime();
+
+                sidebarDisplayStrings.add(timeAction.getScoreboardText() + " §rin §a" + Bedwars.getDurationFormat(inTime));
+
+                timeActionCount++;
+            }
+
+            if (timeActionCount < 2) {
+                sidebarDisplayStrings.add("Game End in §a" + Bedwars.getDurationFormat(this.time));
+            }
 
             sidebarDisplayStrings.add("");
 
@@ -218,6 +263,20 @@ public class Game implements GamePart {
             generator.tick();
         }
 
+        // TIME ACTIONS (PUBLIC GENERATOR UPGRADES)
+
+        if (this.timeStep >= 1) {
+
+            for (TimeAction timeAction : this.getTimeActions()) {
+
+                if (this.time <= timeAction.getTime() && !timeAction.isCompleted()) {
+                    timeAction.execute();
+                }
+
+            }
+
+        }
+
         // TIME
 
         if (this.timeStep >= 1) {
@@ -273,10 +332,6 @@ public class Game implements GamePart {
         return this.plugin;
     }
 
-    public MapConfig getMapData() {
-        return this.mapConfig;
-    }
-
     public Map<UUID, PlayerData> getPlayers() {
         return Map.copyOf(this.players);
     }
@@ -291,5 +346,33 @@ public class Game implements GamePart {
 
     public List<Generator> getGenerators() {
         return List.copyOf(this.generators);
+    }
+
+    public int getTime() {
+        return this.time;
+    }
+
+    public int getMaxTime() {
+        return this.maxTime;
+    }
+
+    public int getPublicEmeraldGeneratorLevel() {
+        return this.publicEmeraldGeneratorLevel;
+    }
+
+    public void setPublicEmeraldGeneratorLevel(int publicEmeraldGeneratorLevel) {
+        this.publicEmeraldGeneratorLevel = publicEmeraldGeneratorLevel;
+    }
+
+    public int getPublicDiamondGeneratorLevel() {
+        return this.publicDiamondGeneratorLevel;
+    }
+
+    public void setPublicDiamondGeneratorLevel(int publicDiamondGeneratorLevel) {
+        this.publicDiamondGeneratorLevel = publicDiamondGeneratorLevel;
+    }
+
+    public List<TimeAction> getTimeActions() {
+        return List.copyOf(this.timeActions);
     }
 }

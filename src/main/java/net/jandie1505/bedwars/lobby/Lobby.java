@@ -4,8 +4,8 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.game.map.MapConfig;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
+import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -100,9 +100,6 @@ public class Lobby implements GamePart {
         Game game = new Game(
                 this.plugin,
                 world,
-                new MapConfig(
-                        5
-                ),
                 List.of(
                         new LobbyTeamData(
                                 "Green",
@@ -187,6 +184,11 @@ public class Lobby implements GamePart {
                                 )
                         )
                 ),
+                List.of(
+                        new LobbyGeneratorUpgradeTimeActionData(1, 1, 3540),
+                        new LobbyGeneratorUpgradeTimeActionData(2, 1, 3480)
+                ),
+                5,
                 3600
         );
 
