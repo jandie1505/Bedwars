@@ -17,9 +17,13 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.Array;
@@ -225,6 +229,65 @@ public class EventListener implements Listener {
         }
 
         if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+            return;
+        }
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            event.setCancelled(true);
+            return;
+        }
+
+    }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+
+        if (!(event.getWhoClicked() instanceof Player)) {
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof ShopMenu) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+            return;
+        }
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            event.setCancelled(true);
+            return;
+        }
+
+    }
+
+    @EventHandler
+    public void onInventoryMove(InventoryMoveItemEvent event) {
+
+        Player player = null;
+        Inventory inventory = null;
+
+        if (event.getSource().getHolder() instanceof Player || event.getDestination().getHolder() instanceof Player) {
+            if (event.getSource().getHolder() instanceof Player) {
+                player = (Player) event.getSource().getHolder();
+                inventory = event.getDestination();
+            } else {
+                player = (Player) event.getDestination().getHolder();
+                inventory = event.getSource();
+            }
+        }
+
+        if (player == null || player.getInventory() == inventory) {
+            return;
+        }
+
+        if (inventory.getHolder() instanceof ShopMenu) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (this.plugin.isPlayerBypassing(player.getUniqueId())) {
             return;
         }
 
