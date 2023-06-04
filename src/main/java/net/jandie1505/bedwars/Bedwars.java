@@ -33,6 +33,10 @@ public class Bedwars extends JavaPlugin {
         this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
         this.itemStorage = new ItemStorage(this);
 
+        this.configManager.reloadConfig();
+        this.itemConfig.reloadConfig();
+        this.itemStorage.initItems();
+
         this.getCommand("bedwars").setExecutor(new BedwarsCommand(this));
         this.getCommand("bedwars").setTabCompleter(new BedwarsCommand(this));
 
