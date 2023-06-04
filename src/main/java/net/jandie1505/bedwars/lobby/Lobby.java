@@ -12,6 +12,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -200,6 +201,7 @@ public class Lobby implements GamePart {
                         new LobbyGeneratorUpgradeTimeActionData(1, 1, 3540),
                         new LobbyGeneratorUpgradeTimeActionData(2, 1, 3480)
                 ),
+                new JSONObject(this.plugin.getShopConfig().getConfig().optJSONObject("itemShop").toString()),
                 5,
                 3600
         );

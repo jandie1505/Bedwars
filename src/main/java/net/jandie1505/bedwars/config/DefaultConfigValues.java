@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.config;
 
+import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -77,7 +78,7 @@ public final class DefaultConfigValues {
 
         JSONObject armorButton = new JSONObject();
 
-        armorButton.put("type", "IRON_ARMOR");
+        armorButton.put("type", "IRON_BOOTS");
         armorButton.put("name", "§bArmor");
 
         config.put("6", armorButton);
@@ -117,6 +118,56 @@ public final class DefaultConfigValues {
         specialItemsButton.put("name", "§bSpecial Items");
 
         config.put("10", specialItemsButton);
+
+        // WOOL
+
+        JSONObject wool = new JSONObject();
+
+        wool.put("type", "WHITE_WOOL");
+        wool.put("name", "§rWool");
+
+        config.put("100", wool);
+
+        return config;
+    }
+
+    public static JSONObject getShopConfig() {
+        JSONObject config = new JSONObject();
+
+        // ITEM SHOP
+
+        JSONObject itemShopConfig = new JSONObject();
+
+        // Menu Items (category selection)
+
+        JSONArray menuItems = new JSONArray();
+
+        menuItems.put(3);
+        menuItems.put(4);
+        menuItems.put(5);
+        menuItems.put(6);
+        menuItems.put(7);
+        menuItems.put(8);
+        menuItems.put(9);
+        menuItems.put(10);
+
+        itemShopConfig.put("menuItems", menuItems);
+
+        // Shop Items (items the players can buy)
+
+        JSONArray shopItems = new JSONArray();
+
+        JSONObject woolBlock = new JSONObject();
+        woolBlock.put("itemId", 100);
+        woolBlock.put("price", 10);
+        woolBlock.put("currency", "IRON_INGOT");
+        woolBlock.put("page", 0);
+        woolBlock.put("slot", 19);
+        shopItems.put(woolBlock);
+
+        itemShopConfig.put("shopItems", shopItems);
+
+        config.put("itemShop", itemShopConfig);
 
         return config;
     }

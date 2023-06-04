@@ -18,6 +18,7 @@ import java.util.*;
 public class Bedwars extends JavaPlugin {
     private ConfigManager configManager;
     private ConfigManager itemConfig;
+    private ConfigManager shopConfig;
     private List<UUID> bypassingPlayers;
     private GamePart game;
     private int exceptionCount;
@@ -28,6 +29,7 @@ public class Bedwars extends JavaPlugin {
     public void onEnable() {
         this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.json");
         this.itemConfig = new ConfigManager(this, DefaultConfigValues.getItemConfig(), true, "items.json");
+        this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop.json");
         this.bypassingPlayers = Collections.synchronizedList(new ArrayList<>());
         this.exceptionCount = 0;
         this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
@@ -35,6 +37,8 @@ public class Bedwars extends JavaPlugin {
 
         this.configManager.reloadConfig();
         this.itemConfig.reloadConfig();
+        this.shopConfig.reloadConfig();
+
         this.itemStorage.initItems();
 
         this.getCommand("bedwars").setExecutor(new BedwarsCommand(this));
@@ -170,6 +174,10 @@ public class Bedwars extends JavaPlugin {
         return this.itemConfig;
     }
 
+    public ConfigManager getShopConfig() {
+        return this.shopConfig;
+    }
+
     public boolean addBypassingPlayer(UUID playerId) {
         return this.bypassingPlayers.add(playerId);
     }
@@ -202,6 +210,10 @@ public class Bedwars extends JavaPlugin {
 
     public GamePart getGame() {
         return this.game;
+    }
+
+    public ItemStorage getItemStorage() {
+        return this.itemStorage;
     }
 
     public static String getDurationFormat(long seconds) {

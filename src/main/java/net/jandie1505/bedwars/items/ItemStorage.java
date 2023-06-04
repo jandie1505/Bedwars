@@ -14,12 +14,10 @@ import java.util.*;
 public class ItemStorage {
     private final Bedwars plugin;
     private final Map<Integer, ItemStack> items;
-    private final Map<Integer, Integer> priceList;
 
     public ItemStorage(Bedwars plugin) {
         this.plugin = plugin;
         this.items = Collections.synchronizedMap(new HashMap<>());
-        this.priceList = Collections.synchronizedMap(new HashMap<>());
     }
 
     public Bedwars getPlugin() {
@@ -30,13 +28,14 @@ public class ItemStorage {
         return Map.copyOf(this.items);
     }
 
-    public ItemStack getItem(int itemId, boolean menuItem) {
+    public ItemStack getItem(int itemId) {
+        ItemStack i1 = this.items.get(itemId);
 
-        ItemStack item = this.items.get(itemId);
-
-        if (item == null) {
+        if (i1 == null) {
             return null;
         }
+
+        ItemStack item = i1.clone();
 
         ItemMeta meta = item.getItemMeta();
 
@@ -50,82 +49,13 @@ public class ItemStorage {
             lore = new ArrayList<>();
         }
 
-        String menuItemString;
+        lore.add(0, String.valueOf(itemId));
 
-        if (menuItem) {
-            menuItemString = "1-";
-        } else {
-            menuItemString = "0-";
-        }
+        meta.setLore(lore);
 
-        String shopItemString;
-
-        if (this.priceList.containsKey(itemId)) {
-            shopItemString = "1-";
-        } else {
-            shopItemString = "0-";
-        }
-
-        lore.add(0, menuItemString + shopItemString + itemId);
+        item.setItemMeta(meta);
 
         return item;
-    }
-
-    private String[] getIdArray(ItemStack item) {
-
-        if (item == null) {
-            return null;
-        }
-
-        if (item.getItemMeta() == null) {
-            return null;
-        }
-
-        if (item.getItemMeta().getLore() == null) {
-            return null;
-        }
-
-        if (item.getItemMeta().getLore().isEmpty()) {
-            return null;
-        }
-
-        String[] itemIdArray = item.getItemMeta().getLore().get(0).split("-");
-
-        if (itemIdArray.length < 3) {
-            return null;
-        }
-
-        return itemIdArray;
-    }
-
-    public int getItemId(ItemStack item) {
-
-        try {
-            return Integer.parseInt(this.getIdArray(item)[2]);
-        } catch (IllegalArgumentException e) {
-            return -1;
-        }
-
-    }
-
-    public boolean isMenuItem(ItemStack item) {
-        String[] itemIdArray = this.getIdArray(item);
-
-        if (itemIdArray == null) {
-            return false;
-        }
-
-        return itemIdArray[0].equals("1");
-    }
-
-    public boolean isShopItem(ItemStack item) {
-        String[] itemIdArray = this.getIdArray(item);
-
-        if (itemIdArray == null) {
-            return false;
-        }
-
-        return itemIdArray[1].equals("1");
     }
 
     public void addItem(int id, ItemStack item) {

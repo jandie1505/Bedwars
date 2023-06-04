@@ -1,18 +1,24 @@
 package net.jandie1505.bedwars;
 
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.game.menu.ShopMenu;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+
+import java.util.List;
 
 public class EventListener implements Listener {
     private final Bedwars plugin;
@@ -113,6 +119,33 @@ public class EventListener implements Listener {
         } else {
             event.setCancelled(true);
         }
+
+    }
+
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+
+        if (this.plugin.getGame() instanceof Game && ((Game) this.plugin.getGame()).getPlayers().containsKey(event.getPlayer().getUniqueId())) {
+
+            event.setCancelled(true);
+
+            for (String tag : List.copyOf(event.getRightClicked().getScoreboardTags())) {
+
+                if (tag.startsWith("shop")) {
+                    event.getPlayer().openInventory(new ShopMenu((Game) this.plugin.getGame()).getPage(0));
+                    return;
+                }
+
+            }
+
+            return;
+        }
+
+        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+            return;
+        }
+
+        event.setCancelled(true);
 
     }
 

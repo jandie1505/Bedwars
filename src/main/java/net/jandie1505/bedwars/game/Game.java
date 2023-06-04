@@ -6,6 +6,7 @@ import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
+import net.jandie1505.bedwars.game.menu.ItemShop;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.timeactions.DiamondGeneratorUpgradeAction;
@@ -20,6 +21,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.scoreboard.*;
+import org.json.JSONObject;
 
 import java.util.*;
 
@@ -33,13 +35,14 @@ public class Game implements GamePart {
     private final int respawnCountdown;
     private final List<Location> playerPlacedBlocks;
     private final Map<UUID, Scoreboard> playerScoreboards;
+    private final ItemShop itemShop;
     private int maxTime;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
     private int publicDiamondGeneratorLevel;
 
-    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, int respawnCountdown, int maxTime) {
+    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, JSONObject shopConfig, int respawnCountdown, int maxTime) {
         this.plugin = plugin;
         this.world = world;
         this.teams = Collections.synchronizedList(new ArrayList<>());
@@ -49,6 +52,7 @@ public class Game implements GamePart {
         this.respawnCountdown = respawnCountdown;
         this.playerPlacedBlocks = Collections.synchronizedList(new ArrayList<>());
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
+        this.itemShop = new ItemShop(this);
         this.maxTime = maxTime;
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
@@ -102,6 +106,8 @@ public class Game implements GamePart {
             }
 
         }
+
+        this.itemShop.initEntries(shopConfig);
     }
 
     @Override
@@ -574,5 +580,9 @@ public class Game implements GamePart {
 
     public Map<UUID, Scoreboard> getPlayerScoreboards() {
         return Map.copyOf(this.playerScoreboards);
+    }
+
+    public ItemShop getItemShop() {
+        return this.itemShop;
     }
 }
