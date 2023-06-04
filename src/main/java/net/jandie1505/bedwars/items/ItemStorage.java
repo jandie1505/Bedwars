@@ -130,6 +130,14 @@ public class ItemStorage {
             ItemStack item = new ItemStack(material);
             ItemMeta meta = this.plugin.getServer().getItemFactory().getItemMeta(item.getType());
 
+            // Amount
+
+            int amount = itemValue.optInt("amount", -1);
+
+            if (amount > 0) {
+                item.setAmount(amount);
+            }
+
             // Name
 
             String itemName = itemValue.optString("name");

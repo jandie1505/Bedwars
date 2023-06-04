@@ -125,6 +125,7 @@ public final class DefaultConfigValues {
 
         wool.put("type", "WHITE_WOOL");
         wool.put("name", "§rWool");
+        wool.put("amount", 16);
 
         config.put("100", wool);
 
