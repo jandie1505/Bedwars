@@ -1,5 +1,7 @@
 package net.jandie1505.bedwars.config;
 
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -119,7 +121,7 @@ public final class DefaultConfigValues {
 
         config.put("10", specialItemsButton);
 
-        // WOOL
+        // Wool
 
         JSONObject wool = new JSONObject();
 
@@ -128,6 +130,357 @@ public final class DefaultConfigValues {
         wool.put("amount", 16);
 
         config.put("100", wool);
+
+        // Terracotta
+
+        JSONObject terracotta = new JSONObject();
+
+        wool.put("type", Material.TERRACOTTA.toString());
+
+        config.put("101", terracotta);
+
+        // Glass
+
+        JSONObject glass = new JSONObject();
+
+        glass.put("type", Material.GLASS.toString());
+
+        config.put("102", glass);
+
+        // Endstone
+
+        JSONObject endstone = new JSONObject();
+
+        endstone.put("type", Material.END_STONE.toString());
+
+        config.put("103", endstone);
+
+        // Ladder
+
+        config.put("104", buildDefaultItem(Material.LADDER));
+
+        // Wood
+
+        config.put("105", buildDefaultItem(Material.OAK_PLANKS));
+
+        // Ancient Debris
+
+        config.put("106", buildDefaultItem(Material.ANCIENT_DEBRIS));
+
+        // Obsidian
+
+        config.put("107", buildDefaultItem(Material.OBSIDIAN));
+
+        // Bedrock
+
+        JSONObject bedrock = new JSONObject();
+
+        endstone.put("type", Material.BEDROCK.toString());
+        JSONArray bedrockLore = new JSONArray();
+        bedrockLore.put("If you want to take it serious");
+        endstone.put("lore", bedrockLore);
+
+        config.put("108", endstone);
+
+        // Wooden Sword
+
+        config.put("109", buildDefaultItem(Material.WOODEN_SWORD));
+
+        // Stone Sword
+
+        config.put("110", buildDefaultItem(Material.STONE_SWORD));
+
+        // Iron Sword
+
+        config.put("111", buildDefaultItem(Material.IRON_SWORD));
+
+        // Diamond Sword
+
+        config.put("112", buildDefaultItem(Material.DIAMOND_SWORD));
+
+        // Netherite Sword
+
+        config.put("113", buildDefaultItem(Material.NETHERITE_SWORD));
+
+        // Stone Axe
+
+        config.put("114", buildDefaultItem(Material.STONE_AXE));
+
+        // Iron Axe
+
+        config.put("115", buildDefaultItem(Material.IRON_AXE));
+
+        // Diamond Axe
+
+        config.put("116", buildDefaultItem(Material.DIAMOND_AXE));
+
+        // Netherite Axe
+
+        config.put("117", buildDefaultItem(Material.NETHERITE_AXE));
+
+        // Knockback Stick
+
+        JSONObject knockbackStick = new JSONObject();
+
+        knockbackStick.put("type", Material.STICK.toString());
+        knockbackStick.put("name", "Knockback Stick");
+
+        JSONArray knockbackStickEnchantments = new JSONArray();
+
+        JSONObject knockbackStickKnockbackEnchantment = new JSONObject();
+        knockbackStickKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.toString());
+        knockbackStickKnockbackEnchantment.put("level", 1);
+
+        knockbackStickEnchantments.put(knockbackStickKnockbackEnchantment);
+
+        knockbackStick.put("enchantments", knockbackStickEnchantments);
+
+        config.put("118", knockbackStick);
+
+        // Knockback Stick Deluxe
+
+        JSONObject knockbackStickPremium = new JSONObject();
+
+        knockbackStickPremium.put("type", Material.STICK.toString());
+        knockbackStickPremium.put("name", "Knockback Stick Premium");
+
+        JSONArray knockbackStickPremiumEnchantments = new JSONArray();
+
+        JSONObject knockbackStickPremiumKnockbackEnchantment = new JSONObject();
+        knockbackStickPremiumKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.toString());
+        knockbackStickPremiumKnockbackEnchantment.put("level", 2);
+
+        knockbackStickPremiumEnchantments.put(knockbackStickPremiumKnockbackEnchantment);
+
+        knockbackStickPremium.put("enchantments", knockbackStickPremiumEnchantments);
+
+        config.put("119", knockbackStickPremium);
+
+        JSONObject knockbackStickDeluxe = new JSONObject();
+
+        knockbackStickDeluxe.put("type", Material.STICK.toString());
+        knockbackStickDeluxe.put("name", "Knockback Stick Premium Deluxe");
+
+        JSONArray knockbackStickDeluxeEnchantments = new JSONArray();
+
+        JSONObject knockbackStickDeluxeKnockbackEnchantment = new JSONObject();
+        knockbackStickDeluxeKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.toString());
+        knockbackStickDeluxeKnockbackEnchantment.put("level", 3);
+
+        knockbackStickDeluxeEnchantments.put(knockbackStickDeluxeKnockbackEnchantment);
+
+        knockbackStickDeluxe.put("enchantments", knockbackStickDeluxeEnchantments);
+
+        config.put("120", knockbackStickDeluxe);
+
+        // Chainmail Boots
+
+        config.put("121", buildDefaultItem(Material.CHAINMAIL_BOOTS));
+
+        // Iron Boots
+
+        config.put("122", buildDefaultItem(Material.IRON_BOOTS));
+
+        // Diamond Boots
+
+        config.put("123", buildDefaultItem(Material.DIAMOND_BOOTS));
+
+        // Netherite Boots
+
+        config.put("124", buildDefaultItem(Material.NETHERITE_BOOTS));
+
+        // Chainmail Leggings
+
+        config.put("125", buildDefaultItem(Material.CHAINMAIL_LEGGINGS));
+
+        // Iron Leggings
+
+        config.put("126", buildDefaultItem(Material.IRON_LEGGINGS));
+
+        // Diamond Leggings
+
+        config.put("127", buildDefaultItem(Material.DIAMOND_LEGGINGS));
+
+        // Netherite Leggings
+
+        config.put("128", buildDefaultItem(Material.NETHERITE_LEGGINGS));
+
+        // Shears
+
+        config.put("129", buildDefaultItem(Material.SHEARS));
+
+        // Wooden Pickaxe
+
+        config.put("130", buildDefaultItem(Material.WOODEN_PICKAXE));
+
+        // Stone Pickaxe
+
+        JSONObject stonePickaxe = new JSONObject();
+
+        stonePickaxe.put("type", Material.STONE_PICKAXE.toString());
+
+        JSONArray stonePickaxeEnchantments = new JSONArray();
+
+        JSONObject stonePickaxeEfficiencyEnchantment = new JSONObject();
+        stonePickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.toString());
+        stonePickaxeEfficiencyEnchantment.put("level", 1);
+        stonePickaxeEnchantments.put(stonePickaxeEfficiencyEnchantment);
+
+        stonePickaxe.put("enchantments", stonePickaxeEnchantments);
+
+        config.put("131", stonePickaxe);
+
+        // Iron Pickaxe
+
+        JSONObject ironPickaxe = new JSONObject();
+
+        ironPickaxe.put("type", Material.STONE_PICKAXE.toString());
+
+        JSONArray ironPickaxeEnchantments = new JSONArray();
+
+        JSONObject ironPickaxeEfficiencyEnchantment = new JSONObject();
+        ironPickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.toString());
+        ironPickaxeEfficiencyEnchantment.put("level", 2);
+        ironPickaxeEnchantments.put(ironPickaxeEfficiencyEnchantment);
+
+        ironPickaxe.put("enchantments", ironPickaxeEnchantments);
+
+        config.put("132", ironPickaxe);
+
+        // Golden Pickaxe
+
+        JSONObject goldenPickaxe = new JSONObject();
+
+        goldenPickaxe.put("type", Material.STONE_PICKAXE.toString());
+
+        JSONArray goldenPickaxeEnchantments = new JSONArray();
+
+        JSONObject goldenPickaxeEfficiencyEnchantment = new JSONObject();
+        goldenPickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.toString());
+        goldenPickaxeEfficiencyEnchantment.put("level", 3);
+        goldenPickaxeEnchantments.put(goldenPickaxeEfficiencyEnchantment);
+
+        goldenPickaxe.put("enchantments", goldenPickaxeEnchantments);
+
+        config.put("133", goldenPickaxe);
+
+        // Diamond Pickaxe
+
+        JSONObject diamondPickaxe = new JSONObject();
+
+        diamondPickaxe.put("type", Material.STONE_PICKAXE.toString());
+
+        JSONArray diamondPickaxeEnchantments = new JSONArray();
+
+        JSONObject diamondPickaxeEfficiencyEnchantment = new JSONObject();
+        diamondPickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.toString());
+        diamondPickaxeEfficiencyEnchantment.put("level", 3);
+        diamondPickaxeEnchantments.put(diamondPickaxeEfficiencyEnchantment);
+
+        diamondPickaxe.put("enchantments", diamondPickaxeEnchantments);
+
+        config.put("134", diamondPickaxe);
+
+        // Bow
+
+        config.put("135", buildDefaultItem(Material.BOW));
+
+        // Enhanced Bow
+
+        JSONObject enhancedBow = new JSONObject();
+
+        enhancedBow.put("type", Material.BOW.toString());
+        enhancedBow.put("name", "Enhanced Bow");
+
+        JSONArray enhancedBowEnchantments = new JSONArray();
+
+        JSONObject enhancedBowPowerEnchantment = new JSONObject();
+        enhancedBowPowerEnchantment.put("type", Enchantment.ARROW_DAMAGE.toString());
+        enhancedBowPowerEnchantment.put("level", 1);
+        enhancedBowEnchantments.put(enhancedBowPowerEnchantment);
+
+        enhancedBow.put("enchantments", enhancedBowEnchantments);
+
+        config.put("136", enhancedBow);
+
+        // Most Powerful Bow
+
+        JSONObject mostPowerfulBow = new JSONObject();
+
+        mostPowerfulBow.put("type", Material.BOW.toString());
+        mostPowerfulBow.put("name", "Most Powerful Bow");
+
+        JSONArray mostPowerfulBowEnchantments = new JSONArray();
+
+        mostPowerfulBowEnchantments.put(enhancedBowPowerEnchantment);
+
+        JSONObject mostPowerfulBowPunchEnchantment = new JSONObject();
+        mostPowerfulBowPunchEnchantment.put("type", Enchantment.ARROW_KNOCKBACK.toString());
+        mostPowerfulBowPunchEnchantment.put("level", 1);
+        mostPowerfulBowEnchantments.put(mostPowerfulBowPunchEnchantment);
+
+        mostPowerfulBow.put("enchantments", mostPowerfulBowEnchantments);
+
+        config.put("137", mostPowerfulBow);
+
+        // Arrow
+
+        config.put("138", buildDefaultItem(Material.SPECTRAL_ARROW));
+
+        // Golden Apple
+
+        config.put("142", buildDefaultItem(Material.GOLDEN_APPLE));
+
+        // Snowball
+
+        // Iron Golem Spawn Egg
+
+        // Fireball
+
+        JSONObject fireball = new JSONObject();
+
+        fireball.put("type", Material.FIRE_CHARGE.toString());
+        fireball.put("name", "Fireball");
+
+        config.put("145", fireball);
+
+        // Enhanced Fireball
+
+        JSONObject enhancedFireball = new JSONObject();
+
+        fireball.put("type", Material.FIRE_CHARGE.toString());
+        fireball.put("name", "Enhanced Fireball");
+
+        config.put("146", enhancedFireball);
+
+        // TNT
+
+        config.put("147", buildDefaultItem(Material.TNT));
+
+        // Ender Pearl
+
+        config.put("148", buildDefaultItem(Material.ENDER_PEARL));
+
+        // Water Bucket
+
+        config.put("149", buildDefaultItem(Material.WATER_BUCKET));
+
+        // Bridge Egg
+
+        JSONObject bridgeEgg = new JSONObject();
+
+        bridgeEgg.put("type", Material.EGG.toString());
+        bridgeEgg.put("name", "Bridge Egg");
+
+        config.put("150", bridgeEgg);
+
+        // Milk Bucket
+
+        config.put("151", buildDefaultItem(Material.MILK_BUCKET));
+
+        // Sponge
+
+        config.put("152", buildDefaultItem(Material.SPONGE));
 
         return config;
     }
@@ -158,19 +511,31 @@ public final class DefaultConfigValues {
 
         JSONArray shopItems = new JSONArray();
 
-        JSONObject woolBlock = new JSONObject();
-        woolBlock.put("itemId", 100);
-        woolBlock.put("price", 10);
-        woolBlock.put("currency", "IRON_INGOT");
-        woolBlock.put("page", 0);
-        woolBlock.put("slot", 19);
-        shopItems.put(woolBlock);
+        shopItems.put(buildShopEntry(100, 4, Material.IRON_INGOT, 0, 19));
+        shopItems.put(buildShopEntry(110, 10, Material.IRON_INGOT, 0, 20));
+        shopItems.put(buildShopEntry(135, 40, Material.IRON_INGOT, 0, 23));
 
         itemShopConfig.put("shopItems", shopItems);
 
         config.put("itemShop", itemShopConfig);
 
         return config;
+    }
+
+    private static JSONObject buildDefaultItem(Material material) {
+        JSONObject item = new JSONObject();
+        item.put("type", material.toString());
+        return item;
+    }
+
+    public static JSONObject buildShopEntry(int itemId, int price, Material currency, int page, int slot) {
+        JSONObject entry = new JSONObject();
+        entry.put("itemId", itemId);
+        entry.put("price", price);
+        entry.put("currency", currency.toString());
+        entry.put("page", page);
+        entry.put("slot", slot);
+        return entry;
     }
 
 }
