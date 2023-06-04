@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.commands.BedwarsCommand;
 import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.items.ItemStorage;
 import net.jandie1505.bedwars.lobby.Lobby;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -16,17 +17,21 @@ import java.util.*;
 
 public class Bedwars extends JavaPlugin {
     private ConfigManager configManager;
+    private ConfigManager itemConfig;
     private List<UUID> bypassingPlayers;
     private GamePart game;
     private int exceptionCount;
     private List<World> managedWorlds;
+    private ItemStorage itemStorage;
 
     @Override
     public void onEnable() {
-        this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.yml");
+        this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.json");
+        this.itemConfig = new ConfigManager(this, DefaultConfigValues.getItemConfig(), true, "items.json");
         this.bypassingPlayers = Collections.synchronizedList(new ArrayList<>());
         this.exceptionCount = 0;
         this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
+        this.itemStorage = new ItemStorage(this);
 
         this.getCommand("bedwars").setExecutor(new BedwarsCommand(this));
         this.getCommand("bedwars").setTabCompleter(new BedwarsCommand(this));
@@ -155,6 +160,10 @@ public class Bedwars extends JavaPlugin {
 
     public ConfigManager getConfigManager() {
         return this.configManager;
+    }
+
+    public ConfigManager getItemConfig() {
+        return this.itemConfig;
     }
 
     public boolean addBypassingPlayer(UUID playerId) {
