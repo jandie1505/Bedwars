@@ -24,7 +24,7 @@ public class ItemStorage {
         return this.plugin;
     }
 
-    public Map<Integer, ItemStack> getItems() {
+    private Map<Integer, ItemStack> getItemsInternal() {
         return Map.copyOf(this.items);
     }
 
@@ -58,8 +58,34 @@ public class ItemStorage {
         return item;
     }
 
+    public int getItemId(ItemStack item) {
+
+        if (item == null) {
+            return -1;
+        }
+
+        if (item.getItemMeta() == null) {
+            return -1;
+        }
+
+        if (item.getItemMeta().getLore() == null) {
+            return -1;
+        }
+
+        if (item.getItemMeta().getLore().isEmpty()) {
+            return -1;
+        }
+
+        try {
+            return Integer.parseInt(item.getItemMeta().getLore().get(0));
+        } catch (IllegalArgumentException e) {
+            return -1;
+        }
+
+    }
+
     public void addItem(int id, ItemStack item) {
-        this.items.put(id, item);
+        this.items.put(id, item.clone());
     }
 
     public void initItems() {
@@ -202,6 +228,22 @@ public class ItemStorage {
             this.addItem(itemId, item);
         }
 
+    }
+
+    public Map<Integer, ItemStack> getItems() {
+        Map<Integer, ItemStack> returnMap = new HashMap<>();
+
+        for (Integer key : this.getItemsInternal().keySet()) {
+            ItemStack value = this.items.get(key);
+
+            if (value == null) {
+                continue;
+            }
+
+            returnMap.put(key.intValue(), value.clone());
+        }
+
+        return Map.copyOf(returnMap);
     }
 
 }

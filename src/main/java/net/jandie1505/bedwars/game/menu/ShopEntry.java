@@ -54,7 +54,7 @@ public class ShopEntry {
 
         List<String> lore = meta.getLore();
 
-        lore.add(1, "§rPrice: §a" + this.price + " " + this.itemShop.getGame().getPlugin().getServer().getItemFactory().getItemMeta(this.currency).getDisplayName());
+        lore.add(1, "§r§fPrice: §a" + this.price + " " + this.currency.name() + "s");
         meta.setLore(lore);
 
         item.setItemMeta(meta);

@@ -43,6 +43,19 @@ public class ItemShop {
         return List.copyOf(returnList);
     }
 
+    public ShopEntry getShopEntry(int id) {
+
+        for (ShopEntry shopEntry : this.getShopEntries()) {
+
+            if (shopEntry.getItemId() == id) {
+                return shopEntry;
+            }
+
+        }
+
+        return null;
+    }
+
     public void initEntries(JSONObject shopConfig) {
         JSONArray menuItems = shopConfig.optJSONArray("menuItems");
 

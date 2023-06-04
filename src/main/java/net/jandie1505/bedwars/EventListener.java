@@ -1,6 +1,7 @@
 package net.jandie1505.bedwars;
 
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.game.menu.ShopEntry;
 import net.jandie1505.bedwars.game.menu.ShopMenu;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import org.bukkit.GameRule;
@@ -14,10 +15,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class EventListener implements Listener {
@@ -146,6 +153,85 @@ public class EventListener implements Listener {
         }
 
         event.setCancelled(true);
+
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+
+        if (!(event.getWhoClicked() instanceof Player)) {
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof ShopMenu) {
+
+            event.setCancelled(true);
+
+            if (!(event.getClick() == ClickType.LEFT || event.getClick() == ClickType.RIGHT)) {
+                return;
+            }
+
+            if (!(this.plugin.getGame() instanceof Game) || !((Game) this.plugin.getGame()).getPlayers().containsKey(event.getWhoClicked().getUniqueId())) {
+                return;
+            }
+
+            if (event.getCurrentItem() == null) {
+                return;
+            }
+
+            int itemId = this.plugin.getItemStorage().getItemId(event.getCurrentItem());
+
+            if (itemId < 0) {
+                return;
+            }
+
+            Integer[] menuItems = ((Game) this.plugin.getGame()).getItemShop().getMenuItems();
+
+            for (int i = 0; i < menuItems.length; i++) {
+
+                if (menuItems[i] != null && menuItems[i] == itemId) {
+                    event.getWhoClicked().openInventory(new ShopMenu((Game) this.plugin.getGame()).getPage(i));
+                    return;
+                }
+
+            }
+
+            ShopEntry shopEntry = ((Game) this.plugin.getGame()).getItemShop().getShopEntry(itemId);
+
+            if (shopEntry == null) {
+                return;
+            }
+
+            int availableCurrency = 0;
+
+            for (ItemStack item : Arrays.copyOf(event.getWhoClicked().getInventory().getContents(), event.getWhoClicked().getInventory().getContents().length)) {
+
+                if (item != null && item.getType() == shopEntry.getCurrency()) {
+                    availableCurrency += item.getAmount();
+                }
+
+            }
+
+            if (availableCurrency < shopEntry.getPrice()) {
+                event.getWhoClicked().sendMessage("§cYou don't have enough " + shopEntry.getCurrency().name() + "s!");
+                return;
+            }
+
+            event.getWhoClicked().sendMessage("§aItem successfully purchased");
+            Bedwars.removeSpecificAmountOfItems(event.getWhoClicked().getInventory(), shopEntry.getCurrency(), shopEntry.getPrice());
+            event.getWhoClicked().getInventory().addItem(((Game) this.plugin.getGame()).getPlugin().getItemStorage().getItem(itemId));
+
+            return;
+        }
+
+        if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+            return;
+        }
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            event.setCancelled(true);
+            return;
+        }
 
     }
 
