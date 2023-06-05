@@ -8,6 +8,7 @@ import net.jandie1505.bedwars.game.player.PlayerData;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -109,7 +110,6 @@ public class EventListener implements Listener {
             return;
         }
 
-
         if (this.plugin.getGame() instanceof Game) {
 
             if (!((Game) this.plugin.getGame()).getPlayers().containsKey(event.getPlayer().getUniqueId())) {
@@ -118,6 +118,30 @@ public class EventListener implements Listener {
             }
 
             if (((Game) this.plugin.getGame()).getPlayerPlacedBlocks().contains(event.getBlock().getLocation()) || event.getBlock().getBlockData() instanceof Bed) {
+
+                PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+                if (event.getBlock().getBlockData() instanceof Bed) {
+
+                    for (Location location : ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam()).getBedLocations()) {
+
+                        Block otherHalf;
+
+                        if (((Bed) event.getBlock().getBlockData()).getPart() == Bed.Part.HEAD) {
+                            otherHalf = event.getBlock().getRelative(((Bed) event.getBlock().getBlockData()).getFacing().getOppositeFace());
+                        } else {
+                            otherHalf = event.getBlock().getRelative(((Bed) event.getBlock().getBlockData()).getFacing());
+                        }
+
+                        if (location.equals(event.getBlock().getLocation()) || location.equals(otherHalf.getLocation())) {
+
+                            event.getPlayer().sendMessage("§cYou cannot break your own bed");
+                            event.setCancelled(true);
+                            return;
+                        }
+
+                    }
+                }
 
                 ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().remove(event.getBlock().getLocation());
 

@@ -130,7 +130,7 @@ public class Game implements GamePart {
 
             // Scoreboard
 
-            if (!isIngame) {
+            if (!this.playerScoreboards.containsKey(player.getUniqueId())) {
                 this.playerScoreboards.put(player.getUniqueId(), this.plugin.getServer().getScoreboardManager().getNewScoreboard());
             }
 
