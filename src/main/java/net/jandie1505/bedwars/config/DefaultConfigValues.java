@@ -6,6 +6,8 @@ import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.List;
+
 public final class DefaultConfigValues {
     private DefaultConfigValues() {}
 
@@ -125,7 +127,7 @@ public final class DefaultConfigValues {
 
         JSONObject wool = new JSONObject();
 
-        wool.put("type", "WHITE_WOOL");
+        wool.put("type", Material.WHITE_WOOL.toString());
         wool.put("name", "§rWool");
         wool.put("amount", 16);
 
@@ -133,11 +135,7 @@ public final class DefaultConfigValues {
 
         // Terracotta
 
-        JSONObject terracotta = new JSONObject();
-
-        wool.put("type", Material.TERRACOTTA.toString());
-
-        config.put("101", terracotta);
+        config.put("101", buildDefaultItem(Material.TERRACOTTA));
 
         // Glass
 
@@ -180,7 +178,7 @@ public final class DefaultConfigValues {
         bedrockLore.put("If you want to take it serious");
         endstone.put("lore", bedrockLore);
 
-        config.put("108", endstone);
+        config.put("108", bedrock);
 
         // Wooden Sword
 
@@ -517,7 +515,92 @@ public final class DefaultConfigValues {
 
         itemShopConfig.put("shopItems", shopItems);
 
+        // Upgrade Items (armor, pickaxe, shears)
+
+        JSONObject upgradeItems = new JSONObject();
+
+        upgradeItems.put(
+                "armor",
+                buildUpgradeEntry(
+                        List.of(
+                                121,
+                                122,
+                                123,
+                                124
+                        ),
+                        List.of(
+                                40,
+                                12,
+                                6,
+                                15
+                        ),
+                        List.of(
+                                Material.IRON_INGOT,
+                                Material.GOLD_INGOT,
+                                Material.EMERALD,
+                                Material.EMERALD
+                        ),
+                        List.of(
+                                new int[]{3, 21}
+                        )
+                )
+        );
+
+        upgradeItems.put(
+                "pickaxe",
+                buildUpgradeEntry(
+                        List.of(
+                                130,
+                                131,
+                                132,
+                                133,
+                                134
+                        ),
+                        List.of(
+                                10,
+                                20,
+                                30,
+                                3,
+                                6
+                        ),
+                        List.of(
+                                Material.IRON_INGOT,
+                                Material.IRON_INGOT,
+                                Material.IRON_INGOT,
+                                Material.GOLD_INGOT,
+                                Material.GOLD_INGOT
+                        ),
+                        List.of(
+                                new int[]{4, 20}
+                        )
+                )
+        );
+
+        upgradeItems.put(
+                "shears",
+                buildUpgradeEntry(
+                        List.of(
+                                129
+                        ),
+                        List.of(
+                                10
+                        ),
+                        List.of(
+                                Material.IRON_INGOT
+                        ),
+                        List.of(
+                                new int[]{4, 22}
+                        )
+                )
+        );
+
+        itemShopConfig.put("upgradeItems", upgradeItems);
+
+        // Save item shop
+
         config.put("itemShop", itemShopConfig);
+
+        // return
 
         return config;
     }
@@ -535,6 +618,46 @@ public final class DefaultConfigValues {
         entry.put("currency", currency.toString());
         entry.put("page", page);
         entry.put("slot", slot);
+        return entry;
+    }
+
+    public static JSONObject buildUpgradeEntry(List<Integer> itemIdList, List<Integer> priceList, List<Material> currencyList, List<int[]> slotList) {
+        JSONObject entry = new JSONObject();
+
+        JSONArray itemIds = new JSONArray();
+
+        for (int id : itemIdList) {
+            itemIds.put(id);
+        }
+
+        JSONArray prices = new JSONArray();
+
+        for (int price : priceList) {
+            prices.put(price);
+        }
+
+        JSONArray currencies = new JSONArray();
+
+        for (Material material : currencyList) {
+            currencies.put(material.toString());
+        }
+
+        JSONArray slots = new JSONArray();
+
+        for (int[] slot : slotList) {
+            JSONObject slotJSON = new JSONObject();
+
+            slotJSON.put("page", slot[0]);
+            slotJSON.put("slot", slot[1]);
+
+            slots.put(slotJSON);
+        }
+
+        entry.put("ids", itemIds);
+        entry.put("prices", prices);
+        entry.put("currencies", currencies);
+        entry.put("slots", slots);
+
         return entry;
     }
 

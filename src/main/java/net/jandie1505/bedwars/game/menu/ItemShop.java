@@ -14,11 +14,17 @@ public class ItemShop {
     private final Game game;
     private final Integer[] menuItems;
     private final List<ShopEntry> shopEntries;
+    private UpgradeEntry armorUpgrade;
+    private UpgradeEntry pickaxeUpgrade;
+    private UpgradeEntry shearsUpgrade;
 
     public ItemShop(Game game) {
         this.game = game;
         this.menuItems = new Integer[9];
         this.shopEntries = Collections.synchronizedList(new ArrayList<>());
+        this.armorUpgrade = null;
+        this.pickaxeUpgrade = null;
+        this.shearsUpgrade = null;
     }
 
     public Integer[] getMenuItems() {
@@ -29,7 +35,7 @@ public class ItemShop {
         return List.copyOf(this.shopEntries);
     }
 
-    public List<ShopEntry> getPage(int page) {
+    public List<ShopEntry> getShopEntryPage(int page) {
         List<ShopEntry> returnList = new ArrayList<>();
 
         for (ShopEntry shopEntry : this.getShopEntries()) {
@@ -43,6 +49,36 @@ public class ItemShop {
         return List.copyOf(returnList);
     }
 
+    public List<UpgradeEntry> getUpgradeEntryPage(int page) {
+        List<UpgradeEntry> returnList = new ArrayList<>();
+        List<UpgradeEntry> iList = new ArrayList<>();
+
+        iList.add(this.armorUpgrade);
+        iList.add(this.pickaxeUpgrade);
+        iList.add(this.shearsUpgrade);
+
+        while (iList.remove(null));
+
+        for (UpgradeEntry upgradeEntry : iList) {
+
+            for (int[] slot : upgradeEntry.getSlots()) {
+
+                if (slot.length != 2) {
+                    continue;
+                }
+
+                if (slot[0] == page) {
+                    returnList.add(upgradeEntry);
+                    break;
+                }
+
+            }
+
+        }
+
+        return returnList;
+    }
+
     public ShopEntry getShopEntry(int id) {
 
         for (ShopEntry shopEntry : this.getShopEntries()) {
@@ -54,6 +90,18 @@ public class ItemShop {
         }
 
         return null;
+    }
+
+    public UpgradeEntry getArmorUpgrade() {
+        return this.armorUpgrade;
+    }
+
+    public UpgradeEntry getPickaxeUpgrade() {
+        return this.pickaxeUpgrade;
+    }
+
+    public UpgradeEntry getShearsUpgrade() {
+        return this.shearsUpgrade;
     }
 
     public void initEntries(JSONObject shopConfig) {
@@ -123,6 +171,118 @@ public class ItemShop {
 
         }
 
+        JSONObject upgradeItems = shopConfig.optJSONObject("upgradeItems");
+
+        if (upgradeItems != null) {
+
+            this.armorUpgrade = this.buildUpgradeEntry(upgradeItems, "armor");
+            this.pickaxeUpgrade = this.buildUpgradeEntry(upgradeItems, "pickaxe");
+            this.shearsUpgrade = this.buildUpgradeEntry(upgradeItems, "shears");
+
+        }
+
+    }
+
+    private UpgradeEntry buildUpgradeEntry(JSONObject upgradeItems, String key) {
+
+        JSONObject upgrade = upgradeItems.optJSONObject(key);
+
+        if (upgrade == null) {
+            return null;
+        }
+
+        // Item Ids
+
+        JSONArray itemIds = upgrade.optJSONArray("ids");
+
+        if (itemIds == null) {
+            return null;
+        }
+
+        List<Integer> itemIdList = new ArrayList<>();
+
+        for (Object object : itemIds) {
+
+            if (!(object instanceof Integer)) {
+                continue;
+            }
+
+            itemIdList.add((Integer) object);
+
+        }
+
+        // Prices
+
+        JSONArray prices = upgrade.optJSONArray("prices");
+
+        if (prices == null) {
+            return null;
+        }
+
+        List<Integer> priceList = new ArrayList<>();
+
+        for (Object object : prices) {
+
+            if (!(object instanceof Integer)) {
+                continue;
+            }
+
+            priceList.add((Integer) object);
+
+        }
+
+        JSONArray currencies = upgrade.optJSONArray("currencies");
+
+        if (currencies == null) {
+            return null;
+        }
+
+        List<Material> currencyList = new ArrayList<>();
+
+        for (Object object : currencies) {
+
+            if (!(object instanceof String)) {
+                continue;
+            }
+
+            Material material = Material.getMaterial((String) object);
+
+            if (material == null) {
+                continue;
+            }
+
+            currencyList.add(material);
+
+        }
+
+        JSONArray slots = upgrade.optJSONArray("slots");
+
+        if (slots == null) {
+            return null;
+        }
+
+        List<int[]> slotList = new ArrayList<>();
+
+        for (Object object : slots) {
+
+            if (!(object instanceof JSONObject)) {
+                continue;
+            }
+
+            JSONObject slotData = (JSONObject) object;
+
+            int page = slotData.optInt("page", -1);
+            int slot = slotData.optInt("slot", -1);
+
+            if (page < 0 || slot < 0) {
+                continue;
+            }
+
+            slotList.add(new int[]{page, slot});
+
+        }
+
+        return new UpgradeEntry(this, itemIdList, priceList, currencyList, slotList);
     }
 
     public Game getGame() {

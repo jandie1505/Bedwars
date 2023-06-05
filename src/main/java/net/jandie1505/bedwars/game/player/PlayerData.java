@@ -12,6 +12,9 @@ public class PlayerData {
     private int kills;
     private int deaths;
     private int bedsBroken;
+    private int armorUpgrade;
+    private int pickaxeUpgrade;
+    private int shearsUpgrade;
 
     public PlayerData(int team) {
         this.alive = false;
@@ -21,6 +24,9 @@ public class PlayerData {
         this.kills = 0;
         this.deaths = 0;
         this.bedsBroken = 0;
+        this.armorUpgrade = 0;
+        this.pickaxeUpgrade = 0;
+        this.shearsUpgrade = 0;
     }
 
     public boolean isAlive() {
@@ -77,5 +83,33 @@ public class PlayerData {
 
     public void setBedsBroken(int bedsBroken) {
         this.bedsBroken = bedsBroken;
+    }
+
+    public void setScoreboard(Scoreboard scoreboard) {
+        this.scoreboard = scoreboard;
+    }
+
+    public int getArmorUpgrade() {
+        return armorUpgrade;
+    }
+
+    public void setArmorUpgrade(int armorUpgrade) {
+        this.armorUpgrade = armorUpgrade;
+    }
+
+    public int getPickaxeUpgrade() {
+        return pickaxeUpgrade;
+    }
+
+    public void setPickaxeUpgrade(int pickaxeUpgrade) {
+        this.pickaxeUpgrade = pickaxeUpgrade;
+    }
+
+    public int getShearsUpgrade() {
+        return shearsUpgrade;
+    }
+
+    public void setShearsUpgrade(int shearsUpgrade) {
+        this.shearsUpgrade = shearsUpgrade;
     }
 }

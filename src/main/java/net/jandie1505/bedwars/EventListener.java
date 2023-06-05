@@ -143,7 +143,7 @@ public class EventListener implements Listener {
             for (String tag : List.copyOf(event.getRightClicked().getScoreboardTags())) {
 
                 if (tag.startsWith("shop")) {
-                    event.getPlayer().openInventory(new ShopMenu((Game) this.plugin.getGame()).getPage(0));
+                    event.getPlayer().openInventory(new ShopMenu((Game) this.plugin.getGame(), event.getPlayer().getUniqueId()).getPage(0));
                     return;
                 }
 
@@ -194,7 +194,7 @@ public class EventListener implements Listener {
             for (int i = 0; i < menuItems.length; i++) {
 
                 if (menuItems[i] != null && menuItems[i] == itemId) {
-                    event.getWhoClicked().openInventory(new ShopMenu((Game) this.plugin.getGame()).getPage(i));
+                    event.getWhoClicked().openInventory(new ShopMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getPage(i));
                     return;
                 }
 
