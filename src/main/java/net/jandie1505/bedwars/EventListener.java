@@ -227,38 +227,31 @@ public class EventListener implements Listener {
                 return;
             }
 
-            System.out.println("check");
             UpgradeEntry upgradeEntry = ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntry(itemId);
 
             if (upgradeEntry != null) {
 
-                System.out.println("upgrade entry ok");
-
                 PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getWhoClicked().getUniqueId());
 
                 if (playerData == null) {
-                    System.out.println("playerdata null");
                     return;
                 }
 
                 int upgradeLevel = upgradeEntry.getUpgradeLevel(playerData) + 1;
 
                 if (upgradeLevel < 0) {
-                    System.out.println("upgrade level error");
                     return;
                 }
 
                 int price = upgradeEntry.getUpgradePrice(upgradeLevel);
 
                 if (price < 0) {
-                    System.out.println("price error");
                     return;
                 }
 
                 Material currency = upgradeEntry.getUpgradeCurrency(upgradeLevel);
 
                 if (currency == null) {
-                    System.out.println("currency error");
                     return;
                 }
 
