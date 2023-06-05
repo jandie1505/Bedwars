@@ -3,6 +3,7 @@ package net.jandie1505.bedwars;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.menu.ShopEntry;
 import net.jandie1505.bedwars.game.menu.ShopMenu;
+import net.jandie1505.bedwars.game.menu.UpgradeEntry;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
@@ -202,28 +203,86 @@ public class EventListener implements Listener {
 
             ShopEntry shopEntry = ((Game) this.plugin.getGame()).getItemShop().getShopEntry(itemId);
 
-            if (shopEntry == null) {
-                return;
-            }
+            if (shopEntry != null) {
 
-            int availableCurrency = 0;
+                int availableCurrency = 0;
 
-            for (ItemStack item : Arrays.copyOf(event.getWhoClicked().getInventory().getContents(), event.getWhoClicked().getInventory().getContents().length)) {
+                for (ItemStack item : Arrays.copyOf(event.getWhoClicked().getInventory().getContents(), event.getWhoClicked().getInventory().getContents().length)) {
 
-                if (item != null && item.getType() == shopEntry.getCurrency()) {
-                    availableCurrency += item.getAmount();
+                    if (item != null && item.getType() == shopEntry.getCurrency()) {
+                        availableCurrency += item.getAmount();
+                    }
+
                 }
 
-            }
+                if (availableCurrency < shopEntry.getPrice()) {
+                    event.getWhoClicked().sendMessage("§cYou don't have enough " + shopEntry.getCurrency().name() + "s!");
+                    return;
+                }
 
-            if (availableCurrency < shopEntry.getPrice()) {
-                event.getWhoClicked().sendMessage("§cYou don't have enough " + shopEntry.getCurrency().name() + "s!");
+                event.getWhoClicked().sendMessage("§aItem successfully purchased");
+                Bedwars.removeSpecificAmountOfItems(event.getWhoClicked().getInventory(), shopEntry.getCurrency(), shopEntry.getPrice());
+                event.getWhoClicked().getInventory().addItem(((Game) this.plugin.getGame()).getPlugin().getItemStorage().getItem(itemId));
+
                 return;
             }
 
-            event.getWhoClicked().sendMessage("§aItem successfully purchased");
-            Bedwars.removeSpecificAmountOfItems(event.getWhoClicked().getInventory(), shopEntry.getCurrency(), shopEntry.getPrice());
-            event.getWhoClicked().getInventory().addItem(((Game) this.plugin.getGame()).getPlugin().getItemStorage().getItem(itemId));
+            System.out.println("check");
+            UpgradeEntry upgradeEntry = ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntry(itemId);
+
+            if (upgradeEntry != null) {
+
+                System.out.println("upgrade entry ok");
+
+                PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getWhoClicked().getUniqueId());
+
+                if (playerData == null) {
+                    System.out.println("playerdata null");
+                    return;
+                }
+
+                int upgradeLevel = upgradeEntry.getUpgradeLevel(playerData) + 1;
+
+                if (upgradeLevel < 0) {
+                    System.out.println("upgrade level error");
+                    return;
+                }
+
+                int price = upgradeEntry.getUpgradePrice(upgradeLevel);
+
+                if (price < 0) {
+                    System.out.println("price error");
+                    return;
+                }
+
+                Material currency = upgradeEntry.getUpgradeCurrency(upgradeLevel);
+
+                if (currency == null) {
+                    System.out.println("currency error");
+                    return;
+                }
+
+                int availableCurrency = 0;
+
+                for (ItemStack item : Arrays.copyOf(event.getWhoClicked().getInventory().getContents(), event.getWhoClicked().getInventory().getContents().length)) {
+
+                    if (item != null && item.getType() == currency) {
+                        availableCurrency += item.getAmount();
+                    }
+
+                }
+
+                if (availableCurrency < price) {
+                    event.getWhoClicked().sendMessage("§cYou don't have enough " + currency.name() + "s!");
+                    return;
+                }
+
+                event.getWhoClicked().sendMessage("§aItem successfully purchased");
+                Bedwars.removeSpecificAmountOfItems(event.getWhoClicked().getInventory(), currency, price);
+                upgradeEntry.upgradePlayer(playerData);
+
+                return;
+            }
 
             return;
         }

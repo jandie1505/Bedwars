@@ -67,7 +67,7 @@ public class ShopMenu implements InventoryHolder {
                 continue;
             }
 
-            ItemStack itemStack = upgradeEntry.getItem(upgradeEntry.getUpgradeLevel(playerData));
+            ItemStack itemStack = upgradeEntry.getItem(upgradeEntry.getUpgradeLevel(playerData) + 1);
 
             if (itemStack == null) {
                 continue;

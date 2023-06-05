@@ -35,6 +35,14 @@ public class ItemShop {
         return List.copyOf(this.shopEntries);
     }
 
+    public List<UpgradeEntry> getUpgradeEntries() {
+        return List.of(
+                this.armorUpgrade,
+                this.pickaxeUpgrade,
+                this.shearsUpgrade
+        );
+    }
+
     public List<ShopEntry> getShopEntryPage(int page) {
         List<ShopEntry> returnList = new ArrayList<>();
 
@@ -102,6 +110,19 @@ public class ItemShop {
 
     public UpgradeEntry getShearsUpgrade() {
         return this.shearsUpgrade;
+    }
+
+    public UpgradeEntry getUpgradeEntry(int itemId) {
+
+        for (UpgradeEntry upgradeEntry : this.getUpgradeEntries()) {
+
+            if (upgradeEntry.getUpgradeItemIds().contains(itemId)) {
+                return upgradeEntry;
+            }
+
+        }
+
+        return null;
     }
 
     public void initEntries(JSONObject shopConfig) {

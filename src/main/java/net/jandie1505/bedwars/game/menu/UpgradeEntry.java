@@ -22,14 +22,24 @@ public class UpgradeEntry {
         this.slots = List.copyOf(slots);
     }
 
+    public List<Integer> getUpgradeItemIds() {
+        return List.copyOf(this.upgradeItemIds);
+    }
+
     public int getItemId(int upgradeLevel) {
+
+        upgradeLevel--;
+
+        if (upgradeLevel < 0) {
+            return -3;
+        }
 
         if (this.upgradeItemIds.isEmpty()) {
             return -1;
         }
 
         if (upgradeLevel >= this.upgradeItemIds.size()) {
-            return this.upgradeItemIds.get(this.upgradeItemIds.size() - 1);
+            return -2;
         }
 
         return this.upgradeItemIds.get(upgradeLevel);
@@ -37,12 +47,18 @@ public class UpgradeEntry {
 
     public int getUpgradePrice(int upgradeLevel) {
 
+        upgradeLevel--;
+
+        if (upgradeLevel < 0) {
+            return -3;
+        }
+
         if (this.upgradePrices.isEmpty()) {
             return -1;
         }
 
         if (upgradeLevel >= this.upgradePrices.size()) {
-            return this.upgradePrices.get(this.upgradePrices.size() - 1);
+            return -2;
         }
 
         return this.upgradePrices.get(upgradeLevel);
@@ -50,12 +66,18 @@ public class UpgradeEntry {
 
     public Material getUpgradeCurrency(int upgradeLevel) {
 
+        upgradeLevel--;
+
+        if (upgradeLevel < 0) {
+            return null;
+        }
+
         if (this.upgradeCurrencies.isEmpty()) {
             return null;
         }
 
         if (upgradeLevel >= this.upgradeCurrencies.size()) {
-            return this.upgradeCurrencies.get(this.upgradeCurrencies.size() - 1);
+            return null;
         }
 
         return this.upgradeCurrencies.get(upgradeLevel);
@@ -71,6 +93,18 @@ public class UpgradeEntry {
             return playerData.getShearsUpgrade();
         } else {
             return 0;
+        }
+
+    }
+
+    public void upgradePlayer(PlayerData playerData) {
+
+        if (this.itemShop.getArmorUpgrade() == this) {
+            playerData.setArmorUpgrade(playerData.getArmorUpgrade() + 1);
+        } else if (this.itemShop.getPickaxeUpgrade() == this) {
+            playerData.setPickaxeUpgrade(playerData.getPickaxeUpgrade() + 1);
+        } else if (this.itemShop.getShearsUpgrade() == this) {
+            playerData.setShearsUpgrade(playerData.getShearsUpgrade() + 1);
         }
 
     }
