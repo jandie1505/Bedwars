@@ -2,9 +2,11 @@ package net.jandie1505.bedwars.game.menu;
 
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
+import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.UUID;
 
@@ -22,8 +24,8 @@ public class ShopMenu implements InventoryHolder {
         return this.game.getPlugin().getServer().createInventory(this, 9, "§c§mShopMenu");
     }
 
-    private Inventory getInventoryBase(String name) {
-        Inventory inventory = this.game.getPlugin().getServer().createInventory(this, 54, "Item Shop (" + name + ")");
+    private Inventory getInventoryBase(int page) {
+        Inventory inventory = this.game.getPlugin().getServer().createInventory(this, 54, "Item Shop (" + page + ")");
 
         for (int i = 0; i < 9; i++) {
 
@@ -43,15 +45,27 @@ public class ShopMenu implements InventoryHolder {
 
         }
 
+        ItemStack item = new ItemStack(Material.BLACK_STAINED_GLASS);
+        ItemMeta meta = this.game.getPlugin().getServer().getItemFactory().getItemMeta(item.getType());
+        meta.setDisplayName(String.valueOf(page));
+        item.setItemMeta(meta);
+
+        inventory.setItem(53, item);
+
         return inventory;
     }
 
     public Inventory getPage(int page) {
-        Inventory inventory = this.getInventoryBase("Page " + page);
+
+        if (page < 0) {
+            return this.getInventory();
+        }
+
+        Inventory inventory = this.getInventoryBase(page);
 
         for (ShopEntry shopEntry : this.game.getItemShop().getShopEntryPage(page)) {
 
-            if (shopEntry.getItem() == null || shopEntry.getSlot() < 9 || shopEntry.getSlot() > 53) {
+            if (shopEntry.getItem() == null || shopEntry.getSlot() < 9 || shopEntry.getSlot() > 52) {
                 continue;
             }
 
@@ -75,7 +89,7 @@ public class ShopMenu implements InventoryHolder {
 
             for (int[] slotData : upgradeEntry.getSlots()) {
 
-                if (slotData[0] != page || slotData[1] < 9 || slotData[1] > 53) {
+                if (slotData[0] != page || slotData[1] < 9 || slotData[1] > 52) {
                     continue;
                 }
 
@@ -86,5 +100,24 @@ public class ShopMenu implements InventoryHolder {
         }
 
         return inventory;
+    }
+
+    public static int getMenuPage(Inventory inventory) {
+
+        if (inventory == null) {
+            return -1;
+        }
+
+        ItemStack item = inventory.getItem(53);
+
+        if (item == null || item.getItemMeta() == null) {
+            return -1;
+        }
+
+        try {
+            return Integer.parseInt(item.getItemMeta().getDisplayName());
+        } catch (IllegalArgumentException e) {
+            return -1;
+        }
     }
 }

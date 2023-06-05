@@ -110,7 +110,15 @@ public class UpgradeEntry {
     }
 
     public ItemStack getItem(int upgradeLevel) {
-        ItemStack item = this.itemShop.getGame().getPlugin().getItemStorage().getItem(this.getItemId(upgradeLevel));
+        int itemId = this.getItemId(upgradeLevel);
+        boolean toHighValue = false;
+
+        if (itemId == -2) {
+            itemId = this.getItemId(this.upgradeItemIds.size());
+            toHighValue = true;
+        }
+
+        ItemStack item = this.itemShop.getGame().getPlugin().getItemStorage().getItem(itemId);
 
         if (item == null) {
             return null;
@@ -120,7 +128,12 @@ public class UpgradeEntry {
 
         List<String> lore = meta.getLore();
 
-        lore.add(1, "§r§fPrice: §a" + this.getUpgradePrice(upgradeLevel) + " " + this.getUpgradeCurrency(upgradeLevel).name() + "s");
+        if (toHighValue) {
+            lore.add(1, "§r§aAlready unlocked");
+        } else {
+            lore.add(1, "§r§fPrice: §a" + this.getUpgradePrice(upgradeLevel) + " " + this.getUpgradeCurrency(upgradeLevel).name() + "s");
+        }
+
         meta.setLore(lore);
 
         item.setItemMeta(meta);

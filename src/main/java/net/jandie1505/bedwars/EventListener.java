@@ -247,6 +247,7 @@ public class EventListener implements Listener {
                 event.getWhoClicked().sendMessage("§aItem successfully purchased");
                 Bedwars.removeSpecificAmountOfItems(event.getWhoClicked().getInventory(), shopEntry.getCurrency(), shopEntry.getPrice());
                 event.getWhoClicked().getInventory().addItem(((Game) this.plugin.getGame()).getPlugin().getItemStorage().getItem(itemId));
+                event.getWhoClicked().openInventory(new ShopMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getPage(ShopMenu.getMenuPage(event.getInventory())));
 
                 return;
             }
@@ -297,6 +298,7 @@ public class EventListener implements Listener {
                 event.getWhoClicked().sendMessage("§aItem successfully purchased");
                 Bedwars.removeSpecificAmountOfItems(event.getWhoClicked().getInventory(), currency, price);
                 upgradeEntry.upgradePlayer(playerData);
+                event.getWhoClicked().openInventory(new ShopMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getPage(ShopMenu.getMenuPage(event.getInventory())));
 
                 return;
             }
