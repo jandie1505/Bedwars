@@ -43,18 +43,34 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEntityDeath(EntityDeathEvent event) {
 
-        if (this.plugin.getGame() instanceof Game && event.getEntity() instanceof Player && ((Game) this.plugin.getGame()).getPlayers().containsKey(event.getEntity().getUniqueId())) {
+        if (!(event.getEntity() instanceof Player)) {
+            return;
+        }
 
-            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getUniqueId());
+        if (Boolean.FALSE.equals(((Player) event.getEntity()).getPlayer().getWorld().getGameRuleValue(GameRule.DO_IMMEDIATE_RESPAWN))) {
+            this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> {
+                ((Player) event.getEntity()).spigot().respawn();
+            }, 1);
+        }
 
-            playerData.setAlive(false);
+        if (!(this.plugin.getGame() instanceof Game)) {
+            return;
+        }
 
-            if (Boolean.FALSE.equals(((Player) event.getEntity()).getPlayer().getWorld().getGameRuleValue(GameRule.DO_IMMEDIATE_RESPAWN))) {
-                this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> {
-                    ((Player) event.getEntity()).spigot().respawn();
-                }, 1);
-            }
+        if (!((Game) this.plugin.getGame()).getPlayers().containsKey(event.getEntity().getUniqueId())) {
+            return;
+        }
 
+        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getUniqueId());
+
+        playerData.setAlive(false);
+
+        if (playerData.getPickaxeUpgrade() > 1) {
+            playerData.setPickaxeUpgrade(playerData.getPickaxeUpgrade() - 1);
+        }
+
+        if (playerData.getShearsUpgrade() > 1) {
+            playerData.setShearsUpgrade(playerData.getShearsUpgrade() - 1);
         }
 
     }

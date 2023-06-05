@@ -20,6 +20,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.*;
 import org.json.JSONObject;
 
@@ -222,6 +223,59 @@ public class Game implements GamePart {
                     }
                 }
 
+            }
+
+            // Inventory
+
+            boolean inventoryPickaxeUpgradeMissing = true;
+            boolean inventoryShearsUpgradeMissing = true;
+
+            for (ItemStack item : player.getInventory().getContents()) {
+
+                int itemId = this.plugin.getItemStorage().getItemId(item);
+
+                if (itemId < 0) {
+                    continue;
+                }
+
+                if (this.itemShop.getPickaxeUpgrade().getUpgradeItemIds().contains(itemId)) {
+
+                    if (this.itemShop.getPickaxeUpgrade().getItemId(playerData.getPickaxeUpgrade()) == itemId) {
+                        inventoryPickaxeUpgradeMissing = false;
+                        continue;
+                    }
+
+                    Bedwars.removeItemCompletely(player.getInventory(), item);
+                    continue;
+                }
+
+                if (this.itemShop.getShearsUpgrade().getUpgradeItemIds().contains(itemId)) {
+
+                    if (this.itemShop.getShearsUpgrade().getItemId(playerData.getShearsUpgrade()) == itemId) {
+                        inventoryShearsUpgradeMissing = false;
+                        continue;
+                    }
+
+                    Bedwars.removeItemCompletely(player.getInventory(), item);
+                    continue;
+                }
+
+            }
+
+            if (playerData.getPickaxeUpgrade() > 0 && inventoryPickaxeUpgradeMissing) {
+                ItemStack item = this.itemShop.getPickaxeUpgrade().getItem(playerData.getPickaxeUpgrade());
+
+                if (item != null) {
+                    player.getInventory().addItem(item);
+                }
+            }
+
+            if (playerData.getShearsUpgrade() > 0 && inventoryShearsUpgradeMissing) {
+                ItemStack item = this.itemShop.getShearsUpgrade().getItem(playerData.getShearsUpgrade());
+
+                if (item != null) {
+                    player.getInventory().addItem(item);
+                }
             }
 
         }

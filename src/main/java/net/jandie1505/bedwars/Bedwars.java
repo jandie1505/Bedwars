@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -269,5 +270,18 @@ public class Bedwars extends JavaPlugin {
                 }
             }
         }
+    }
+
+    public static void removeItemCompletely(Inventory inventory, ItemStack item) {
+
+        for (int slot = 0; slot < inventory.getSize(); slot++) {
+            ItemStack slotItem = inventory.getItem(slot);
+
+            if (item.isSimilar(slotItem)) {
+                inventory.clear(slot);
+            }
+
+        }
+
     }
 }
