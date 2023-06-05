@@ -124,9 +124,13 @@ public class Game implements GamePart {
 
         for (Player player : this.plugin.getServer().getOnlinePlayers()) {
 
+            // Is Ingame
+
+            boolean isIngame = this.players.containsKey(player.getUniqueId());
+
             // Scoreboard
 
-            if (!this.playerScoreboards.containsKey(player.getUniqueId())) {
+            if (!isIngame) {
                 this.playerScoreboards.put(player.getUniqueId(), this.plugin.getServer().getScoreboardManager().getNewScoreboard());
             }
 
@@ -137,9 +141,35 @@ public class Game implements GamePart {
                 );
             }
 
+            // Game mode
+
+            if (!isIngame && !this.plugin.isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
+                player.setGameMode(GameMode.SPECTATOR);
+            }
+
+            // Set player visibility
+
+            for (Player otherPlayer : this.plugin.getServer().getOnlinePlayers()) {
+
+                if (this.plugin.isPlayerBypassing(player.getUniqueId()) && !player.canSee(otherPlayer)) {
+
+                    player.showPlayer(otherPlayer);
+
+                } else if (this.players.containsKey(otherPlayer) && !player.canSee(otherPlayer)) {
+
+                    player.showPlayer(otherPlayer);
+
+                } else if (!this.players.containsKey(otherPlayer) && player.canSee(otherPlayer)) {
+
+                    player.hidePlayer(otherPlayer);
+
+                }
+
+            }
+
             // Continue if player is not ingame
 
-            if (!this.players.containsKey(player.getUniqueId())) {
+            if (!isIngame) {
                 continue;
             }
 
