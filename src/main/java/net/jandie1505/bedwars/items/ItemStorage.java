@@ -258,6 +258,11 @@ public class ItemStorage {
     }
 
     public boolean isArmorItem(ItemStack item) {
+
+        if (item == null) {
+            return false;
+        }
+
         Material itemType = item.getType();
 
         return itemType == Material.LEATHER_BOOTS ||

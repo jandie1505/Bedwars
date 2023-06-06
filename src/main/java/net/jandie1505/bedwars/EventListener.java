@@ -14,13 +14,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -52,6 +55,8 @@ public class EventListener implements Listener {
                 ((Player) event.getEntity()).spigot().respawn();
             }, 1);
         }
+
+        event.getDrops().clear();
 
         if (!(this.plugin.getGame() instanceof Game)) {
             return;
@@ -175,6 +180,24 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            return;
+        }
+
+        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+            return;
+        }
+
+        if (this.plugin.getItemStorage().isArmorItem(event.getItem())) {
+            event.setCancelled(true);
+            return;
+        }
+
+    }
+
+    @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
 
         if (this.plugin.getGame() instanceof Game && ((Game) this.plugin.getGame()).getPlayers().containsKey(event.getPlayer().getUniqueId())) {
@@ -205,6 +228,54 @@ public class EventListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
 
         if (!(event.getWhoClicked() instanceof Player)) {
+            return;
+        }
+
+        if (event.getInventory() == null) {
+            return;
+        }
+
+        if (event.getInventory().getHolder() == event.getWhoClicked()) {
+
+            if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+                return;
+            }
+
+            // Block armor slots
+            if (event.getSlot() == 36 || event.getSlot() == 37 || event.getSlot() == 38 || event.getSlot() == 39) {
+                event.setCancelled(true);
+                event.getWhoClicked().sendMessage("§cYou can upgrade your armor in item shop");
+                return;
+            }
+
+            if (event.isShiftClick() && event.getCurrentItem() != null && this.plugin.getItemStorage().isArmorItem(event.getCurrentItem())) {
+                event.setCancelled(true);
+                event.getWhoClicked().sendMessage("§cYou can upgrade your armor in item shop");
+                return;
+            }
+
+            // Ingame
+
+            if (!(this.plugin.getGame() instanceof Game)) {
+                return;
+            }
+
+            if (event.getClick() == ClickType.DROP) {
+
+                for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
+                    for (int itemId : upgradeEntry.getUpgradeItemIds()) {
+
+                        if (this.plugin.getItemStorage().getItemId(event.getCurrentItem()) == itemId) {
+                            event.setCancelled(true);
+                            event.getWhoClicked().sendMessage("§cYou cannot drop upgradable items");
+                            return;
+                        }
+
+                    }
+                }
+
+            }
+
             return;
         }
 
@@ -326,6 +397,22 @@ public class EventListener implements Listener {
             return;
         }
 
+        if (this.plugin.getGame() instanceof Game) {
+
+            for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
+                for (int itemId : upgradeEntry.getUpgradeItemIds()) {
+
+                    if (this.plugin.getItemStorage().getItemId(event.getCurrentItem()) == itemId) {
+                        event.setCancelled(true);
+                        event.getWhoClicked().sendMessage("§cYou cannot move upgradable items to other inventories");
+                        return;
+                    }
+
+                }
+            }
+
+        }
+
         if (!(this.plugin.getGame() instanceof Game)) {
             event.setCancelled(true);
             return;
@@ -340,6 +427,22 @@ public class EventListener implements Listener {
             return;
         }
 
+        if (event.getInventory().getHolder() == event.getWhoClicked()) {
+
+            if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+                return;
+            }
+
+            // Block armor slots
+            if (event.getInventorySlots().contains(36) || event.getInventorySlots().contains(37) || event.getInventorySlots().contains(38) || event.getInventorySlots().contains(39)) {
+                event.setCancelled(true);
+                event.getWhoClicked().sendMessage("§cYou can upgrade your armor in item shop");
+                return;
+            }
+
+            return;
+        }
+
         if (event.getInventory().getHolder() instanceof ShopMenu) {
             event.setCancelled(true);
             return;
@@ -347,6 +450,22 @@ public class EventListener implements Listener {
 
         if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
             return;
+        }
+
+        if (this.plugin.getGame() instanceof Game) {
+
+            for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
+                for (int itemId : upgradeEntry.getUpgradeItemIds()) {
+
+                    if (this.plugin.getItemStorage().getItemId(event.getOldCursor()) == itemId) {
+                        event.setCancelled(true);
+                        event.getWhoClicked().sendMessage("§cYou cannot move upgradable items");
+                        return;
+                    }
+
+                }
+            }
+
         }
 
         if (!(this.plugin.getGame() instanceof Game)) {
@@ -357,37 +476,28 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onInventoryMove(InventoryMoveItemEvent event) {
-
-        Player player = null;
-        Inventory inventory = null;
-
-        if (event.getSource().getHolder() instanceof Player || event.getDestination().getHolder() instanceof Player) {
-            if (event.getSource().getHolder() instanceof Player) {
-                player = (Player) event.getSource().getHolder();
-                inventory = event.getDestination();
-            } else {
-                player = (Player) event.getDestination().getHolder();
-                inventory = event.getSource();
-            }
-        }
-
-        if (player == null || player.getInventory() == inventory) {
-            return;
-        }
-
-        if (inventory.getHolder() instanceof ShopMenu) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (this.plugin.isPlayerBypassing(player.getUniqueId())) {
-            return;
-        }
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
 
         if (!(this.plugin.getGame() instanceof Game)) {
+
+            if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+                return;
+            }
+
             event.setCancelled(true);
             return;
+        }
+
+        for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
+            for (int itemId : upgradeEntry.getUpgradeItemIds()) {
+
+                if (this.plugin.getItemStorage().getItemId(event.getItemDrop().getItemStack()) == itemId && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+                    event.setCancelled(true);
+                    event.getPlayer().sendMessage("§cYou cannot drop upgradable items");
+                    return;
+                }
+
+            }
         }
 
     }

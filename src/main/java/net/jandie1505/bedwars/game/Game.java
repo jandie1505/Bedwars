@@ -323,8 +323,14 @@ public class Game implements GamePart {
         boolean inventoryPickaxeUpgradeMissing = true;
         boolean inventoryShearsUpgradeMissing = true;
 
-        for (int slot = 0; slot < player.getInventory().getSize(); slot++) {
-            ItemStack item = player.getInventory().getItem(slot);
+        for (int slot = 0; slot < player.getInventory().getSize() + 1; slot++) {
+            ItemStack item;
+
+            if (slot < player.getInventory().getSize()) {
+                item = player.getInventory().getItem(slot);
+            } else {
+                item = player.getItemOnCursor();
+            }
 
             int itemId = this.plugin.getItemStorage().getItemId(item);
 
@@ -340,6 +346,11 @@ public class Game implements GamePart {
                 }
 
                 Bedwars.removeItemCompletely(player.getInventory(), item);
+
+                if (slot >= player.getInventory().getSize()) {
+                    player.setItemOnCursor(new ItemStack(Material.AIR));
+                }
+
                 continue;
             }
 
@@ -351,6 +362,11 @@ public class Game implements GamePart {
                 }
 
                 Bedwars.removeItemCompletely(player.getInventory(), item);
+
+                if (slot >= player.getInventory().getSize()) {
+                    player.setItemOnCursor(new ItemStack(Material.AIR));
+                }
+
                 continue;
             }
 
