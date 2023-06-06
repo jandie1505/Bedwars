@@ -2,21 +2,24 @@ package net.jandie1505.bedwars.lobby.setup;
 
 import net.jandie1505.bedwars.game.generators.Generator;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 
 import java.util.List;
 
 public class LobbyTeamData {
     private final String name;
-    private final ChatColor color;
+    private final ChatColor chatColor;
+    private final Color color;
     private final List<Location> spawnpoints;
     private final List<Location> bedLocations;
     private final List<LobbyGeneratorData> generators;
     private final List<Location> shopVillagerLocations;
     private final List<Location> upgradesVillagerLocations;
 
-    public LobbyTeamData(String name, ChatColor color, List<Location> spawnpoints, List<Location> bedLocations, List<LobbyGeneratorData> generators, List<Location> shopVillagerLocations, List<Location> upgradesVillagerLocations) {
+    public LobbyTeamData(String name, ChatColor chatColor, Color color, List<Location> spawnpoints, List<Location> bedLocations, List<LobbyGeneratorData> generators, List<Location> shopVillagerLocations, List<Location> upgradesVillagerLocations) {
         this.name = name;
+        this.chatColor = chatColor;
         this.color = color;
         this.spawnpoints = List.copyOf(spawnpoints);
         this.bedLocations = List.copyOf(bedLocations);
@@ -29,7 +32,11 @@ public class LobbyTeamData {
         return name;
     }
 
-    public ChatColor getColor() {
+    public ChatColor getChatColor() {
+        return chatColor;
+    }
+
+    public Color getColor() {
         return color;
     }
 

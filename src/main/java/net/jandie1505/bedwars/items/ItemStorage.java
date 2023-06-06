@@ -1,11 +1,14 @@
 package net.jandie1505.bedwars.items;
 
 import net.jandie1505.bedwars.Bedwars;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -254,4 +257,95 @@ public class ItemStorage {
         return Map.copyOf(returnMap);
     }
 
+    public boolean isArmorItem(ItemStack item) {
+        Material itemType = item.getType();
+
+        return itemType == Material.LEATHER_BOOTS ||
+                itemType == Material.LEATHER_LEGGINGS ||
+                itemType == Material.LEATHER_CHESTPLATE ||
+                itemType == Material.LEATHER_HELMET ||
+                itemType == Material.CHAINMAIL_BOOTS ||
+                itemType == Material.CHAINMAIL_LEGGINGS ||
+                itemType == Material.CHAINMAIL_CHESTPLATE ||
+                itemType == Material.CHAINMAIL_HELMET ||
+                itemType == Material.IRON_BOOTS ||
+                itemType == Material.IRON_LEGGINGS ||
+                itemType == Material.IRON_CHESTPLATE ||
+                itemType == Material.IRON_HELMET ||
+                itemType == Material.GOLDEN_BOOTS ||
+                itemType == Material.GOLDEN_LEGGINGS ||
+                itemType == Material.GOLDEN_CHESTPLATE ||
+                itemType == Material.GOLDEN_HELMET ||
+                itemType == Material.DIAMOND_BOOTS ||
+                itemType == Material.DIAMOND_LEGGINGS ||
+                itemType == Material.DIAMOND_CHESTPLATE ||
+                itemType == Material.DIAMOND_HELMET ||
+                itemType == Material.NETHERITE_BOOTS ||
+                itemType == Material.NETHERITE_LEGGINGS ||
+                itemType == Material.NETHERITE_CHESTPLATE ||
+                itemType == Material.NETHERITE_HELMET;
+    }
+
+    public ItemStack colorArmor(ItemStack item, Color color) {
+
+        if (item == null) {
+            return null;
+        }
+
+        if (item.getItemMeta() == null) {
+            item.setItemMeta(this.plugin.getServer().getItemFactory().getItemMeta(item.getType()));
+        }
+
+        if (!(item.getItemMeta() instanceof LeatherArmorMeta)) {
+            System.out.println("no leather");
+            return item;
+        }
+
+        LeatherArmorMeta meta = (LeatherArmorMeta) item.getItemMeta();
+
+        meta.setColor(color);
+
+        item.setItemMeta(meta);
+
+        return item;
+    }
+
+    public Material getArmorPiece(Material type, int piece) {
+        String typeString = type.name();
+        String[] parts = typeString.split("_");
+
+        if (parts.length != 2) {
+            return type;
+        }
+
+        String newPart;
+
+        switch (piece) {
+            case 0:
+                newPart = "HELMET";
+                break;
+            case 1:
+                newPart = "CHESTPLATE";
+                break;
+            case 2:
+                newPart = "LEGGINGS";
+                break;
+            case 3:
+                newPart = "BOOTS";
+                break;
+            default:
+                newPart = parts[1];
+                break;
+        }
+
+        return Material.getMaterial(parts[0] + "_" + newPart);
+    }
+
+    public ItemStack copyItemMeta(ItemStack oldArmor, Material target) {
+        ItemStack item = oldArmor.clone();
+
+        item.setType(target);
+
+        return item;
+    }
 }

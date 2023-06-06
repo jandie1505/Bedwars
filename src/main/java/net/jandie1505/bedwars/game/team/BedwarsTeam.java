@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.block.data.type.Bed;
 
@@ -12,7 +13,8 @@ import java.util.*;
 public class BedwarsTeam {
     private final Game game;
     private final String name;
-    private final ChatColor color;
+    private final ChatColor chatColor;
+    private final Color color;
     private final List<Location> spawnpoints;
     private final List<Location> bedLocations;
     private final List<Location> shopVillagerLocations;
@@ -27,6 +29,7 @@ public class BedwarsTeam {
     public BedwarsTeam(Game game, LobbyTeamData teamData) {
         this.game = game;
         this.name = teamData.getName();
+        this.chatColor = teamData.getChatColor();
         this.color = teamData.getColor();
         this.spawnpoints = Collections.synchronizedList(new ArrayList<>(teamData.getSpawnpoints()));
         this.bedLocations = Collections.synchronizedList(new ArrayList<>(teamData.getBedLocations()));
@@ -44,7 +47,11 @@ public class BedwarsTeam {
         return name;
     }
 
-    public ChatColor getColor() {
+    public ChatColor getChatColor() {
+        return chatColor;
+    }
+
+    public Color getColor() {
         return color;
     }
 

@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.game.menu.ArmorConfig;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
@@ -98,6 +99,19 @@ public class Lobby implements GamePart {
             return null;
         }
 
+        JSONObject shopConfig = this.plugin.getShopConfig().getConfig();
+
+        ArmorConfig armorConfig = new ArmorConfig(
+                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("enableArmorSystem", false),
+                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("copyHelmet", false),
+                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("copyChestplate", false),
+                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("copyLeggings", false),
+                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultHelmet", 125),
+                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultChestplate", 126),
+                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultLeggings", 127),
+                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultBoots", 128)
+        );
+
         Game game = new Game(
                 this.plugin,
                 world,
@@ -105,6 +119,7 @@ public class Lobby implements GamePart {
                         new LobbyTeamData(
                                 "Green",
                                 ChatColor.GREEN,
+                                Color.LIME,
                                 List.of(
                                         new Location(world, 55, 1, 0, 0, 0)
                                 ),
@@ -137,6 +152,7 @@ public class Lobby implements GamePart {
                         new LobbyTeamData(
                                 "Red",
                                 ChatColor.RED,
+                                Color.RED,
                                 List.of(
                                         new Location(world, -63, 1, 0, 0, 0)
                                 ),
@@ -201,7 +217,8 @@ public class Lobby implements GamePart {
                         new LobbyGeneratorUpgradeTimeActionData(1, 1, 3540),
                         new LobbyGeneratorUpgradeTimeActionData(2, 1, 3480)
                 ),
-                new JSONObject(this.plugin.getShopConfig().getConfig().optJSONObject("itemShop").toString()),
+                new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
+                armorConfig,
                 5,
                 3600
         );

@@ -6,6 +6,7 @@ import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
+import net.jandie1505.bedwars.game.menu.ArmorConfig;
 import net.jandie1505.bedwars.game.menu.ItemShop;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
@@ -15,12 +16,10 @@ import net.jandie1505.bedwars.game.timeactions.TimeAction;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scoreboard.*;
 import org.json.JSONObject;
 
@@ -37,13 +36,14 @@ public class Game implements GamePart {
     private final List<Location> playerPlacedBlocks;
     private final Map<UUID, Scoreboard> playerScoreboards;
     private final ItemShop itemShop;
+    private final ArmorConfig armorConfig;
     private int maxTime;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
     private int publicDiamondGeneratorLevel;
 
-    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, JSONObject shopConfig, int respawnCountdown, int maxTime) {
+    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, int respawnCountdown, int maxTime) {
         this.plugin = plugin;
         this.world = world;
         this.teams = Collections.synchronizedList(new ArrayList<>());
@@ -54,6 +54,7 @@ public class Game implements GamePart {
         this.playerPlacedBlocks = Collections.synchronizedList(new ArrayList<>());
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
+        this.armorConfig = armorConfig;
         this.maxTime = maxTime;
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
@@ -227,56 +228,7 @@ public class Game implements GamePart {
 
             // Inventory
 
-            boolean inventoryPickaxeUpgradeMissing = true;
-            boolean inventoryShearsUpgradeMissing = true;
-
-            for (ItemStack item : player.getInventory().getContents()) {
-
-                int itemId = this.plugin.getItemStorage().getItemId(item);
-
-                if (itemId < 0) {
-                    continue;
-                }
-
-                if (this.itemShop.getPickaxeUpgrade().getUpgradeItemIds().contains(itemId)) {
-
-                    if (this.itemShop.getPickaxeUpgrade().getItemId(playerData.getPickaxeUpgrade()) == itemId) {
-                        inventoryPickaxeUpgradeMissing = false;
-                        continue;
-                    }
-
-                    Bedwars.removeItemCompletely(player.getInventory(), item);
-                    continue;
-                }
-
-                if (this.itemShop.getShearsUpgrade().getUpgradeItemIds().contains(itemId)) {
-
-                    if (this.itemShop.getShearsUpgrade().getItemId(playerData.getShearsUpgrade()) == itemId) {
-                        inventoryShearsUpgradeMissing = false;
-                        continue;
-                    }
-
-                    Bedwars.removeItemCompletely(player.getInventory(), item);
-                    continue;
-                }
-
-            }
-
-            if (playerData.getPickaxeUpgrade() > 0 && inventoryPickaxeUpgradeMissing) {
-                ItemStack item = this.itemShop.getPickaxeUpgrade().getItem(playerData.getPickaxeUpgrade());
-
-                if (item != null) {
-                    player.getInventory().addItem(item);
-                }
-            }
-
-            if (playerData.getShearsUpgrade() > 0 && inventoryShearsUpgradeMissing) {
-                ItemStack item = this.itemShop.getShearsUpgrade().getItem(playerData.getShearsUpgrade());
-
-                if (item != null) {
-                    player.getInventory().addItem(item);
-                }
-            }
+            this.inventoryTick(player, playerData, team);
 
         }
 
@@ -364,6 +316,182 @@ public class Game implements GamePart {
         return GameStatus.NORMAL;
     }
 
+    private void inventoryTick(Player player, PlayerData playerData, BedwarsTeam team) {
+
+        // Item management
+
+        boolean inventoryPickaxeUpgradeMissing = true;
+        boolean inventoryShearsUpgradeMissing = true;
+
+        for (int slot = 0; slot < player.getInventory().getSize(); slot++) {
+            ItemStack item = player.getInventory().getItem(slot);
+
+            int itemId = this.plugin.getItemStorage().getItemId(item);
+
+            if (itemId < 0) {
+                continue;
+            }
+
+            if (this.itemShop.getPickaxeUpgrade() != null && this.itemShop.getPickaxeUpgrade().getUpgradeItemIds().contains(itemId)) {
+
+                if (this.itemShop.getPickaxeUpgrade().getItemId(playerData.getPickaxeUpgrade()) == itemId) {
+                    inventoryPickaxeUpgradeMissing = false;
+                    continue;
+                }
+
+                Bedwars.removeItemCompletely(player.getInventory(), item);
+                continue;
+            }
+
+            if (this.itemShop.getShearsUpgrade() != null && this.itemShop.getShearsUpgrade().getUpgradeItemIds().contains(itemId)) {
+
+                if (this.itemShop.getShearsUpgrade().getItemId(playerData.getShearsUpgrade()) == itemId) {
+                    inventoryShearsUpgradeMissing = false;
+                    continue;
+                }
+
+                Bedwars.removeItemCompletely(player.getInventory(), item);
+                continue;
+            }
+
+        }
+
+        if (this.itemShop.getPickaxeUpgrade() != null && playerData.getPickaxeUpgrade() > 0 && inventoryPickaxeUpgradeMissing) {
+            ItemStack item = this.itemShop.getPickaxeUpgrade().getItem(playerData.getPickaxeUpgrade());
+
+            if (item != null) {
+                player.getInventory().addItem(item);
+            }
+        }
+
+        if (this.itemShop.getShearsUpgrade() != null && playerData.getShearsUpgrade() > 0 && inventoryShearsUpgradeMissing) {
+            ItemStack item = this.itemShop.getShearsUpgrade().getItem(playerData.getShearsUpgrade());
+
+            if (item != null) {
+                player.getInventory().addItem(item);
+            }
+        }
+
+        // Armor management
+
+        if (this.armorConfig.isEnableArmorSystem() && this.itemShop.getArmorUpgrade() != null) {
+
+            // Boots
+
+            int bootsItemId;
+
+            if (playerData.getArmorUpgrade() > 0) {
+                bootsItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
+            } else {
+                bootsItemId = this.armorConfig.getDefaultBoots();
+            }
+
+            if (this.plugin.getItemStorage().getItemId(player.getInventory().getBoots()) != bootsItemId) {
+
+                ItemStack item = this.plugin.getItemStorage().getItem(bootsItemId);
+
+                if (item != null) {
+
+                    if (item.getItemMeta() instanceof LeatherArmorMeta) {
+                        item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                    }
+
+                    player.getInventory().setBoots(item);
+                }
+
+            }
+
+            // Leggings
+
+            int leggingsItemId;
+
+            if (this.armorConfig.isCopyLeggings() && playerData.getArmorUpgrade() > 0) {
+                leggingsItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
+            } else {
+                leggingsItemId = this.armorConfig.getDefaultLeggings();
+            }
+
+            if (this.plugin.getItemStorage().getItemId(player.getInventory().getLeggings()) != leggingsItemId) {
+
+                ItemStack item = this.plugin.getItemStorage().getItem(leggingsItemId);
+
+                if (item != null) {
+
+                    if (leggingsItemId != this.armorConfig.getDefaultLeggings()) {
+                        item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 2));
+                    }
+
+                    if (item.getItemMeta() instanceof LeatherArmorMeta) {
+                        item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                    }
+
+                    player.getInventory().setLeggings(item);
+                }
+
+            }
+
+            // Chestplate
+
+            int chestplateItemId;
+
+            if (this.armorConfig.isCopyChestplate() && playerData.getArmorUpgrade() > 0) {
+                chestplateItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
+            } else {
+                chestplateItemId = this.armorConfig.getDefaultChestplate();
+            }
+
+            if (this.plugin.getItemStorage().getItemId(player.getInventory().getChestplate()) != chestplateItemId) {
+
+                ItemStack item = this.plugin.getItemStorage().getItem(chestplateItemId);
+
+                if (item != null) {
+
+                    if (chestplateItemId != this.armorConfig.getDefaultChestplate()) {
+                        item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 1));
+                    }
+
+                    if (item.getItemMeta() instanceof LeatherArmorMeta) {
+                        item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                    }
+
+                    player.getInventory().setChestplate(item);
+                }
+
+            }
+
+            // Helmet
+
+            int helmetItemId;
+
+            if (this.armorConfig.isCopyHelmet() && playerData.getArmorUpgrade() > 0) {
+                helmetItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
+            } else {
+                helmetItemId = this.armorConfig.getDefaultHelmet();
+            }
+
+            if (this.plugin.getItemStorage().getItemId(player.getInventory().getHelmet()) != helmetItemId) {
+
+                ItemStack item = this.plugin.getItemStorage().getItem(helmetItemId);
+
+                if (item != null) {
+
+                    if (helmetItemId != this.armorConfig.getDefaultHelmet()) {
+                        item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 0));
+                    }
+
+                    if (item.getItemMeta() instanceof LeatherArmorMeta) {
+                        item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                    }
+
+                    player.getInventory().setHelmet(item);
+                }
+
+            }
+
+        }
+
+    }
+
     private void scoreboardTick(Player player, List<String> sidebar) {
 
         // GET SCOREBOARD
@@ -420,7 +548,7 @@ public class Game implements GamePart {
 
                 team = scoreboard.registerNewTeam(String.valueOf(bedwarsTeam.getId()));
                 team.setDisplayName(bedwarsTeam.getName());
-                team.setColor(bedwarsTeam.getColor());
+                team.setColor(bedwarsTeam.getChatColor());
                 team.setAllowFriendlyFire(false);
                 team.setCanSeeFriendlyInvisibles(true);
                 team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OTHER_TEAMS);
@@ -544,7 +672,7 @@ public class Game implements GamePart {
                 teamStatusIndicator = teamStatusIndicator + " §7(you)";
             }
 
-            sidebarDisplayStrings.add(iTeam.getColor() + iTeam.getName() + "§r: " + teamStatusIndicator);
+            sidebarDisplayStrings.add(iTeam.getChatColor() + iTeam.getName() + "§r: " + teamStatusIndicator);
 
         }
 

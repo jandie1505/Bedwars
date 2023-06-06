@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 public final class DefaultConfigValues {
     private DefaultConfigValues() {}
@@ -287,21 +288,21 @@ public final class DefaultConfigValues {
 
         config.put("124", buildDefaultItem(Material.NETHERITE_BOOTS));
 
-        // Chainmail Leggings
+        // Leather helmet
 
-        config.put("125", buildDefaultItem(Material.CHAINMAIL_LEGGINGS));
+        config.put("125", buildDefaultItem(Material.LEATHER_HELMET));
 
-        // Iron Leggings
+        // Leather chestplate
 
-        config.put("126", buildDefaultItem(Material.IRON_LEGGINGS));
+        config.put("126", buildDefaultItem(Material.LEATHER_CHESTPLATE));
 
-        // Diamond Leggings
+        // Leather leggings
 
-        config.put("127", buildDefaultItem(Material.DIAMOND_LEGGINGS));
+        config.put("127", buildDefaultItem(Material.LEATHER_LEGGINGS));
 
-        // Netherite Leggings
+        // Leather boots
 
-        config.put("128", buildDefaultItem(Material.NETHERITE_LEGGINGS));
+        config.put("128", buildDefaultItem(Material.LEATHER_BOOTS));
 
         // Shears
 
@@ -541,7 +542,7 @@ public final class DefaultConfigValues {
                                 Material.EMERALD
                         ),
                         List.of(
-                                new int[]{3, 21}
+                                new int[]{3, 31}
                         )
                 )
         );
@@ -595,6 +596,23 @@ public final class DefaultConfigValues {
         );
 
         itemShopConfig.put("upgradeItems", upgradeItems);
+
+        // Default armor
+
+        JSONObject armorConfig = new JSONObject();
+
+        armorConfig.put("enableArmorSystem", true);
+
+        armorConfig.put("copyHelmet", false);
+        armorConfig.put("copyChestplate", false);
+        armorConfig.put("copyLeggings", true);
+
+        armorConfig.put("defaultHelmet", 125);
+        armorConfig.put("defaultChestplate", 126);
+        armorConfig.put("defaultLeggings", 127);
+        armorConfig.put("defaultBoots", 128);
+
+        itemShopConfig.put("armorConfig", armorConfig);
 
         // Save item shop
 
