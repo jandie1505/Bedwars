@@ -18,6 +18,469 @@ public final class DefaultConfigValues {
         return config;
     }
 
+    public static JSONObject getMapConfig() {
+        JSONObject config = new JSONObject();
+
+        JSONArray maps = new JSONArray();
+
+        JSONObject minimalistMap = new JSONObject();
+
+        minimalistMap.put("name", "Minimalist");
+        minimalistMap.put("world", "minimalist");
+        minimalistMap.put("respawnCooldown", 5);
+        minimalistMap.put("maxTime", 3600);
+
+        JSONArray minimalistMapTeams = new JSONArray();
+
+        // Green Team Create
+
+        JSONObject greenTeamData = new JSONObject();
+
+        greenTeamData.put("name", "Green");
+        greenTeamData.put("color", "LIME");
+        greenTeamData.put("chatColor", "GREEN");
+
+        // Green Spawnpoints
+
+        JSONArray greenTeamSpawnpoints = new JSONArray();
+
+        JSONObject greenTeamSpawnpoint = new JSONObject();
+        greenTeamSpawnpoint.put("x", 54.5);
+        greenTeamSpawnpoint.put("y", 1.0);
+        greenTeamSpawnpoint.put("z", 0.5);
+        greenTeamSpawnpoint.put("yaw", 90.0);
+        greenTeamSpawnpoint.put("pitch", 0.0);
+        greenTeamSpawnpoints.put(greenTeamSpawnpoint);
+
+        greenTeamData.put("spawnpoints", greenTeamSpawnpoints);
+
+        // Green Bed Locations
+
+        JSONArray greenTeamBedLocations = new JSONArray();
+
+        JSONObject greenTeamBedLocation = new JSONObject();
+        greenTeamBedLocation.put("x", 44);
+        greenTeamBedLocation.put("y", 1);
+        greenTeamBedLocation.put("z", 0);
+        greenTeamBedLocations.put(greenTeamBedLocation);
+
+        greenTeamData.put("bedLocations", greenTeamBedLocations);
+
+        // Green Generators
+
+        JSONArray greenTeamGenerators = new JSONArray();
+
+        JSONObject greenTeamIronGenerator = new JSONObject();
+
+        JSONObject greenTeamIronGeneratorLocation = new JSONObject();
+        greenTeamIronGeneratorLocation.put("x", 54.5);
+        greenTeamIronGeneratorLocation.put("y", 1);
+        greenTeamIronGeneratorLocation.put("z", -6.5);
+        greenTeamIronGenerator.put("location", greenTeamIronGeneratorLocation);
+
+        greenTeamIronGenerator.put("material", Material.IRON_INGOT.toString());
+
+        JSONArray greenTeamIronGeneratorSpeed = new JSONArray();
+        greenTeamIronGeneratorSpeed.put(1.0);
+        greenTeamIronGeneratorSpeed.put(0.5);
+        greenTeamIronGeneratorSpeed.put(0.25);
+        greenTeamIronGeneratorSpeed.put(0.0625);
+        greenTeamIronGeneratorSpeed.put(0.03125);
+        greenTeamIronGenerator.put("speed", greenTeamIronGeneratorSpeed);
+
+        greenTeamGenerators.put(greenTeamIronGenerator);
+
+        JSONObject greenTeamGoldGenerator = new JSONObject();
+
+        JSONObject greenTeamGoldGeneratorLocation = new JSONObject();
+        greenTeamGoldGeneratorLocation.put("x", 54.5);
+        greenTeamGoldGeneratorLocation.put("y", 1);
+        greenTeamGoldGeneratorLocation.put("z", 7.5);
+        greenTeamGoldGenerator.put("location", greenTeamGoldGeneratorLocation);
+
+        greenTeamGoldGenerator.put("material", Material.GOLD_INGOT.toString());
+
+        JSONArray greenTeamGoldGeneratorSpeed = new JSONArray();
+        greenTeamGoldGeneratorSpeed.put(8.0);
+        greenTeamGoldGeneratorSpeed.put(7.0);
+        greenTeamGoldGeneratorSpeed.put(5.0);
+        greenTeamGoldGeneratorSpeed.put(4.0);
+        greenTeamGoldGeneratorSpeed.put(2.0);
+        greenTeamGoldGenerator.put("speed", greenTeamGoldGeneratorSpeed);
+
+        greenTeamGenerators.put(greenTeamGoldGenerator);
+
+        greenTeamData.put("generators", greenTeamGenerators);
+
+        // Green Shop Villager Locations
+
+        JSONArray greenTeamShopVillagerLocations = new JSONArray();
+
+        JSONObject greenTeamShopVillagerLocation = new JSONObject();
+        greenTeamShopVillagerLocation.put("x", 60.5);
+        greenTeamShopVillagerLocation.put("y", 1);
+        greenTeamShopVillagerLocation.put("z", -2.5);
+        greenTeamShopVillagerLocation.put("yaw", 90.0);
+        greenTeamShopVillagerLocation.put("pitch", 0);
+        greenTeamShopVillagerLocations.put(greenTeamShopVillagerLocation);
+
+        greenTeamData.put("shopVillagers", greenTeamShopVillagerLocations);
+
+        // Green Upgrade Villager Locations
+
+        JSONArray greenTeamUpgradeVillagerLocations = new JSONArray();
+
+        JSONObject greenTeamUpgradeVillagerLocation = new JSONObject();
+        greenTeamUpgradeVillagerLocation.put("x", 60.5);
+        greenTeamUpgradeVillagerLocation.put("y", 1);
+        greenTeamUpgradeVillagerLocation.put("z", 3.5);
+        greenTeamUpgradeVillagerLocation.put("yaw", 90.0);
+        greenTeamUpgradeVillagerLocation.put("pitch", 0);
+
+        greenTeamUpgradeVillagerLocations.put(greenTeamUpgradeVillagerLocation);
+
+        greenTeamData.put("upgradeVillagers", greenTeamUpgradeVillagerLocations);
+
+        // Add Green Team
+
+        minimalistMapTeams.put(greenTeamData);
+
+        // Red Team Create
+
+        JSONObject redTeamData = new JSONObject();
+
+        redTeamData.put("name", "Red");
+        redTeamData.put("color", "RED");
+        redTeamData.put("chatColor", "RED");
+
+        // Red Spawnpoints
+
+        JSONArray redTeamSpawnpoints = new JSONArray();
+
+        JSONObject redTeamSpawnpoint = new JSONObject();
+        redTeamSpawnpoint.put("x", -53.5);
+        redTeamSpawnpoint.put("y", 1.0);
+        redTeamSpawnpoint.put("z", 0.5);
+        redTeamSpawnpoint.put("yaw", -90.0);
+        redTeamSpawnpoint.put("pitch", 0.0);
+        redTeamSpawnpoints.put(redTeamSpawnpoint);
+
+        redTeamData.put("spawnpoints", redTeamSpawnpoints);
+
+        // Red Bed Locations
+
+        JSONArray redTeamBedLocations = new JSONArray();
+
+        JSONObject redTeamBedLocation = new JSONObject();
+        redTeamBedLocation.put("x", -44);
+        redTeamBedLocation.put("y", 1);
+        redTeamBedLocation.put("z", 0);
+        redTeamBedLocations.put(redTeamBedLocation);
+
+        redTeamData.put("bedLocations", redTeamBedLocations);
+
+        // Red Generators
+
+        JSONArray redTeamGenerators = new JSONArray();
+
+        JSONObject redTeamIronGenerator = new JSONObject();
+
+        JSONObject redTeamIronGeneratorLocation = new JSONObject();
+        redTeamIronGeneratorLocation.put("x", -53.5);
+        redTeamIronGeneratorLocation.put("y", 1);
+        redTeamIronGeneratorLocation.put("z", 7.5);
+        redTeamIronGenerator.put("location", redTeamIronGeneratorLocation);
+
+        redTeamIronGenerator.put("material", Material.IRON_INGOT.toString());
+
+        JSONArray redTeamIronGeneratorSpeed = new JSONArray();
+        redTeamIronGeneratorSpeed.put(1.0);
+        redTeamIronGeneratorSpeed.put(0.5);
+        redTeamIronGeneratorSpeed.put(0.25);
+        redTeamIronGeneratorSpeed.put(0.0625);
+        redTeamIronGeneratorSpeed.put(0.03125);
+        redTeamIronGenerator.put("speed", redTeamIronGeneratorSpeed);
+
+        redTeamGenerators.put(redTeamIronGenerator);
+
+        JSONObject redTeamGoldGenerator = new JSONObject();
+
+        JSONObject redTeamGoldGeneratorLocation = new JSONObject();
+        redTeamGoldGeneratorLocation.put("x", -53.5);
+        redTeamGoldGeneratorLocation.put("y", 1);
+        redTeamGoldGeneratorLocation.put("z", -6.5);
+        redTeamGoldGenerator.put("location", redTeamGoldGeneratorLocation);
+
+        redTeamGoldGenerator.put("material", Material.GOLD_INGOT.toString());
+
+        JSONArray redTeamGoldGeneratorSpeed = new JSONArray();
+        redTeamGoldGeneratorSpeed.put(8.0);
+        redTeamGoldGeneratorSpeed.put(7.0);
+        redTeamGoldGeneratorSpeed.put(5.0);
+        redTeamGoldGeneratorSpeed.put(4.0);
+        redTeamGoldGeneratorSpeed.put(2.0);
+        redTeamGoldGenerator.put("speed", redTeamGoldGeneratorSpeed);
+
+        redTeamGenerators.put(redTeamGoldGenerator);
+
+        redTeamData.put("generators", redTeamGenerators);
+
+        // Red Shop Villager Locations
+
+        JSONArray redTeamShopVillagerLocations = new JSONArray();
+
+        JSONObject redTeamShopVillagerLocation = new JSONObject();
+        redTeamShopVillagerLocation.put("x", -59.5);
+        redTeamShopVillagerLocation.put("y", 1);
+        redTeamShopVillagerLocation.put("z", 3.5);
+        redTeamShopVillagerLocation.put("yaw", -90.0);
+        redTeamShopVillagerLocation.put("pitch", 0);
+        redTeamShopVillagerLocations.put(redTeamShopVillagerLocation);
+
+        redTeamData.put("shopVillagers", redTeamShopVillagerLocations);
+
+        // Red Upgrade Villager Locations
+
+        JSONArray redTeamUpgradeVillagerLocations = new JSONArray();
+
+        JSONObject redTeamUpgradeVillagerLocation = new JSONObject();
+        redTeamUpgradeVillagerLocation.put("x", -59.5);
+        redTeamUpgradeVillagerLocation.put("y", 1);
+        redTeamUpgradeVillagerLocation.put("z", -2.5);
+        redTeamUpgradeVillagerLocation.put("yaw", -90.0);
+        redTeamUpgradeVillagerLocation.put("pitch", 0);
+
+        redTeamUpgradeVillagerLocations.put(redTeamUpgradeVillagerLocation);
+
+        redTeamData.put("upgradeVillagers", redTeamUpgradeVillagerLocations);
+
+        // Add Red Team
+
+        minimalistMapTeams.put(redTeamData);
+
+        // Add teams to map
+
+        minimalistMap.put("teams", minimalistMapTeams);
+
+        // Global Generators
+
+        JSONArray globalGenerators = new JSONArray();
+
+        JSONObject firstGlobalEmeraldGenerator = new JSONObject();
+
+        JSONObject firstGlobalEmeraldGeneratorLocations = new JSONObject();
+        firstGlobalEmeraldGeneratorLocations.put("x", 8.5);
+        firstGlobalEmeraldGeneratorLocations.put("y", 1);
+        firstGlobalEmeraldGeneratorLocations.put("z", 8.5);
+        firstGlobalEmeraldGenerator.put("location", firstGlobalEmeraldGeneratorLocations);
+
+        firstGlobalEmeraldGenerator.put("material", Material.EMERALD.toString());
+
+        JSONArray firstGlobalEmeraldGeneratorSpeed = new JSONArray();
+        firstGlobalEmeraldGeneratorSpeed.put(40);
+        firstGlobalEmeraldGeneratorSpeed.put(30);
+        firstGlobalEmeraldGeneratorSpeed.put(20);
+        firstGlobalEmeraldGeneratorSpeed.put(10);
+        firstGlobalEmeraldGeneratorSpeed.put(5);
+        firstGlobalEmeraldGenerator.put("speed", firstGlobalEmeraldGeneratorSpeed);
+
+        globalGenerators.put(firstGlobalEmeraldGenerator);
+
+        JSONObject secondGlobalEmeraldGenerator = new JSONObject();
+
+        JSONObject secondGlobalEmeraldGeneratorLocations = new JSONObject();
+        secondGlobalEmeraldGeneratorLocations.put("x", 8.5);
+        secondGlobalEmeraldGeneratorLocations.put("y", 1);
+        secondGlobalEmeraldGeneratorLocations.put("z", -7.5);
+        secondGlobalEmeraldGenerator.put("location", secondGlobalEmeraldGeneratorLocations);
+
+        secondGlobalEmeraldGenerator.put("material", Material.EMERALD.toString());
+
+        JSONArray secondGlobalEmeraldGeneratorSpeed = new JSONArray();
+        secondGlobalEmeraldGeneratorSpeed.put(40);
+        secondGlobalEmeraldGeneratorSpeed.put(30);
+        secondGlobalEmeraldGeneratorSpeed.put(20);
+        secondGlobalEmeraldGeneratorSpeed.put(10);
+        secondGlobalEmeraldGeneratorSpeed.put(5);
+        secondGlobalEmeraldGenerator.put("speed", secondGlobalEmeraldGeneratorSpeed);
+
+        globalGenerators.put(secondGlobalEmeraldGenerator);
+
+        JSONObject thirdGlobalEmeraldGenerator = new JSONObject();
+
+        JSONObject thirdGlobalEmeraldGeneratorLocations = new JSONObject();
+        thirdGlobalEmeraldGeneratorLocations.put("x", -7.5);
+        thirdGlobalEmeraldGeneratorLocations.put("y", 1);
+        thirdGlobalEmeraldGeneratorLocations.put("z", 8.5);
+        thirdGlobalEmeraldGenerator.put("location", thirdGlobalEmeraldGeneratorLocations);
+
+        thirdGlobalEmeraldGenerator.put("material", Material.EMERALD.toString());
+
+        JSONArray thirdGlobalEmeraldGeneratorSpeed = new JSONArray();
+        thirdGlobalEmeraldGeneratorSpeed.put(40);
+        thirdGlobalEmeraldGeneratorSpeed.put(30);
+        thirdGlobalEmeraldGeneratorSpeed.put(20);
+        thirdGlobalEmeraldGeneratorSpeed.put(10);
+        thirdGlobalEmeraldGeneratorSpeed.put(5);
+        thirdGlobalEmeraldGenerator.put("speed", thirdGlobalEmeraldGeneratorSpeed);
+
+        globalGenerators.put(thirdGlobalEmeraldGenerator);
+
+        JSONObject fourthGlobalEmeraldGenerator = new JSONObject();
+
+        JSONObject fourthGlobalEmeraldGeneratorLocations = new JSONObject();
+        fourthGlobalEmeraldGeneratorLocations.put("x", -7.5);
+        fourthGlobalEmeraldGeneratorLocations.put("y", 1);
+        fourthGlobalEmeraldGeneratorLocations.put("z", -7.5);
+        fourthGlobalEmeraldGenerator.put("location", fourthGlobalEmeraldGeneratorLocations);
+
+        fourthGlobalEmeraldGenerator.put("material", Material.EMERALD.toString());
+
+        JSONArray fourthGlobalEmeraldGeneratorSpeed = new JSONArray();
+        fourthGlobalEmeraldGeneratorSpeed.put(40);
+        fourthGlobalEmeraldGeneratorSpeed.put(30);
+        fourthGlobalEmeraldGeneratorSpeed.put(20);
+        fourthGlobalEmeraldGeneratorSpeed.put(10);
+        fourthGlobalEmeraldGeneratorSpeed.put(5);
+        fourthGlobalEmeraldGenerator.put("speed", fourthGlobalEmeraldGeneratorSpeed);
+
+        globalGenerators.put(fourthGlobalEmeraldGenerator);
+
+        JSONObject firstGlobalDiamondGenerator = new JSONObject();
+
+        JSONObject firstGlobalDiamondGeneratorLocations = new JSONObject();
+        firstGlobalDiamondGeneratorLocations.put("x", 0.5);
+        firstGlobalDiamondGeneratorLocations.put("y", 1);
+        firstGlobalDiamondGeneratorLocations.put("z", -43.5);
+        firstGlobalDiamondGenerator.put("location", firstGlobalDiamondGeneratorLocations);
+
+        firstGlobalDiamondGenerator.put("material", Material.DIAMOND.toString());
+
+        JSONArray firstGlobalDiamondGeneratorSpeed = new JSONArray();
+        firstGlobalDiamondGeneratorSpeed.put(30);
+        firstGlobalDiamondGeneratorSpeed.put(20);
+        firstGlobalDiamondGeneratorSpeed.put(10);
+        firstGlobalDiamondGeneratorSpeed.put(5);
+        firstGlobalDiamondGeneratorSpeed.put(3);
+        firstGlobalDiamondGenerator.put("speed", firstGlobalDiamondGeneratorSpeed);
+
+        globalGenerators.put(firstGlobalDiamondGenerator);
+
+        JSONObject secondGlobalDiamondGenerator = new JSONObject();
+
+        JSONObject secondGlobalDiamondGeneratorLocations = new JSONObject();
+        secondGlobalDiamondGeneratorLocations.put("x", 0.5);
+        secondGlobalDiamondGeneratorLocations.put("y", 1);
+        secondGlobalDiamondGeneratorLocations.put("z", 44.5);
+        secondGlobalDiamondGenerator.put("location", secondGlobalDiamondGeneratorLocations);
+
+        secondGlobalDiamondGenerator.put("material", Material.DIAMOND.toString());
+
+        JSONArray secondGlobalDiamondGeneratorSpeed = new JSONArray();
+        secondGlobalDiamondGeneratorSpeed.put(30);
+        secondGlobalDiamondGeneratorSpeed.put(20);
+        secondGlobalDiamondGeneratorSpeed.put(10);
+        secondGlobalDiamondGeneratorSpeed.put(5);
+        secondGlobalDiamondGeneratorSpeed.put(3);
+        secondGlobalDiamondGenerator.put("speed", secondGlobalDiamondGeneratorSpeed);
+
+        globalGenerators.put(secondGlobalDiamondGenerator);
+
+        minimalistMap.put("globalGenerators", globalGenerators);
+
+        // Time Actions
+
+        JSONArray timeActions = new JSONArray();
+
+        JSONObject firstDiamondUpgrade = new JSONObject();
+        firstDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
+        firstDiamondUpgrade.put("generatorType", 1);
+        firstDiamondUpgrade.put("generatorLevel", 1);
+        firstDiamondUpgrade.put("time", 3300);
+
+        timeActions.put(firstDiamondUpgrade);
+
+        JSONObject secondDiamondUpgrade = new JSONObject();
+        secondDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
+        secondDiamondUpgrade.put("generatorType", 1);
+        secondDiamondUpgrade.put("generatorLevel", 2);
+        secondDiamondUpgrade.put("time", 2700);
+
+        timeActions.put(secondDiamondUpgrade);
+
+        JSONObject thirdDiamondUpgrade = new JSONObject();
+        thirdDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
+        thirdDiamondUpgrade.put("generatorType", 1);
+        thirdDiamondUpgrade.put("generatorLevel", 3);
+        thirdDiamondUpgrade.put("time", 2100);
+
+        timeActions.put(thirdDiamondUpgrade);
+
+        JSONObject fourthDiamondUpgrade = new JSONObject();
+        fourthDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
+        fourthDiamondUpgrade.put("generatorType", 1);
+        fourthDiamondUpgrade.put("generatorLevel", 4);
+        fourthDiamondUpgrade.put("time", 1500);
+
+        timeActions.put(fourthDiamondUpgrade);
+
+        JSONObject fifthDiamondUpgrade = new JSONObject();
+        fifthDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
+        fifthDiamondUpgrade.put("generatorType", 1);
+        fifthDiamondUpgrade.put("generatorLevel", 5);
+        fifthDiamondUpgrade.put("time", 900);
+
+        timeActions.put(fifthDiamondUpgrade);
+
+        JSONObject firstEmeraldUpgrade = new JSONObject();
+        firstEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
+        firstEmeraldUpgrade.put("generatorType", 2);
+        firstEmeraldUpgrade.put("generatorLevel", 1);
+        firstEmeraldUpgrade.put("time", 3000);
+
+        timeActions.put(firstEmeraldUpgrade);
+
+        JSONObject secondEmeraldUpgrade = new JSONObject();
+        secondEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
+        secondEmeraldUpgrade.put("generatorType", 2);
+        secondEmeraldUpgrade.put("generatorLevel", 2);
+        secondEmeraldUpgrade.put("time", 2400);
+
+        timeActions.put(secondEmeraldUpgrade);
+
+        JSONObject thirdEmeraldUpgrade = new JSONObject();
+        thirdEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
+        thirdEmeraldUpgrade.put("generatorType", 2);
+        thirdEmeraldUpgrade.put("generatorLevel", 3);
+        thirdEmeraldUpgrade.put("time", 1800);
+
+        timeActions.put(thirdEmeraldUpgrade);
+
+        JSONObject fourthEmeraldUpgrade = new JSONObject();
+        fourthEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
+        fourthEmeraldUpgrade.put("generatorType", 2);
+        fourthEmeraldUpgrade.put("generatorLevel", 4);
+        fourthEmeraldUpgrade.put("time", 1200);
+
+        timeActions.put(fourthEmeraldUpgrade);
+
+        JSONObject fifthEmeraldUpgrade = new JSONObject();
+        fifthEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
+        fifthEmeraldUpgrade.put("generatorType", 2);
+        fifthEmeraldUpgrade.put("generatorLevel", 5);
+        fifthEmeraldUpgrade.put("time", 600);
+
+        timeActions.put(fifthEmeraldUpgrade);
+
+        minimalistMap.put("timeActions", timeActions);
+
+        maps.put(minimalistMap);
+
+        config.put("maps", maps);
+
+        return config;
+    }
+
     public static JSONObject getItemConfig() {
         JSONObject config = new JSONObject();
 
