@@ -18,6 +18,7 @@ import java.util.*;
 
 public class Bedwars extends JavaPlugin {
     private ConfigManager configManager;
+    private ConfigManager mapConfig;
     private ConfigManager itemConfig;
     private ConfigManager shopConfig;
     private List<UUID> bypassingPlayers;
@@ -29,6 +30,7 @@ public class Bedwars extends JavaPlugin {
     @Override
     public void onEnable() {
         this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.json");
+        this.mapConfig = new ConfigManager(this, DefaultConfigValues.getMapConfig(), true, "maps.json");
         this.itemConfig = new ConfigManager(this, DefaultConfigValues.getItemConfig(), true, "items.json");
         this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop.json");
         this.bypassingPlayers = Collections.synchronizedList(new ArrayList<>());
@@ -169,6 +171,10 @@ public class Bedwars extends JavaPlugin {
 
     public ConfigManager getConfigManager() {
         return this.configManager;
+    }
+
+    public ConfigManager getMapConfig() {
+        return this.mapConfig;
     }
 
     public ConfigManager getItemConfig() {
