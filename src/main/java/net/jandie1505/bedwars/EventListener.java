@@ -5,6 +5,7 @@ import net.jandie1505.bedwars.game.menu.ShopEntry;
 import net.jandie1505.bedwars.game.menu.ShopMenu;
 import net.jandie1505.bedwars.game.menu.UpgradeEntry;
 import net.jandie1505.bedwars.game.player.PlayerData;
+import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -59,6 +60,13 @@ public class EventListener implements Listener {
         }
 
         PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getUniqueId());
+
+        BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
+
+        if (team == null || team.hasBed() <= 0) {
+            ((Game) this.plugin.getGame()).removePlayer(event.getEntity().getUniqueId());
+            return;
+        }
 
         playerData.setAlive(false);
 
