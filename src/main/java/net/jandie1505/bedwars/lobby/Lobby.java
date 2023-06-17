@@ -15,28 +15,26 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Lobby implements GamePart {
     private final Bedwars plugin;
     private int timeStep;
     private int time;
-    private List<UUID> players;
-    private World map;
+    private Map<UUID, LobbyPlayerData> players;
     private boolean forcestart;
     private List<MapData> maps;
+    private MapData selectedMap;
+    private boolean mapVoting;
 
     public Lobby(Bedwars plugin) {
         this.plugin = plugin;
         this.timeStep = 0;
         this.time = 60;
-        this.players = Collections.synchronizedList(new ArrayList<>());
-        this.map = null;
+        this.players = Collections.synchronizedMap(new HashMap<>());
         this.forcestart = false;
         this.maps = new ArrayList<>();
+        this.selectedMap = null;
 
         JSONArray mapArray = this.plugin.getMapConfig().getConfig().optJSONArray("maps");
 
@@ -419,7 +417,7 @@ public class Lobby implements GamePart {
 
         // PLAYER MANAGEMENT
 
-        for (UUID playerId : this.getPlayers()) {
+        for (UUID playerId : this.getPlayers().keySet()) {
             Player player = this.plugin.getServer().getPlayer(playerId);
 
             if (player == null) {
@@ -436,7 +434,7 @@ public class Lobby implements GamePart {
         for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
 
             if (!this.plugin.getBypassingPlayers().contains(player.getUniqueId())) {
-                this.players.add(player.getUniqueId());
+                this.players.put(player.getUniqueId(), new LobbyPlayerData());
             }
 
         }
@@ -468,9 +466,112 @@ public class Lobby implements GamePart {
         return GameStatus.NORMAL;
     }
 
+    private List<MapData> getHighestVotedMaps() {
+
+        // Get map votes
+
+        Map<MapData, Integer> mapVotes = new HashMap<>();
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            LobbyPlayerData playerData = this.players.get(playerId);
+
+            if (playerData.getVote() == null) {
+                continue;
+            }
+
+            if (mapVotes.containsKey(playerData.getVote())) {
+                mapVotes.put(playerData.getVote(), mapVotes.get(playerData.getVote()) + 1);
+            } else {
+                mapVotes.put(playerData.getVote(), 1);
+            }
+
+        }
+
+        // Get list of maps with the highest vote count
+
+        List<MapData> highestVotedMaps = new ArrayList<>();
+        int maxVotes = Integer.MIN_VALUE;
+
+        for (Map.Entry<MapData, Integer> entry : mapVotes.entrySet()) {
+            int votes = entry.getValue();
+            if (votes > maxVotes) {
+                maxVotes = votes;
+                highestVotedMaps.clear();
+                highestVotedMaps.add(entry.getKey());
+            } else if (votes == maxVotes) {
+                highestVotedMaps.add(entry.getKey());
+            }
+        }
+
+        return highestVotedMaps;
+
+    }
+
+    private void autoSelectMap() {
+
+        MapData selectedMap = null;
+
+        if (this.mapVoting) {
+
+            List<MapData> highestVotedMaps = this.getHighestVotedMaps();
+
+            if (!highestVotedMaps.isEmpty()) {
+
+                selectedMap = highestVotedMaps.get(new Random().nextInt(highestVotedMaps.size()));
+
+            }
+
+        }
+
+        if (selectedMap == null) {
+
+            if (!this.maps.isEmpty()) {
+
+                selectedMap = this.maps.get(new Random().nextInt(this.maps.size()));
+
+            }
+
+        }
+
+        this.selectedMap = selectedMap;
+
+    }
+
+    private void displayMap() {
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            Player player = this.plugin.getServer().getPlayer(playerId);
+
+            if (player == null) {
+                continue;
+            }
+
+            if (this.selectedMap == null) {
+                return;
+            }
+
+            player.sendMessage("§bThe map has been set to " + this.selectedMap.getName());
+
+        }
+
+    }
+
     @Override
     public GamePart getNextStatus() {
-        World world = this.plugin.loadWorld("map");
+
+        if (this.selectedMap == null) {
+            this.autoSelectMap();
+            this.displayMap();
+        }
+
+        if (this.selectedMap == null) {
+            this.plugin.getLogger().warning("Game stopped because automatic map selection failed");
+            return null;
+        }
+
+        MapData selectedMap = this.selectedMap;
+
+        World world = this.plugin.loadWorld(selectedMap.getWorld());
 
         if (world == null) {
             return null;
@@ -492,115 +593,16 @@ public class Lobby implements GamePart {
         Game game = new Game(
                 this.plugin,
                 world,
-                List.of(
-                        new LobbyTeamData(
-                                "Green",
-                                ChatColor.GREEN,
-                                Color.LIME,
-                                List.of(
-                                        new Location(world, 55, 1, 0, 0, 0)
-                                ),
-                                List.of(
-                                        new Location(world, 44, 1, 0)
-                                ),
-                                List.of(
-                                        new LobbyGeneratorData(
-                                                new Location(world, 63.5, 1, 7.5),
-                                                new ItemStack(Material.IRON_INGOT),
-                                                List.of(
-                                                        0.5
-                                                )
-                                        ),
-                                        new LobbyGeneratorData(
-                                                new Location(world, 63.5, 1, -7.5),
-                                                new ItemStack(Material.GOLD_INGOT),
-                                                List.of(
-                                                        8.0
-                                                )
-                                        )
-                                ),
-                                List.of(
-                                        new Location(world, 55.5, 1, -9.5, 0, 0)
-                                ),
-                                List.of(
-                                        new Location(world, 55.0, 1, 9.5, -180, 0)
-                                )
-                        ),
-                        new LobbyTeamData(
-                                "Red",
-                                ChatColor.RED,
-                                Color.RED,
-                                List.of(
-                                        new Location(world, -63, 1, 0, 0, 0)
-                                ),
-                                List.of(
-                                        new Location(world, -52, 1, 0, 0, 0)
-                                ),
-                                List.of(
-                                        new LobbyGeneratorData(
-                                                new Location(world, -70.5, 1, -6.5),
-                                                new ItemStack(Material.IRON_INGOT),
-                                                List.of(
-                                                        0.5
-                                                )
-                                        ),
-                                        new LobbyGeneratorData(
-                                                new Location(world, -70.5, 1, 8.5),
-                                                new ItemStack(Material.GOLD_INGOT),
-                                                List.of(
-                                                        8.0
-                                                )
-                                        )
-                                ),
-                                List.of(
-                                        new Location(world, -63.5, 1, 9.5, -180, 0)
-                                ),
-                                List.of(
-                                        new Location(world, -63.5, 1, -9.5, 0, 0)
-                                )
-                        )
-                ),
-                List.of(
-                        new LobbyGeneratorData(
-                                new Location(world, -8, 1, 8),
-                                new ItemStack(Material.EMERALD),
-                                List.of(
-                                        40.0
-                                )
-                        ),
-                        new LobbyGeneratorData(
-                                new Location(world, -8, 1, -8),
-                                new ItemStack(Material.DIAMOND),
-                                List.of(
-                                        40.0
-                                )
-                        ),
-                        new LobbyGeneratorData(
-                                new Location(world, 8, 1, -8),
-                                new ItemStack(Material.EMERALD),
-                                List.of(
-                                        40.0
-                                )
-                        ),
-                        new LobbyGeneratorData(
-                                new Location(world, 8, 1, 8),
-                                new ItemStack(Material.DIAMOND),
-                                List.of(
-                                        40.0
-                                )
-                        )
-                ),
-                List.of(
-                        new LobbyGeneratorUpgradeTimeActionData(1, 1, 3540),
-                        new LobbyGeneratorUpgradeTimeActionData(2, 1, 3480)
-                ),
+                selectedMap.getTeams(),
+                selectedMap.getGlobalGenerators(),
+                selectedMap.getGeneratorUpgradeTimeActions(),
                 new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
                 armorConfig,
-                5,
-                3600
+                selectedMap.getRespawnCooldown(),
+                selectedMap.getMaxTime()
         );
 
-        for (UUID playerId : this.getPlayers()) {
+        for (UUID playerId : this.getPlayers().keySet()) {
             game.addPlayer(playerId, 0);
         }
 
@@ -615,7 +617,7 @@ public class Lobby implements GamePart {
         return this.plugin;
     }
 
-    public List<UUID> getPlayers() {
-        return this.players;
+    public Map<UUID, LobbyPlayerData> getPlayers() {
+        return Map.copyOf(this.players);
     }
 }
