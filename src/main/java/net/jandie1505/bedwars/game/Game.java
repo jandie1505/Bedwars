@@ -69,7 +69,7 @@ public class Game implements GamePart {
                 this.generators.add(new TeamGenerator(
                         this,
                         generatorData.getItem(),
-                        generatorData.getLocation(),
+                        this.buildLocationWithWorld(generatorData.getLocation()),
                         team,
                         generatorData.getUpgradeSteps()
                 ));
@@ -80,7 +80,7 @@ public class Game implements GamePart {
             this.generators.add(new PublicGenerator(
                     this,
                     generatorData.getItem(),
-                    generatorData.getLocation(),
+                    this.buildLocationWithWorld(generatorData.getLocation()),
                     generatorData.getUpgradeSteps()
             ));
         }
@@ -100,11 +100,11 @@ public class Game implements GamePart {
         for (BedwarsTeam team : this.getTeams()) {
 
             for (Location location : team.getShopVillagerLocations()) {
-                this.spawnItemShopVillager(team, location);
+                this.spawnItemShopVillager(team, this.buildLocationWithWorld(location));
             }
 
             for (Location location : team.getUpgradesVillagerLocations()) {
-                this.spawnUpgradesVillager(team, location);
+                this.spawnUpgradesVillager(team, this.buildLocationWithWorld(location));
             }
 
         }
@@ -812,5 +812,16 @@ public class Game implements GamePart {
 
     public ItemShop getItemShop() {
         return this.itemShop;
+    }
+
+    public Location buildLocationWithWorld(Location old) {
+        return new Location(
+                this.world,
+                old.getX(),
+                old.getY(),
+                old.getZ(),
+                old.getYaw(),
+                old.getPitch()
+        );
     }
 }

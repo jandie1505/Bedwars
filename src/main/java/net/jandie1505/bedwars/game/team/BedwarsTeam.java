@@ -31,10 +31,27 @@ public class BedwarsTeam {
         this.name = teamData.getName();
         this.chatColor = teamData.getChatColor();
         this.color = teamData.getColor();
-        this.spawnpoints = Collections.synchronizedList(new ArrayList<>(teamData.getSpawnpoints()));
-        this.bedLocations = Collections.synchronizedList(new ArrayList<>(teamData.getBedLocations()));
-        this.shopVillagerLocations = Collections.synchronizedList(new ArrayList<>(teamData.getShopVillagerLocations()));
-        this.upgradesVillagerLocations = Collections.synchronizedList(new ArrayList<>(teamData.getUpgradesVillagerLocations()));
+
+        this.spawnpoints = Collections.synchronizedList(new ArrayList<>());
+        for (Location location : List.copyOf(teamData.getSpawnpoints())) {
+            this.spawnpoints.add(this.game.buildLocationWithWorld(location));
+        }
+
+        this.bedLocations = Collections.synchronizedList(new ArrayList<>());
+        for (Location location : List.copyOf(teamData.getBedLocations())) {
+            this.bedLocations.add(this.game.buildLocationWithWorld(location));
+        }
+
+        this.shopVillagerLocations = Collections.synchronizedList(new ArrayList<>());
+        for (Location location : List.copyOf(teamData.getShopVillagerLocations())) {
+            this.shopVillagerLocations.add(this.game.buildLocationWithWorld(location));
+        }
+
+        this.upgradesVillagerLocations = Collections.synchronizedList(new ArrayList<>());
+        for (Location location : List.copyOf(teamData.getUpgradesVillagerLocations())) {
+            this.upgradesVillagerLocations.add(this.game.buildLocationWithWorld(location));
+        }
+
         this.attackDamageUpgrade = 0;
         this.protectionUpgrade = 0;
         this.hasteUpgrade = 0;
