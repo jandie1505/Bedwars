@@ -110,28 +110,28 @@ public class Lobby implements GamePart {
                 try {
                     teamColor = Color.fromRGB(team.optInt("color", -1));
                 } catch (IllegalArgumentException e) {
-                    this.plugin.getLogger().warning("Map Config: Missing color of team " + name + " of map " + map + " (" + index + ")");
+                    this.plugin.getLogger().warning("Map Config: Missing/Wrong color of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
                 String teamChatColorString = team.optString("chatColor");
 
                 if (teamChatColorString == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing chatColor of team " + name + " of map " + map + " (" + index + ")");
+                    this.plugin.getLogger().warning("Map Config: Missing chatColor of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
                 ChatColor teamChatColor = ChatColor.valueOf(teamChatColorString);
 
                 if (teamChatColor == null) {
-                    this.plugin.getLogger().warning("Map Config: Wrong chatColor of team " + name + " of map " + map + " (" + index + ")");
+                    this.plugin.getLogger().warning("Map Config: Wrong chatColor of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
                 JSONArray teamSpawnpointArray = team.optJSONArray("spawnpoints");
 
                 if (teamSpawnpointArray == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing spawnpoints of team " + name + " of map " + map + " (" + index + ")");
+                    this.plugin.getLogger().warning("Map Config: Missing spawnpoints of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -140,7 +140,7 @@ public class Lobby implements GamePart {
                 JSONArray bedLocationsArray = team.optJSONArray("bedLocations");
 
                 if (bedLocationsArray == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing spawnpoints of team " + name + " of map " + map + " (" + index + ")");
+                    this.plugin.getLogger().warning("Map Config: Missing spawnpoints of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -149,7 +149,7 @@ public class Lobby implements GamePart {
                 JSONArray teamGeneratorsArray = team.optJSONArray("generators");
 
                 if (teamGeneratorsArray == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing teamGenerators of team " + name + " of map " + map + " (" + index + ")");
+                    this.plugin.getLogger().warning("Map Config: Missing teamGenerators of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -158,7 +158,7 @@ public class Lobby implements GamePart {
                 JSONArray shopVillagerLocationArray = team.optJSONArray("shopVillagers");
 
                 if (shopVillagerLocationArray == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing shopVillagers of team " + name + " of map " + map + " (" + index + ")");
+                    this.plugin.getLogger().warning("Map Config: Missing shopVillagers of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -167,7 +167,7 @@ public class Lobby implements GamePart {
                 JSONArray upgradeVillagerLocationArray = team.optJSONArray("upgradeVillagers");
 
                 if (upgradeVillagerLocationArray == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing upgradeVillagers of team " + name + " of map " + map + " (" + index + ")");
+                    this.plugin.getLogger().warning("Map Config: Missing upgradeVillagers of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -234,6 +234,7 @@ public class Lobby implements GamePart {
                                 continue;
                             case 2:
                                 generatorUpgradeTimeActions.add(new LobbyGeneratorUpgradeTimeActionData(2, generatorLevel, time));
+                                continue;
                             default:
                                 this.plugin.getLogger().warning("Map Config: Wrong generatorType of a timeAction of " + name + " (" + index + ")");
                                 break;

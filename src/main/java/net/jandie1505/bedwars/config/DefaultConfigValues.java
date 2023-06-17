@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.config;
 
+import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -37,7 +38,7 @@ public final class DefaultConfigValues {
         JSONObject greenTeamData = new JSONObject();
 
         greenTeamData.put("name", "Green");
-        greenTeamData.put("color", "LIME");
+        greenTeamData.put("color", Color.LIME.asRGB());
         greenTeamData.put("chatColor", "GREEN");
 
         // Green Spawnpoints
@@ -150,7 +151,7 @@ public final class DefaultConfigValues {
         JSONObject redTeamData = new JSONObject();
 
         redTeamData.put("name", "Red");
-        redTeamData.put("color", "RED");
+        redTeamData.put("color", Color.RED.asRGB());
         redTeamData.put("chatColor", "RED");
 
         // Red Spawnpoints
