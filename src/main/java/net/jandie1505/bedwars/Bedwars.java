@@ -39,6 +39,7 @@ public class Bedwars extends JavaPlugin {
         this.itemStorage = new ItemStorage(this);
 
         this.configManager.reloadConfig();
+        this.mapConfig.reloadConfig();
         this.itemConfig.reloadConfig();
         this.shopConfig.reloadConfig();
 
