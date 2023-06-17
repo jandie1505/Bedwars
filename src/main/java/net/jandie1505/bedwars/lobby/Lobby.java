@@ -5,14 +5,16 @@ import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.menu.ArmorConfig;
-import net.jandie1505.bedwars.lobby.setup.*;
+import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
+import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
+import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
+import net.jandie1505.bedwars.lobby.setup.MapData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.*;

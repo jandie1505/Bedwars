@@ -1,6 +1,5 @@
 package net.jandie1505.bedwars.game.player;
 
-import net.jandie1505.bedwars.game.Game;
 import org.bukkit.Bukkit;
 import org.bukkit.scoreboard.Scoreboard;
 

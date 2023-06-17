@@ -1,6 +1,5 @@
 package net.jandie1505.bedwars.lobby.setup;
 
-import net.jandie1505.bedwars.game.generators.Generator;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;

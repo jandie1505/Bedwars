@@ -1,7 +1,6 @@
 package net.jandie1505.bedwars.items;
 
 import net.jandie1505.bedwars.Bedwars;
-import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;

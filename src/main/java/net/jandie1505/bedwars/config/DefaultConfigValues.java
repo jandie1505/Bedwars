@@ -3,12 +3,10 @@ package net.jandie1505.bedwars.config;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.List;
-import java.util.Map;
 
 public final class DefaultConfigValues {
     private DefaultConfigValues() {}
