@@ -10,6 +10,7 @@ import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.game.menu.shop.ItemShop;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.timeactions.DiamondGeneratorUpgradeAction;
 import net.jandie1505.bedwars.game.timeactions.EmeraldGeneratorUpgradeAction;
 import net.jandie1505.bedwars.game.timeactions.TimeAction;
@@ -18,7 +19,6 @@ import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -42,13 +42,14 @@ public class Game implements GamePart {
     private final Map<UUID, Scoreboard> playerScoreboards;
     private final ItemShop itemShop;
     private final ArmorConfig armorConfig;
+    private final TeamUpgradesConfig teamUpgradesConfig;
     private int maxTime;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
     private int publicDiamondGeneratorLevel;
 
-    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, int respawnCountdown, int maxTime) {
+    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime) {
         this.plugin = plugin;
         this.world = world;
         this.teams = Collections.synchronizedList(new ArrayList<>());
@@ -60,6 +61,7 @@ public class Game implements GamePart {
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
         this.armorConfig = armorConfig;
+        this.teamUpgradesConfig = teamUpgradesConfig;
         this.maxTime = maxTime;
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
@@ -351,13 +353,19 @@ public class Game implements GamePart {
                     item.setItemMeta(this.plugin.getServer().getItemFactory().getItemMeta(item.getType()));
                 }
 
-                if (team.getAttackDamageUpgrade() > 0) {
+                int enchantmentLevel = 0;
+
+                if (team.getAttackDamageUpgrade() < this.teamUpgradesConfig.getSharpnessUpgrade().getUpgradeLevels().size()) {
+                    enchantmentLevel = this.teamUpgradesConfig.getSharpnessUpgrade().getUpgradeLevels().get(team.getAttackDamageUpgrade());
+                }
+
+                if (enchantmentLevel > 0) {
 
                     Integer level = item.getItemMeta().getEnchants().get(Enchantment.DAMAGE_ALL);
 
-                    if (level == null || level != team.getAttackDamageUpgrade()) {
+                    if (level == null || level != enchantmentLevel) {
                         ItemMeta meta = item.getItemMeta();
-                        meta.addEnchant(Enchantment.DAMAGE_ALL, team.getAttackDamageUpgrade(), true);
+                        meta.addEnchant(Enchantment.DAMAGE_ALL, enchantmentLevel, true);
                         item.setItemMeta(meta);
                     }
 
