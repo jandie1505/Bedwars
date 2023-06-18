@@ -1,9 +1,9 @@
 package net.jandie1505.bedwars;
 
 import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.game.menu.ShopEntry;
-import net.jandie1505.bedwars.game.menu.ShopMenu;
-import net.jandie1505.bedwars.game.menu.UpgradeEntry;
+import net.jandie1505.bedwars.game.menu.shop.ShopEntry;
+import net.jandie1505.bedwars.game.menu.shop.ShopMenu;
+import net.jandie1505.bedwars.game.menu.shop.UpgradeEntry;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import org.bukkit.GameRule;

@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.menu;
+package net.jandie1505.bedwars.game.menu.shop;
 
 public class ArmorConfig {
     private final boolean enableArmorSystem;

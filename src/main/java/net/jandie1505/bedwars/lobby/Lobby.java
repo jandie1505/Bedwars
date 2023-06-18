@@ -4,7 +4,7 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.game.menu.ArmorConfig;
+import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
