@@ -1225,6 +1225,46 @@ public final class DefaultConfigValues {
 
         upgradeConfig.put("generators", forgeUpgrade);
 
+        // Heal Pool Upgrade
+
+        JSONObject healPoolUpgrade = new JSONObject();
+
+        JSONArray healPoolUpgradeLevels = new JSONArray();
+
+        healPoolUpgradeLevels.put(1);
+        healPoolUpgradeLevels.put(2);
+
+        healPoolUpgrade.put("effectLevels", healPoolUpgradeLevels);
+
+        JSONArray healPoolUpgradePrices = new JSONArray();
+
+        healPoolUpgradePrices.put(3);
+        healPoolUpgradePrices.put(9);
+
+        healPoolUpgrade.put("prices", healPoolUpgradePrices);
+
+        upgradeConfig.put("healpool", healPoolUpgrade);
+
+        // Dragon Buff Upgrade
+
+        JSONObject dragonBuffUpgrade = new JSONObject();
+
+        JSONArray dragonBuffUpgradeLevels = new JSONArray();
+
+        dragonBuffUpgradeLevels.put(1);
+        dragonBuffUpgradeLevels.put(2);
+
+        dragonBuffUpgrade.put("dragonCountIncrease", dragonBuffUpgradeLevels);
+
+        JSONArray dragonBuffUpgradePrices = new JSONArray();
+
+        dragonBuffUpgradePrices.put(5);
+        dragonBuffUpgradePrices.put(10);
+
+        dragonBuffUpgrade.put("prices", dragonBuffUpgradePrices);
+
+        upgradeConfig.put("dragonbuff", dragonBuffUpgrade);
+
         // return
 
         return config;
