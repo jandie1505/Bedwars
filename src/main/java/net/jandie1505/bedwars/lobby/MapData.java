@@ -1,4 +1,8 @@
-package net.jandie1505.bedwars.lobby.setup;
+package net.jandie1505.bedwars.lobby;
+
+import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
+import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
+import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 
 import java.util.List;
 

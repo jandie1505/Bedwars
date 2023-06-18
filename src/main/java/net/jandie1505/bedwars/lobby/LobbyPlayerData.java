@@ -1,7 +1,5 @@
 package net.jandie1505.bedwars.lobby;
 
-import net.jandie1505.bedwars.lobby.setup.MapData;
-
 public class LobbyPlayerData {
     private MapData vote;
     private int team;
