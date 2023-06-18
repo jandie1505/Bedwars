@@ -17,10 +17,13 @@ import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.scoreboard.*;
 import org.json.JSONObject;
@@ -340,6 +343,38 @@ public class Game implements GamePart {
                 continue;
             }
 
+            // Sharpness Team Upgrade
+
+            if (item != null && (item.getType().toString().endsWith("SWORD") || item.getType().toString().endsWith("AXE"))) {
+
+                if (item.getItemMeta() == null) {
+                    item.setItemMeta(this.plugin.getServer().getItemFactory().getItemMeta(item.getType()));
+                }
+
+                if (team.getAttackDamageUpgrade() > 0) {
+
+                    Integer level = item.getItemMeta().getEnchants().get(Enchantment.DAMAGE_ALL);
+
+                    if (level == null || level != team.getAttackDamageUpgrade()) {
+                        ItemMeta meta = item.getItemMeta();
+                        meta.addEnchant(Enchantment.DAMAGE_ALL, team.getAttackDamageUpgrade(), true);
+                        item.setItemMeta(meta);
+                    }
+
+                } else {
+
+                    if (item.getItemMeta().getEnchants().containsKey(Enchantment.DAMAGE_ALL)) {
+                        ItemMeta meta = item.getItemMeta();
+                        meta.removeEnchant(Enchantment.DAMAGE_ALL);
+                        item.setItemMeta(meta);
+                    }
+
+                }
+
+            }
+
+            // Pickaxe Player Upgrade
+
             if (this.itemShop.getPickaxeUpgrade() != null && this.itemShop.getPickaxeUpgrade().getUpgradeItemIds().contains(itemId)) {
 
                 if (this.itemShop.getPickaxeUpgrade().getItemId(playerData.getPickaxeUpgrade()) == itemId) {
@@ -355,6 +390,8 @@ public class Game implements GamePart {
 
                 continue;
             }
+
+            // Shears Player Upgrade
 
             if (this.itemShop.getShearsUpgrade() != null && this.itemShop.getShearsUpgrade().getUpgradeItemIds().contains(itemId)) {
 
@@ -374,6 +411,8 @@ public class Game implements GamePart {
 
         }
 
+        // Pickaxe Player Upgrade
+
         if (this.itemShop.getPickaxeUpgrade() != null && playerData.getPickaxeUpgrade() > 0 && inventoryPickaxeUpgradeMissing) {
             ItemStack item = this.itemShop.getPickaxeUpgrade().getItem(playerData.getPickaxeUpgrade());
 
@@ -381,6 +420,8 @@ public class Game implements GamePart {
                 player.getInventory().addItem(item);
             }
         }
+
+        // Shears Player Upgrade
 
         if (this.itemShop.getShearsUpgrade() != null && playerData.getShearsUpgrade() > 0 && inventoryShearsUpgradeMissing) {
             ItemStack item = this.itemShop.getShearsUpgrade().getItem(playerData.getShearsUpgrade());
