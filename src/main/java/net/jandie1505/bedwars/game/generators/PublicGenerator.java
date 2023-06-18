@@ -10,7 +10,7 @@ import java.util.List;
 public class PublicGenerator extends Generator {
 
     public PublicGenerator(Game game, ItemStack item, Location location, List<Double> upgradeSteps) {
-        super(game, item, location, 128, upgradeSteps);
+        super(game, item, location, 2, upgradeSteps);
     }
 
     @Override

@@ -11,7 +11,7 @@ public class TeamGenerator extends Generator {
     private final BedwarsTeam team;
 
     public TeamGenerator(Game game, ItemStack item, Location location, BedwarsTeam team, List<Double> upgradeSteps) {
-        super(game, item, location, 128, upgradeSteps);
+        super(game, item, location, 5, upgradeSteps);
         this.team = team;
     }
 
