@@ -943,6 +943,60 @@ public final class DefaultConfigValues {
 
         config.put("152", buildDefaultItem(Material.SPONGE));
 
+        // Sharpness Upgrade
+
+        JSONObject sharpnessUpgrade = new JSONObject();
+
+        sharpnessUpgrade.put("type", Material.IRON_SWORD.toString());
+        sharpnessUpgrade.put("name", "Sharpness Upgrade (Swords/Axes)");
+
+        config.put("160", sharpnessUpgrade);
+
+        // Protection Upgrade
+
+        JSONObject protectionUpgrade = new JSONObject();
+
+        protectionUpgrade.put("type", Material.IRON_CHESTPLATE.toString());
+        protectionUpgrade.put("name", "Protection Upgrade");
+
+        config.put("161", protectionUpgrade);
+
+        // Haste Upgrade
+
+        JSONObject hasteUpgrade = new JSONObject();
+
+        hasteUpgrade.put("type", Material.GOLDEN_PICKAXE.toString());
+        hasteUpgrade.put("name", "Haste Upgrade");
+
+        config.put("162", hasteUpgrade);
+
+        // Forge Upgrade
+
+        JSONObject generatorUpgrade = new JSONObject();
+
+        generatorUpgrade.put("type", Material.FURNACE.toString());
+        generatorUpgrade.put("name", "Generator Upgrade");
+
+        config.put("163", generatorUpgrade);
+
+        // Heal Pool Upgrade
+
+        JSONObject healPoolUpgrade = new JSONObject();
+
+        healPoolUpgrade.put("type", Material.BEACON.toString());
+        healPoolUpgrade.put("name", "Heal Pool");
+
+        config.put("164", healPoolUpgrade);
+
+        // Dragon Buff Upgrade
+
+        JSONObject dragonBuffUpgrade = new JSONObject();
+
+        dragonBuffUpgrade.put("type", Material.DRAGON_EGG.toString());
+        dragonBuffUpgrade.put("name", "Dragon Buff");
+
+        config.put("165", dragonBuffUpgrade);
+
         return config;
     }
 
