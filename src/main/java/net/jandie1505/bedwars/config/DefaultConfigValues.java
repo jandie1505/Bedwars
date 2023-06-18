@@ -1134,6 +1134,97 @@ public final class DefaultConfigValues {
 
         config.put("itemShop", itemShopConfig);
 
+        // UPGRADES
+
+        JSONObject upgradeConfig = new JSONObject();
+
+        // Sharpness Upgrade
+
+        JSONObject sharpnessUpgrade = new JSONObject();
+
+        JSONArray sharpnessUpgradeLevels = new JSONArray();
+
+        sharpnessUpgradeLevels.put(1);
+        sharpnessUpgradeLevels.put(2);
+
+        sharpnessUpgrade.put("enchantmentLevels", sharpnessUpgradeLevels);
+
+        JSONArray sharpnessUpgradePrices = new JSONArray();
+
+        sharpnessUpgradePrices.put(8);
+        sharpnessUpgradePrices.put(16);
+
+        sharpnessUpgrade.put("prices", sharpnessUpgradePrices);
+
+        sharpnessUpgrade.put("item", 160);
+
+        upgradeConfig.put("sharpness", sharpnessUpgrade);
+
+        // Protection Upgrade
+
+        JSONObject protectionUpgrade = new JSONObject();
+
+        JSONArray protectionUpgradeLevels = new JSONArray();
+
+        protectionUpgradeLevels.put(1);
+        protectionUpgradeLevels.put(2);
+        protectionUpgradeLevels.put(3);
+        protectionUpgradeLevels.put(4);
+
+        protectionUpgrade.put("enchantmentLevels", protectionUpgradeLevels);
+
+        JSONArray protectionUpgradePrices = new JSONArray();
+
+        protectionUpgradePrices.put(5);
+        protectionUpgradePrices.put(10);
+        protectionUpgradePrices.put(20);
+        protectionUpgradePrices.put(30);
+
+        protectionUpgrade.put("prices", protectionUpgradePrices);
+
+        protectionUpgrade.put("item", 161);
+
+        upgradeConfig.put("protection", protectionUpgrade);
+
+        // Haste Upgrade
+
+        JSONObject hasteUpgrade = new JSONObject();
+
+        JSONArray hasteUpgradeLevels = new JSONArray();
+
+        hasteUpgradeLevels.put(1);
+        hasteUpgradeLevels.put(2);
+
+        hasteUpgrade.put("effectLevels", hasteUpgradeLevels);
+
+        JSONArray hasteUpgradePrices = new JSONArray();
+
+        hasteUpgradePrices.put(4);
+        hasteUpgradePrices.put(8);
+
+        hasteUpgrade.put("prices", hasteUpgradePrices);
+
+        hasteUpgrade.put("item", 162);
+
+        upgradeConfig.put("haste", hasteUpgrade);
+
+        // Forge Upgrade
+
+        JSONObject forgeUpgrade = new JSONObject();
+
+        JSONArray forgeUpgradePrices = new JSONArray();
+
+        forgeUpgradePrices.put(4);
+        forgeUpgradePrices.put(8);
+        forgeUpgradePrices.put(12);
+        forgeUpgradePrices.put(16);
+
+        forgeUpgrade.put("prices", forgeUpgradePrices);
+
+        forgeUpgrade.put("item", 163);
+
+        upgradeConfig.put("generators", forgeUpgrade);
+
         // return
 
         return config;
