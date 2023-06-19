@@ -946,4 +946,8 @@ public class Game implements GamePart {
         }
 
     }
+
+    public TeamUpgradesConfig getTeamUpgradesConfig() {
+        return this.teamUpgradesConfig;
+    }
 }
