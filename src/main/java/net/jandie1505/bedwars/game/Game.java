@@ -25,6 +25,8 @@ import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.*;
 import org.json.JSONObject;
 
@@ -237,6 +239,25 @@ public class Game implements GamePart {
 
             this.inventoryTick(player, playerData, team);
 
+            // Haste Team Upgrade
+
+            int hasteUpgradeLevel = this.getUpgradeLevel(team.getHasteUpgrade(), this.teamUpgradesConfig.getHasteUpgrade().getUpgradeLevels());
+
+            if (hasteUpgradeLevel > 0) {
+
+                if (player.getPotionEffect(PotionEffectType.FAST_DIGGING) == null || player.getPotionEffect(PotionEffectType.FAST_DIGGING).getAmplifier() != hasteUpgradeLevel - 1) {
+                    player.removePotionEffect(PotionEffectType.FAST_DIGGING);
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 1200, hasteUpgradeLevel - 1));
+                }
+
+            } else {
+
+                if (player.hasPotionEffect(PotionEffectType.FAST_DIGGING)) {
+                    player.removePotionEffect(PotionEffectType.FAST_DIGGING);
+                }
+
+            }
+
         }
 
         // SCOREBOARDS CLEANUP
@@ -355,8 +376,8 @@ public class Game implements GamePart {
 
                 int enchantmentLevel = 0;
 
-                if (team.getAttackDamageUpgrade() < this.teamUpgradesConfig.getSharpnessUpgrade().getUpgradeLevels().size()) {
-                    enchantmentLevel = this.teamUpgradesConfig.getSharpnessUpgrade().getUpgradeLevels().get(team.getAttackDamageUpgrade());
+                if (team.getAttackDamageUpgrade() > 0 && team.getAttackDamageUpgrade() - 1 < this.teamUpgradesConfig.getSharpnessUpgrade().getUpgradeLevels().size()) {
+                    enchantmentLevel = this.teamUpgradesConfig.getSharpnessUpgrade().getUpgradeLevels().get(team.getAttackDamageUpgrade() - 1);
                 }
 
                 if (enchantmentLevel > 0) {
@@ -391,8 +412,8 @@ public class Game implements GamePart {
 
                 int enchantmentLevel = 0;
 
-                if (team.getProtectionUpgrade() < this.teamUpgradesConfig.getProtectionUpgrade().getUpgradeLevels().size()) {
-                    enchantmentLevel = this.teamUpgradesConfig.getProtectionUpgrade().getUpgradeLevels().get(team.getProtectionUpgrade());
+                if (team.getProtectionUpgrade() > 0 && team.getProtectionUpgrade() - 1 < this.teamUpgradesConfig.getProtectionUpgrade().getUpgradeLevels().size()) {
+                    enchantmentLevel = this.teamUpgradesConfig.getProtectionUpgrade().getUpgradeLevels().get(team.getProtectionUpgrade() - 1);
                 }
 
                 if (enchantmentLevel > 0) {
@@ -910,5 +931,19 @@ public class Game implements GamePart {
                 old.getYaw(),
                 old.getPitch()
         );
+    }
+
+    private int getUpgradeLevel(int level, List<Integer> levels) {
+
+        if (level <= 0) {
+            return 0;
+        }
+
+        if (level - 1 < levels.size()) {
+            return levels.get(level - 1);
+        } else {
+            return levels.get(levels.size() - 1);
+        }
+
     }
 }
