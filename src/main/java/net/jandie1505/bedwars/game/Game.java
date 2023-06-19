@@ -381,6 +381,42 @@ public class Game implements GamePart {
 
             }
 
+            // Protection Team Upgrade
+
+            if (item != null && this.plugin.getItemStorage().isArmorItem(item)) {
+
+                if (item.getItemMeta() == null) {
+                    item.setItemMeta(this.plugin.getServer().getItemFactory().getItemMeta(item.getType()));
+                }
+
+                int enchantmentLevel = 0;
+
+                if (team.getProtectionUpgrade() < this.teamUpgradesConfig.getProtectionUpgrade().getUpgradeLevels().size()) {
+                    enchantmentLevel = this.teamUpgradesConfig.getProtectionUpgrade().getUpgradeLevels().get(team.getProtectionUpgrade());
+                }
+
+                if (enchantmentLevel > 0) {
+
+                    Integer level = item.getItemMeta().getEnchants().get(Enchantment.PROTECTION_ENVIRONMENTAL);
+
+                    if (level == null || level != enchantmentLevel) {
+                        ItemMeta meta = item.getItemMeta();
+                        meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, enchantmentLevel, true);
+                        item.setItemMeta(meta);
+                    }
+
+                } else {
+
+                    if (item.getItemMeta().getEnchants().containsKey(Enchantment.PROTECTION_ENVIRONMENTAL)) {
+                        ItemMeta meta = item.getItemMeta();
+                        meta.removeEnchant(Enchantment.PROTECTION_ENVIRONMENTAL);
+                        item.setItemMeta(meta);
+                    }
+
+                }
+
+            }
+
             // Pickaxe Player Upgrade
 
             if (this.itemShop.getPickaxeUpgrade() != null && this.itemShop.getPickaxeUpgrade().getUpgradeItemIds().contains(itemId)) {
