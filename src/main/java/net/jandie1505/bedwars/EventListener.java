@@ -17,6 +17,7 @@ import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -276,6 +277,11 @@ public class EventListener implements Listener {
         }
 
         if (this.plugin.getItemStorage().isArmorItem(event.getItem())) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && !event.getPlayer().isSneaking() && event.getClickedBlock().getBlockData() instanceof Bed) {
             event.setCancelled(true);
             return;
         }
