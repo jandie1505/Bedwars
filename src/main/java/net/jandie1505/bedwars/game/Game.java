@@ -52,6 +52,7 @@ public class Game implements GamePart {
     private int time;
     private int publicEmeraldGeneratorLevel;
     private int publicDiamondGeneratorLevel;
+    boolean prepared;
 
     public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection) {
         this.plugin = plugin;
@@ -72,6 +73,7 @@ public class Game implements GamePart {
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
+        this.prepared = false;
 
         for (LobbyTeamData teamData : List.copyOf(teams)) {
             BedwarsTeam team = new BedwarsTeam(this, teamData);
@@ -127,6 +129,12 @@ public class Game implements GamePart {
 
     @Override
     public GameStatus tick() {
+
+        // PREPARE GAME
+
+        if (!this.prepared) {
+            this.prepareGame();
+        }
 
         // STOP IF WORLD NOT LOADED
 
@@ -268,6 +276,32 @@ public class Game implements GamePart {
 
             if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(team.getSpawnpoints().get(0), player.getLocation()) <= team.getBaseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15 * 20, healPoolUpgrade - 1));
+            }
+
+            // Saturation
+
+            if (!player.hasPotionEffect(PotionEffectType.SATURATION)) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 3600 * 20, 255, false, false));
+            }
+
+            // Food Level
+
+            if (player.getFoodLevel() < 20) {
+                player.setFoodLevel(20);
+            }
+
+            if (player.getSaturation() < 20) {
+                player.setSaturation(20);
+            }
+
+            // Natural Regeneration
+
+            if (player.getSaturatedRegenRate() != 5 * 20) {
+                player.setSaturatedRegenRate(5 * 20);
+            }
+
+            if (player.getUnsaturatedRegenRate() != 0) {
+                player.setUnsaturatedRegenRate(0);
             }
 
         }
@@ -826,6 +860,37 @@ public class Game implements GamePart {
         sidebarDisplayStrings.add("");
 
         return List.copyOf(sidebarDisplayStrings);
+    }
+
+    public void prepareGame() {
+        for (Player player : this.plugin.getServer().getOnlinePlayers()) {
+
+            if (!this.players.containsKey(player.getUniqueId())) {
+                continue;
+            }
+
+            PlayerData playerData = this.players.get(player.getUniqueId());
+            BedwarsTeam team = this.getTeams().get(playerData.getTeam());
+
+            if (team == null) {
+                continue;
+            }
+
+            player.sendMessage("§7You are in " + team.getChatColor() + "Team " + team.getChatColor().name() + "§7.");
+
+            player.setHealth(20);
+            player.setFoodLevel(20);
+            player.setSaturation(20);
+
+            player.getInventory().clear();
+
+            for (PotionEffect potionEffect : List.copyOf(player.getActivePotionEffects())) {
+                player.removePotionEffect(potionEffect.getType());
+            }
+
+        }
+
+        this.prepared = true;
     }
 
     @Override
