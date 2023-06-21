@@ -840,17 +840,21 @@ public class Game implements GamePart {
 
     public void spawnItemShopVillager(BedwarsTeam team, Location location) {
         Villager villager = (Villager) this.world.spawnEntity(location, EntityType.VILLAGER);
+        villager.teleport(location);
         villager.setAI(false);
         villager.setCustomName("§6§lITEM SHOP");
         villager.setInvulnerable(true);
+        villager.setSilent(true);
         villager.addScoreboardTag("shop.team." + team.getId());
     }
 
     public void spawnUpgradesVillager(BedwarsTeam team, Location location) {
         Villager villager = (Villager) this.world.spawnEntity(location, EntityType.VILLAGER);
+        villager.teleport(location);
         villager.setAI(false);
         villager.setCustomName("§b§lTEAM UPGRADES");
         villager.setInvulnerable(true);
+        villager.setSilent(true);
         villager.addScoreboardTag("upgrades.team." + team.getId());
     }
 
