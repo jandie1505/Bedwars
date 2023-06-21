@@ -67,9 +67,6 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             case "worlds":
                 this.worldsSubcommand(sender, args);
                 break;
-            case "openupgrades":
-                ((Player) sender).openInventory(new UpgradesMenu((Game) this.plugin.getGame(), ((Player) sender).getUniqueId()).getUpgradesMenu());
-                break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
                 break;

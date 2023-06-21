@@ -920,6 +920,7 @@ public class Game implements GamePart {
         villager.teleport(location);
         villager.setAI(false);
         villager.setCustomName("§6§lITEM SHOP");
+        villager.setCustomNameVisible(true);
         villager.setInvulnerable(true);
         villager.setSilent(true);
         villager.addScoreboardTag("shop.team." + team.getId());
@@ -930,6 +931,7 @@ public class Game implements GamePart {
         villager.teleport(location);
         villager.setAI(false);
         villager.setCustomName("§b§lTEAM UPGRADES");
+        villager.setCustomNameVisible(true);
         villager.setInvulnerable(true);
         villager.setSilent(true);
         villager.addScoreboardTag("upgrades.team." + team.getId());

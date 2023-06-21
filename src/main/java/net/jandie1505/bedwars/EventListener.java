@@ -265,6 +265,11 @@ public class EventListener implements Listener {
                     return;
                 }
 
+                if (tag.startsWith("upgrades")) {
+                    event.getPlayer().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getPlayer().getUniqueId()).getUpgradesMenu());
+                    return;
+                }
+
             }
 
             return;
