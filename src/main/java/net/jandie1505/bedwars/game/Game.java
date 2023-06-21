@@ -45,13 +45,15 @@ public class Game implements GamePart {
     private final ItemShop itemShop;
     private final ArmorConfig armorConfig;
     private final TeamUpgradesConfig teamUpgradesConfig;
-    private int maxTime;
+    private final int maxTime;
+    private final int spawnBlockPlaceProtection;
+    private final int villagerBlockPlaceProtection;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
     private int publicDiamondGeneratorLevel;
 
-    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime) {
+    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection) {
         this.plugin = plugin;
         this.world = world;
         this.teams = Collections.synchronizedList(new ArrayList<>());
@@ -65,6 +67,8 @@ public class Game implements GamePart {
         this.armorConfig = armorConfig;
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.maxTime = maxTime;
+        this.spawnBlockPlaceProtection = spawnBlockPlaceProtection;
+        this.villagerBlockPlaceProtection = villagerBlockPlaceProtection;
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
@@ -953,5 +957,13 @@ public class Game implements GamePart {
 
     public TeamUpgradesConfig getTeamUpgradesConfig() {
         return this.teamUpgradesConfig;
+    }
+
+    public int getSpawnBlockPlaceProtection() {
+        return this.spawnBlockPlaceProtection;
+    }
+
+    public int getVillagerBlockPlaceProtection() {
+        return this.villagerBlockPlaceProtection;
     }
 }

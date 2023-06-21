@@ -28,6 +28,8 @@ public final class DefaultConfigValues {
         minimalistMap.put("world", "minimalist");
         minimalistMap.put("respawnCooldown", 5);
         minimalistMap.put("maxTime", 3600);
+        minimalistMap.put("spawnBlockPlaceProtectionRadius", 1);
+        minimalistMap.put("villagerBlockPlaceProtectionRadius", 1);
 
         JSONArray minimalistMapTeams = new JSONArray();
 

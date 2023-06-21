@@ -84,6 +84,20 @@ public class Lobby implements GamePart {
                 continue;
             }
 
+            int spawnBlockPlaceProtectionRadius = map.optInt("spawnBlockPlaceProtectionRadius", -1);
+
+            if (spawnBlockPlaceProtectionRadius < 0) {
+                this.logMissingMapConfigItem("spawnBlockPlaceProtectionRadius", index, name);
+                continue;
+            }
+
+            int villagerBlockPlaceProtectionRadius = map.optInt("villagerBlockPlaceProtectionRadius", -1);
+
+            if (villagerBlockPlaceProtectionRadius < 0) {
+                this.logMissingMapConfigItem("villagerBlockPlaceProtectionRadius", index, name);
+                continue;
+            }
+
             List<LobbyTeamData> teams = new ArrayList<>();
             JSONArray teamsArray = map.optJSONArray("teams");
 
@@ -258,7 +272,9 @@ public class Lobby implements GamePart {
                     maxTime,
                     teams,
                     globalGenerators,
-                    generatorUpgradeTimeActions
+                    generatorUpgradeTimeActions,
+                    spawnBlockPlaceProtectionRadius,
+                    villagerBlockPlaceProtectionRadius
             ));
         }
 
@@ -613,7 +629,9 @@ public class Lobby implements GamePart {
                 armorConfig,
                 teamUpgradesConfig,
                 selectedMap.getRespawnCooldown(),
-                selectedMap.getMaxTime()
+                selectedMap.getMaxTime(),
+                selectedMap.getSpawnBlockPlaceProtection(),
+                selectedMap.getVillagerBlockPlaceProtection()
         );
 
         for (UUID playerId : this.getPlayers().keySet()) {

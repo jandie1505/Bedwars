@@ -29,6 +29,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -124,12 +125,63 @@ public class EventListener implements Listener {
                 return;
             }
 
+            if (((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection() > 0 || ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection() > 0) {
+
+                for (BedwarsTeam team : ((Game) this.plugin.getGame()).getTeams()) {
+
+                    if (((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection() > 0) {
+
+                        for (Location location : team.getSpawnpoints()) {
+
+                            if (this.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection()) {
+                                event.setCancelled(true);
+                                event.getPlayer().sendMessage("§cYou cannot place blocks here");
+                                return;
+                            }
+
+                        }
+
+                    }
+
+                    if (((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection() > 0) {
+
+                        List<Location> villagerLocations = new ArrayList<>();
+                        villagerLocations.addAll(team.getShopVillagerLocations());
+                        villagerLocations.addAll(team.getUpgradesVillagerLocations());
+
+                        for (Location location : villagerLocations) {
+
+                            if (this.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection()) {
+                                event.setCancelled(true);
+                                event.getPlayer().sendMessage("§cYou cannot place blocks here");
+                                return;
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
             ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().add(event.getBlockPlaced().getLocation());
 
         } else {
             event.setCancelled(true);
         }
 
+    }
+
+    public int getBlockDistance(Location location1, Location location2) {
+        int dx = Math.abs(location1.getBlockX() - location2.getBlockX());
+        int dy = Math.abs(location1.getBlockY() - location2.getBlockY());
+        int dz = Math.abs(location1.getBlockZ() - location2.getBlockZ());
+
+        double distanceSquared = dx * dx + dy * dy + dz * dz;
+        double distance = Math.sqrt(distanceSquared);
+
+        return (int) Math.round(distance);
     }
 
     @EventHandler
