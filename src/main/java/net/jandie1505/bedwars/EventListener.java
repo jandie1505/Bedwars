@@ -11,6 +11,7 @@ import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
@@ -198,15 +199,15 @@ public class EventListener implements Listener {
 
                 if (event.getBlock().getBlockData() instanceof Bed) {
 
+                    Block otherHalf;
+
+                    if (((Bed) event.getBlock().getBlockData()).getPart() == Bed.Part.HEAD) {
+                        otherHalf = event.getBlock().getRelative(((Bed) event.getBlock().getBlockData()).getFacing().getOppositeFace());
+                    } else {
+                        otherHalf = event.getBlock().getRelative(((Bed) event.getBlock().getBlockData()).getFacing());
+                    }
+
                     for (Location location : ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam()).getBedLocations()) {
-
-                        Block otherHalf;
-
-                        if (((Bed) event.getBlock().getBlockData()).getPart() == Bed.Part.HEAD) {
-                            otherHalf = event.getBlock().getRelative(((Bed) event.getBlock().getBlockData()).getFacing().getOppositeFace());
-                        } else {
-                            otherHalf = event.getBlock().getRelative(((Bed) event.getBlock().getBlockData()).getFacing());
-                        }
 
                         if (location.equals(event.getBlock().getLocation()) || location.equals(otherHalf.getLocation())) {
 
@@ -216,6 +217,36 @@ public class EventListener implements Listener {
                         }
 
                     }
+
+                    for (BedwarsTeam team : ((Game) this.plugin.getGame()).getTeams()) {
+
+                        for (Location location : team.getBedLocations()) {
+
+                            if (location.equals(event.getBlock().getLocation()) || location.equals(otherHalf.getLocation())) {
+
+                                for (Player player : this.plugin.getServer().getOnlinePlayers()) {
+
+                                    PlayerData pData = ((Game) this.plugin.getGame()).getPlayers().get(player.getUniqueId());
+
+                                    BedwarsTeam destroyerTeam = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
+
+                                    if (pData.getTeam() == team.getId()) {
+                                        player.sendMessage("§7Your Bed was destroyed by " + destroyerTeam.getChatColor() + event.getPlayer().getName() + "§7!");
+                                        player.sendTitle("§cBED DESTROYED", "§7You will no longer respawn!", 5, 3*20, 5);
+                                        player.playSound(player, Sound.ENTITY_WITHER_DEATH, 1, 1);
+                                    } else {
+                                        player.sendMessage("§7The Bed of " + team.getChatColor() + "Team " + team.getChatColor().name() + " §7was destroyed by " + destroyerTeam.getChatColor() + event.getPlayer().getName() + "§7!");
+                                        player.playSound(player, Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1, 1);
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
                 }
 
                 ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().remove(event.getBlock().getLocation());
