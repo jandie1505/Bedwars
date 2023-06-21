@@ -61,6 +61,16 @@ public class EventListener implements Listener {
 
         PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getUniqueId());
 
+        playerData.setDeaths(playerData.getDeaths() + 1);
+
+        if (event.getEntity().getKiller() != null && ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getKiller().getUniqueId()) != null) {
+
+            PlayerData killerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getKiller().getUniqueId());
+
+            killerData.setKills(killerData.getKills() + 1);
+
+        }
+
         BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
 
         if (team == null || team.hasBed() <= 0) {
