@@ -598,7 +598,7 @@ public class Lobby implements GamePart {
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("sharpness", new JSONObject())),
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("protection", new JSONObject())),
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("haste", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("forge", new JSONObject())),
+                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("generators", new JSONObject())),
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("healpool", new JSONObject())),
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("dragonbuff", new JSONObject()))
         );
@@ -632,12 +632,14 @@ public class Lobby implements GamePart {
         int itemId = teamUpgrade.optInt("item", -1);
 
         if (itemId < 0) {
+            this.plugin.getLogger().warning("Shop Config: Missing/wrong item in team upgrade");
             return this.getErrorUpgrade();
         }
 
         JSONArray priceListArray = teamUpgrade.optJSONArray("prices");
 
         if (priceListArray == null) {
+            this.plugin.getLogger().warning("Shop Config: Missing/Wrong prices in team upgrade");
             return this.getErrorUpgrade();
         }
 
@@ -649,6 +651,7 @@ public class Lobby implements GamePart {
             int price = priceListArray.optInt(i, -1);
 
             if (price < 0) {
+                this.plugin.getLogger().warning("Shop Config: Wrong price in prices in team upgrade");
                 return this.getErrorUpgrade();
             }
 

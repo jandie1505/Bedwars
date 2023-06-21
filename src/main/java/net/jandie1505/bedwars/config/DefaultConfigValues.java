@@ -1243,6 +1243,8 @@ public final class DefaultConfigValues {
 
         healPoolUpgrade.put("prices", healPoolUpgradePrices);
 
+        healPoolUpgrade.put("item", 164);
+
         upgradeConfig.put("healpool", healPoolUpgrade);
 
         // Dragon Buff Upgrade
@@ -1262,6 +1264,8 @@ public final class DefaultConfigValues {
         dragonBuffUpgradePrices.put(10);
 
         dragonBuffUpgrade.put("prices", dragonBuffUpgradePrices);
+
+        dragonBuffUpgrade.put("item", 165);
 
         upgradeConfig.put("dragonbuff", dragonBuffUpgrade);
 

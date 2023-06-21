@@ -235,6 +235,12 @@ public class ItemStorage {
 
             }
 
+            // Set item meta
+
+            item.setItemMeta(meta);
+
+            // Add item
+
             this.addItem(itemId, item);
         }
 

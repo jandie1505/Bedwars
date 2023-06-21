@@ -53,6 +53,27 @@ public class UpgradesMenu implements InventoryHolder {
         this.createUpgradeItem(protectionItem, protectionUpgrade, team.getProtectionUpgrade(), "Protection");
         inventory.setItem(11, protectionItem);
 
+        TeamUpgrade hasteUpgrade = this.game.getTeamUpgradesConfig().getHasteUpgrade();
+        ItemStack hasteItem = this.game.getPlugin().getItemStorage().getItem(hasteUpgrade.getItemId());
+        this.createUpgradeItem(hasteItem, hasteUpgrade, team.getHasteUpgrade(), "Haste");
+        inventory.setItem(12, hasteItem);
+
+        TeamUpgrade forgeUpgrade = this.game.getTeamUpgradesConfig().getForgeUpgrade();
+        System.out.println(forgeUpgrade.getItemId());
+        ItemStack forgeItem = this.game.getPlugin().getItemStorage().getItem(forgeUpgrade.getItemId());
+        this.createUpgradeItem(forgeItem, forgeUpgrade, team.getForgeUpgrade(), "Generator");
+        inventory.setItem(19, forgeItem);
+
+        TeamUpgrade healPoolUpgrade = this.game.getTeamUpgradesConfig().getHealPoolUpgrade();
+        ItemStack healPoolItem = this.game.getPlugin().getItemStorage().getItem(healPoolUpgrade.getItemId());
+        this.createUpgradeItem(healPoolItem, healPoolUpgrade, team.getHealPoolUpgrade(), "Heal Pool");
+        inventory.setItem(20, healPoolItem);
+
+        TeamUpgrade dragonBuffUpgrade = this.game.getTeamUpgradesConfig().getDragonBuffUpgrade();
+        ItemStack dragonBuffItem = this.game.getPlugin().getItemStorage().getItem(dragonBuffUpgrade.getItemId());
+        this.createUpgradeItem(dragonBuffItem, dragonBuffUpgrade, team.getDragonBuffUpgrade(), "Dragon Buff");
+        inventory.setItem(21, dragonBuffItem);
+
         return inventory;
     }
 
@@ -102,7 +123,6 @@ public class UpgradesMenu implements InventoryHolder {
                 upgradeMessage = upgradeMessage + " §b" + price + " " + currency.toString() + "S";
             }
 
-            System.out.println(upgradeMessage);
             lore.add(upgradeMessage);
 
         }
