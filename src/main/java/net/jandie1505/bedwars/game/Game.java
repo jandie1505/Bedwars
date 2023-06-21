@@ -247,7 +247,7 @@ public class Game implements GamePart {
 
                 if (player.getPotionEffect(PotionEffectType.FAST_DIGGING) == null || player.getPotionEffect(PotionEffectType.FAST_DIGGING).getAmplifier() != hasteUpgradeLevel - 1) {
                     player.removePotionEffect(PotionEffectType.FAST_DIGGING);
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 1200, hasteUpgradeLevel - 1));
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 3600 * 20, hasteUpgradeLevel - 1));
                 }
 
             } else {
