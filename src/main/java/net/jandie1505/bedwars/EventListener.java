@@ -4,8 +4,10 @@ import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.menu.shop.ShopEntry;
 import net.jandie1505.bedwars.game.menu.shop.ShopMenu;
 import net.jandie1505.bedwars.game.menu.shop.UpgradeEntry;
+import net.jandie1505.bedwars.game.menu.upgrades.UpgradesMenu;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +26,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
@@ -326,23 +329,12 @@ public class EventListener implements Listener {
 
             if (shopEntry != null) {
 
-                int availableCurrency = 0;
-
-                for (ItemStack item : Arrays.copyOf(event.getWhoClicked().getInventory().getContents(), event.getWhoClicked().getInventory().getContents().length)) {
-
-                    if (item != null && item.getType() == shopEntry.getCurrency()) {
-                        availableCurrency += item.getAmount();
-                    }
-
-                }
-
-                if (availableCurrency < shopEntry.getPrice()) {
+                if (!this.purchaseItem(event.getWhoClicked().getInventory(), shopEntry.getPrice(), shopEntry.getCurrency())) {
                     event.getWhoClicked().sendMessage("§cYou don't have enough " + shopEntry.getCurrency().name() + "s!");
                     return;
                 }
 
                 event.getWhoClicked().sendMessage("§aItem successfully purchased");
-                Bedwars.removeSpecificAmountOfItems(event.getWhoClicked().getInventory(), shopEntry.getCurrency(), shopEntry.getPrice());
                 event.getWhoClicked().getInventory().addItem(((Game) this.plugin.getGame()).getPlugin().getItemStorage().getItem(itemId));
                 event.getWhoClicked().openInventory(new ShopMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getPage(ShopMenu.getMenuPage(event.getInventory())));
 
@@ -377,28 +369,105 @@ public class EventListener implements Listener {
                     return;
                 }
 
-                int availableCurrency = 0;
-
-                for (ItemStack item : Arrays.copyOf(event.getWhoClicked().getInventory().getContents(), event.getWhoClicked().getInventory().getContents().length)) {
-
-                    if (item != null && item.getType() == currency) {
-                        availableCurrency += item.getAmount();
-                    }
-
-                }
-
-                if (availableCurrency < price) {
+                if (!this.purchaseItem(event.getWhoClicked().getInventory(), price, currency)) {
                     event.getWhoClicked().sendMessage("§cYou don't have enough " + currency.name() + "s!");
                     return;
                 }
 
                 event.getWhoClicked().sendMessage("§aItem successfully purchased");
-                Bedwars.removeSpecificAmountOfItems(event.getWhoClicked().getInventory(), currency, price);
                 upgradeEntry.upgradePlayer(playerData);
                 event.getWhoClicked().openInventory(new ShopMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getPage(ShopMenu.getMenuPage(event.getInventory())));
 
                 return;
             }
+
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof UpgradesMenu) {
+
+            event.setCancelled(true);
+
+            if (!(event.getClick() == ClickType.LEFT || event.getClick() == ClickType.RIGHT)) {
+                return;
+            }
+
+            if (!(this.plugin.getGame() instanceof Game) || !((Game) this.plugin.getGame()).getPlayers().containsKey(event.getWhoClicked().getUniqueId())) {
+                return;
+            }
+
+            if (event.getCurrentItem() == null) {
+                return;
+            }
+
+            int itemId = this.plugin.getItemStorage().getItemId(event.getCurrentItem());
+
+            if (itemId < 0) {
+                return;
+            }
+
+            TeamUpgrade teamUpgrade;
+
+            if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getSharpnessUpgrade().getItemId()) {
+                teamUpgrade = ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getSharpnessUpgrade();
+            } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getProtectionUpgrade().getItemId()) {
+                teamUpgrade = ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getProtectionUpgrade();
+            } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getHasteUpgrade().getItemId()) {
+                teamUpgrade = ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getHasteUpgrade();
+            } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getForgeUpgrade().getItemId()) {
+                teamUpgrade = ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getForgeUpgrade();
+            } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getHealPoolUpgrade().getItemId()) {
+                teamUpgrade = ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getHealPoolUpgrade();
+            } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getDragonBuffUpgrade().getItemId()) {
+                teamUpgrade = ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getDragonBuffUpgrade();
+            } else {
+                teamUpgrade = null;
+            }
+
+            if (teamUpgrade == null) {
+                return;
+            }
+
+            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getWhoClicked().getUniqueId());
+
+            if (playerData == null) {
+                return;
+            }
+
+            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
+
+            if (team == null) {
+                return;
+            }
+
+            if (team.getTeamUpgrade(teamUpgrade) >= teamUpgrade.getUpgradePrices().size()) {
+                return;
+            }
+
+            Integer price = teamUpgrade.getUpgradePrices().get(team.getTeamUpgrade(teamUpgrade));
+
+            if (price == null || price < 0) {
+                return;
+            }
+
+            if (team.getTeamUpgrade(teamUpgrade) >= teamUpgrade.getUpgradePriceCurrencies().size()) {
+                return;
+            }
+
+            Material currency = teamUpgrade.getUpgradePriceCurrencies().get(team.getTeamUpgrade(teamUpgrade));
+
+            if (currency == null) {
+                return;
+            }
+
+            if (!this.purchaseItem(event.getWhoClicked().getInventory(), price, currency)) {
+                event.getWhoClicked().sendMessage("§cYou don't have enough " + currency.name() + "S!");
+                return;
+            }
+
+            event.getWhoClicked().sendMessage("§aUpgrade successfully purchased");
+            team.setTeamUpgrade(teamUpgrade, team.getTeamUpgrade(teamUpgrade) + 1);
+            event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
 
             return;
         }
@@ -428,6 +497,30 @@ public class EventListener implements Listener {
             return;
         }
 
+    }
+
+    private boolean purchaseItem(Inventory inventory, int price, Material currency) {
+
+        if (inventory == null) {
+            return false;
+        }
+
+        int availableCurrency = 0;
+
+        for (ItemStack item : Arrays.copyOf(inventory.getContents(), inventory.getContents().length)) {
+
+            if (item != null && item.getType() == currency) {
+                availableCurrency += item.getAmount();
+            }
+
+        }
+
+        if (availableCurrency < price) {
+            return false;
+        }
+
+        Bedwars.removeSpecificAmountOfItems(inventory, currency, price);
+        return true;
     }
 
     @EventHandler

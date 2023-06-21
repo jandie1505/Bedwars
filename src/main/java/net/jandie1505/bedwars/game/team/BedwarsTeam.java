@@ -185,4 +185,42 @@ public class BedwarsTeam {
     public void setDragonBuffUpgrade(int dragonBuffUpgrade) {
         this.dragonBuffUpgrade = dragonBuffUpgrade;
     }
+
+    public int getTeamUpgrade(TeamUpgrade teamUpgrade) {
+
+        if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getSharpnessUpgrade()) {
+            return this.getAttackDamageUpgrade();
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getProtectionUpgrade()) {
+            return this.getProtectionUpgrade();
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHasteUpgrade()) {
+            return this.getHasteUpgrade();
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getForgeUpgrade()) {
+            return this.getForgeUpgrade();
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHealPoolUpgrade()) {
+            return this.getHealPoolUpgrade();
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getDragonBuffUpgrade()) {
+            return this.getDragonBuffUpgrade();
+        } else {
+            return -1;
+        }
+
+    }
+
+    public void setTeamUpgrade(TeamUpgrade teamUpgrade, int value) {
+
+        if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getSharpnessUpgrade()) {
+            this.attackDamageUpgrade = value;
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getProtectionUpgrade()) {
+            this.protectionUpgrade = value;
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHasteUpgrade()) {
+            this.hasteUpgrade = value;
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getForgeUpgrade()) {
+            this.forgeUpgrade = value;
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHealPoolUpgrade()) {
+            this.healPoolUpgrade = value;
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getDragonBuffUpgrade()) {
+            this.dragonBuffUpgrade = value;
+        }
+
+    }
 }
