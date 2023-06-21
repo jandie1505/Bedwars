@@ -230,7 +230,7 @@ public class EventListener implements Listener {
 
                                     BedwarsTeam destroyerTeam = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
 
-                                    if (pData.getTeam() == team.getId()) {
+                                    if (pData != null && pData.getTeam() == team.getId()) {
                                         player.sendMessage("§7Your Bed was destroyed by " + destroyerTeam.getChatColor() + event.getPlayer().getName() + "§7!");
                                         player.sendTitle("§cBED DESTROYED", "§7You will no longer respawn!", 5, 3*20, 5);
                                         player.playSound(player, Sound.ENTITY_WITHER_DEATH, 1, 1);
