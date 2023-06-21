@@ -262,6 +262,14 @@ public class Game implements GamePart {
 
             }
 
+            // Regeneration
+
+            int healPoolUpgrade = this.getUpgradeLevel(team.getHealPoolUpgrade(), this.teamUpgradesConfig.getHealPoolUpgrade().getUpgradeLevels());
+
+            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(team.getSpawnpoints().get(0), player.getLocation()) <= team.getBaseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15 * 20, healPoolUpgrade - 1));
+            }
+
         }
 
         // SCOREBOARDS CLEANUP

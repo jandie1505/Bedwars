@@ -290,4 +290,15 @@ public class Bedwars extends JavaPlugin {
         }
 
     }
+
+    public static int getBlockDistance(Location location1, Location location2) {
+        int dx = Math.abs(location1.getBlockX() - location2.getBlockX());
+        int dy = Math.abs(location1.getBlockY() - location2.getBlockY());
+        int dz = Math.abs(location1.getBlockZ() - location2.getBlockZ());
+
+        double distanceSquared = dx * dx + dy * dy + dz * dz;
+        double distance = Math.sqrt(distanceSquared);
+
+        return (int) Math.round(distance);
+    }
 }

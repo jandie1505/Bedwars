@@ -15,6 +15,7 @@ public class BedwarsTeam {
     private final String name;
     private final ChatColor chatColor;
     private final Color color;
+    private final int baseRadius;
     private final List<Location> spawnpoints;
     private final List<Location> bedLocations;
     private final List<Location> shopVillagerLocations;
@@ -31,6 +32,7 @@ public class BedwarsTeam {
         this.name = teamData.getName();
         this.chatColor = teamData.getChatColor();
         this.color = teamData.getColor();
+        this.baseRadius = teamData.getBaseRadius();
 
         this.spawnpoints = Collections.synchronizedList(new ArrayList<>());
         for (Location location : List.copyOf(teamData.getSpawnpoints())) {
@@ -70,6 +72,10 @@ public class BedwarsTeam {
 
     public Color getColor() {
         return color;
+    }
+
+    public int getBaseRadius() {
+        return baseRadius;
     }
 
     public List<Location> getSpawnpoints() {

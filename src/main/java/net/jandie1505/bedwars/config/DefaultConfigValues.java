@@ -40,6 +40,7 @@ public final class DefaultConfigValues {
         greenTeamData.put("name", "Green");
         greenTeamData.put("color", Color.LIME.asRGB());
         greenTeamData.put("chatColor", "GREEN");
+        greenTeamData.put("baseRadius", 10);
 
         // Green Spawnpoints
 
@@ -153,6 +154,7 @@ public final class DefaultConfigValues {
         redTeamData.put("name", "Red");
         redTeamData.put("color", Color.RED.asRGB());
         redTeamData.put("chatColor", "RED");
+        redTeamData.put("baseRadius", 10);
 
         // Red Spawnpoints
 

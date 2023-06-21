@@ -133,7 +133,7 @@ public class EventListener implements Listener {
 
                         for (Location location : team.getSpawnpoints()) {
 
-                            if (this.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection()) {
+                            if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection()) {
                                 event.setCancelled(true);
                                 event.getPlayer().sendMessage("§cYou cannot place blocks here");
                                 return;
@@ -151,7 +151,7 @@ public class EventListener implements Listener {
 
                         for (Location location : villagerLocations) {
 
-                            if (this.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection()) {
+                            if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection()) {
                                 event.setCancelled(true);
                                 event.getPlayer().sendMessage("§cYou cannot place blocks here");
                                 return;
@@ -171,17 +171,6 @@ public class EventListener implements Listener {
             event.setCancelled(true);
         }
 
-    }
-
-    public int getBlockDistance(Location location1, Location location2) {
-        int dx = Math.abs(location1.getBlockX() - location2.getBlockX());
-        int dy = Math.abs(location1.getBlockY() - location2.getBlockY());
-        int dz = Math.abs(location1.getBlockZ() - location2.getBlockZ());
-
-        double distanceSquared = dx * dx + dy * dy + dz * dz;
-        double distance = Math.sqrt(distanceSquared);
-
-        return (int) Math.round(distance);
     }
 
     @EventHandler

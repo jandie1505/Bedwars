@@ -145,6 +145,13 @@ public class Lobby implements GamePart {
                     continue;
                 }
 
+                int baseRadius = team.optInt("baseRadius", -1);
+
+                if (baseRadius < 0) {
+                    this.plugin.getLogger().warning("Map Config: Missing baseRadius of team " + teamName + " of map " + name + " (" + index + ")");
+                    continue;
+                }
+
                 JSONArray teamSpawnpointArray = team.optJSONArray("spawnpoints");
 
                 if (teamSpawnpointArray == null) {
@@ -190,7 +197,7 @@ public class Lobby implements GamePart {
 
                 List<Location> upgradeVillagerLocations = this.buildLocationList(upgradeVillagerLocationArray, false);
 
-                teams.add(new LobbyTeamData(teamName, teamChatColor, teamColor, teamSpawnpoints, teamBedLocations, teamGenerators, shopVillagerLocations, upgradeVillagerLocations));
+                teams.add(new LobbyTeamData(teamName, teamChatColor, teamColor, teamSpawnpoints, baseRadius, teamBedLocations, teamGenerators, shopVillagerLocations, upgradeVillagerLocations));
             }
 
             JSONArray globalGeneratorArray = map.optJSONArray("globalGenerators");
