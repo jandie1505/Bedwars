@@ -59,7 +59,6 @@ public class UpgradesMenu implements InventoryHolder {
         inventory.setItem(12, hasteItem);
 
         TeamUpgrade forgeUpgrade = this.game.getTeamUpgradesConfig().getForgeUpgrade();
-        System.out.println(forgeUpgrade.getItemId());
         ItemStack forgeItem = this.game.getPlugin().getItemStorage().getItem(forgeUpgrade.getItemId());
         this.createUpgradeItem(forgeItem, forgeUpgrade, team.getForgeUpgrade(), "Generator");
         inventory.setItem(19, forgeItem);
