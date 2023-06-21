@@ -1147,7 +1147,7 @@ public final class DefaultConfigValues {
         sharpnessUpgradeLevels.put(1);
         sharpnessUpgradeLevels.put(2);
 
-        sharpnessUpgrade.put("enchantmentLevels", sharpnessUpgradeLevels);
+        sharpnessUpgrade.put("levels", sharpnessUpgradeLevels);
 
         JSONArray sharpnessUpgradePrices = new JSONArray();
 
@@ -1171,7 +1171,7 @@ public final class DefaultConfigValues {
         protectionUpgradeLevels.put(3);
         protectionUpgradeLevels.put(4);
 
-        protectionUpgrade.put("enchantmentLevels", protectionUpgradeLevels);
+        protectionUpgrade.put("levels", protectionUpgradeLevels);
 
         JSONArray protectionUpgradePrices = new JSONArray();
 
@@ -1195,7 +1195,7 @@ public final class DefaultConfigValues {
         hasteUpgradeLevels.put(1);
         hasteUpgradeLevels.put(2);
 
-        hasteUpgrade.put("effectLevels", hasteUpgradeLevels);
+        hasteUpgrade.put("levels", hasteUpgradeLevels);
 
         JSONArray hasteUpgradePrices = new JSONArray();
 
@@ -1234,7 +1234,7 @@ public final class DefaultConfigValues {
         healPoolUpgradeLevels.put(1);
         healPoolUpgradeLevels.put(2);
 
-        healPoolUpgrade.put("effectLevels", healPoolUpgradeLevels);
+        healPoolUpgrade.put("levels", healPoolUpgradeLevels);
 
         JSONArray healPoolUpgradePrices = new JSONArray();
 
@@ -1254,7 +1254,7 @@ public final class DefaultConfigValues {
         dragonBuffUpgradeLevels.put(1);
         dragonBuffUpgradeLevels.put(2);
 
-        dragonBuffUpgrade.put("dragonCountIncrease", dragonBuffUpgradeLevels);
+        dragonBuffUpgrade.put("levels", dragonBuffUpgradeLevels);
 
         JSONArray dragonBuffUpgradePrices = new JSONArray();
 
@@ -1264,6 +1264,10 @@ public final class DefaultConfigValues {
         dragonBuffUpgrade.put("prices", dragonBuffUpgradePrices);
 
         upgradeConfig.put("dragonbuff", dragonBuffUpgrade);
+
+        // Save upgradeConfig
+
+        config.put("teamUpgrades", upgradeConfig);
 
         // return
 

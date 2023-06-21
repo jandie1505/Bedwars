@@ -5,6 +5,8 @@ import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
+import net.jandie1505.bedwars.game.team.TeamUpgrade;
+import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
@@ -592,6 +594,15 @@ public class Lobby implements GamePart {
                 shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultBoots", 128)
         );
 
+        TeamUpgradesConfig teamUpgradesConfig = new TeamUpgradesConfig(
+                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("sharpness", new JSONObject())),
+                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("protection", new JSONObject())),
+                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("haste", new JSONObject())),
+                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("forge", new JSONObject())),
+                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("healpool", new JSONObject())),
+                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("dragonbuff", new JSONObject()))
+        );
+
         Game game = new Game(
                 this.plugin,
                 world,
@@ -600,6 +611,7 @@ public class Lobby implements GamePart {
                 selectedMap.getGeneratorUpgradeTimeActions(),
                 new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
                 armorConfig,
+                teamUpgradesConfig,
                 selectedMap.getRespawnCooldown(),
                 selectedMap.getMaxTime()
         );
@@ -609,6 +621,69 @@ public class Lobby implements GamePart {
         }
 
         return game;
+    }
+
+    private TeamUpgrade getErrorUpgrade() {
+        return new TeamUpgrade(-1, List.of(), List.of(), List.of());
+    }
+
+    private TeamUpgrade buildTeamUpgrade(JSONObject teamUpgrade) {
+
+        int itemId = teamUpgrade.optInt("item", -1);
+
+        if (itemId < 0) {
+            return this.getErrorUpgrade();
+        }
+
+        JSONArray priceListArray = teamUpgrade.optJSONArray("prices");
+
+        if (priceListArray == null) {
+            return this.getErrorUpgrade();
+        }
+
+        List<Integer> prices = new ArrayList<>();
+        List<Material> currencies = new ArrayList<>();
+
+        for (int i = 0; i < priceListArray.length(); i++) {
+
+            int price = priceListArray.optInt(i, -1);
+
+            if (price < 0) {
+                return this.getErrorUpgrade();
+            }
+
+            prices.add(price);
+            currencies.add(Material.DIAMOND);
+
+        }
+
+        JSONArray levelArray = teamUpgrade.optJSONArray("levels");
+
+        List<Integer> levels = new ArrayList<>();
+
+        if (levelArray == null) {
+
+            for (int i = 0; i < prices.size(); i++) {
+                levels.add(-1);
+            }
+
+        } else {
+
+            for (int i = 0; i < levelArray.length(); i++) {
+
+                int level = levelArray.optInt(i);
+
+                if (level < 0) {
+                    level = -1;
+                }
+
+                levels.add(level);
+
+            }
+
+        }
+
+        return new TeamUpgrade(itemId, List.copyOf(prices), List.copyOf(currencies), List.copyOf(levels));
     }
 
     public void forcestart() {

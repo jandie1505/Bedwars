@@ -43,6 +43,16 @@ public class UpgradesMenu implements InventoryHolder {
             return this.getInventory();
         }
 
+        TeamUpgrade sharpnessUpgrade = this.game.getTeamUpgradesConfig().getSharpnessUpgrade();
+        ItemStack sharpnessItem = this.game.getPlugin().getItemStorage().getItem(sharpnessUpgrade.getItemId());
+        this.createUpgradeItem(sharpnessItem, sharpnessUpgrade, team.getAttackDamageUpgrade(), "Sharpness");
+        inventory.setItem(10, sharpnessItem);
+
+        TeamUpgrade protectionUpgrade = this.game.getTeamUpgradesConfig().getProtectionUpgrade();
+        ItemStack protectionItem = this.game.getPlugin().getItemStorage().getItem(protectionUpgrade.getItemId());
+        this.createUpgradeItem(protectionItem, protectionUpgrade, team.getProtectionUpgrade(), "Protection");
+        inventory.setItem(11, protectionItem);
+
         return inventory;
     }
 
@@ -84,14 +94,15 @@ public class UpgradesMenu implements InventoryHolder {
                 upgradeMessage = upgradeMessage + upgradeName + " " + level;
             }
 
-            if (upgradeLevel - 1 <= i) {
+            if (upgradeLevel - 1 >= i) {
                 upgradeMessage = "§r§a" + upgradeMessage;
-                upgradeMessage = upgradeName + " UNLOCKED";
+                upgradeMessage = upgradeMessage + " UNLOCKED";
             } else {
                 upgradeMessage = "§r§7" + upgradeMessage;
                 upgradeMessage = upgradeMessage + " §b" + price + " " + currency.toString() + "S";
             }
 
+            System.out.println(upgradeMessage);
             lore.add(upgradeMessage);
 
         }

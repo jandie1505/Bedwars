@@ -3,6 +3,7 @@ package net.jandie1505.bedwars.commands;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.game.menu.upgrades.UpgradesMenu;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.lobby.Lobby;
 import org.bukkit.Location;
@@ -65,6 +66,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             case "world":
             case "worlds":
                 this.worldsSubcommand(sender, args);
+                break;
+            case "openupgrades":
+                ((Player) sender).openInventory(new UpgradesMenu((Game) this.plugin.getGame(), ((Player) sender).getUniqueId()).getUpgradesMenu());
                 break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");

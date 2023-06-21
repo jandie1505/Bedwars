@@ -301,7 +301,6 @@ public class ItemStorage {
         }
 
         if (!(item.getItemMeta() instanceof LeatherArmorMeta)) {
-            System.out.println("no leather");
             return item;
         }
 
