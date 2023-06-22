@@ -19,8 +19,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -686,6 +689,45 @@ public class EventListener implements Listener {
             }
         }
 
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            event.setCancelled(true);
+            return;
+        }
+
+        for (Block block : List.copyOf(event.blockList())) {
+
+            if (!((Game) this.plugin.getGame()).getPlayerPlacedBlocks().contains(block.getLocation())) {
+                event.blockList().remove(block);
+                continue;
+            }
+
+            if (block.getBlockData() instanceof Bed) {
+                event.blockList().remove(block);
+                continue;
+            }
+
+            if (block.getType().toString().endsWith("GLASS")) {
+                event.blockList().remove(block);
+                continue;
+            }
+
+            if (block.getType() == Material.END_STONE) {
+                event.blockList().remove(block);
+                continue;
+            }
+
+        }
+
+    }
+
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event) {
+        event.setCancelled(true);
     }
 
 }
