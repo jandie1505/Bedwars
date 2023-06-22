@@ -499,6 +499,34 @@ public class Game implements GamePart {
 
             }
 
+            // Replace Wool
+
+            if (item.getType().toString().endsWith("WOOL")) {
+                String blockColor = Bedwars.getBlockColorString(team.getChatColor());
+
+                if (blockColor != null) {
+                    Material material = Material.getMaterial(blockColor + "_WOOL");
+
+                    if (material != null && item.getType() != material) {
+                        item.setType(material);
+                    }
+                }
+            }
+
+            // Replace Glass
+
+            if (item.getType().toString().endsWith("STAINED_GLASS")) {
+                String blockColor = Bedwars.getBlockColorString(team.getChatColor());
+
+                if (blockColor != null) {
+                    Material material = Material.getMaterial(blockColor + "_STAINED_GLASS");
+
+                    if (material != null && item.getType() != material) {
+                        item.setType(material);
+                    }
+                }
+            }
+
             // Default Sword
 
             if (this.itemShop.getDefaultWeapon() != null && itemId == this.itemShop.getDefaultWeapon()) {

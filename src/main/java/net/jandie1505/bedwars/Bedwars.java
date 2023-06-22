@@ -6,10 +6,7 @@ import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.items.ItemStorage;
 import net.jandie1505.bedwars.lobby.Lobby;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -300,5 +297,46 @@ public class Bedwars extends JavaPlugin {
         double distance = Math.sqrt(distanceSquared);
 
         return (int) Math.round(distance);
+    }
+
+    public static String getBlockColorString(ChatColor color) {
+
+        switch (color) {
+            case BLACK:
+                return "BLACK";
+            case DARK_BLUE:
+                return "BLUE";
+            case DARK_GREEN:
+                return "GREEN";
+            case DARK_AQUA:
+                return "CYAN";
+            case DARK_RED:
+                return "RED";
+            case DARK_PURPLE:
+                return "PURPLE";
+            case GOLD:
+                return "ORANGE";
+            case GRAY:
+                return "LIGHT_GRAY";
+            case DARK_GRAY:
+                return "GRAY";
+            case BLUE:
+                return "LIGHT_BLUE";
+            case GREEN:
+                return "LIME";
+            case AQUA:
+                return "CYAN";
+            case RED:
+                return "RED";
+            case LIGHT_PURPLE:
+                return "MAGENTA";
+            case YELLOW:
+                return "YELLOW";
+            case WHITE:
+                return "WHITE";
+            default:
+                return null;
+        }
+
     }
 }
