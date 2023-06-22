@@ -1141,6 +1141,14 @@ public final class DefaultConfigValues {
 
         itemShopConfig.put("armorConfig", armorConfig);
 
+        // Special Items
+
+        JSONObject specialItemsConfig = new JSONObject();
+
+        specialItemsConfig.put("defaultWeapon", 109);
+
+        itemShopConfig.put("specialItems", specialItemsConfig);
+
         // Save item shop
 
         config.put("itemShop", itemShopConfig);

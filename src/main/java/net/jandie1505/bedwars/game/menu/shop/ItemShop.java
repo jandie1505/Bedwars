@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game.menu.shop;
 
 import net.jandie1505.bedwars.game.Game;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,6 +15,7 @@ public class ItemShop {
     private final Game game;
     private final Integer[] menuItems;
     private final List<ShopEntry> shopEntries;
+    private Integer defaultWeapon;
     private UpgradeEntry armorUpgrade;
     private UpgradeEntry pickaxeUpgrade;
     private UpgradeEntry shearsUpgrade;
@@ -22,6 +24,7 @@ public class ItemShop {
         this.game = game;
         this.menuItems = new Integer[9];
         this.shopEntries = Collections.synchronizedList(new ArrayList<>());
+        this.defaultWeapon = null;
         this.armorUpgrade = null;
         this.pickaxeUpgrade = null;
         this.shearsUpgrade = null;
@@ -33,6 +36,19 @@ public class ItemShop {
 
     public List<ShopEntry> getShopEntries() {
         return List.copyOf(this.shopEntries);
+    }
+
+    public Integer getDefaultWeapon() {
+        return this.defaultWeapon;
+    }
+
+    public ItemStack getDefaultWeaponItem() {
+
+        if (this.defaultWeapon == null) {
+            return null;
+        }
+
+        return this.game.getPlugin().getItemStorage().getItem(this.defaultWeapon);
     }
 
     public List<UpgradeEntry> getUpgradeEntries() {
@@ -189,6 +205,14 @@ public class ItemShop {
                 this.shopEntries.add(new ShopEntry(this, itemId, price, currency, page, slot));
 
             }
+
+        }
+
+        JSONObject specialItems = shopConfig.optJSONObject("specialItems");
+
+        if (specialItems != null) {
+
+            this.defaultWeapon = specialItems.optInt("defaultWeapon", -1);
 
         }
 

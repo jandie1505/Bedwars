@@ -400,6 +400,7 @@ public class Game implements GamePart {
 
         // Item management
 
+        boolean inventoryDefaultSwordMissing = true;
         boolean inventoryPickaxeUpgradeMissing = true;
         boolean inventoryShearsUpgradeMissing = true;
 
@@ -416,6 +417,14 @@ public class Game implements GamePart {
 
             if (itemId < 0) {
                 continue;
+            }
+
+            // Default Sword Condition
+
+            if ((item.getType().toString().endsWith("SWORD") || item.getType().toString().endsWith("AXE")) && this.itemShop.getDefaultWeapon() != null && itemId != this.itemShop.getDefaultWeapon()) {
+                inventoryDefaultSwordMissing = false;
+            } else if (this.itemShop.getDefaultWeapon() != null && itemId == this.itemShop.getDefaultWeapon()) {
+                inventoryDefaultSwordMissing = false;
             }
 
             // Sharpness Team Upgrade
@@ -490,6 +499,33 @@ public class Game implements GamePart {
 
             }
 
+            // Default Sword
+
+            if (this.itemShop.getDefaultWeapon() != null && itemId == this.itemShop.getDefaultWeapon()) {
+
+                for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2 ++) {
+                    ItemStack item2 = player.getInventory().getItem(slot2);
+
+                    if (item2 == null) {
+                        continue;
+                    }
+
+                    int item2Id = this.plugin.getItemStorage().getItemId(item2);
+
+                    if (item2Id < 0) {
+                        continue;
+                    }
+
+                    if ((item2.getType().toString().endsWith("SWORD") || item2.getType().toString().endsWith("AXE")) && item2Id != itemId) {
+                        Bedwars.removeItemCompletely(player.getInventory(), item);
+                        break;
+                    }
+
+                }
+
+                continue;
+            }
+
             // Pickaxe Player Upgrade
 
             if (this.itemShop.getPickaxeUpgrade() != null && this.itemShop.getPickaxeUpgrade().getUpgradeItemIds().contains(itemId)) {
@@ -526,6 +562,12 @@ public class Game implements GamePart {
                 continue;
             }
 
+        }
+
+        // Default Sword
+
+        if (this.itemShop.getDefaultWeapon() != null && this.itemShop.getDefaultWeaponItem() != null && inventoryDefaultSwordMissing) {
+            player.getInventory().addItem(this.itemShop.getDefaultWeaponItem());
         }
 
         // Pickaxe Player Upgrade

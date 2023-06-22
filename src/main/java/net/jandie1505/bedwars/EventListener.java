@@ -23,7 +23,6 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.FireworkExplodeEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
@@ -361,6 +360,12 @@ public class EventListener implements Listener {
 
             if (event.getClick() == ClickType.DROP) {
 
+                if (((Game) this.plugin.getGame()).getItemShop().getDefaultWeapon() != null && this.plugin.getItemStorage().getItemId(event.getCurrentItem()) == ((Game) this.plugin.getGame()).getItemShop().getDefaultWeapon()) {
+                    event.setCancelled(true);
+                    event.getWhoClicked().sendMessage("§cYou cannot drop the default weapon");
+                    return;
+                }
+
                 for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
                     for (int itemId : upgradeEntry.getUpgradeItemIds()) {
 
@@ -564,6 +569,12 @@ public class EventListener implements Listener {
 
         if (this.plugin.getGame() instanceof Game) {
 
+            if (((Game) this.plugin.getGame()).getItemShop().getDefaultWeapon() != null && this.plugin.getItemStorage().getItemId(event.getCurrentItem()) == ((Game) this.plugin.getGame()).getItemShop().getDefaultWeapon()) {
+                event.setCancelled(true);
+                event.getWhoClicked().sendMessage("§cYou cannot move the default weapon to other inventories");
+                return;
+            }
+
             for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
                 for (int itemId : upgradeEntry.getUpgradeItemIds()) {
 
@@ -643,12 +654,18 @@ public class EventListener implements Listener {
 
         if (this.plugin.getGame() instanceof Game) {
 
+            if (((Game) this.plugin.getGame()).getItemShop().getDefaultWeapon() != null && this.plugin.getItemStorage().getItemId(event.getOldCursor()) == ((Game) this.plugin.getGame()).getItemShop().getDefaultWeapon()) {
+                event.setCancelled(true);
+                event.getWhoClicked().sendMessage("§cYou cannot move the default weapon to other inventories");
+                return;
+            }
+
             for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
                 for (int itemId : upgradeEntry.getUpgradeItemIds()) {
 
                     if (this.plugin.getItemStorage().getItemId(event.getOldCursor()) == itemId) {
                         event.setCancelled(true);
-                        event.getWhoClicked().sendMessage("§cYou cannot move upgradable items");
+                        event.getWhoClicked().sendMessage("§cYou cannot move upgradable items to other inventories");
                         return;
                     }
 
@@ -674,6 +691,12 @@ public class EventListener implements Listener {
             }
 
             event.setCancelled(true);
+            return;
+        }
+
+        if (((Game) this.plugin.getGame()).getItemShop().getDefaultWeapon() != null && this.plugin.getItemStorage().getItemId(event.getItemDrop().getItemStack()) == ((Game) this.plugin.getGame()).getItemShop().getDefaultWeapon()) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage("§cYou cannot drop the default weapon");
             return;
         }
 
