@@ -456,6 +456,12 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         infoString = infoString + "\nTeam: " + playerData.getTeam();
                         infoString = infoString + "\nAlive: " + playerData.isAlive();
                         infoString = infoString + "\nRespawn Countdown: " + playerData.getRespawnCountdown();
+                        infoString = infoString + "\nKills: " + playerData.getKills();
+                        infoString = infoString + "\nDeaths: " + playerData.getDeaths();
+                        infoString = infoString + "\nBeds Broken: " + playerData.getBedsBroken();
+                        infoString = infoString + "\nArmor Upgrade: " + playerData.getArmorUpgrade();
+                        infoString = infoString + "\nPickaxe Upgrade: " + playerData.getPickaxeUpgrade();
+                        infoString = infoString + "\nShears Upgrade: " + playerData.getShearsUpgrade();
 
                         sender.sendMessage(infoString);
 
