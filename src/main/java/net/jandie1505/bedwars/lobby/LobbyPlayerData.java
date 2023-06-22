@@ -6,7 +6,7 @@ public class LobbyPlayerData {
 
     public LobbyPlayerData() {
         this.vote = null;
-        this.team = 0;
+        this.team = -1;
     }
 
     public MapData getVote() {

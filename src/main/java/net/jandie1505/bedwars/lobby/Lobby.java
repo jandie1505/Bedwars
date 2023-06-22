@@ -5,6 +5,8 @@ import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
+import net.jandie1505.bedwars.game.player.PlayerData;
+import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.lobby.setup.LobbyDestroyBedsTimeActionData;
@@ -466,7 +468,7 @@ public class Lobby implements GamePart {
 
         for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
 
-            if (!this.plugin.getBypassingPlayers().contains(player.getUniqueId())) {
+            if (!this.players.containsKey(player.getUniqueId())) {
                 this.players.put(player.getUniqueId(), new LobbyPlayerData());
             }
 
@@ -649,7 +651,29 @@ public class Lobby implements GamePart {
         );
 
         for (UUID playerId : this.getPlayers().keySet()) {
-            game.addPlayer(playerId, 0);
+            LobbyPlayerData playerData = this.getPlayers().get(playerId);
+
+            if (playerData.getTeam() < 0) {
+                continue;
+            }
+
+            game.addPlayer(playerId, playerData.getTeam());
+            this.players.remove(playerId);
+        }
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            List<BedwarsTeam> teams = new ArrayList<>(game.getTeams());
+
+            if (teams.isEmpty()) {
+                continue;
+            }
+
+            teams.sort(Comparator.comparingInt(o -> o.getPlayers().size()));
+
+            BedwarsTeam lowestPlayerCount = teams.get(0);
+
+            game.addPlayer(playerId, lowestPlayerCount.getId());
+            this.players.remove(playerId);
         }
 
         return game;
@@ -731,5 +755,22 @@ public class Lobby implements GamePart {
 
     public Map<UUID, LobbyPlayerData> getPlayers() {
         return Map.copyOf(this.players);
+    }
+
+    public boolean addPlayer(UUID playerId) {
+        if (this.players.containsKey(playerId)) {
+            return false;
+        }
+
+        this.players.put(playerId, new LobbyPlayerData());
+        return true;
+    }
+
+    public boolean removePlayer(UUID playerId) {
+        return this.players.remove(playerId) != null;
+    }
+
+    public List<MapData> getMaps() {
+        return List.copyOf(this.maps);
     }
 }

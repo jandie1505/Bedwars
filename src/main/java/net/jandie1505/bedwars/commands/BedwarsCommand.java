@@ -13,6 +13,8 @@ import net.jandie1505.bedwars.game.timeactions.DiamondGeneratorUpgradeAction;
 import net.jandie1505.bedwars.game.timeactions.EmeraldGeneratorUpgradeAction;
 import net.jandie1505.bedwars.game.timeactions.TimeAction;
 import net.jandie1505.bedwars.lobby.Lobby;
+import net.jandie1505.bedwars.lobby.LobbyPlayerData;
+import net.jandie1505.bedwars.lobby.MapData;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
@@ -163,14 +165,213 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
             if (this.plugin.getGame() instanceof Lobby) {
 
-                sender.sendMessage("§cLobby currently not supported");
+                switch (args[1]) {
+                    case "add": {
+                        if (args.length < 3) {
+                            sender.sendMessage("§c/bedwars players add <player>");
+                            return;
+                        }
+
+                        UUID playerId = this.getPlayerUUID(args[2]);
+
+                        if (playerId == null) {
+                            sender.sendMessage("§cPlayer does not exist");
+                            return;
+                        }
+
+                        if (((Lobby) this.plugin.getGame()).addPlayer(playerId)) {
+                            sender.sendMessage("§aPlayer successfully added");
+                        } else {
+                            sender.sendMessage("§cCould not add player");
+                        }
+
+                        break;
+                    }
+                    case "remove": {
+                        if (args.length < 3) {
+                            sender.sendMessage("§cInvalid arguments");
+                            return;
+                        }
+
+                        UUID playerId = this.getPlayerUUID(args[2]);
+
+                        if (playerId == null) {
+                            sender.sendMessage("§cPlayer does not exist");
+                            return;
+                        }
+
+                        ((Lobby) this.plugin.getGame()).removePlayer(playerId);
+                        sender.sendMessage("§aPlayer removed");
+
+                        break;
+                    }
+                    case "get": {
+                        String returnString = "§7Lobby Players:";
+
+                        for (UUID playerId : ((Lobby) this.plugin.getGame()).getPlayers().keySet()) {
+
+                            OfflinePlayer offlinePlayer = this.plugin.getServer().getOfflinePlayer(playerId);
+
+                            if (offlinePlayer == null) {
+                                returnString = returnString + "\n§7" + playerId + " (UNKNOWN);";
+                                continue;
+                            }
+
+                            returnString = returnString + "\n§7" + offlinePlayer.getName() + " (" + offlinePlayer.isOnline() + ");";
+
+                        }
+
+                        sender.sendMessage(returnString);
+
+                        break;
+                    }
+                    case "info": {
+                        if (args.length < 3) {
+                            sender.sendMessage("§cInvalid arguments");
+                            return;
+                        }
+
+                        UUID playerId = this.getPlayerUUID(args[2]);
+
+                        if (playerId == null) {
+                            sender.sendMessage("§cPlayer does not exist");
+                            return;
+                        }
+
+                        LobbyPlayerData playerData = ((Lobby) this.plugin.getGame()).getPlayers().get(playerId);
+
+                        if (playerData == null) {
+                            sender.sendMessage("§cPlayer not in lobby");
+                            return;
+                        }
+
+                        sender.sendMessage("§7Player Info:");
+                        sender.sendMessage("§7Vote: " + playerData.getVote());
+                        sender.sendMessage("§7Team: " + playerData.getTeam());
+
+                        break;
+                    }
+                    case "getvalue": {
+                        if (args.length < 4) {
+                            sender.sendMessage("§cInvalid arguments");
+                            return;
+                        }
+
+                        UUID playerId = this.getPlayerUUID(args[2]);
+
+                        if (playerId == null) {
+                            sender.sendMessage("§cPlayer does not exist");
+                            return;
+                        }
+
+                        LobbyPlayerData playerData = ((Lobby) this.plugin.getGame()).getPlayers().get(playerId);
+
+                        if (playerData == null) {
+                            sender.sendMessage("§cPlayer not in lobby");
+                            return;
+                        }
+
+                        switch (args[3]) {
+                            case "vote":
+                                sender.sendMessage("§7Vote: " + playerData.getVote());
+                                break;
+                            case "team":
+                                sender.sendMessage("§7Team: " + playerData.getTeam());
+                                break;
+                            default:
+                                sender.sendMessage("§cUnknown value");
+                                break;
+                        }
+
+                        break;
+                    }
+                    case "setvalue": {
+                        if (args.length < 5) {
+                            sender.sendMessage("§cInvalid arguments");
+                            return;
+                        }
+
+                        UUID playerId = this.getPlayerUUID(args[2]);
+
+                        if (playerId == null) {
+                            sender.sendMessage("§cPlayer does not exist");
+                            return;
+                        }
+
+                        LobbyPlayerData playerData = ((Lobby) this.plugin.getGame()).getPlayers().get(playerId);
+
+                        if (playerData == null) {
+                            sender.sendMessage("§cPlayer not in lobby");
+                            return;
+                        }
+
+                        switch (args[3]) {
+                            case "vote":
+                                if (args[4].equalsIgnoreCase("null")) {
+                                    playerData.setVote(null);
+                                    sender.sendMessage("§aCleared map vote");
+                                } else {
+
+                                    String mapName = args[2];
+
+                                    for (int i = 3; i < args.length; i++) {
+
+                                        mapName = mapName + " " + args[i];
+
+                                    }
+
+                                    MapData mapData = null;
+
+                                    for (MapData map : List.copyOf(((Lobby) this.plugin.getGame()).getMaps())) {
+
+                                        if (mapName.startsWith("w:")) {
+
+                                            if (map.getWorld().equals(mapName.substring(2))) {
+                                                mapData = map;
+                                            }
+
+                                        } else {
+
+                                            if (map.getName().equals(mapName)) {
+                                                mapData = map;
+                                            }
+
+                                        }
+
+                                    }
+
+                                    if (mapData == null) {
+                                        sender.sendMessage("§cMap does not exist (Set map to null if you want to clear vote)");
+                                        return;
+                                    }
+
+                                    playerData.setVote(mapData);
+                                    sender.sendMessage("§aMap vote set");
+
+                                }
+                                break;
+                            case "team":
+                                playerData.setTeam(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aTeam set");
+                                break;
+                            default:
+                                sender.sendMessage("§cUnknown value");
+                                break;
+                        }
+
+                        break;
+                    }
+                    default:
+                        sender.sendMessage("§cUnknown subcommand");
+                        break;
+                }
 
             } else if (this.plugin.getGame() instanceof Game) {
 
                 switch (args[1]) {
                     case "add": {
                         if (args.length < 4) {
-                            sender.sendMessage("§cInvalid arguments");
+                            sender.sendMessage("§c/bedwars players add <player> <team>");
                             return;
                         }
 
