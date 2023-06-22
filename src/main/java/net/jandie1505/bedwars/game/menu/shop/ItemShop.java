@@ -19,6 +19,12 @@ public class ItemShop {
     private UpgradeEntry armorUpgrade;
     private UpgradeEntry pickaxeUpgrade;
     private UpgradeEntry shearsUpgrade;
+    private Integer fireballItem;
+    private Integer enhancedFireballItem;
+    private Integer safetyPlatform;
+    private Integer enhancedSafetyPlatform;
+    private Integer bridgeEgg;
+    private Integer tnt;
 
     public ItemShop(Game game) {
         this.game = game;
@@ -28,6 +34,12 @@ public class ItemShop {
         this.armorUpgrade = null;
         this.pickaxeUpgrade = null;
         this.shearsUpgrade = null;
+        this.fireballItem = null;
+        this.enhancedFireballItem = null;
+        this.safetyPlatform = null;
+        this.enhancedSafetyPlatform = null;
+        this.bridgeEgg = null;
+        this.tnt = null;
     }
 
     public Integer[] getMenuItems() {
@@ -141,6 +153,30 @@ public class ItemShop {
         return null;
     }
 
+    public Integer getFireballItem() {
+        return fireballItem;
+    }
+
+    public Integer getEnhancedFireballItem() {
+        return enhancedFireballItem;
+    }
+
+    public Integer getSafetyPlatform() {
+        return safetyPlatform;
+    }
+
+    public Integer getEnhancedSafetyPlatform() {
+        return enhancedSafetyPlatform;
+    }
+
+    public Integer getBridgeEgg() {
+        return bridgeEgg;
+    }
+
+    public Integer getTnt() {
+        return tnt;
+    }
+
     public void initEntries(JSONObject shopConfig) {
         JSONArray menuItems = shopConfig.optJSONArray("menuItems");
 
@@ -213,6 +249,12 @@ public class ItemShop {
         if (specialItems != null) {
 
             this.defaultWeapon = specialItems.optInt("defaultWeapon", -1);
+            this.fireballItem = specialItems.optInt("fireball", -1);
+            this.enhancedFireballItem = specialItems.optInt("enhancedFireball", -1);
+            this.safetyPlatform = specialItems.optInt("safetyPlatform", -1);
+            this.enhancedSafetyPlatform = specialItems.optInt("enhancedSafetyPlatform", -1);
+            this.bridgeEgg = specialItems.optInt("bridgeEgg", -1);
+            this.tnt = specialItems.optInt("tnt", -1);
 
         }
 

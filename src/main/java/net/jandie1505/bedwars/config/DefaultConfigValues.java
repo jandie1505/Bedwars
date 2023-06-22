@@ -925,8 +925,8 @@ public final class DefaultConfigValues {
 
         JSONObject enhancedFireball = new JSONObject();
 
-        fireball.put("type", Material.FIRE_CHARGE.toString());
-        fireball.put("name", "§rEnhanced Fireball");
+        enhancedFireball.put("type", Material.FIRE_CHARGE.toString());
+        enhancedFireball.put("name", "§rEnhanced Fireball");
 
         config.put("146", enhancedFireball);
 
@@ -1194,6 +1194,8 @@ public final class DefaultConfigValues {
         JSONObject specialItemsConfig = new JSONObject();
 
         specialItemsConfig.put("defaultWeapon", 109);
+        specialItemsConfig.put("fireball", 145);
+        specialItemsConfig.put("enhancedFireball", 146);
 
         itemShopConfig.put("specialItems", specialItemsConfig);
 

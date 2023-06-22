@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
+import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,6 +33,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -274,17 +276,65 @@ public class EventListener implements Listener {
             return;
         }
 
-        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+        if (!this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+
+            if (this.plugin.getItemStorage().isArmorItem(event.getItem())) {
+                event.setCancelled(true);
+                return;
+            }
+
+            if (event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && !event.getPlayer().isSneaking() && event.getClickedBlock().getBlockData() instanceof Bed) {
+                event.setCancelled(true);
+                return;
+            }
+
+        }
+
+        if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
             return;
         }
 
-        if (this.plugin.getItemStorage().isArmorItem(event.getItem())) {
-            event.setCancelled(true);
+        int itemId = this.plugin.getItemStorage().getItemId(event.getItem());
+
+        if (itemId < 0) {
             return;
         }
 
-        if (event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && !event.getPlayer().isSneaking() && event.getClickedBlock().getBlockData() instanceof Bed) {
+        if (((Game) this.plugin.getGame()).getItemShop().getFireballItem() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getFireballItem()) {
             event.setCancelled(true);
+
+            ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+            if (itemStack != null && itemStack.getAmount() > 0) {
+                itemStack.setAmount(itemStack.getAmount() - 1);
+            }
+
+            Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
+            fireball.setShooter(event.getPlayer());
+            fireball.setDirection(event.getPlayer().getEyeLocation().getDirection());
+            fireball.setYield(1);
+            fireball.setIsIncendiary(false);
+            fireball.setTicksLived(3*20);
+
+            return;
+        }
+
+        if (((Game) this.plugin.getGame()).getItemShop().getEnhancedFireballItem() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getEnhancedFireballItem()) {
+            event.setCancelled(true);
+
+            ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+            if (itemStack != null && itemStack.getAmount() > 0) {
+                itemStack.setAmount(itemStack.getAmount() - 1);
+            }
+
+            Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
+            fireball.setShooter(event.getPlayer());
+            fireball.setDirection(event.getPlayer().getEyeLocation().getDirection().multiply(2));
+            fireball.setYield(3);
+            fireball.setIsIncendiary(false);
+            fireball.setTicksLived(10*20);
+
             return;
         }
 
