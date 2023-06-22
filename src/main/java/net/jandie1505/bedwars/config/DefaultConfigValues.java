@@ -959,6 +959,15 @@ public final class DefaultConfigValues {
 
         config.put("152", buildDefaultItem(Material.SPONGE, 6));
 
+        // Safety Plattform
+
+        JSONObject safetyPlatform = new JSONObject();
+
+        safetyPlatform.put("type", Material.BLAZE_ROD.name());
+        safetyPlatform.put("name", "§rSafety Platform");
+
+        config.put("153", safetyPlatform);
+
         // Sharpness Upgrade
 
         JSONObject sharpnessUpgrade = new JSONObject();
@@ -1086,6 +1095,7 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(150, 24, Material.GOLD_INGOT, 7, 25));
         shopItems.put(buildShopEntry(151, 1, Material.EMERALD, 7, 28));
         shopItems.put(buildShopEntry(152, 3, Material.GOLD_INGOT, 7, 29));
+        shopItems.put(buildShopEntry(153, 24, Material.GOLD_INGOT, 7, 30));
 
         itemShopConfig.put("shopItems", shopItems);
 
@@ -1196,6 +1206,7 @@ public final class DefaultConfigValues {
         specialItemsConfig.put("defaultWeapon", 109);
         specialItemsConfig.put("fireball", 145);
         specialItemsConfig.put("enhancedFireball", 146);
+        specialItemsConfig.put("safetyPlatform", 153);
 
         itemShopConfig.put("specialItems", specialItemsConfig);
 

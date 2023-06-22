@@ -33,6 +33,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
@@ -336,6 +338,65 @@ public class EventListener implements Listener {
             fireball.setTicksLived(10*20);
 
             return;
+        }
+
+        if (((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform()) {
+            event.setCancelled(true);
+
+            ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+            if (itemStack != null && itemStack.getAmount() > 0) {
+                itemStack.setAmount(itemStack.getAmount() - 1);
+            }
+
+            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+            if (playerData == null) {
+                return;
+            }
+
+            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
+
+            if (team == null || team.getChatColor() == null) {
+                return;
+            }
+
+            Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getChatColor()) + "_STAINED_GLASS");
+
+            if (material == null) {
+                return;
+            }
+
+            this.spawnSafetyPlatform(this.plugin, event.getPlayer(), material);
+
+            return;
+        }
+
+    }
+
+    private void spawnSafetyPlatform(Bedwars plugin, Player player, Material material) {
+
+        if (!(plugin.getGame() instanceof Game)) {
+            return;
+        }
+
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 3*20, 0, true, true));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 3*20, 1, true, true));
+        player.sendMessage("§bSafety Platform deployed");
+
+        Location center = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+        center.add(0, -2, 0);
+
+        for (int x = center.getBlockX() - 1; x <= center.getBlockX() + 1; x++) {
+            for (int z = center.getBlockZ() - 1; z <= center.getBlockZ() + 1; z++) {
+                Block block = player.getWorld().getBlockAt(new Location(player.getWorld(), x, center.getBlockY(), z));
+
+                if (block.getType() == Material.AIR) {
+                    block.setType(material);
+                    ((Game) plugin.getGame()).getPlayerPlacedBlocks().add(block.getLocation());
+                }
+
+            }
         }
 
     }
