@@ -189,7 +189,7 @@ public class Lobby implements GamePart {
                     continue;
                 }
 
-                List<Location> shopVillagerLocations = this.buildLocationList(shopVillagerLocationArray, false);
+                List<Location> shopVillagerLocations = this.buildLocationList(shopVillagerLocationArray, true);
 
                 JSONArray upgradeVillagerLocationArray = team.optJSONArray("upgradeVillagers");
 
@@ -198,7 +198,7 @@ public class Lobby implements GamePart {
                     continue;
                 }
 
-                List<Location> upgradeVillagerLocations = this.buildLocationList(upgradeVillagerLocationArray, false);
+                List<Location> upgradeVillagerLocations = this.buildLocationList(upgradeVillagerLocationArray, true);
 
                 teams.add(new LobbyTeamData(teamName, teamChatColor, teamColor, teamSpawnpoints, baseRadius, teamBedLocations, teamGenerators, shopVillagerLocations, upgradeVillagerLocations));
             }
@@ -322,14 +322,14 @@ public class Lobby implements GamePart {
             return new Location(null, x, y, z);
         }
 
-        float yaw = spawnpoint.optFloat("z", Float.MIN_VALUE);
+        float yaw = spawnpoint.optFloat("yaw", Float.MIN_VALUE);
 
         if (yaw == Float.MIN_VALUE) {
             this.plugin.getLogger().warning("Map Config: Wrong yaw in a spawnpoint in team");
             return new Location(null, x, y, z);
         }
 
-        float pitch = spawnpoint.optFloat("z", Float.MIN_VALUE);
+        float pitch = spawnpoint.optFloat("pitch", Float.MIN_VALUE);
 
         if (pitch == Float.MIN_VALUE) {
             this.plugin.getLogger().warning("Map Config: Wrong pitch in a spawnpoint in team");
