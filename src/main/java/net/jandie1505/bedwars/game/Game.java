@@ -136,13 +136,13 @@ public class Game implements GamePart {
     @Override
     public GameStatus tick() {
 
-        // PREPARE GAME
+        // PREPARE GAME (RUN FIRST)
 
         if (!this.prepared) {
             this.prepareGame();
         }
 
-        // STOP IF WORLD NOT LOADED
+        // STOP IF WORLD NOT LOADED (RUN SECOND)
 
         if (this.world == null || !this.plugin.getServer().getWorlds().contains(this.world)) {
             this.plugin.getLogger().warning("Bedwars game end because world is not loaded");
@@ -150,6 +150,50 @@ public class Game implements GamePart {
         }
 
         // PLAYER MANAGEMENT
+
+        this.playerManagement();
+
+        // SCOREBOARDS CLEANUP
+
+        this.scoreboardCleanup();
+
+        // GENERATORS
+
+        this.generatorTick();
+
+        // TIME ACTIONS (PUBLIC GENERATOR UPGRADES)
+
+        this.timeActions();
+
+        // TEAM VILLAGER MANAGEMENT
+
+        this.villagers();
+
+        // TIME (RUN BEFORE TIME STEP)
+
+        if (this.timeStep >= 1) {
+            if (this.time > 0) {
+                this.time--;
+            } else {
+                return GameStatus.NEXT_STATUS;
+            }
+        }
+
+        // TIME STEP (RUN LAST)
+
+        if (this.timeStep >= 1) {
+            this.timeStep = 0;
+        } else {
+            this.timeStep = 1;
+        }
+
+        return GameStatus.NORMAL;
+    }
+
+    /**
+     * Player Management
+     */
+    private void playerManagement() {
 
         for (Player player : this.plugin.getServer().getOnlinePlayers()) {
 
@@ -312,7 +356,12 @@ public class Game implements GamePart {
 
         }
 
-        // SCOREBOARDS CLEANUP
+    }
+
+    /**
+     * Cleans up scoreboards of players which are not online
+     */
+    private void scoreboardCleanup() {
 
         for (UUID playerId : this.getPlayerScoreboards().keySet()) {
             Player player = this.plugin.getServer().getPlayer(playerId);
@@ -322,13 +371,23 @@ public class Game implements GamePart {
             }
         }
 
-        // GENERATORS
+    }
+
+    /**
+     * Runs the tick function of all generators
+     */
+    private void generatorTick() {
 
         for (Generator generator : this.getGenerators()) {
             generator.tick();
         }
 
-        // TIME ACTIONS (PUBLIC GENERATOR UPGRADES)
+    }
+
+    /**
+     * Run time actions when the time comes
+     */
+    private void timeActions() {
 
         if (this.timeStep >= 1) {
 
@@ -342,7 +401,12 @@ public class Game implements GamePart {
 
         }
 
-        // TEAM VILLAGER MANAGEMENT
+    }
+
+    /**
+     * Manage shop/upgrade villagers
+     */
+    private void villagers() {
 
         for (BedwarsTeam team : this.getTeams()) {
 
@@ -375,25 +439,6 @@ public class Game implements GamePart {
 
         }
 
-        // TIME
-
-        if (this.timeStep >= 1) {
-            if (this.time > 0) {
-                this.time--;
-            } else {
-                return GameStatus.NEXT_STATUS;
-            }
-        }
-
-        // TIME STEP
-
-        if (this.timeStep >= 1) {
-            this.timeStep = 0;
-        } else {
-            this.timeStep = 1;
-        }
-
-        return GameStatus.NORMAL;
     }
 
     private void inventoryTick(Player player, PlayerData playerData, BedwarsTeam team) {
