@@ -811,7 +811,7 @@ public final class DefaultConfigValues {
 
         JSONObject ironPickaxe = new JSONObject();
 
-        ironPickaxe.put("type", Material.STONE_PICKAXE.toString());
+        ironPickaxe.put("type", Material.IRON_PICKAXE.toString());
 
         JSONArray ironPickaxeEnchantments = new JSONArray();
 
@@ -828,7 +828,7 @@ public final class DefaultConfigValues {
 
         JSONObject goldenPickaxe = new JSONObject();
 
-        goldenPickaxe.put("type", Material.STONE_PICKAXE.toString());
+        goldenPickaxe.put("type", Material.GOLDEN_PICKAXE.toString());
 
         JSONArray goldenPickaxeEnchantments = new JSONArray();
 
@@ -845,7 +845,7 @@ public final class DefaultConfigValues {
 
         JSONObject diamondPickaxe = new JSONObject();
 
-        diamondPickaxe.put("type", Material.STONE_PICKAXE.toString());
+        diamondPickaxe.put("type", Material.DIAMOND_PICKAXE.toString());
 
         JSONArray diamondPickaxeEnchantments = new JSONArray();
 

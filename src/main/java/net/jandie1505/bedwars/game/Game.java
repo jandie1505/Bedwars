@@ -228,11 +228,11 @@ public class Game implements GamePart {
 
                     player.showPlayer(otherPlayer);
 
-                } else if (this.players.containsKey(otherPlayer) && !player.canSee(otherPlayer)) {
+                } else if (this.players.containsKey(otherPlayer.getUniqueId()) && !player.canSee(otherPlayer)) {
 
                     player.showPlayer(otherPlayer);
 
-                } else if (!this.players.containsKey(otherPlayer) && player.canSee(otherPlayer)) {
+                } else if (!this.players.containsKey(otherPlayer.getUniqueId()) && player.canSee(otherPlayer)) {
 
                     player.hidePlayer(otherPlayer);
 
@@ -991,6 +991,11 @@ public class Game implements GamePart {
             }
 
             PlayerData playerData = this.players.get(player.getUniqueId());
+
+            if (playerData.getTeam() >= this.getTeams().size()) {
+                continue;
+            }
+
             BedwarsTeam team = this.getTeams().get(playerData.getTeam());
 
             if (team == null) {
