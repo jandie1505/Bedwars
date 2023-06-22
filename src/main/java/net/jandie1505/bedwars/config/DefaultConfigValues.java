@@ -609,43 +609,52 @@ public final class DefaultConfigValues {
 
         // Terracotta
 
-        config.put("101", buildDefaultItem(Material.TERRACOTTA));
+        JSONObject terracotta = new JSONObject();
+
+        terracotta.put("type", Material.TERRACOTTA.toString());
+        terracotta.put("name", "§rSomething like clay i guess");
+        terracotta.put("amount", 24);
+
+        config.put("101", terracotta);
 
         // Glass
 
         JSONObject glass = new JSONObject();
 
         glass.put("type", Material.GLASS.toString());
+        glass.put("name", "§rBlast-proof glass");
+        glass.put("amount", 4);
 
-        config.put("102", glass);
+        config.put("102", buildDefaultItem(Material.GLASS, 4));
 
         // Endstone
 
-        config.put("103", buildDefaultItem(Material.END_STONE));
+        config.put("103", buildDefaultItem(Material.END_STONE, 12));
 
         // Ladder
 
-        config.put("104", buildDefaultItem(Material.LADDER));
+        config.put("104", buildDefaultItem(Material.LADDER, 8));
 
         // Wood
 
-        config.put("105", buildDefaultItem(Material.OAK_PLANKS));
+        config.put("105", buildDefaultItem(Material.OAK_PLANKS, 16));
 
         // Ancient Debris
 
-        config.put("106", buildDefaultItem(Material.ANCIENT_DEBRIS));
+        config.put("106", buildDefaultItem(Material.ANCIENT_DEBRIS, 4));
 
         // Obsidian
 
-        config.put("107", buildDefaultItem(Material.OBSIDIAN));
+        config.put("107", buildDefaultItem(Material.OBSIDIAN, 4));
 
         // Bedrock
 
         JSONObject bedrock = new JSONObject();
 
         bedrock.put("type", Material.BEDROCK.toString());
+        bedrock.put("amount", 4);
         JSONArray bedrockLore = new JSONArray();
-        bedrockLore.put("If you want to take it serious");
+        bedrockLore.put("§r§7If you want to take it serious");
         bedrock.put("lore", bedrockLore);
 
         config.put("108", bedrock);
@@ -893,7 +902,7 @@ public final class DefaultConfigValues {
 
         // Arrow
 
-        config.put("138", buildDefaultItem(Material.SPECTRAL_ARROW));
+        config.put("138", buildDefaultItem(Material.SPECTRAL_ARROW, 6));
 
         // Golden Apple
 
@@ -908,7 +917,7 @@ public final class DefaultConfigValues {
         JSONObject fireball = new JSONObject();
 
         fireball.put("type", Material.FIRE_CHARGE.toString());
-        fireball.put("name", "Fireball");
+        fireball.put("name", "§rFireball");
 
         config.put("145", fireball);
 
@@ -917,7 +926,7 @@ public final class DefaultConfigValues {
         JSONObject enhancedFireball = new JSONObject();
 
         fireball.put("type", Material.FIRE_CHARGE.toString());
-        fireball.put("name", "Enhanced Fireball");
+        fireball.put("name", "§rEnhanced Fireball");
 
         config.put("146", enhancedFireball);
 
@@ -938,7 +947,7 @@ public final class DefaultConfigValues {
         JSONObject bridgeEgg = new JSONObject();
 
         bridgeEgg.put("type", Material.EGG.toString());
-        bridgeEgg.put("name", "Bridge Egg");
+        bridgeEgg.put("name", "§rBridge Egg");
 
         config.put("150", bridgeEgg);
 
@@ -948,7 +957,7 @@ public final class DefaultConfigValues {
 
         // Sponge
 
-        config.put("152", buildDefaultItem(Material.SPONGE));
+        config.put("152", buildDefaultItem(Material.SPONGE, 6));
 
         // Sharpness Upgrade
 
@@ -1336,10 +1345,19 @@ public final class DefaultConfigValues {
         return config;
     }
 
-    private static JSONObject buildDefaultItem(Material material) {
+    private static JSONObject buildDefaultItem(Material material, int amount) {
         JSONObject item = new JSONObject();
         item.put("type", material.toString());
+
+        if (amount > 1) {
+            item.put("amount", amount);
+        }
+
         return item;
+    }
+
+    private static JSONObject buildDefaultItem(Material material) {
+        return buildDefaultItem(material, 1);
     }
 
     public static JSONObject buildShopEntry(int itemId, int price, Material currency, int page, int slot) {
