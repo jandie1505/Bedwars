@@ -696,7 +696,7 @@ public final class DefaultConfigValues {
         JSONArray knockbackStickEnchantments = new JSONArray();
 
         JSONObject knockbackStickKnockbackEnchantment = new JSONObject();
-        knockbackStickKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.toString());
+        knockbackStickKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.getName());
         knockbackStickKnockbackEnchantment.put("level", 1);
 
         knockbackStickEnchantments.put(knockbackStickKnockbackEnchantment);
@@ -715,7 +715,7 @@ public final class DefaultConfigValues {
         JSONArray knockbackStickPremiumEnchantments = new JSONArray();
 
         JSONObject knockbackStickPremiumKnockbackEnchantment = new JSONObject();
-        knockbackStickPremiumKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.toString());
+        knockbackStickPremiumKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.getName());
         knockbackStickPremiumKnockbackEnchantment.put("level", 2);
 
         knockbackStickPremiumEnchantments.put(knockbackStickPremiumKnockbackEnchantment);
@@ -732,7 +732,7 @@ public final class DefaultConfigValues {
         JSONArray knockbackStickDeluxeEnchantments = new JSONArray();
 
         JSONObject knockbackStickDeluxeKnockbackEnchantment = new JSONObject();
-        knockbackStickDeluxeKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.toString());
+        knockbackStickDeluxeKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.getName());
         knockbackStickDeluxeKnockbackEnchantment.put("level", 3);
 
         knockbackStickDeluxeEnchantments.put(knockbackStickDeluxeKnockbackEnchantment);
@@ -790,7 +790,7 @@ public final class DefaultConfigValues {
         JSONArray stonePickaxeEnchantments = new JSONArray();
 
         JSONObject stonePickaxeEfficiencyEnchantment = new JSONObject();
-        stonePickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.toString());
+        stonePickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.getName());
         stonePickaxeEfficiencyEnchantment.put("level", 1);
         stonePickaxeEnchantments.put(stonePickaxeEfficiencyEnchantment);
 
@@ -807,7 +807,7 @@ public final class DefaultConfigValues {
         JSONArray ironPickaxeEnchantments = new JSONArray();
 
         JSONObject ironPickaxeEfficiencyEnchantment = new JSONObject();
-        ironPickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.toString());
+        ironPickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.getName());
         ironPickaxeEfficiencyEnchantment.put("level", 2);
         ironPickaxeEnchantments.put(ironPickaxeEfficiencyEnchantment);
 
@@ -824,7 +824,7 @@ public final class DefaultConfigValues {
         JSONArray goldenPickaxeEnchantments = new JSONArray();
 
         JSONObject goldenPickaxeEfficiencyEnchantment = new JSONObject();
-        goldenPickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.toString());
+        goldenPickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.getName());
         goldenPickaxeEfficiencyEnchantment.put("level", 3);
         goldenPickaxeEnchantments.put(goldenPickaxeEfficiencyEnchantment);
 
@@ -841,7 +841,7 @@ public final class DefaultConfigValues {
         JSONArray diamondPickaxeEnchantments = new JSONArray();
 
         JSONObject diamondPickaxeEfficiencyEnchantment = new JSONObject();
-        diamondPickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.toString());
+        diamondPickaxeEfficiencyEnchantment.put("type", Enchantment.DIG_SPEED.getName());
         diamondPickaxeEfficiencyEnchantment.put("level", 3);
         diamondPickaxeEnchantments.put(diamondPickaxeEfficiencyEnchantment);
 
@@ -863,7 +863,7 @@ public final class DefaultConfigValues {
         JSONArray enhancedBowEnchantments = new JSONArray();
 
         JSONObject enhancedBowPowerEnchantment = new JSONObject();
-        enhancedBowPowerEnchantment.put("type", Enchantment.ARROW_DAMAGE.toString());
+        enhancedBowPowerEnchantment.put("type", Enchantment.ARROW_DAMAGE.getName());
         enhancedBowPowerEnchantment.put("level", 1);
         enhancedBowEnchantments.put(enhancedBowPowerEnchantment);
 
@@ -883,7 +883,7 @@ public final class DefaultConfigValues {
         mostPowerfulBowEnchantments.put(enhancedBowPowerEnchantment);
 
         JSONObject mostPowerfulBowPunchEnchantment = new JSONObject();
-        mostPowerfulBowPunchEnchantment.put("type", Enchantment.ARROW_KNOCKBACK.toString());
+        mostPowerfulBowPunchEnchantment.put("type", Enchantment.ARROW_KNOCKBACK.getName());
         mostPowerfulBowPunchEnchantment.put("level", 1);
         mostPowerfulBowEnchantments.put(mostPowerfulBowPunchEnchantment);
 
