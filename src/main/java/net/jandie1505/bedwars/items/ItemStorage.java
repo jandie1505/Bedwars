@@ -144,7 +144,7 @@ public class ItemStorage {
 
             String itemName = itemValue.optString("name");
 
-            if (itemName != null) {
+            if (itemName != null && !itemName.equals("")) {
                 meta.setDisplayName("§r" + itemName);
             }
 

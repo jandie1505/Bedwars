@@ -621,11 +621,7 @@ public final class DefaultConfigValues {
 
         // Endstone
 
-        JSONObject endstone = new JSONObject();
-
-        endstone.put("type", Material.END_STONE.toString());
-
-        config.put("103", endstone);
+        config.put("103", buildDefaultItem(Material.END_STONE));
 
         // Ladder
 
@@ -647,10 +643,10 @@ public final class DefaultConfigValues {
 
         JSONObject bedrock = new JSONObject();
 
-        endstone.put("type", Material.BEDROCK.toString());
+        bedrock.put("type", Material.BEDROCK.toString());
         JSONArray bedrockLore = new JSONArray();
         bedrockLore.put("If you want to take it serious");
-        endstone.put("lore", bedrockLore);
+        bedrock.put("lore", bedrockLore);
 
         config.put("108", bedrock);
 
@@ -1040,6 +1036,47 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(100, 4, Material.IRON_INGOT, 0, 19));
         shopItems.put(buildShopEntry(110, 10, Material.IRON_INGOT, 0, 20));
         shopItems.put(buildShopEntry(135, 40, Material.IRON_INGOT, 0, 23));
+        shopItems.put(buildShopEntry(147, 8, Material.GOLD_INGOT, 0, 25));
+        shopItems.put(buildShopEntry(105, 4, Material.GOLD_INGOT, 0, 28));
+        shopItems.put(buildShopEntry(111, 7, Material.GOLD_INGOT, 0, 29));
+        shopItems.put(buildShopEntry(138, 2, Material.GOLD_INGOT, 0, 32));
+        shopItems.put(buildShopEntry(149, 3, Material.GOLD_INGOT, 0, 34));
+
+        shopItems.put(buildShopEntry(100, 4, Material.IRON_INGOT, 1, 19));
+        shopItems.put(buildShopEntry(101, 16, Material.IRON_INGOT, 1, 20));
+        shopItems.put(buildShopEntry(102, 12, Material.IRON_INGOT, 1, 21));
+        shopItems.put(buildShopEntry(103, 24, Material.IRON_INGOT, 1, 22));
+        shopItems.put(buildShopEntry(104, 4, Material.IRON_INGOT, 1, 23));
+        shopItems.put(buildShopEntry(105, 4, Material.GOLD_INGOT, 1, 24));
+        shopItems.put(buildShopEntry(106, 4, Material.EMERALD, 1, 25));
+        shopItems.put(buildShopEntry(107, 6, Material.EMERALD, 1, 28));
+        shopItems.put(buildShopEntry(108, 100, Material.EMERALD, 1, 29));
+
+        shopItems.put(buildShopEntry(110, 10, Material.IRON_INGOT, 2, 19));
+        shopItems.put(buildShopEntry(111, 7, Material.GOLD_INGOT, 2, 20));
+        shopItems.put(buildShopEntry(112, 3, Material.EMERALD, 2, 21));
+        shopItems.put(buildShopEntry(113, 9, Material.EMERALD, 2, 22));
+        shopItems.put(buildShopEntry(114, 12, Material.IRON_INGOT, 2, 28));
+        shopItems.put(buildShopEntry(115, 9, Material.GOLD_INGOT, 2, 29));
+        shopItems.put(buildShopEntry(116, 4, Material.EMERALD, 2, 30));
+        shopItems.put(buildShopEntry(117, 11, Material.EMERALD, 2, 31));
+        shopItems.put(buildShopEntry(118, 5, Material.GOLD_INGOT, 2, 25));
+        shopItems.put(buildShopEntry(119, 5, Material.EMERALD, 2, 34));
+
+        shopItems.put(buildShopEntry(135, 12, Material.GOLD_INGOT, 5, 19));
+        shopItems.put(buildShopEntry(136, 24, Material.GOLD_INGOT, 5, 20));
+        shopItems.put(buildShopEntry(137, 6, Material.EMERALD, 5, 21));
+        shopItems.put(buildShopEntry(138, 2, Material.GOLD_INGOT, 5, 22));
+
+        shopItems.put(buildShopEntry(142, 3, Material.GOLD_INGOT, 7, 19));
+        shopItems.put(buildShopEntry(145, 30, Material.IRON_INGOT, 7, 20));
+        shopItems.put(buildShopEntry(146, 1, Material.EMERALD, 7, 21));
+        shopItems.put(buildShopEntry(147, 8, Material.GOLD_INGOT, 7, 22));
+        shopItems.put(buildShopEntry(148, 2, Material.EMERALD, 7, 23));
+        shopItems.put(buildShopEntry(149, 3, Material.GOLD_INGOT, 7, 24));
+        shopItems.put(buildShopEntry(150, 24, Material.GOLD_INGOT, 7, 25));
+        shopItems.put(buildShopEntry(151, 1, Material.EMERALD, 7, 28));
+        shopItems.put(buildShopEntry(152, 3, Material.GOLD_INGOT, 7, 29));
 
         itemShopConfig.put("shopItems", shopItems);
 
@@ -1069,6 +1106,7 @@ public final class DefaultConfigValues {
                                 Material.EMERALD
                         ),
                         List.of(
+                                new int[]{0, 21},
                                 new int[]{3, 31}
                         )
                 )
@@ -1117,7 +1155,8 @@ public final class DefaultConfigValues {
                                 Material.IRON_INGOT
                         ),
                         List.of(
-                                new int[]{4, 22}
+                                new int[]{0, 31},
+                                new int[]{4, 21}
                         )
                 )
         );
