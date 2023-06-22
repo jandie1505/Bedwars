@@ -6,6 +6,7 @@ import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.data.type.Bed;
 
 import java.util.*;
@@ -26,6 +27,7 @@ public class BedwarsTeam {
     private int forgeUpgrade;
     private int healPoolUpgrade;
     private int dragonBuffUpgrade;
+    private boolean disableBed;
 
     public BedwarsTeam(Game game, LobbyTeamData teamData) {
         this.game = game;
@@ -60,6 +62,8 @@ public class BedwarsTeam {
         this.forgeUpgrade = 0;
         this.healPoolUpgrade = 0;
         this.dragonBuffUpgrade = 0;
+
+        this.disableBed = false;
     }
 
     public String getName() {
@@ -123,6 +127,11 @@ public class BedwarsTeam {
     }
 
     public int hasBed() {
+
+        if (this.disableBed) {
+            return 0;
+        }
+
         int beds = 0;
 
         for (Location bedLocation : this.getBedLocations()) {
@@ -228,5 +237,23 @@ public class BedwarsTeam {
             this.dragonBuffUpgrade = value;
         }
 
+    }
+
+    public void destroyBeds() {
+        for (Location location : this.getBedLocations()) {
+            this.game.getWorld().getBlockAt(location).setType(Material.AIR);
+        }
+    }
+
+    public boolean isBedDisabled() {
+        return this.disableBed;
+    }
+
+    public void disableBed() {
+        this.disableBed = true;
+    }
+
+    public void enableBed() {
+        this.disableBed = false;
     }
 }

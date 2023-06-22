@@ -7,6 +7,7 @@ import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
+import net.jandie1505.bedwars.lobby.setup.LobbyDestroyBedsTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
@@ -210,6 +211,7 @@ public class Lobby implements GamePart {
             List<LobbyGeneratorData> globalGenerators = this.buildGeneratorList(globalGeneratorArray);
 
             List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions = new ArrayList<>();
+            List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions = new ArrayList<>();
             JSONArray timeActionArray = map.optJSONArray("timeActions");
 
             if (timeActionArray == null) {
@@ -265,6 +267,9 @@ public class Lobby implements GamePart {
                         }
 
                         break;
+                    case "DESTROY_BEDS":
+                        destroyBedsTimeActions.add(new LobbyDestroyBedsTimeActionData(time, timeActionData.optBoolean("disableBeds", false)));
+                        break;
                     default:
                         this.plugin.getLogger().warning("Map Config: Wrong type of a timeAction of " + name + " (" + index + ")");
                         continue;
@@ -280,6 +285,7 @@ public class Lobby implements GamePart {
                     teams,
                     globalGenerators,
                     generatorUpgradeTimeActions,
+                    destroyBedsTimeActions,
                     spawnBlockPlaceProtectionRadius,
                     villagerBlockPlaceProtectionRadius
             ));
@@ -632,6 +638,7 @@ public class Lobby implements GamePart {
                 selectedMap.getTeams(),
                 selectedMap.getGlobalGenerators(),
                 selectedMap.getGeneratorUpgradeTimeActions(),
+                selectedMap.getDestroyBedsTimeActions(),
                 new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
                 armorConfig,
                 teamUpgradesConfig,

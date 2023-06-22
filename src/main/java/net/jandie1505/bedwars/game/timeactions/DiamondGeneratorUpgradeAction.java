@@ -15,4 +15,7 @@ public class DiamondGeneratorUpgradeAction extends TimeAction {
         this.getGame().setPublicDiamondGeneratorLevel(upgradeLevel);
     }
 
+    public int getUpgradeLevel() {
+        return this.upgradeLevel;
+    }
 }

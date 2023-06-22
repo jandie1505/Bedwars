@@ -24,4 +24,8 @@ public class TeamGenerator extends Generator {
     public int getLevel() {
         return this.team.getForgeUpgrade();
     }
+
+    public BedwarsTeam getTeam() {
+        return this.team;
+    }
 }

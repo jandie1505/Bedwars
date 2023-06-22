@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.lobby;
 
+import net.jandie1505.bedwars.lobby.setup.LobbyDestroyBedsTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
@@ -16,8 +17,9 @@ public class MapData {
     private final List<LobbyTeamData> teams;
     private final List<LobbyGeneratorData> globalGenerators;
     private final List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions;
+    private final List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions;
 
-    public MapData(String name, String world, int respawnCooldown, int maxTime, List<LobbyTeamData> teams, List<LobbyGeneratorData> globalGenerators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection) {
+    public MapData(String name, String world, int respawnCooldown, int maxTime, List<LobbyTeamData> teams, List<LobbyGeneratorData> globalGenerators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection) {
         this.name = name;
         this.world = world;
         this.respawnCooldown = respawnCooldown;
@@ -27,6 +29,7 @@ public class MapData {
         this.teams = teams;
         this.globalGenerators = globalGenerators;
         this.generatorUpgradeTimeActions = generatorUpgradeTimeActions;
+        this.destroyBedsTimeActions = destroyBedsTimeActions;
     }
 
     public String getName() {
@@ -63,5 +66,9 @@ public class MapData {
 
     public List<LobbyGeneratorUpgradeTimeActionData> getGeneratorUpgradeTimeActions() {
         return generatorUpgradeTimeActions;
+    }
+
+    public List<LobbyDestroyBedsTimeActionData> getDestroyBedsTimeActions() {
+        return destroyBedsTimeActions;
     }
 }

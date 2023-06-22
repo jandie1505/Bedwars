@@ -3,8 +3,15 @@ package net.jandie1505.bedwars.commands;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.game.generators.Generator;
+import net.jandie1505.bedwars.game.generators.PublicGenerator;
+import net.jandie1505.bedwars.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.menu.upgrades.UpgradesMenu;
 import net.jandie1505.bedwars.game.player.PlayerData;
+import net.jandie1505.bedwars.game.timeactions.DestroyBedsAction;
+import net.jandie1505.bedwars.game.timeactions.DiamondGeneratorUpgradeAction;
+import net.jandie1505.bedwars.game.timeactions.EmeraldGeneratorUpgradeAction;
+import net.jandie1505.bedwars.game.timeactions.TimeAction;
 import net.jandie1505.bedwars.lobby.Lobby;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -32,7 +39,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         if (args.length < 1) {
 
             if (this.hasAdminPermission(sender)) {
-                sender.sendMessage("§7Usage: /bedwars stop/status/start/force-stop");
+                sender.sendMessage("§7Usage: /bedwars stop/status/start/force-stop/players/bypass/gameinfo/getgamevalue");
             } else {
                 sender.sendMessage("§cCurrently no commands for you :(");
             }
@@ -66,6 +73,15 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             case "world":
             case "worlds":
                 this.worldsSubcommand(sender, args);
+                break;
+            case "gameinfo":
+                this.gameInfoSubcommand(sender);
+                break;
+            case "getgamevalue":
+                this.getGameValueSubcommand(sender, args);
+                break;
+            case "setgamevalue":
+                this.setGameValue(sender, args);
                 break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
@@ -510,6 +526,241 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
         ((Player) sender).teleport(new Location(((Game) this.plugin.getGame()).getWorld(), 0, 0, 0, 0, 0));
         sender.sendMessage("§aTeleporting to map...");
+
+    }
+
+    public void gameInfoSubcommand(CommandSender sender) {
+
+        if (!(this.hasAdminPermission(sender))) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            sender.sendMessage("§cNo game running");
+            return;
+        }
+
+        sender.sendMessage("§7Game Information:");
+        sender.sendMessage("§7World: [" + this.plugin.getServer().getWorlds().indexOf(((Game) this.plugin.getGame()).getWorld()) + "] " + ((Game) this.plugin.getGame()).getWorld().getName() + " (" + ((Game) this.plugin.getGame()).getWorld().getUID() + ")");
+        sender.sendMessage("§7Teams: " + ((Game) this.plugin.getGame()).getTeams().size() + " (Use teams command)");
+        sender.sendMessage("§7Players: " + ((Game) this.plugin.getGame()).getPlayers().size() + " (Use players command)");
+        sender.sendMessage("§7Generators: " + ((Game) this.plugin.getGame()).getGenerators().size());
+        sender.sendMessage("§7Time Actions: " + ((Game) this.plugin.getGame()).getTimeActions().size());
+        sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getRespawnCountdown());
+        sender.sendMessage("§7Player Placed Blocks: " + ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().size());
+        sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getMaxTime());
+        sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection());
+        sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection());
+        sender.sendMessage("§7Time: " + ((Game) this.plugin.getGame()).getTime());
+        sender.sendMessage("§7Emerald Generator Level: " + ((Game) this.plugin.getGame()).getPublicEmeraldGeneratorLevel());
+        sender.sendMessage("§7Diamond Generator Level: " + ((Game) this.plugin.getGame()).getPublicDiamondGeneratorLevel());
+
+    }
+
+    public void getGameValueSubcommand(CommandSender sender, String[] args) {
+
+        if (!(this.hasAdminPermission(sender))) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            sender.sendMessage("§cNo game running");
+            return;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage("§cUsage: /bedwars getgamevalue world/generators/timeactions/respawncooldown/playerblocks/maxtime/spawnprotection/villagerprotection/time/emeraldlevel/diamondlevel/armorconfig/teamupgradesconfig/itemshop");
+            return;
+        }
+
+        switch (args[1]) {
+            case "world":
+                sender.sendMessage("§7World: [" + this.plugin.getServer().getWorlds().indexOf(((Game) this.plugin.getGame()).getWorld()) + "] " + ((Game) this.plugin.getGame()).getWorld().getName() + " (" + ((Game) this.plugin.getGame()).getWorld().getUID() + ")");
+                break;
+            case "teams":
+                sender.sendMessage("§cUse teams command for that");
+                break;
+            case "players":
+                sender.sendMessage("§cIse players command for that");
+                break;
+            case "generators":
+                sender.sendMessage("§7Generators:");
+
+                int generatorIndex = 0;
+                for (Generator generator : ((Game) this.plugin.getGame()).getGenerators()) {
+
+                    String out = "[" + generatorIndex + "] " + generator.getItem() + " " + generator.getLevel() + " " + generator.getSpeed() + " " + generator.isEnabled() + " " + generator.getGeneratorTimer() + " " + generator.getLocation().getX() + " " + generator.getLocation().getY() + " " + generator.getLocation().getZ();
+
+                    if (generator instanceof PublicGenerator) {
+                        out = out + " PUBLIC";
+                    } else if (generator instanceof TeamGenerator) {
+                        out = out + " TEAM " + ((TeamGenerator) generator).getTeam().getId();
+                    } else {
+                        out = out + " UNKNOWN TYPE";
+                    }
+
+                    out = out + ";";
+
+                    sender.sendMessage("§7" + out);
+
+                    generatorIndex++;
+                }
+
+                break;
+            case "timeactions":
+                sender.sendMessage("§7Time Actions:");
+
+                int timeActionIndex = 0;
+                for (TimeAction timeAction : ((Game) this.plugin.getGame()).getTimeActions()) {
+
+                    String out = "[" + timeActionIndex + "] " + timeAction.getTime() + " " + timeAction.isCompleted();
+
+                    if (timeAction instanceof EmeraldGeneratorUpgradeAction) {
+                        out = out + " EMERALD_UPGRADE (GENERATOR_UPGRADE TYPE 2) " + ((EmeraldGeneratorUpgradeAction) timeAction).getUpgradeLevel();
+                    } else if (timeAction instanceof DiamondGeneratorUpgradeAction) {
+                        out = out + " DIAMOND_UPGRADE (GENERATOR_UPGRADE TYPE 1) " + ((DiamondGeneratorUpgradeAction) timeAction).getUpgradeLevel();
+                    } else if (timeAction instanceof DestroyBedsAction) {
+                        out = out + " DESTROY_BEDS " + ((DestroyBedsAction) timeAction).isDisableBeds();
+                    }
+
+                    out = out + ";";
+                    sender.sendMessage("§7" + out);
+
+                    timeActionIndex++;
+                }
+
+                break;
+            case "respawncooldown":
+                sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getRespawnCountdown());
+                break;
+            case "playerblocks":
+                sender.sendMessage("§7Player Placed Blocks:");
+
+                int index = 0;
+                for (Location location : ((Game) this.plugin.getGame()).getPlayerPlacedBlocks()) {
+
+                    if (location.getWorld() == null) {
+                        sender.sendMessage("§cWORLD NULL");
+                        continue;
+                    }
+
+                    sender.sendMessage("§7[" + index + "] " + location.getWorld().getUID() +  location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ() + " " + location.getBlock().getType().toString());
+
+                    index++;
+                }
+
+                break;
+            case "maxtime":
+                sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getMaxTime());
+                break;
+            case "spawnprotection":
+                sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection());
+                break;
+            case "villagerprotection":
+                sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection());
+                break;
+            case "time":
+                sender.sendMessage("§7Time: " + ((Game) this.plugin.getGame()).getTime());
+                break;
+            case "emeraldlevel":
+                sender.sendMessage("§7Emerald Generator Level: " + ((Game) this.plugin.getGame()).getPublicEmeraldGeneratorLevel());
+                break;
+            case "diamondlevel":
+                sender.sendMessage("§7Diamond Generator Level: " + ((Game) this.plugin.getGame()).getPublicDiamondGeneratorLevel());
+                break;
+            case "armorconfig":
+                sender.sendMessage("§7Armor Config:");
+                sender.sendMessage("§7Item ids: HEAD CHEST LEGS BOOTS " + ((Game) this.plugin.getGame()).getArmorConfig().getDefaultHelmet() + " " + ((Game) this.plugin.getGame()).getArmorConfig().getDefaultChestplate() + " " + ((Game) this.plugin.getGame()).getArmorConfig().getDefaultLeggings() + " " + ((Game) this.plugin.getGame()).getArmorConfig().getDefaultBoots());
+                sender.sendMessage("§7Copy boots: HEAD CHEST LEGS " + ((Game) this.plugin.getGame()).getArmorConfig().isCopyHelmet() + " " + ((Game) this.plugin.getGame()).getArmorConfig().isCopyChestplate() + " " + ((Game) this.plugin.getGame()).getArmorConfig().isCopyLeggings());
+                break;
+            case "teamupgradesconfig":
+                sender.sendMessage("§cCurrently not supported");
+                break;
+            default:
+                sender.sendMessage("§cInvalid value");
+                break;
+        }
+
+    }
+
+    public void setGameValue(CommandSender sender, String[] args) {
+
+        if (!(this.hasAdminPermission(sender))) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            sender.sendMessage("§cNo game running");
+            return;
+        }
+
+        if (args.length < 3) {
+            sender.sendMessage("§cUsage: /bedwars setgamevalue time/emeraldlevel/diamondlevel <value>");
+            return;
+        }
+
+        switch (args[1]) {
+            case "time":
+
+                try {
+                    int value = Integer.parseInt(args[2]);
+
+                    if (value < 0) {
+                        sender.sendMessage("§cPlease specify a value higher or equal than 0");
+                        return;
+                    }
+
+                    ((Game) this.plugin.getGame()).setTime(value);
+                    sender.sendMessage("§aTime successfully updated to " + value);
+
+                } catch (IllegalArgumentException e) {
+                    sender.sendMessage("§cPlease specify a valid int value");
+                }
+
+                break;
+            case "emeraldlevel":
+
+                try {
+                    int value = Integer.parseInt(args[2]);
+
+                    if (value < 0) {
+                        sender.sendMessage("§cPlease specify a value higher or equal than 0");
+                        return;
+                    }
+
+                    ((Game) this.plugin.getGame()).setPublicEmeraldGeneratorLevel(value);
+                    sender.sendMessage("§aEmerald Generator Level successfully updated to " + value);
+
+                } catch (IllegalArgumentException e) {
+                    sender.sendMessage("§cPlease specify a valid int value");
+                }
+
+                break;
+            case "diamondlevel":
+
+                try {
+                    int value = Integer.parseInt(args[2]);
+
+                    if (value < 0) {
+                        sender.sendMessage("§cPlease specify a value higher or equal than 0");
+                        return;
+                    }
+
+                    ((Game) this.plugin.getGame()).setPublicDiamondGeneratorLevel(value);
+                    sender.sendMessage("§aDiamond Generator Level successfully updated to " + value);
+
+                } catch (IllegalArgumentException e) {
+                    sender.sendMessage("§cPlease specify a valid int value");
+                }
+
+                break;
+            default:
+                sender.sendMessage("§cInvalid value");
+                break;
+        }
 
     }
 

@@ -11,9 +11,11 @@ import net.jandie1505.bedwars.game.menu.shop.ItemShop;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
+import net.jandie1505.bedwars.game.timeactions.DestroyBedsAction;
 import net.jandie1505.bedwars.game.timeactions.DiamondGeneratorUpgradeAction;
 import net.jandie1505.bedwars.game.timeactions.EmeraldGeneratorUpgradeAction;
 import net.jandie1505.bedwars.game.timeactions.TimeAction;
+import net.jandie1505.bedwars.lobby.setup.LobbyDestroyBedsTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
 import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
@@ -52,9 +54,9 @@ public class Game implements GamePart {
     private int time;
     private int publicEmeraldGeneratorLevel;
     private int publicDiamondGeneratorLevel;
-    boolean prepared;
+    private boolean prepared;
 
-    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection) {
+    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection) {
         this.plugin = plugin;
         this.world = world;
         this.teams = Collections.synchronizedList(new ArrayList<>());
@@ -108,6 +110,10 @@ public class Game implements GamePart {
                 this.timeActions.add(new EmeraldGeneratorUpgradeAction(this, generatorUpgradeData.getTime(), "§aEmerald Generators §ehave beed upgraded to §aLevel " + (generatorUpgradeData.getLevel() + 1), "Emerald " + (generatorUpgradeData.getLevel() + 1), generatorUpgradeData.getLevel()));
             }
 
+        }
+
+        for (LobbyDestroyBedsTimeActionData destroyBedsData : bedDestroyTimeActions) {
+            this.timeActions.add(new DestroyBedsAction(this, destroyBedsData.getTime(), destroyBedsData.isDisableBeds()));
         }
 
         Collections.sort(this.timeActions);
@@ -1040,5 +1046,17 @@ public class Game implements GamePart {
 
     public int getVillagerBlockPlaceProtection() {
         return this.villagerBlockPlaceProtection;
+    }
+
+    public int getRespawnCountdown() {
+        return this.respawnCountdown;
+    }
+
+    public ArmorConfig getArmorConfig() {
+        return this.armorConfig;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
     }
 }

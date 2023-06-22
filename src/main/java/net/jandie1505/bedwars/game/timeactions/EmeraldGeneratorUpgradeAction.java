@@ -15,4 +15,7 @@ public class EmeraldGeneratorUpgradeAction extends TimeAction {
         this.getGame().setPublicEmeraldGeneratorLevel(upgradeLevel);
     }
 
+    public int getUpgradeLevel() {
+        return this.upgradeLevel;
+    }
 }
