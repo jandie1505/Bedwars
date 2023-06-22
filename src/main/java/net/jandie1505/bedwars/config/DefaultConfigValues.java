@@ -33,6 +33,29 @@ public final class DefaultConfigValues {
 
         JSONArray minimalistMapTeams = new JSONArray();
 
+        // Team Generator Speed
+
+        JSONArray ironGeneratorSpeed = new JSONArray();
+        ironGeneratorSpeed.put(15);
+        ironGeneratorSpeed.put(10);
+        ironGeneratorSpeed.put(5);
+        ironGeneratorSpeed.put(2.5);
+        ironGeneratorSpeed.put(1);
+
+        JSONArray goldGeneratorSpeed = new JSONArray();
+        goldGeneratorSpeed.put(10*20);
+        goldGeneratorSpeed.put(5*20);
+        goldGeneratorSpeed.put(2.5*20);
+        goldGeneratorSpeed.put(20);
+        goldGeneratorSpeed.put(10);
+
+        JSONArray teamEmeraldGeneratorSpeed = new JSONArray();
+        teamEmeraldGeneratorSpeed.put(0);
+        teamEmeraldGeneratorSpeed.put(0);
+        teamEmeraldGeneratorSpeed.put(45*20);
+        teamEmeraldGeneratorSpeed.put(30*20);
+        teamEmeraldGeneratorSpeed.put(15*20);
+
         // Green Team Create
 
         JSONObject greenTeamData = new JSONObject();
@@ -81,14 +104,7 @@ public final class DefaultConfigValues {
         greenTeamIronGenerator.put("location", greenTeamIronGeneratorLocation);
 
         greenTeamIronGenerator.put("material", Material.IRON_INGOT.toString());
-
-        JSONArray greenTeamIronGeneratorSpeed = new JSONArray();
-        greenTeamIronGeneratorSpeed.put(1.0);
-        greenTeamIronGeneratorSpeed.put(0.5);
-        greenTeamIronGeneratorSpeed.put(0.25);
-        greenTeamIronGeneratorSpeed.put(0.0625);
-        greenTeamIronGeneratorSpeed.put(0.03125);
-        greenTeamIronGenerator.put("speed", greenTeamIronGeneratorSpeed);
+        greenTeamIronGenerator.put("speed", ironGeneratorSpeed);
 
         greenTeamGenerators.put(greenTeamIronGenerator);
 
@@ -101,16 +117,17 @@ public final class DefaultConfigValues {
         greenTeamGoldGenerator.put("location", greenTeamGoldGeneratorLocation);
 
         greenTeamGoldGenerator.put("material", Material.GOLD_INGOT.toString());
-
-        JSONArray greenTeamGoldGeneratorSpeed = new JSONArray();
-        greenTeamGoldGeneratorSpeed.put(8.0);
-        greenTeamGoldGeneratorSpeed.put(7.0);
-        greenTeamGoldGeneratorSpeed.put(5.0);
-        greenTeamGoldGeneratorSpeed.put(4.0);
-        greenTeamGoldGeneratorSpeed.put(2.0);
-        greenTeamGoldGenerator.put("speed", greenTeamGoldGeneratorSpeed);
+        greenTeamGoldGenerator.put("speed", goldGeneratorSpeed);
 
         greenTeamGenerators.put(greenTeamGoldGenerator);
+
+        JSONObject greemTeamEmeraldGenerator = new JSONObject();
+
+        greemTeamEmeraldGenerator.put("location", greenTeamGoldGeneratorLocation);
+        greemTeamEmeraldGenerator.put("material", Material.EMERALD.toString());
+        greemTeamEmeraldGenerator.put("speed", teamEmeraldGeneratorSpeed);
+
+        greenTeamGenerators.put(greemTeamEmeraldGenerator);
 
         greenTeamData.put("generators", greenTeamGenerators);
 
@@ -195,14 +212,7 @@ public final class DefaultConfigValues {
         redTeamIronGenerator.put("location", redTeamIronGeneratorLocation);
 
         redTeamIronGenerator.put("material", Material.IRON_INGOT.toString());
-
-        JSONArray redTeamIronGeneratorSpeed = new JSONArray();
-        redTeamIronGeneratorSpeed.put(1.0);
-        redTeamIronGeneratorSpeed.put(0.5);
-        redTeamIronGeneratorSpeed.put(0.25);
-        redTeamIronGeneratorSpeed.put(0.0625);
-        redTeamIronGeneratorSpeed.put(0.03125);
-        redTeamIronGenerator.put("speed", redTeamIronGeneratorSpeed);
+        redTeamIronGenerator.put("speed", ironGeneratorSpeed);
 
         redTeamGenerators.put(redTeamIronGenerator);
 
@@ -215,16 +225,17 @@ public final class DefaultConfigValues {
         redTeamGoldGenerator.put("location", redTeamGoldGeneratorLocation);
 
         redTeamGoldGenerator.put("material", Material.GOLD_INGOT.toString());
-
-        JSONArray redTeamGoldGeneratorSpeed = new JSONArray();
-        redTeamGoldGeneratorSpeed.put(8.0);
-        redTeamGoldGeneratorSpeed.put(7.0);
-        redTeamGoldGeneratorSpeed.put(5.0);
-        redTeamGoldGeneratorSpeed.put(4.0);
-        redTeamGoldGeneratorSpeed.put(2.0);
-        redTeamGoldGenerator.put("speed", redTeamGoldGeneratorSpeed);
+        redTeamGoldGenerator.put("speed", goldGeneratorSpeed);
 
         redTeamGenerators.put(redTeamGoldGenerator);
+
+        JSONObject redTeamEmeraldGenerator = new JSONObject();
+
+        redTeamEmeraldGenerator.put("location", redTeamGoldGeneratorLocation);
+        redTeamEmeraldGenerator.put("material", Material.EMERALD.toString());
+        redTeamEmeraldGenerator.put("speed", teamEmeraldGeneratorSpeed);
+
+        redTeamGenerators.put(redTeamEmeraldGenerator);
 
         redTeamData.put("generators", redTeamGenerators);
 
@@ -265,6 +276,22 @@ public final class DefaultConfigValues {
 
         minimalistMap.put("teams", minimalistMapTeams);
 
+        // Global Generator Speed
+
+        JSONArray emeraldGeneratorSpeed = new JSONArray();
+        emeraldGeneratorSpeed.put(40*20);
+        emeraldGeneratorSpeed.put(30*20);
+        emeraldGeneratorSpeed.put(20*20);
+        emeraldGeneratorSpeed.put(10*20);
+        emeraldGeneratorSpeed.put(5*20);
+
+        JSONArray diamondGeneratorSpeed = new JSONArray();
+        diamondGeneratorSpeed.put(30*20);
+        diamondGeneratorSpeed.put(20*20);
+        diamondGeneratorSpeed.put(10*20);
+        diamondGeneratorSpeed.put(5*20);
+        diamondGeneratorSpeed.put(3*20);
+
         // Global Generators
 
         JSONArray globalGenerators = new JSONArray();
@@ -278,14 +305,7 @@ public final class DefaultConfigValues {
         firstGlobalEmeraldGenerator.put("location", firstGlobalEmeraldGeneratorLocations);
 
         firstGlobalEmeraldGenerator.put("material", Material.EMERALD.toString());
-
-        JSONArray firstGlobalEmeraldGeneratorSpeed = new JSONArray();
-        firstGlobalEmeraldGeneratorSpeed.put(40);
-        firstGlobalEmeraldGeneratorSpeed.put(30);
-        firstGlobalEmeraldGeneratorSpeed.put(20);
-        firstGlobalEmeraldGeneratorSpeed.put(10);
-        firstGlobalEmeraldGeneratorSpeed.put(5);
-        firstGlobalEmeraldGenerator.put("speed", firstGlobalEmeraldGeneratorSpeed);
+        firstGlobalEmeraldGenerator.put("speed", emeraldGeneratorSpeed);
 
         globalGenerators.put(firstGlobalEmeraldGenerator);
 
@@ -298,14 +318,7 @@ public final class DefaultConfigValues {
         secondGlobalEmeraldGenerator.put("location", secondGlobalEmeraldGeneratorLocations);
 
         secondGlobalEmeraldGenerator.put("material", Material.EMERALD.toString());
-
-        JSONArray secondGlobalEmeraldGeneratorSpeed = new JSONArray();
-        secondGlobalEmeraldGeneratorSpeed.put(40);
-        secondGlobalEmeraldGeneratorSpeed.put(30);
-        secondGlobalEmeraldGeneratorSpeed.put(20);
-        secondGlobalEmeraldGeneratorSpeed.put(10);
-        secondGlobalEmeraldGeneratorSpeed.put(5);
-        secondGlobalEmeraldGenerator.put("speed", secondGlobalEmeraldGeneratorSpeed);
+        secondGlobalEmeraldGenerator.put("speed", emeraldGeneratorSpeed);
 
         globalGenerators.put(secondGlobalEmeraldGenerator);
 
@@ -318,14 +331,7 @@ public final class DefaultConfigValues {
         thirdGlobalEmeraldGenerator.put("location", thirdGlobalEmeraldGeneratorLocations);
 
         thirdGlobalEmeraldGenerator.put("material", Material.EMERALD.toString());
-
-        JSONArray thirdGlobalEmeraldGeneratorSpeed = new JSONArray();
-        thirdGlobalEmeraldGeneratorSpeed.put(40);
-        thirdGlobalEmeraldGeneratorSpeed.put(30);
-        thirdGlobalEmeraldGeneratorSpeed.put(20);
-        thirdGlobalEmeraldGeneratorSpeed.put(10);
-        thirdGlobalEmeraldGeneratorSpeed.put(5);
-        thirdGlobalEmeraldGenerator.put("speed", thirdGlobalEmeraldGeneratorSpeed);
+        thirdGlobalEmeraldGenerator.put("speed", emeraldGeneratorSpeed);
 
         globalGenerators.put(thirdGlobalEmeraldGenerator);
 
@@ -338,14 +344,7 @@ public final class DefaultConfigValues {
         fourthGlobalEmeraldGenerator.put("location", fourthGlobalEmeraldGeneratorLocations);
 
         fourthGlobalEmeraldGenerator.put("material", Material.EMERALD.toString());
-
-        JSONArray fourthGlobalEmeraldGeneratorSpeed = new JSONArray();
-        fourthGlobalEmeraldGeneratorSpeed.put(40);
-        fourthGlobalEmeraldGeneratorSpeed.put(30);
-        fourthGlobalEmeraldGeneratorSpeed.put(20);
-        fourthGlobalEmeraldGeneratorSpeed.put(10);
-        fourthGlobalEmeraldGeneratorSpeed.put(5);
-        fourthGlobalEmeraldGenerator.put("speed", fourthGlobalEmeraldGeneratorSpeed);
+        fourthGlobalEmeraldGenerator.put("speed", emeraldGeneratorSpeed);
 
         globalGenerators.put(fourthGlobalEmeraldGenerator);
 
@@ -358,14 +357,7 @@ public final class DefaultConfigValues {
         firstGlobalDiamondGenerator.put("location", firstGlobalDiamondGeneratorLocations);
 
         firstGlobalDiamondGenerator.put("material", Material.DIAMOND.toString());
-
-        JSONArray firstGlobalDiamondGeneratorSpeed = new JSONArray();
-        firstGlobalDiamondGeneratorSpeed.put(30);
-        firstGlobalDiamondGeneratorSpeed.put(20);
-        firstGlobalDiamondGeneratorSpeed.put(10);
-        firstGlobalDiamondGeneratorSpeed.put(5);
-        firstGlobalDiamondGeneratorSpeed.put(3);
-        firstGlobalDiamondGenerator.put("speed", firstGlobalDiamondGeneratorSpeed);
+        firstGlobalDiamondGenerator.put("speed", diamondGeneratorSpeed);
 
         globalGenerators.put(firstGlobalDiamondGenerator);
 
@@ -378,14 +370,7 @@ public final class DefaultConfigValues {
         secondGlobalDiamondGenerator.put("location", secondGlobalDiamondGeneratorLocations);
 
         secondGlobalDiamondGenerator.put("material", Material.DIAMOND.toString());
-
-        JSONArray secondGlobalDiamondGeneratorSpeed = new JSONArray();
-        secondGlobalDiamondGeneratorSpeed.put(30);
-        secondGlobalDiamondGeneratorSpeed.put(20);
-        secondGlobalDiamondGeneratorSpeed.put(10);
-        secondGlobalDiamondGeneratorSpeed.put(5);
-        secondGlobalDiamondGeneratorSpeed.put(3);
-        secondGlobalDiamondGenerator.put("speed", secondGlobalDiamondGeneratorSpeed);
+        secondGlobalDiamondGenerator.put("speed", diamondGeneratorSpeed);
 
         globalGenerators.put(secondGlobalDiamondGenerator);
 
