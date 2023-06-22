@@ -102,7 +102,7 @@ public class Bedwars extends JavaPlugin {
                 this.getServer().getPluginManager().disablePlugin(this);
             }
 
-        }, 0, 10);
+        }, 0, 1);
     }
 
     public void onDisable() {

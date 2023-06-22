@@ -171,7 +171,7 @@ public class Game implements GamePart {
 
         // TIME (RUN BEFORE TIME STEP)
 
-        if (this.timeStep >= 1) {
+        if (this.timeStep >= 20) {
             if (this.time > 0) {
                 this.time--;
             } else {
@@ -181,10 +181,10 @@ public class Game implements GamePart {
 
         // TIME STEP (RUN LAST)
 
-        if (this.timeStep >= 1) {
+        if (this.timeStep >= 20) {
             this.timeStep = 0;
         } else {
-            this.timeStep = 1;
+            this.timeStep++;
         }
 
         return GameStatus.NORMAL;
@@ -280,19 +280,17 @@ public class Game implements GamePart {
                     player.setGameMode(GameMode.SPECTATOR);
                 }
 
-                if (this.timeStep >= 1) {
-                    if (playerData.getRespawnCountdown() > 0) {
+                if (playerData.getRespawnCountdown() > 0 && this.timeStep >= 20) {
 
-                        player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 20, 0);
-                        player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
+                    player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 20, 0);
+                    player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
 
-                        playerData.setRespawnCountdown(playerData.getRespawnCountdown() - 1);
+                    playerData.setRespawnCountdown(playerData.getRespawnCountdown() - 1);
 
-                    } else {
+                } else {
 
-                        this.respawnPlayer(player);
+                    this.respawnPlayer(player);
 
-                    }
                 }
 
             }

@@ -621,7 +621,7 @@ public final class DefaultConfigValues {
 
         JSONObject glass = new JSONObject();
 
-        glass.put("type", Material.GLASS.toString());
+        glass.put("type", Material.WHITE_STAINED_GLASS.toString());
         glass.put("name", "§rBlast-proof glass");
         glass.put("amount", 4);
 

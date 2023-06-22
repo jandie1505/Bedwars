@@ -476,7 +476,7 @@ public class Lobby implements GamePart {
 
         // TIME
 
-        if (this.timeStep >= 1) {
+        if (this.timeStep >= 20) {
             if (this.time > 0) {
                 this.time--;
             } else {
@@ -492,10 +492,10 @@ public class Lobby implements GamePart {
 
         // TIME STEP
 
-        if (this.timeStep >= 1) {
+        if (this.timeStep >= 20) {
             this.timeStep = 0;
         } else {
-            this.timeStep = 1;
+            this.timeStep++;
         }
 
         return GameStatus.NORMAL;
