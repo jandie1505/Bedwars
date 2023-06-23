@@ -876,6 +876,8 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getMaxTime());
         sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection());
         sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection());
+        sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getCenterLocation().getX() + " " + ((Game) this.plugin.getGame()).getCenterLocation().getY() + " " + ((Game) this.plugin.getGame()).getCenterLocation().getZ());
+        sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getMapRadius());
         sender.sendMessage("§7Time: " + ((Game) this.plugin.getGame()).getTime());
         sender.sendMessage("§7Emerald Generator Level: " + ((Game) this.plugin.getGame()).getPublicEmeraldGeneratorLevel());
         sender.sendMessage("§7Diamond Generator Level: " + ((Game) this.plugin.getGame()).getPublicDiamondGeneratorLevel());
@@ -895,7 +897,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 2) {
-            sender.sendMessage("§cUsage: /bedwars getgamevalue world/generators/timeactions/respawncooldown/playerblocks/maxtime/spawnprotection/villagerprotection/time/emeraldlevel/diamondlevel/armorconfig/teamupgradesconfig/itemshop");
+            sender.sendMessage("§cUsage: /bedwars getgamevalue world/generators/timeactions/respawncooldown/playerblocks/maxtime/spawnprotection/villagerprotection/center/radius/time/emeraldlevel/diamondlevel/armorconfig/teamupgradesconfig/itemshop");
             return;
         }
 
@@ -984,6 +986,12 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 break;
             case "villagerprotection":
                 sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection());
+                break;
+            case "center":
+                sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getCenterLocation().getX() + " " + ((Game) this.plugin.getGame()).getCenterLocation().getY() + " " + ((Game) this.plugin.getGame()).getCenterLocation().getZ());
+                break;
+            case "radius":
+                sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getMapRadius());
                 break;
             case "time":
                 sender.sendMessage("§7Time: " + ((Game) this.plugin.getGame()).getTime());

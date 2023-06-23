@@ -50,13 +50,15 @@ public class Game implements GamePart {
     private final int maxTime;
     private final int spawnBlockPlaceProtection;
     private final int villagerBlockPlaceProtection;
+    private final Location centerLocation;
+    private final int mapRadius;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
     private int publicDiamondGeneratorLevel;
     private boolean prepared;
 
-    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection) {
+    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
         this.plugin = plugin;
         this.world = world;
         this.teams = Collections.synchronizedList(new ArrayList<>());
@@ -72,6 +74,8 @@ public class Game implements GamePart {
         this.maxTime = maxTime;
         this.spawnBlockPlaceProtection = spawnBlockPlaceProtection;
         this.villagerBlockPlaceProtection = villagerBlockPlaceProtection;
+        this.centerLocation = this.buildLocationWithWorld(centerLocation);
+        this.mapRadius = mapRadius;
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
@@ -131,6 +135,9 @@ public class Game implements GamePart {
         }
 
         this.itemShop.initEntries(shopConfig);
+
+        this.world.getWorldBorder().setCenter(centerLocation);
+        this.world.getWorldBorder().setSize(mapRadius * 2);
     }
 
     @Override
@@ -1186,5 +1193,13 @@ public class Game implements GamePart {
 
     public void setTime(int time) {
         this.time = time;
+    }
+
+    public Location getCenterLocation() {
+        return this.centerLocation;
+    }
+
+    public int getMapRadius() {
+        return this.mapRadius;
     }
 }

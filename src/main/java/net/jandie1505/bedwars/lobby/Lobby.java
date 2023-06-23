@@ -101,6 +101,20 @@ public class Lobby implements GamePart {
                 continue;
             }
 
+            int mapRadius = map.optInt("mapRadius", -1);
+
+            if (mapRadius < 0) {
+                this.logMissingMapConfigItem("mapRadius", index, name);
+                continue;
+            }
+
+            Location centerLocation = this.buildLocationFromJSONObject(map.optJSONObject("center", new JSONObject()), false);
+
+            if (centerLocation == null) {
+                this.logMissingMapConfigItem("center", index, name);
+                continue;
+            }
+
             List<LobbyTeamData> teams = new ArrayList<>();
             JSONArray teamsArray = map.optJSONArray("teams");
 
@@ -289,7 +303,9 @@ public class Lobby implements GamePart {
                     generatorUpgradeTimeActions,
                     destroyBedsTimeActions,
                     spawnBlockPlaceProtectionRadius,
-                    villagerBlockPlaceProtectionRadius
+                    villagerBlockPlaceProtectionRadius,
+                    centerLocation,
+                    mapRadius
             ));
         }
 
@@ -647,7 +663,9 @@ public class Lobby implements GamePart {
                 selectedMap.getRespawnCooldown(),
                 selectedMap.getMaxTime(),
                 selectedMap.getSpawnBlockPlaceProtection(),
-                selectedMap.getVillagerBlockPlaceProtection()
+                selectedMap.getVillagerBlockPlaceProtection(),
+                selectedMap.getCenterLocation(),
+                selectedMap.getMapRadius()
         );
 
         for (UUID playerId : this.getPlayers().keySet()) {

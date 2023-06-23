@@ -30,6 +30,19 @@ public final class DefaultConfigValues {
         minimalistMap.put("maxTime", 3600);
         minimalistMap.put("spawnBlockPlaceProtectionRadius", 1);
         minimalistMap.put("villagerBlockPlaceProtectionRadius", 1);
+        minimalistMap.put("mapRadius", 82);
+
+        // Center location
+
+        JSONObject centerLocation = new JSONObject();
+
+        centerLocation.put("x", 0.5);
+        centerLocation.put("y", 0);
+        centerLocation.put("z", 0.5);
+
+        minimalistMap.put("center", centerLocation);
+
+        // TEAMS
 
         JSONArray minimalistMapTeams = new JSONArray();
 
