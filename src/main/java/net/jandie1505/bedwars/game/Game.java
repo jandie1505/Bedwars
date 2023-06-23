@@ -156,7 +156,8 @@ public class Game implements GamePart {
 
         // PLAYER MANAGEMENT
 
-        this.playerManagement();
+        this.allPlayersManagement();
+        this.ingamePlayersManagement();
 
         // SCOREBOARDS CLEANUP
 
@@ -198,7 +199,7 @@ public class Game implements GamePart {
     /**
      * Player Management
      */
-    private void playerManagement() {
+    private void allPlayersManagement() {
 
         for (Player player : this.plugin.getServer().getOnlinePlayers()) {
 
@@ -245,15 +246,22 @@ public class Game implements GamePart {
 
             }
 
-            // Continue if player is not ingame
+        }
 
-            if (!isIngame) {
+    }
+
+    private void ingamePlayersManagement() {
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            PlayerData playerData = this.players.get(playerId);
+            Player player = this.plugin.getServer().getPlayer(playerId);
+
+            if (playerData == null) {
+                this.players.remove(playerId);
                 continue;
             }
 
-            PlayerData playerData = this.players.get(player.getUniqueId());
-
-            // Check player for invalid values
+            // Get Bedwars Team
 
             BedwarsTeam team = null;
             try {
@@ -263,7 +271,17 @@ public class Game implements GamePart {
             }
 
             if (team == null) {
-                this.players.remove(player.getUniqueId());
+                this.players.remove(playerId);
+                continue;
+            }
+
+            if (player == null) {
+                playerData.setAlive(false);
+
+                if (team.hasBed() <= 0) {
+                    this.players.remove(playerId);
+                }
+
                 continue;
             }
 
