@@ -15,6 +15,8 @@ public final class DefaultConfigValues {
     public static JSONObject getGeneralConfig() {
         JSONObject config = new JSONObject();
 
+        config.put("testingMode", false);
+
         return config;
     }
 

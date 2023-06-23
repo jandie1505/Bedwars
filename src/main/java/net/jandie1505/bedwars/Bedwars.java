@@ -83,7 +83,7 @@ public class Bedwars extends JavaPlugin {
                         continue;
                     }
 
-                    if (!(this.game instanceof Lobby || this.game instanceof Game) || (this.game instanceof Game && ((Game) this.game).getWorld() != world)) {
+                    if (!(this.game instanceof Lobby || (this.game instanceof Game && ((Game) this.game).getWorld() == world))) {
                         this.unloadWorld(world);
                     }
 

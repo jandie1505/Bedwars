@@ -13,6 +13,8 @@ import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.timeactions.*;
 import net.jandie1505.bedwars.lobby.setup.*;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -51,6 +53,8 @@ public class Game implements GamePart {
     private int publicEmeraldGeneratorLevel;
     private int publicDiamondGeneratorLevel;
     private boolean prepared;
+    private BedwarsTeam winner;
+    private boolean noWinnerEnd;
 
     public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
         this.plugin = plugin;
@@ -74,6 +78,8 @@ public class Game implements GamePart {
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
         this.prepared = false;
+        this.winner = null;
+        this.noWinnerEnd = false;
 
         for (LobbyTeamData teamData : List.copyOf(teams)) {
             BedwarsTeam team = new BedwarsTeam(this, teamData);
@@ -174,6 +180,20 @@ public class Game implements GamePart {
         // TEAM VILLAGER MANAGEMENT
 
         this.villagers();
+
+        // GAME END CONDITIONS
+
+        this.gameEndConditions();
+
+        // CHECK GAME END CONDITIONS (RUN BEFORE TIME)
+
+        if (this.winner != null) {
+            return GameStatus.NEXT_STATUS;
+        }
+
+        if (this.noWinnerEnd) {
+            return GameStatus.NEXT_STATUS;
+        }
 
         // TIME (RUN BEFORE TIME STEP)
 
@@ -467,6 +487,54 @@ public class Game implements GamePart {
 
             if (!upgradesVillagerExists && !team.getUpgradesVillagerLocations().isEmpty()) {
                 this.spawnUpgradesVillager(team, team.getUpgradesVillagerLocations().get(0));
+            }
+
+        }
+
+    }
+
+    private void gameEndConditions() {
+
+        List<BedwarsTeam> aliveTeams = new ArrayList<>();
+
+        for (BedwarsTeam team : this.getTeams()) {
+
+            if (team.isAlive()) {
+                aliveTeams.add(team);
+            }
+
+        }
+
+        if (this.plugin.getConfigManager().getConfig().optBoolean("testingMode", false)) {
+
+            if (aliveTeams.size() == 1) {
+
+                for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b§lGAME END CONDITION TRIGGERED: §r" + aliveTeams.get(0).getChatColor() + "Team " + aliveTeams.get(0).getName() + " §bhas won"));
+                }
+
+                return;
+            }
+
+            if (aliveTeams.size() < 1) {
+
+                for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b§lGAME END CONDITION TRIGGERED: §r§cNo team has won"));
+                }
+
+                return;
+            }
+
+        } else {
+
+            if (aliveTeams.size() == 1) {
+                this.winner = aliveTeams.get(0);
+                return;
+            }
+
+            if (aliveTeams.size() < 1) {
+                this.noWinnerEnd = true;
+                return;
             }
 
         }
@@ -1100,6 +1168,25 @@ public class Game implements GamePart {
 
     @Override
     public GamePart getNextStatus() {
+
+        if (this.winner != null) {
+
+            for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+                player.sendMessage("§bTeam " + this.winner.getChatColor() + this.winner.getName() + " §bhas won");
+
+                if (this.winner.getPlayers().contains(player.getUniqueId())) {
+                    player.sendTitle("§6§lVICTORY", "§7§lYour team has won the game", 10, 5*20, 10);
+                }
+            }
+
+        } else if (this.noWinnerEnd) {
+
+            for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+                player.sendMessage("§bGame ended §cwithout §ba winner");
+            }
+
+        }
+
         return null;
     }
 
