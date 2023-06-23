@@ -14,6 +14,7 @@ public class PlayerData {
     private int armorUpgrade;
     private int pickaxeUpgrade;
     private int shearsUpgrade;
+    private int fireballCooldown;
 
     public PlayerData(int team) {
         this.alive = false;
@@ -26,6 +27,7 @@ public class PlayerData {
         this.armorUpgrade = 0;
         this.pickaxeUpgrade = 0;
         this.shearsUpgrade = 0;
+        this.fireballCooldown = 0;
     }
 
     public boolean isAlive() {
@@ -110,5 +112,13 @@ public class PlayerData {
 
     public void setShearsUpgrade(int shearsUpgrade) {
         this.shearsUpgrade = shearsUpgrade;
+    }
+
+    public int getFireballCooldown() {
+        return fireballCooldown;
+    }
+
+    public void setFireballCooldown(int fireballCooldown) {
+        this.fireballCooldown = fireballCooldown;
     }
 }

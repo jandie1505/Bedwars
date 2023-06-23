@@ -302,21 +302,35 @@ public class EventListener implements Listener {
             return;
         }
 
+        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+        if (playerData == null) {
+            return;
+        }
+
         if (((Game) this.plugin.getGame()).getItemShop().getFireballItem() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getFireballItem()) {
             event.setCancelled(true);
 
-            ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+            if (playerData.getFireballCooldown() <= 0) {
 
-            if (itemStack != null && itemStack.getAmount() > 0) {
-                itemStack.setAmount(itemStack.getAmount() - 1);
+                ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+                if (itemStack != null && itemStack.getAmount() > 0) {
+                    itemStack.setAmount(itemStack.getAmount() - 1);
+                }
+
+                Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
+                fireball.setShooter(event.getPlayer());
+                fireball.setDirection(event.getPlayer().getEyeLocation().getDirection());
+                fireball.setYield(2);
+                fireball.setIsIncendiary(false);
+                fireball.setTicksLived(3*20);
+
+                playerData.setFireballCooldown(2*20);
+
+            } else {
+                event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getFireballCooldown() / 20.0) + " to use the fireball again");
             }
-
-            Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
-            fireball.setShooter(event.getPlayer());
-            fireball.setDirection(event.getPlayer().getEyeLocation().getDirection());
-            fireball.setYield(1);
-            fireball.setIsIncendiary(false);
-            fireball.setTicksLived(3*20);
 
             return;
         }
@@ -324,18 +338,26 @@ public class EventListener implements Listener {
         if (((Game) this.plugin.getGame()).getItemShop().getEnhancedFireballItem() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getEnhancedFireballItem()) {
             event.setCancelled(true);
 
-            ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+            if (playerData.getFireballCooldown() <= 0) {
 
-            if (itemStack != null && itemStack.getAmount() > 0) {
-                itemStack.setAmount(itemStack.getAmount() - 1);
+                ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+                if (itemStack != null && itemStack.getAmount() > 0) {
+                    itemStack.setAmount(itemStack.getAmount() - 1);
+                }
+
+                Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
+                fireball.setShooter(event.getPlayer());
+                fireball.setDirection(event.getPlayer().getEyeLocation().getDirection().multiply(2));
+                fireball.setYield(4);
+                fireball.setIsIncendiary(false);
+                fireball.setTicksLived(10*20);
+
+                playerData.setFireballCooldown(3*20);
+
+            } else {
+                event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getFireballCooldown() / 20.0) + " to use the fireball again");
             }
-
-            Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
-            fireball.setShooter(event.getPlayer());
-            fireball.setDirection(event.getPlayer().getEyeLocation().getDirection().multiply(2));
-            fireball.setYield(3);
-            fireball.setIsIncendiary(false);
-            fireball.setTicksLived(10*20);
 
             return;
         }
@@ -347,12 +369,6 @@ public class EventListener implements Listener {
 
             if (itemStack != null && itemStack.getAmount() > 0) {
                 itemStack.setAmount(itemStack.getAmount() - 1);
-            }
-
-            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
-
-            if (playerData == null) {
-                return;
             }
 
             BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());

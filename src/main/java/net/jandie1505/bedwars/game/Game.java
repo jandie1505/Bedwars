@@ -356,6 +356,12 @@ public class Game implements GamePart {
                 player.setUnsaturatedRegenRate(0);
             }
 
+            // Fireball Cooldown
+
+            if (playerData.getFireballCooldown() > 0) {
+                playerData.setFireballCooldown(playerData.getFireballCooldown() - 1);
+            }
+
         }
 
     }
