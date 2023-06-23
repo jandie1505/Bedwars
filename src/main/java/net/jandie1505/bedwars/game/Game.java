@@ -606,7 +606,7 @@ public class Game implements GamePart {
 
                     for (int amount = 0; amount < item.getAmount(); amount++) {
 
-                        if (item2.getAmount() >= 64) {
+                        if (item2.getAmount() >= item2.getMaxStackSize()) {
                             break;
                         }
 
