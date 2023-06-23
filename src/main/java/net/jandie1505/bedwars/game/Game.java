@@ -573,7 +573,7 @@ public class Game implements GamePart {
 
             // Replace Glass
 
-            if (item.getType().toString().endsWith("STAINED_GLASS")) {
+            if (item.getType().toString().endsWith("STAINED_GLASS") || item.getType().toString().endsWith("GLASS")) {
                 String blockColor = Bedwars.getBlockColorString(team.getChatColor());
 
                 if (blockColor != null) {
