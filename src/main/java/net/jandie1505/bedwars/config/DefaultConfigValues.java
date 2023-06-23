@@ -480,6 +480,24 @@ public final class DefaultConfigValues {
 
         timeActions.put(bedsGone);
 
+        JSONObject firstBorder = new JSONObject();
+        firstBorder.put("type", "WORLDBORDER_CHANGE");
+        firstBorder.put("radius", 57);
+        firstBorder.put("chatMessage", "§cThe world border is shrinking (1st border");
+        firstBorder.put("scoreboardText", "1st border");
+        firstBorder.put("time", 600);
+
+        timeActions.put(firstBorder);
+
+        JSONObject secondBorder = new JSONObject();
+        secondBorder.put("type", "WORLDBORDER_CHANGE");
+        secondBorder.put("radius", 23);
+        secondBorder.put("chatMessage", "§cThe world border is shrinking (2nd border)");
+        secondBorder.put("scoreboardText", "2nd border");
+        secondBorder.put("time", 300);
+
+        timeActions.put(secondBorder);
+
         minimalistMap.put("timeActions", timeActions);
 
         maps.put(minimalistMap);

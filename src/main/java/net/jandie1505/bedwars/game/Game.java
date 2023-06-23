@@ -11,14 +11,8 @@ import net.jandie1505.bedwars.game.menu.shop.ItemShop;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
-import net.jandie1505.bedwars.game.timeactions.DestroyBedsAction;
-import net.jandie1505.bedwars.game.timeactions.DiamondGeneratorUpgradeAction;
-import net.jandie1505.bedwars.game.timeactions.EmeraldGeneratorUpgradeAction;
-import net.jandie1505.bedwars.game.timeactions.TimeAction;
-import net.jandie1505.bedwars.lobby.setup.LobbyDestroyBedsTimeActionData;
-import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
-import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
-import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
+import net.jandie1505.bedwars.game.timeactions.*;
+import net.jandie1505.bedwars.lobby.setup.*;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -58,7 +52,7 @@ public class Game implements GamePart {
     private int publicDiamondGeneratorLevel;
     private boolean prepared;
 
-    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
+    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
         this.plugin = plugin;
         this.world = world;
         this.teams = Collections.synchronizedList(new ArrayList<>());
@@ -118,6 +112,10 @@ public class Game implements GamePart {
 
         for (LobbyDestroyBedsTimeActionData destroyBedsData : bedDestroyTimeActions) {
             this.timeActions.add(new DestroyBedsAction(this, destroyBedsData.getTime(), destroyBedsData.isDisableBeds()));
+        }
+
+        for (LobbyWorldborderChangeTimeActionData worldborderChangeData : worldborderChangeTimeActions) {
+            this.timeActions.add(new WorldborderChangeTimeAction(this, worldborderChangeData.getTime(), worldborderChangeData.getChatMessage(), worldborderChangeData.getScoreboardText(), worldborderChangeData.getRadius()));
         }
 
         Collections.sort(this.timeActions);

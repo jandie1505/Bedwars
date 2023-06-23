@@ -9,10 +9,7 @@ import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
-import net.jandie1505.bedwars.lobby.setup.LobbyDestroyBedsTimeActionData;
-import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
-import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
-import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
+import net.jandie1505.bedwars.lobby.setup.*;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -228,6 +225,7 @@ public class Lobby implements GamePart {
 
             List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions = new ArrayList<>();
             List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions = new ArrayList<>();
+            List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions = new ArrayList<>();
             JSONArray timeActionArray = map.optJSONArray("timeActions");
 
             if (timeActionArray == null) {
@@ -286,6 +284,31 @@ public class Lobby implements GamePart {
                     case "DESTROY_BEDS":
                         destroyBedsTimeActions.add(new LobbyDestroyBedsTimeActionData(time, timeActionData.optBoolean("disableBeds", false)));
                         break;
+                    case "WORLDBORDER_CHANGE":
+
+                        int radius = timeActionData.optInt("radius", -1);
+
+                        if (radius < 0) {
+                            this.plugin.getLogger().warning("Map Config: Wrong radius of a timeAction of " + name + " (" + index + ")");
+                            continue;
+                        }
+
+                        String chatMessage = timeActionData.optString("chatMessage");
+
+                        if (chatMessage == null) {
+                            this.plugin.getLogger().warning("Map Config: Wrong chatMessage of a timeAction of " + name + " (" + index + ")");
+                            continue;
+                        }
+
+                        String scoreboardText = timeActionData.optString("scoreboardText");
+
+                        if (scoreboardText == null) {
+                            this.plugin.getLogger().warning("Map Config: Wrong scoreboardText of a timeAction of " + name + " (" + index + ")");
+                            continue;
+                        }
+
+                        worldborderChangeTimeActions.add(new LobbyWorldborderChangeTimeActionData(time, radius, chatMessage, scoreboardText));
+                        break;
                     default:
                         this.plugin.getLogger().warning("Map Config: Wrong type of a timeAction of " + name + " (" + index + ")");
                         continue;
@@ -302,6 +325,7 @@ public class Lobby implements GamePart {
                     globalGenerators,
                     generatorUpgradeTimeActions,
                     destroyBedsTimeActions,
+                    worldborderChangeTimeActions,
                     spawnBlockPlaceProtectionRadius,
                     villagerBlockPlaceProtectionRadius,
                     centerLocation,
@@ -657,6 +681,7 @@ public class Lobby implements GamePart {
                 selectedMap.getGlobalGenerators(),
                 selectedMap.getGeneratorUpgradeTimeActions(),
                 selectedMap.getDestroyBedsTimeActions(),
+                selectedMap.getWorldBorderChangeTimeActions(),
                 new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
                 armorConfig,
                 teamUpgradesConfig,

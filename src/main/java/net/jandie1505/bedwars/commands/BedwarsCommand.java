@@ -8,10 +8,7 @@ import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.menu.upgrades.UpgradesMenu;
 import net.jandie1505.bedwars.game.player.PlayerData;
-import net.jandie1505.bedwars.game.timeactions.DestroyBedsAction;
-import net.jandie1505.bedwars.game.timeactions.DiamondGeneratorUpgradeAction;
-import net.jandie1505.bedwars.game.timeactions.EmeraldGeneratorUpgradeAction;
-import net.jandie1505.bedwars.game.timeactions.TimeAction;
+import net.jandie1505.bedwars.game.timeactions.*;
 import net.jandie1505.bedwars.lobby.Lobby;
 import net.jandie1505.bedwars.lobby.LobbyPlayerData;
 import net.jandie1505.bedwars.lobby.MapData;
@@ -949,6 +946,10 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         out = out + " DIAMOND_UPGRADE (GENERATOR_UPGRADE TYPE 1) " + ((DiamondGeneratorUpgradeAction) timeAction).getUpgradeLevel();
                     } else if (timeAction instanceof DestroyBedsAction) {
                         out = out + " DESTROY_BEDS " + ((DestroyBedsAction) timeAction).isDisableBeds();
+                    } else if (timeAction instanceof WorldborderChangeTimeAction) {
+                        out = out + " WORLDBORDER_CHANGE " + ((WorldborderChangeTimeAction) timeAction).getRadius();
+                    } else {
+                        out = out + " UNKNOWN";
                     }
 
                     out = out + ";";

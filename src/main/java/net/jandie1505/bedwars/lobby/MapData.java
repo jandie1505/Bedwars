@@ -1,9 +1,6 @@
 package net.jandie1505.bedwars.lobby;
 
-import net.jandie1505.bedwars.lobby.setup.LobbyDestroyBedsTimeActionData;
-import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorData;
-import net.jandie1505.bedwars.lobby.setup.LobbyGeneratorUpgradeTimeActionData;
-import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
+import net.jandie1505.bedwars.lobby.setup.*;
 import org.bukkit.Location;
 
 import java.util.List;
@@ -19,10 +16,11 @@ public class MapData {
     private final List<LobbyGeneratorData> globalGenerators;
     private final List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions;
     private final List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions;
+    private final List<LobbyWorldborderChangeTimeActionData> worldBorderChangeTimeActions;
     private final Location centerLocation;
     private final int mapRadius;
 
-    public MapData(String name, String world, int respawnCooldown, int maxTime, List<LobbyTeamData> teams, List<LobbyGeneratorData> globalGenerators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
+    public MapData(String name, String world, int respawnCooldown, int maxTime, List<LobbyTeamData> teams, List<LobbyGeneratorData> globalGenerators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions, List<LobbyWorldborderChangeTimeActionData> worldBorderChangeTimeActions, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
         this.name = name;
         this.world = world;
         this.respawnCooldown = respawnCooldown;
@@ -33,6 +31,7 @@ public class MapData {
         this.globalGenerators = globalGenerators;
         this.generatorUpgradeTimeActions = generatorUpgradeTimeActions;
         this.destroyBedsTimeActions = destroyBedsTimeActions;
+        this.worldBorderChangeTimeActions = worldBorderChangeTimeActions;
         this.centerLocation = centerLocation;
         this.mapRadius = mapRadius;
     }
@@ -75,6 +74,10 @@ public class MapData {
 
     public List<LobbyDestroyBedsTimeActionData> getDestroyBedsTimeActions() {
         return destroyBedsTimeActions;
+    }
+
+    public List<LobbyWorldborderChangeTimeActionData> getWorldBorderChangeTimeActions() {
+        return worldBorderChangeTimeActions;
     }
 
     public Location getCenterLocation() {
