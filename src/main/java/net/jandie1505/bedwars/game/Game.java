@@ -402,7 +402,7 @@ public class Game implements GamePart {
      */
     private void timeActions() {
 
-        if (this.timeStep >= 1) {
+        if (this.timeStep >= 20) {
 
             for (TimeAction timeAction : this.getTimeActions()) {
 
