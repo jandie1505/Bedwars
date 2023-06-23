@@ -1061,6 +1061,15 @@ public final class DefaultConfigValues {
 
         config.put("153", safetyPlatform);
 
+        // Unprotected Chest
+
+        JSONObject unprotectedChest = new JSONObject();
+
+        unprotectedChest.put("type", Material.CHEST.name());
+        unprotectedChest.put("name", "§rUnprotected Chest");
+
+        config.put("154", unprotectedChest);
+
         // Sharpness Upgrade
 
         JSONObject sharpnessUpgrade = new JSONObject();
@@ -1193,6 +1202,7 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(151, 1, Material.EMERALD, 7, 28));
         shopItems.put(buildShopEntry(152, 3, Material.GOLD_INGOT, 7, 29));
         shopItems.put(buildShopEntry(153, 24, Material.GOLD_INGOT, 7, 30));
+        shopItems.put(buildShopEntry(154, 64, Material.IRON_INGOT, 7, 31));
 
         itemShopConfig.put("shopItems", shopItems);
 
