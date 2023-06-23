@@ -280,6 +280,7 @@ public class Game implements GamePart {
 
                 if (team.hasBed() <= 0) {
                     this.players.remove(playerId);
+                    continue;
                 }
 
                 continue;
