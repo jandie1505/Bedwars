@@ -101,6 +101,10 @@ public class Bedwars extends JavaPlugin {
                                 player.showPlayer(this, otherPlayer);
                             }
 
+                            if (player.getScoreboard() != this.getServer().getScoreboardManager().getMainScoreboard()) {
+                                player.setScoreboard(this.getServer().getScoreboardManager().getMainScoreboard());
+                            }
+
                         }
 
                     }
