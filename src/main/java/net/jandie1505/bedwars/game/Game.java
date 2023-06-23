@@ -212,7 +212,7 @@ public class Game implements GamePart {
                 this.playerScoreboards.put(player.getUniqueId(), this.plugin.getServer().getScoreboardManager().getNewScoreboard());
             }
 
-            if (this.timeStep >= 1) {
+            if (this.timeStep >= 20) {
                 this.scoreboardTick(
                         player,
                         this.getSidebar(this.players.get(player.getUniqueId()))
