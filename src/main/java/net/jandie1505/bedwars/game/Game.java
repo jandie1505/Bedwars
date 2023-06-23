@@ -479,7 +479,7 @@ public class Game implements GamePart {
 
             // Default Sword Condition
 
-            if ((item.getType().toString().endsWith("SWORD") || item.getType().toString().endsWith("AXE")) && this.itemShop.getDefaultWeapon() != null && itemId != this.itemShop.getDefaultWeapon()) {
+            if ((item.getType().toString().endsWith("SWORD") || (item.getType().toString().endsWith("AXE") && !item.getType().toString().endsWith("PICKAXE"))) && this.itemShop.getDefaultWeapon() != null && itemId != this.itemShop.getDefaultWeapon()) {
                 inventoryDefaultSwordMissing = false;
             } else if (this.itemShop.getDefaultWeapon() != null && itemId == this.itemShop.getDefaultWeapon()) {
                 inventoryDefaultSwordMissing = false;
@@ -602,7 +602,7 @@ public class Game implements GamePart {
                         continue;
                     }
 
-                    if ((item2.getType().toString().endsWith("SWORD") || item2.getType().toString().endsWith("AXE")) && item2Id != itemId) {
+                    if ((item2.getType().toString().endsWith("SWORD") || (item2.getType().toString().endsWith("AXE") && !item2.getType().toString().endsWith("PICKAXE"))) && item2Id != itemId) {
                         Bedwars.removeItemCompletely(player.getInventory(), item);
                         break;
                     }
