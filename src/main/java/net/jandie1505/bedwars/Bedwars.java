@@ -89,6 +89,26 @@ public class Bedwars extends JavaPlugin {
 
                 }
 
+                // Manage player visibility when not ingame
+
+                if (!(this.game instanceof Game)) {
+
+                    for (Player player : List.copyOf(this.getServer().getOnlinePlayers())) {
+
+                        for (Player otherPlayer : List.copyOf(this.getServer().getOnlinePlayers())) {
+
+                            if (!player.canSee(otherPlayer)) {
+                                player.showPlayer(this, otherPlayer);
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                // Exception Count
+
                 if (this.exceptionCount > 0) {
                     this.exceptionCount--;
                 }

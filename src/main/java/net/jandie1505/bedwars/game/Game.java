@@ -232,15 +232,15 @@ public class Game implements GamePart {
 
                 if (this.plugin.isPlayerBypassing(player.getUniqueId()) && !player.canSee(otherPlayer)) {
 
-                    player.showPlayer(otherPlayer);
+                    player.showPlayer(this.plugin, otherPlayer);
 
                 } else if (this.players.containsKey(otherPlayer.getUniqueId()) && !player.canSee(otherPlayer)) {
 
-                    player.showPlayer(otherPlayer);
+                    player.showPlayer(this.plugin, otherPlayer);
 
                 } else if (!this.players.containsKey(otherPlayer.getUniqueId()) && player.canSee(otherPlayer)) {
 
-                    player.hidePlayer(otherPlayer);
+                    player.hidePlayer(this.plugin, otherPlayer);
 
                 }
 
