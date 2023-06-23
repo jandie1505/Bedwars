@@ -296,6 +296,7 @@ public final class DefaultConfigValues {
 
         JSONArray emeraldGeneratorSpeed = new JSONArray();
         emeraldGeneratorSpeed.put(40*20);
+        emeraldGeneratorSpeed.put(35*20);
         emeraldGeneratorSpeed.put(30*20);
         emeraldGeneratorSpeed.put(20*20);
         emeraldGeneratorSpeed.put(10*20);
@@ -303,6 +304,7 @@ public final class DefaultConfigValues {
 
         JSONArray diamondGeneratorSpeed = new JSONArray();
         diamondGeneratorSpeed.put(30*20);
+        diamondGeneratorSpeed.put(25*20);
         diamondGeneratorSpeed.put(20*20);
         diamondGeneratorSpeed.put(10*20);
         diamondGeneratorSpeed.put(5*20);
