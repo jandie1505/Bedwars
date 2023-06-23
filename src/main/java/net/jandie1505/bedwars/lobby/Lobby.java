@@ -695,6 +695,11 @@ public class Lobby implements GamePart {
 
         for (UUID playerId : this.getPlayers().keySet()) {
             LobbyPlayerData playerData = this.getPlayers().get(playerId);
+            Player player = this.plugin.getServer().getPlayer(playerId);
+
+            if (player != null) {
+                player.sendMessage("§bMap: " + this.selectedMap.getName());
+            }
 
             if (playerData.getTeam() < 0) {
                 continue;
@@ -815,5 +820,13 @@ public class Lobby implements GamePart {
 
     public List<MapData> getMaps() {
         return List.copyOf(this.maps);
+    }
+
+    public MapData getSelectedMap() {
+        return this.selectedMap;
+    }
+
+    public void selectMap(MapData selectedMap) {
+        this.selectedMap = selectedMap;
     }
 }

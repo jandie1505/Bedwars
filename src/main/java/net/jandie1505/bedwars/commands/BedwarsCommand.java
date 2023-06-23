@@ -82,6 +82,13 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             case "setgamevalue":
                 this.setGameValue(sender, args);
                 break;
+            case "map":
+            case "maps":
+                this.mapsSubcommand(sender);
+                break;
+            case "forcemap":
+                this.forcemapSubcommand(sender, args);
+                break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
                 break;
@@ -1094,6 +1101,90 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage("§cInvalid value");
                 break;
         }
+
+    }
+
+    public void mapsSubcommand(CommandSender sender) {
+
+        if (!(this.plugin.getGame() instanceof Lobby)) {
+            sender.sendMessage("§cNo lobby running");
+            return;
+        }
+
+        MapData mapData = ((Lobby) this.plugin.getGame()).getSelectedMap();
+
+        if (mapData == null) {
+            sender.sendMessage("§7No map selected");
+        } else {
+            sender.sendMessage("§7Selected map: " + mapData.getName() + " (" + mapData.getWorld() + ")");
+        }
+
+        sender.sendMessage("§7Available Maps:");
+
+        for (MapData map : List.copyOf(((Lobby) this.plugin.getGame()).getMaps())) {
+            sender.sendMessage("§7" + map.getName() + " (" + map.getWorld() + ")");
+        }
+
+    }
+
+    public void forcemapSubcommand(CommandSender sender, String[] args) {
+
+        if (!this.hasAdminPermission(sender)) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (!(this.plugin.getGame() instanceof Lobby)) {
+            sender.sendMessage("§cNo lobby running");
+            return;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage("§cUsage: /combattest forcemap <mapName/w:worldName>");
+            return;
+        }
+
+        if (args[1].equalsIgnoreCase("null") || args[1].equalsIgnoreCase("none")) {
+            ((Lobby) this.plugin.getGame()).selectMap(null);
+            sender.sendMessage("§aSelected map cleared");
+            return;
+        }
+
+        String mapName = args[1];
+
+        for (int i = 2; i < args.length; i++) {
+
+            mapName = mapName + " " + args[i];
+
+        }
+
+        MapData mapData = null;
+
+        for (MapData map : List.copyOf(((Lobby) this.plugin.getGame()).getMaps())) {
+
+            if (mapName.startsWith("w:")) {
+
+                if (map.getWorld().equals(mapName.substring(2))) {
+                    mapData = map;
+                }
+
+            } else {
+
+                if (map.getName().equals(mapName)) {
+                    mapData = map;
+                }
+
+            }
+
+        }
+
+        if (mapData == null) {
+            sender.sendMessage("§cMap does not exist");
+            return;
+        }
+
+        ((Lobby) this.plugin.getGame()).selectMap(mapData);
+        sender.sendMessage("§aMap successfully selected");
 
     }
 
