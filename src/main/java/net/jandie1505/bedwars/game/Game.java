@@ -585,6 +585,44 @@ public class Game implements GamePart {
                 }
             }
 
+            // Group Items
+
+            if ((item.getType().name().endsWith("WOOL") || item.getType().name().endsWith("GLASS")) && slot < player.getInventory().getSize() && this.timeStep >= 20) {
+
+                for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2++) {
+                    ItemStack item2 = player.getInventory().getItem(slot2);
+
+                    if (slot <= slot2) {
+                        continue;
+                    }
+
+                    if (item2 == null) {
+                        continue;
+                    }
+
+                    if (!item.isSimilar(item2)) {
+                        continue;
+                    }
+
+                    for (int amount = 0; amount < item.getAmount(); amount++) {
+
+                        if (item2.getAmount() >= 64) {
+                            break;
+                        }
+
+                        if (item.getAmount() <= 0) {
+                            break;
+                        }
+
+                        item2.setAmount(item2.getAmount() + 1);
+                        item.setAmount(item.getAmount() - 1);
+
+                    }
+
+                }
+
+            }
+
             // Default Sword
 
             if (this.itemShop.getDefaultWeapon() != null && itemId == this.itemShop.getDefaultWeapon()) {
