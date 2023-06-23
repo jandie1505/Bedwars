@@ -1156,6 +1156,7 @@ public class Game implements GamePart {
             player.setSaturation(20);
 
             player.getInventory().clear();
+            player.getEnderChest().clear();
 
             for (PotionEffect potionEffect : List.copyOf(player.getActivePotionEffects())) {
                 player.removePotionEffect(potionEffect.getType());
@@ -1202,6 +1203,12 @@ public class Game implements GamePart {
         player.teleport(this.teams.get(playerData.getTeam()).getRandomSpawnpoint());
         player.resetTitle();
 
+        player.setHealth(20);
+        player.setFoodLevel(20);
+        player.setSaturation(20);
+
+        player.getInventory().clear();
+
         player.sendMessage("§bRespawning...");
 
         return true;
@@ -1230,6 +1237,13 @@ public class Game implements GamePart {
     }
 
     public boolean addPlayer(UUID playerId, int team) {
+        Player player = this.plugin.getServer().getPlayer(playerId);
+
+        if (player != null) {
+            player.getInventory().clear();
+            player.getEnderChest().clear();
+        }
+
         return this.players.put(playerId, new PlayerData(team)) != null;
     }
 
