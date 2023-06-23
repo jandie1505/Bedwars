@@ -27,6 +27,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -691,6 +692,11 @@ public class EventListener implements Listener {
         }
 
         if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+            return;
+        }
+
+        if (event.getSlotType() == InventoryType.SlotType.CRAFTING || event.getSlotType() == InventoryType.SlotType.FUEL || event.getSlotType() == InventoryType.SlotType.RESULT) {
+            event.setCancelled(true);
             return;
         }
 
