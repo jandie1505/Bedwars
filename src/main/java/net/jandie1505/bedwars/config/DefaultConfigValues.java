@@ -55,7 +55,7 @@ public final class DefaultConfigValues {
         ironGeneratorSpeed.put(15);
         ironGeneratorSpeed.put(10);
         ironGeneratorSpeed.put(5);
-        ironGeneratorSpeed.put(2.5);
+        ironGeneratorSpeed.put(2);
         ironGeneratorSpeed.put(1);
 
         JSONArray goldGeneratorSpeed = new JSONArray();

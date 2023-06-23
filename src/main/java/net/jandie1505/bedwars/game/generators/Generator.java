@@ -1,9 +1,12 @@
 package net.jandie1505.bedwars.game.generators;
 
 import net.jandie1505.bedwars.game.Game;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -80,22 +83,44 @@ public abstract class Generator {
             return;
         }
 
-        int nearbyItemAmount = 0;
-        for (Entity entity : List.copyOf(this.game.getWorld().getNearbyEntities(this.location, 5, 5, 5))) {
-            if (entity instanceof Item && ((Item) entity).getItemStack().getType() == this.item.getType()) {
-                nearbyItemAmount++;
+        boolean dropItem = true;
+
+        for (Entity entity : List.copyOf(this.game.getWorld().getNearbyEntities(this.location, 1, 1, 1))) {
+
+            if (!(entity instanceof Player)) {
+                continue;
             }
+
+            dropItem = false;
+
+            Player player = (Player) entity;
+
+            item.setAmount(amount);
+            player.getInventory().addItem(this.item);
+
         }
 
-        if (nearbyItemAmount >= this.maxNearbyItems) {
-            return;
+        if (dropItem) {
+
+            int nearbyItemAmount = 0;
+            for (Entity entity : List.copyOf(this.game.getWorld().getNearbyEntities(this.location, 5, 5, 5))) {
+                if (entity instanceof Item && ((Item) entity).getItemStack().getType() == this.item.getType()) {
+                    nearbyItemAmount++;
+                }
+            }
+
+            if (nearbyItemAmount >= this.maxNearbyItems) {
+                return;
+            }
+
+            ItemStack item = this.item;
+
+            item.setAmount(amount);
+
+            this.game.getWorld().dropItem(this.location, item);
+
         }
 
-        ItemStack item = this.item;
-
-        item.setAmount(amount);
-
-        this.game.getWorld().dropItem(this.location, item);
     }
 
     public ItemStack getItem() {
