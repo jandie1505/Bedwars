@@ -467,6 +467,123 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
                         break;
                     }
+                    case "getvalue": {
+                        if (args.length < 4) {
+                            return;
+                        }
+
+                        UUID playerId = this.getPlayerUUID(args[2]);
+
+                        if (playerId == null) {
+                            sender.sendMessage("§cPlayer does not exist");
+                            return;
+                        }
+
+                        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(playerId);
+
+                        if (playerData == null) {
+                            sender.sendMessage("§cPlayer not ingame");
+                            return;
+                        }
+
+                        switch (args[3]) {
+                            case "team":
+                                sender.sendMessage("§7Team: " + playerData.getTeam());
+                                break;
+                            case "alive":
+                                sender.sendMessage("§7Alive: " + playerData.isAlive());
+                                break;
+                            case "respawncountdown":
+                                sender.sendMessage("§7Respawn Countdown: " + playerData.getRespawnCountdown());
+                                break;
+                            case "kills":
+                                sender.sendMessage("§7Kills: " + playerData.getKills());
+                                break;
+                            case "deaths":
+                                sender.sendMessage("§7Deaths: " + playerData.getDeaths());
+                                break;
+                            case "bedsbroken":
+                                sender.sendMessage("§7Beds broken: " + playerData.getBedsBroken());
+                                break;
+                            case "armor":
+                                sender.sendMessage("§7Armor Upgrade: " + playerData.getArmorUpgrade());
+                                break;
+                            case "pickaxe":
+                                sender.sendMessage("§7Pickaxe Upgrade: " + playerData.getPickaxeUpgrade());
+                                break;
+                            case "shears":
+                                sender.sendMessage("§7Shears Upgrade: " + playerData.getShearsUpgrade());
+                                break;
+                            default:
+                                sender.sendMessage("§cUsage: /bedwars players getvalue <player> team/alive/respawncountdown/kills/deaths/bedsbroken/armor/pickaxe/shears");
+                                break;
+                        }
+
+                        break;
+                    }
+                    case "setvalue": {
+                        if (args.length < 5) {
+                            return;
+                        }
+
+                        UUID playerId = this.getPlayerUUID(args[2]);
+
+                        if (playerId == null) {
+                            sender.sendMessage("§cPlayer does not exist");
+                            return;
+                        }
+
+                        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(playerId);
+
+                        if (playerData == null) {
+                            sender.sendMessage("§cPlayer not ingame");
+                            return;
+                        }
+
+                        switch (args[3]) {
+                            case "team":
+                                playerData.setTeam(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aTeam set");
+                                break;
+                            case "alive":
+                                playerData.setAlive(Boolean.parseBoolean(args[4]));
+                                sender.sendMessage("§aAlive status set");
+                                break;
+                            case "respawncountdown":
+                                playerData.setRespawnCountdown(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aRespawn countdown set");
+                                break;
+                            case "kills":
+                                playerData.setKills(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aKills set");
+                                break;
+                            case "deaths":
+                                playerData.setDeaths(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aDeaths set");
+                                break;
+                            case "bedsbroken":
+                                playerData.setBedsBroken(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aBeds broken set");
+                                break;
+                            case "armor":
+                                playerData.setArmorUpgrade(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aArmor Upgrade set");
+                                break;
+                            case "pickaxe":
+                                playerData.setPickaxeUpgrade(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aPickaxe Upgrade set");
+                                break;
+                            case "shears":
+                                playerData.setShearsUpgrade(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aShears Upgrade set");
+                                break;
+                            default:
+                                sender.sendMessage("§cUsage: /bedwars players getvalue <player> team/alive/respawncountdown/kills/deaths/bedsbroken/armor/pickaxe/shears");
+                                break;
+                        }
+
+                        break;
+                    }
                     default:
                         sender.sendMessage("§cUnknown subcommand");
                         break;
