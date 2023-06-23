@@ -8,6 +8,11 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -231,6 +236,77 @@ public class ItemStorage {
 
                     meta.addItemFlags(itemFlag);
 
+                }
+
+            }
+
+            // Potion Meta
+
+            if (meta instanceof PotionMeta) {
+                PotionMeta potionMeta = (PotionMeta) meta;
+
+                String basePotionData = itemValue.optString("basePotionData");
+
+                if (basePotionData != null) {
+
+                    try {
+                        potionMeta.setBasePotionData(new PotionData(PotionType.valueOf(basePotionData)));
+                    } catch (IllegalArgumentException ignored) {
+                        // ignored
+                    }
+
+                }
+
+                JSONArray potionEffects = itemValue.optJSONArray("potionEffects");
+
+                if (potionEffects != null) {
+
+                    for (Object object : potionEffects) {
+
+                        if (!(object instanceof JSONObject)) {
+                            continue;
+                        }
+
+                        JSONObject potionEffect = (JSONObject) object;
+
+                        PotionEffectType effectType = PotionEffectType.getByName(potionEffect.optString("type"));
+
+                        if (effectType == null) {
+                            continue;
+                        }
+
+                        int duration = potionEffect.optInt("duration", -1);
+
+                        if (duration < 0) {
+                            continue;
+                        }
+
+                        int amplifier = potionEffect.optInt("amplifier", -1);
+
+                        if (amplifier < 0) {
+                            continue;
+                        }
+
+                        boolean ambient = potionEffect.optBoolean("ambient", true);
+
+                        boolean particles = potionEffect.optBoolean("particles", true);
+
+                        boolean override = potionEffect.optBoolean("override", false);
+
+                        potionMeta.addCustomEffect(new PotionEffect(effectType, duration, amplifier, ambient, particles), override);
+
+                    }
+
+                }
+
+                int color = itemValue.optInt("color", -1);
+
+                if (color >= 0) {
+                    try {
+                        potionMeta.setColor(Color.fromRGB(color));
+                    } catch (IllegalArgumentException ignored) {
+                        // ignored
+                    }
                 }
 
             }

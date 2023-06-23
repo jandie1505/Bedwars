@@ -3,6 +3,7 @@ package net.jandie1505.bedwars.config;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.potion.PotionEffectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -920,6 +921,78 @@ public final class DefaultConfigValues {
 
         config.put("138", buildDefaultItem(Material.SPECTRAL_ARROW, 6));
 
+        // Speed Potion
+
+        JSONObject speedPotion = new JSONObject();
+
+        speedPotion.put("type", Material.POTION.name());
+        speedPotion.put("name", "Enhanced Movement Potion");
+        speedPotion.put("color", Color.AQUA.asRGB());
+
+        JSONArray speedPotionEffects = new JSONArray();
+
+        JSONObject speedEffect = new JSONObject();
+        speedEffect.put("type", PotionEffectType.SPEED.getName());
+        speedEffect.put("duration", 30*20);
+        speedEffect.put("amplifier", 0);
+        speedEffect.put("ambient", true);
+        speedEffect.put("particles", true);
+        speedEffect.put("override", false);
+
+        speedPotionEffects.put(speedEffect);
+
+        speedPotion.put("potionEffects", speedPotionEffects);
+
+        config.put("139", speedPotion);
+
+        // Jump Boost Potion
+
+        JSONObject jumpBoostPotion = new JSONObject();
+
+        jumpBoostPotion.put("type", Material.POTION.name());
+        jumpBoostPotion.put("name", "Just **** you if you use this shit");
+        jumpBoostPotion.put("color", Color.YELLOW.asRGB());
+
+        JSONArray jumpBoostPotionEffects = new JSONArray();
+
+        JSONObject jumpBoostEffect = new JSONObject();
+        jumpBoostEffect.put("type", PotionEffectType.JUMP.getName());
+        jumpBoostEffect.put("duration", 30*20);
+        jumpBoostEffect.put("amplifier", 0);
+        jumpBoostEffect.put("ambient", true);
+        jumpBoostEffect.put("particles", true);
+        jumpBoostEffect.put("override", false);
+
+        jumpBoostPotionEffects.put(jumpBoostEffect);
+
+        jumpBoostPotion.put("potionEffects", jumpBoostPotionEffects);
+
+        config.put("140", jumpBoostPotion);
+
+        // Invisibility Potion
+
+        JSONObject invisibilityPotion = new JSONObject();
+
+        invisibilityPotion.put("type", Material.POTION.name());
+        invisibilityPotion.put("name", "Stealth Mode Lite");
+        invisibilityPotion.put("color", Color.GRAY.asRGB());
+
+        JSONArray invisibilityPotionEffects = new JSONArray();
+
+        JSONObject invisibilityEffect = new JSONObject();
+        invisibilityEffect.put("type", PotionEffectType.INVISIBILITY.getName());
+        invisibilityEffect.put("duration", 30*20);
+        invisibilityEffect.put("amplifier", 0);
+        invisibilityEffect.put("ambient", true);
+        invisibilityEffect.put("particles", true);
+        invisibilityEffect.put("override", false);
+
+        invisibilityPotionEffects.put(invisibilityEffect);
+
+        invisibilityPotion.put("potionEffects", invisibilityPotionEffects);
+
+        config.put("141", invisibilityPotion);
+
         // Golden Apple
 
         config.put("142", buildDefaultItem(Material.GOLDEN_APPLE));
@@ -1101,6 +1174,10 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(136, 24, Material.GOLD_INGOT, 5, 20));
         shopItems.put(buildShopEntry(137, 6, Material.EMERALD, 5, 21));
         shopItems.put(buildShopEntry(138, 2, Material.GOLD_INGOT, 5, 22));
+
+        shopItems.put(buildShopEntry(139, 1, Material.EMERALD, 6, 19));
+        shopItems.put(buildShopEntry(140, 1, Material.EMERALD, 6, 20));
+        shopItems.put(buildShopEntry(141, 2, Material.EMERALD, 6, 21));
 
         shopItems.put(buildShopEntry(142, 3, Material.GOLD_INGOT, 7, 19));
         shopItems.put(buildShopEntry(145, 30, Material.IRON_INGOT, 7, 20));

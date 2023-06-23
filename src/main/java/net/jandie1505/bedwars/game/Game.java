@@ -680,114 +680,123 @@ public class Game implements GamePart {
 
         if (this.armorConfig.isEnableArmorSystem() && this.itemShop.getArmorUpgrade() != null) {
 
-            // Boots
-
-            int bootsItemId;
-
-            if (playerData.getArmorUpgrade() > 0) {
-                bootsItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
+            if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+                player.getInventory().setBoots(new ItemStack(Material.AIR));
+                player.getInventory().setLeggings(new ItemStack(Material.AIR));
+                player.getInventory().setChestplate(new ItemStack(Material.AIR));
+                player.getInventory().setHelmet(new ItemStack(Material.AIR));
             } else {
-                bootsItemId = this.armorConfig.getDefaultBoots();
-            }
 
-            if (this.plugin.getItemStorage().getItemId(player.getInventory().getBoots()) != bootsItemId) {
+                // Boots
 
-                ItemStack item = this.plugin.getItemStorage().getItem(bootsItemId);
+                int bootsItemId;
 
-                if (item != null) {
-
-                    if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                        item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
-                    }
-
-                    player.getInventory().setBoots(item);
+                if (playerData.getArmorUpgrade() > 0) {
+                    bootsItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
+                } else {
+                    bootsItemId = this.armorConfig.getDefaultBoots();
                 }
 
-            }
+                if (this.plugin.getItemStorage().getItemId(player.getInventory().getBoots()) != bootsItemId) {
 
-            // Leggings
+                    ItemStack item = this.plugin.getItemStorage().getItem(bootsItemId);
 
-            int leggingsItemId;
+                    if (item != null) {
 
-            if (this.armorConfig.isCopyLeggings() && playerData.getArmorUpgrade() > 0) {
-                leggingsItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
-            } else {
-                leggingsItemId = this.armorConfig.getDefaultLeggings();
-            }
+                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
+                            item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                        }
 
-            if (this.plugin.getItemStorage().getItemId(player.getInventory().getLeggings()) != leggingsItemId) {
-
-                ItemStack item = this.plugin.getItemStorage().getItem(leggingsItemId);
-
-                if (item != null) {
-
-                    if (leggingsItemId != this.armorConfig.getDefaultLeggings()) {
-                        item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 2));
+                        player.getInventory().setBoots(item);
                     }
 
-                    if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                        item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
-                    }
-
-                    player.getInventory().setLeggings(item);
                 }
 
-            }
+                // Leggings
 
-            // Chestplate
+                int leggingsItemId;
 
-            int chestplateItemId;
-
-            if (this.armorConfig.isCopyChestplate() && playerData.getArmorUpgrade() > 0) {
-                chestplateItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
-            } else {
-                chestplateItemId = this.armorConfig.getDefaultChestplate();
-            }
-
-            if (this.plugin.getItemStorage().getItemId(player.getInventory().getChestplate()) != chestplateItemId) {
-
-                ItemStack item = this.plugin.getItemStorage().getItem(chestplateItemId);
-
-                if (item != null) {
-
-                    if (chestplateItemId != this.armorConfig.getDefaultChestplate()) {
-                        item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 1));
-                    }
-
-                    if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                        item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
-                    }
-
-                    player.getInventory().setChestplate(item);
+                if (this.armorConfig.isCopyLeggings() && playerData.getArmorUpgrade() > 0) {
+                    leggingsItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
+                } else {
+                    leggingsItemId = this.armorConfig.getDefaultLeggings();
                 }
 
-            }
+                if (this.plugin.getItemStorage().getItemId(player.getInventory().getLeggings()) != leggingsItemId) {
 
-            // Helmet
+                    ItemStack item = this.plugin.getItemStorage().getItem(leggingsItemId);
 
-            int helmetItemId;
+                    if (item != null) {
 
-            if (this.armorConfig.isCopyHelmet() && playerData.getArmorUpgrade() > 0) {
-                helmetItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
-            } else {
-                helmetItemId = this.armorConfig.getDefaultHelmet();
-            }
+                        if (leggingsItemId != this.armorConfig.getDefaultLeggings()) {
+                            item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 2));
+                        }
 
-            if (this.plugin.getItemStorage().getItemId(player.getInventory().getHelmet()) != helmetItemId) {
+                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
+                            item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                        }
 
-                ItemStack item = this.plugin.getItemStorage().getItem(helmetItemId);
-
-                if (item != null) {
-
-                    if (helmetItemId != this.armorConfig.getDefaultHelmet()) {
-                        item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 0));
+                        player.getInventory().setLeggings(item);
                     }
 
-                    if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                        item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                }
+
+                // Chestplate
+
+                int chestplateItemId;
+
+                if (this.armorConfig.isCopyChestplate() && playerData.getArmorUpgrade() > 0) {
+                    chestplateItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
+                } else {
+                    chestplateItemId = this.armorConfig.getDefaultChestplate();
+                }
+
+                if (this.plugin.getItemStorage().getItemId(player.getInventory().getChestplate()) != chestplateItemId) {
+
+                    ItemStack item = this.plugin.getItemStorage().getItem(chestplateItemId);
+
+                    if (item != null) {
+
+                        if (chestplateItemId != this.armorConfig.getDefaultChestplate()) {
+                            item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 1));
+                        }
+
+                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
+                            item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                        }
+
+                        player.getInventory().setChestplate(item);
                     }
 
-                    player.getInventory().setHelmet(item);
+                }
+
+                // Helmet
+
+                int helmetItemId;
+
+                if (this.armorConfig.isCopyHelmet() && playerData.getArmorUpgrade() > 0) {
+                    helmetItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
+                } else {
+                    helmetItemId = this.armorConfig.getDefaultHelmet();
+                }
+
+                if (this.plugin.getItemStorage().getItemId(player.getInventory().getHelmet()) != helmetItemId) {
+
+                    ItemStack item = this.plugin.getItemStorage().getItem(helmetItemId);
+
+                    if (item != null) {
+
+                        if (helmetItemId != this.armorConfig.getDefaultHelmet()) {
+                            item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 0));
+                        }
+
+                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
+                            item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                        }
+
+                        player.getInventory().setHelmet(item);
+                    }
+
                 }
 
             }
