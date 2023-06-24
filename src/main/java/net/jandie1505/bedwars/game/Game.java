@@ -12,12 +12,14 @@ import net.jandie1505.bedwars.game.menu.shop.ItemShop;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
+import net.jandie1505.bedwars.game.team.traps.BedwarsTrap;
 import net.jandie1505.bedwars.game.timeactions.*;
 import net.jandie1505.bedwars.lobby.setup.*;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -187,6 +189,10 @@ public class Game implements GamePart {
         // BRIDGE EGGS
 
         this.bridgeEggs();
+
+        // TRAPS
+
+        this.traps();
 
         // GAME END CONDITIONS
 
@@ -413,6 +419,12 @@ public class Game implements GamePart {
                 playerData.setFireballCooldown(playerData.getFireballCooldown() - 1);
             }
 
+            // Trap Cooldown
+
+            if (playerData.getTrapCooldown() > 0) {
+                playerData.setTrapCooldown(playerData.getTrapCooldown() - 1);
+            }
+
         }
 
     }
@@ -515,6 +527,59 @@ public class Game implements GamePart {
             }
 
             bridgeEgg.tick();
+
+        }
+
+    }
+
+    private void traps() {
+
+        for (BedwarsTeam team : this.getTeams()) {
+
+            team.shiftTraps();
+
+            if (team.hasPrimaryTraps()) {
+
+                List<Entity> entitiesInRadius = List.copyOf(this.world.getNearbyEntities(team.getSpawnpoints().get(0), team.getBaseRadius(), team.getBaseRadius(), team.getBaseRadius()));
+
+                for (Entity entity : entitiesInRadius) {
+
+                    if(!(entity instanceof Player)) {
+                        continue;
+                    }
+
+                    Player player = (Player) entity;
+                    PlayerData playerData = this.players.get(player.getUniqueId());
+
+                    if (playerData == null) {
+                        continue;
+                    }
+
+                    if (playerData.getTrapCooldown() > 0) {
+                        continue;
+                    }
+
+                    if (team.getPlayers().contains(player.getUniqueId())) {
+                        continue;
+                    }
+
+                    for (int i = 0; i < team.getPrimaryTraps().length; i++) {
+                        BedwarsTrap trap = team.getPrimaryTraps()[i];
+
+                        if (trap == null) {
+                            continue;
+                        }
+
+                        trap.trigger(player);
+                        playerData.setTrapCooldown(30*20);
+                        team.getPrimaryTraps()[i] = null;
+
+                    }
+
+                    break;
+                }
+
+            }
 
         }
 
@@ -1235,6 +1300,9 @@ public class Game implements GamePart {
         player.setSaturation(20);
 
         player.getInventory().clear();
+
+        playerData.setFireballCooldown(0);
+        playerData.setTrapCooldown(0);
 
         player.sendMessage("§bRespawning...");
 

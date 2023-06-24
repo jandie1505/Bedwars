@@ -15,6 +15,7 @@ public class PlayerData {
     private int pickaxeUpgrade;
     private int shearsUpgrade;
     private int fireballCooldown;
+    private int trapCooldown;
 
     public PlayerData(int team) {
         this.alive = false;
@@ -28,6 +29,7 @@ public class PlayerData {
         this.pickaxeUpgrade = 0;
         this.shearsUpgrade = 0;
         this.fireballCooldown = 0;
+        this.trapCooldown = 0;
     }
 
     public boolean isAlive() {
@@ -120,5 +122,13 @@ public class PlayerData {
 
     public void setFireballCooldown(int fireballCooldown) {
         this.fireballCooldown = fireballCooldown;
+    }
+
+    public int getTrapCooldown() {
+        return trapCooldown;
+    }
+
+    public void setTrapCooldown(int trapCooldown) {
+        this.trapCooldown = trapCooldown;
     }
 }

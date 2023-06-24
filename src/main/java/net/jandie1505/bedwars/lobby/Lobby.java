@@ -671,7 +671,12 @@ public class Lobby implements GamePart {
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("haste", new JSONObject())),
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("generators", new JSONObject())),
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("healpool", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("dragonbuff", new JSONObject()))
+                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("dragonbuff", new JSONObject())),
+                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("noTrap"),
+                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("alarmTrap"),
+                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("itsATrap"),
+                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("miningFatigueTrap"),
+                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("countermeasuresTrap")
         );
 
         Game game = new Game(

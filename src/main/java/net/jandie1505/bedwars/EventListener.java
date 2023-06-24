@@ -9,6 +9,7 @@ import net.jandie1505.bedwars.game.menu.upgrades.UpgradesMenu;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
+import net.jandie1505.bedwars.game.team.traps.*;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -659,10 +660,6 @@ public class EventListener implements Listener {
                 teamUpgrade = null;
             }
 
-            if (teamUpgrade == null) {
-                return;
-            }
-
             PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getWhoClicked().getUniqueId());
 
             if (playerData == null) {
@@ -675,34 +672,106 @@ public class EventListener implements Listener {
                 return;
             }
 
-            if (team.getTeamUpgrade(teamUpgrade) >= teamUpgrade.getUpgradePrices().size()) {
+            if (teamUpgrade != null) {
+
+                if (team.getTeamUpgrade(teamUpgrade) >= teamUpgrade.getUpgradePrices().size()) {
+                    return;
+                }
+
+                Integer price = teamUpgrade.getUpgradePrices().get(team.getTeamUpgrade(teamUpgrade));
+
+                if (price == null || price < 0) {
+                    return;
+                }
+
+                if (team.getTeamUpgrade(teamUpgrade) >= teamUpgrade.getUpgradePriceCurrencies().size()) {
+                    return;
+                }
+
+                Material currency = teamUpgrade.getUpgradePriceCurrencies().get(team.getTeamUpgrade(teamUpgrade));
+
+                if (currency == null) {
+                    return;
+                }
+
+                if (!this.purchaseItem(event.getWhoClicked().getInventory(), price, currency)) {
+                    event.getWhoClicked().sendMessage("§cYou don't have enough " + currency.name() + "S!");
+                    return;
+                }
+
+                event.getWhoClicked().sendMessage("§aUpgrade successfully purchased");
+                team.setTeamUpgrade(teamUpgrade, team.getTeamUpgrade(teamUpgrade) + 1);
+                event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
+
                 return;
             }
 
-            Integer price = teamUpgrade.getUpgradePrices().get(team.getTeamUpgrade(teamUpgrade));
+            if (event.getSlot() < 27) {
 
-            if (price == null || price < 0) {
-                return;
+                BedwarsTrap bedwarsTrap;
+
+                if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getAlarmTrap()) {
+                    bedwarsTrap = new AlarmTrap(team);
+                } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getItsATrap()) {
+                    bedwarsTrap = new ItsATrap(team);
+                } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getMiningFatigueTrap()) {
+                    bedwarsTrap = new MiningFatigueTrap(team);
+                } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getCountermeasuresTrap()) {
+                    bedwarsTrap = new CountermeasuresTrap(team);
+                } else {
+                    bedwarsTrap = null;
+                }
+
+                if (bedwarsTrap != null) {
+
+                    boolean secondary = event.getClick() == ClickType.RIGHT;
+
+                    int price = UpgradesMenu.getTrapPrice(secondary, team);
+
+                    if (price < 0) {
+                        return;
+                    }
+
+                    if (!this.purchaseItem(event.getWhoClicked().getInventory(), price, Material.DIAMOND)) {
+                        event.getWhoClicked().sendMessage("§cYou don't have enough " + Material.DIAMOND + "S!");
+                        return;
+                    }
+
+                    BedwarsTrap[] trapArray;
+
+                    if (secondary) {
+                        trapArray = team.getSecondaryTraps();
+                    } else {
+                        trapArray = team.getPrimaryTraps();
+                    }
+
+                    event.getWhoClicked().sendMessage("§aTrap successfully purchased");
+                    BedwarsTeam.addTrap(trapArray, bedwarsTrap);
+                    event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
+
+                }
+
+            } else {
+
+                if (event.getSlot() == 38) {
+                    team.getPrimaryTraps()[0] = null;
+                    event.getWhoClicked().sendMessage("§aTrap successfully removed");
+                    event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
+                } else if (event.getSlot() == 39) {
+                    team.getPrimaryTraps()[1] = null;
+                    event.getWhoClicked().sendMessage("§aTrap successfully removed");
+                    event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
+                } else if (event.getSlot() == 41) {
+                    team.getSecondaryTraps()[0] = null;
+                    event.getWhoClicked().sendMessage("§aTrap successfully removed");
+                    event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
+                } else if (event.getSlot() == 42) {
+                    team.getSecondaryTraps()[1] = null;
+                    event.getWhoClicked().sendMessage("§aTrap successfully removed");
+                    event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
+                }
+
             }
-
-            if (team.getTeamUpgrade(teamUpgrade) >= teamUpgrade.getUpgradePriceCurrencies().size()) {
-                return;
-            }
-
-            Material currency = teamUpgrade.getUpgradePriceCurrencies().get(team.getTeamUpgrade(teamUpgrade));
-
-            if (currency == null) {
-                return;
-            }
-
-            if (!this.purchaseItem(event.getWhoClicked().getInventory(), price, currency)) {
-                event.getWhoClicked().sendMessage("§cYou don't have enough " + currency.name() + "S!");
-                return;
-            }
-
-            event.getWhoClicked().sendMessage("§aUpgrade successfully purchased");
-            team.setTeamUpgrade(teamUpgrade, team.getTeamUpgrade(teamUpgrade) + 1);
-            event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
 
             return;
         }
@@ -978,6 +1047,32 @@ public class EventListener implements Listener {
 
             ((Game) this.plugin.getGame()).addBridgeEgg(new BridgeEgg((Game) this.plugin.getGame(), (Egg) event.getEntity(), material));
 
+        }
+
+    }
+
+    @EventHandler
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            return;
+        }
+
+        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+        if (playerData == null) {
+            return;
+        }
+
+        if (event.getItem().getType() == Material.MILK_BUCKET) {
+
+            event.setCancelled(true);
+
+            Bedwars.removeSpecificAmountOfItems(event.getPlayer().getInventory(), Material.MILK_BUCKET, 1);
+            playerData.setTrapCooldown(30*20);
+            event.getPlayer().sendMessage("§bMilk activated");
+
+            return;
         }
 
     }

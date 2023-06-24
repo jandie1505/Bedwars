@@ -466,6 +466,8 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         infoString = infoString + "\nArmor Upgrade: " + playerData.getArmorUpgrade();
                         infoString = infoString + "\nPickaxe Upgrade: " + playerData.getPickaxeUpgrade();
                         infoString = infoString + "\nShears Upgrade: " + playerData.getShearsUpgrade();
+                        infoString = infoString + "\nFireball Cooldown: " + playerData.getFireballCooldown();
+                        infoString = infoString + "\nTrap Cooldown: " + playerData.getTrapCooldown();
 
                         sender.sendMessage(infoString);
 
@@ -518,8 +520,14 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                             case "shears":
                                 sender.sendMessage("§7Shears Upgrade: " + playerData.getShearsUpgrade());
                                 break;
+                            case "fireballcooldown":
+                                sender.sendMessage("§7Fireball Cooldown: " + playerData.getFireballCooldown());
+                                break;
+                            case "trapcooldown":
+                                sender.sendMessage("§7Trap Cooldown: " + playerData.getTrapCooldown());
+                                break;
                             default:
-                                sender.sendMessage("§cUsage: /bedwars players getvalue <player> team/alive/respawncountdown/kills/deaths/bedsbroken/armor/pickaxe/shears");
+                                sender.sendMessage("§cUsage: /bedwars players getvalue <player> team/alive/respawncountdown/kills/deaths/bedsbroken/armor/pickaxe/shears/fireballcooldown/trapcooldown");
                                 break;
                         }
 
@@ -580,6 +588,14 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                             case "shears":
                                 playerData.setShearsUpgrade(Integer.parseInt(args[4]));
                                 sender.sendMessage("§aShears Upgrade set");
+                                break;
+                            case "fireballcooldown":
+                                playerData.setFireballCooldown(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aFireball cooldown set");
+                                break;
+                            case "trapcooldown":
+                                playerData.setTrapCooldown(Integer.parseInt(args[4]));
+                                sender.sendMessage("§aTrap cooldown set");
                                 break;
                             default:
                                 sender.sendMessage("§cUsage: /bedwars players getvalue <player> team/alive/respawncountdown/kills/deaths/bedsbroken/armor/pickaxe/shears");

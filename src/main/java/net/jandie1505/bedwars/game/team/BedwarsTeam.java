@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game.team;
 
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
+import net.jandie1505.bedwars.game.team.traps.BedwarsTrap;
 import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
@@ -21,6 +22,8 @@ public class BedwarsTeam {
     private final List<Location> bedLocations;
     private final List<Location> shopVillagerLocations;
     private final List<Location> upgradesVillagerLocations;
+    private final BedwarsTrap[] primaryTraps;
+    private final BedwarsTrap[] secondaryTraps;
     private int attackDamageUpgrade;
     private int protectionUpgrade;
     private int hasteUpgrade;
@@ -55,6 +58,9 @@ public class BedwarsTeam {
         for (Location location : List.copyOf(teamData.getUpgradesVillagerLocations())) {
             this.upgradesVillagerLocations.add(this.game.buildLocationWithWorld(location));
         }
+
+        this.primaryTraps = new BedwarsTrap[2];
+        this.secondaryTraps = new BedwarsTrap[2];
 
         this.attackDamageUpgrade = 0;
         this.protectionUpgrade = 0;
@@ -239,6 +245,46 @@ public class BedwarsTeam {
 
     }
 
+    public BedwarsTrap[] getPrimaryTraps() {
+        return this.primaryTraps;
+    }
+
+    public BedwarsTrap[] getSecondaryTraps() {
+        return this.secondaryTraps;
+    }
+
+    public boolean hasPrimaryTraps() {
+
+        for (int i = 0; i < this.primaryTraps.length; i++) {
+
+            if (this.primaryTraps[i] != null) {
+                return true;
+            }
+
+        }
+
+        return false;
+    }
+
+    public void shiftTraps() {
+
+        if (this.primaryTraps.length < this.secondaryTraps.length) {
+            return;
+        }
+
+        if (this.hasPrimaryTraps()) {
+            return;
+        }
+
+        for (int i = 0; i < this.secondaryTraps.length; i++) {
+
+            this.primaryTraps[i] = this.secondaryTraps[i];
+            this.secondaryTraps[i] = null;
+
+        }
+
+    }
+
     public void destroyBeds() {
         for (Location location : this.getBedLocations()) {
             this.game.getWorld().getBlockAt(location).setType(Material.AIR);
@@ -255,5 +301,33 @@ public class BedwarsTeam {
 
     public void enableBed() {
         this.disableBed = false;
+    }
+
+    public static int getTrapsCount(BedwarsTrap[] bedwarsTraps) {
+
+        int count = 0;
+
+        for (int i = 0; i < bedwarsTraps.length; i++) {
+
+            if (bedwarsTraps[i] != null) {
+                count++;
+            }
+
+        }
+
+        return count;
+    }
+
+    public static void addTrap(BedwarsTrap[] bedwarsTraps, BedwarsTrap trap) {
+
+        for (int i = 0; i < bedwarsTraps.length; i++) {
+
+            if (bedwarsTraps[i] == null) {
+                bedwarsTraps[i] = trap;
+                break;
+            }
+
+        }
+
     }
 }

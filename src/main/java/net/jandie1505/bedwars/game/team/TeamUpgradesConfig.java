@@ -7,14 +7,24 @@ public class TeamUpgradesConfig {
     private final TeamUpgrade forgeUpgrade;
     private final TeamUpgrade healPoolUpgrade;
     private final TeamUpgrade dragonBuffUpgrade;
+    private final int noTrap;
+    private final int alarmTrap;
+    private final int itsATrap;
+    private final int miningFatigueTrap;
+    private final int countermeasuresTrap;
 
-    public TeamUpgradesConfig(TeamUpgrade sharpnessUpgrade, TeamUpgrade protectionUpgrade, TeamUpgrade hasteUpgrade, TeamUpgrade forgeUpgrade, TeamUpgrade healPoolUpgrade, TeamUpgrade dragonBuffUpgrade) {
+    public TeamUpgradesConfig(TeamUpgrade sharpnessUpgrade, TeamUpgrade protectionUpgrade, TeamUpgrade hasteUpgrade, TeamUpgrade forgeUpgrade, TeamUpgrade healPoolUpgrade, TeamUpgrade dragonBuffUpgrade, int noTrap, int alarmTrap, int itsATrap, int miningFatigueTrap, int countermeasuresTrap) {
         this.sharpnessUpgrade = sharpnessUpgrade;
         this.protectionUpgrade = protectionUpgrade;
         this.hasteUpgrade = hasteUpgrade;
         this.forgeUpgrade = forgeUpgrade;
         this.healPoolUpgrade = healPoolUpgrade;
         this.dragonBuffUpgrade = dragonBuffUpgrade;
+        this.noTrap = noTrap;
+        this.alarmTrap = alarmTrap;
+        this.itsATrap = itsATrap;
+        this.miningFatigueTrap = miningFatigueTrap;
+        this.countermeasuresTrap = countermeasuresTrap;
     }
 
     public TeamUpgrade getSharpnessUpgrade() {
@@ -39,5 +49,25 @@ public class TeamUpgradesConfig {
 
     public TeamUpgrade getDragonBuffUpgrade() {
         return dragonBuffUpgrade;
+    }
+
+    public int getNoTrap() {
+        return noTrap;
+    }
+
+    public int getAlarmTrap() {
+        return alarmTrap;
+    }
+
+    public int getItsATrap() {
+        return itsATrap;
+    }
+
+    public int getMiningFatigueTrap() {
+        return miningFatigueTrap;
+    }
+
+    public int getCountermeasuresTrap() {
+        return countermeasuresTrap;
     }
 }

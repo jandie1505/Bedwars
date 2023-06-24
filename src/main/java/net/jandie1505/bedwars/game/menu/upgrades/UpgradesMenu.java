@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
+import net.jandie1505.bedwars.game.team.traps.BedwarsTrap;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -43,6 +44,8 @@ public class UpgradesMenu implements InventoryHolder {
             return this.getInventory();
         }
 
+        // Team Upgrades
+
         TeamUpgrade sharpnessUpgrade = this.game.getTeamUpgradesConfig().getSharpnessUpgrade();
         ItemStack sharpnessItem = this.game.getPlugin().getItemStorage().getItem(sharpnessUpgrade.getItemId());
         this.createUpgradeItem(sharpnessItem, sharpnessUpgrade, team.getAttackDamageUpgrade(), "Sharpness");
@@ -72,6 +75,49 @@ public class UpgradesMenu implements InventoryHolder {
         ItemStack dragonBuffItem = this.game.getPlugin().getItemStorage().getItem(dragonBuffUpgrade.getItemId());
         this.createUpgradeItem(dragonBuffItem, dragonBuffUpgrade, team.getDragonBuffUpgrade(), "Dragon Buff");
         inventory.setItem(21, dragonBuffItem);
+
+        // Buy Traps Button
+
+        inventory.setItem(14, this.createTrapPurchaseButton(this.game.getTeamUpgradesConfig().getAlarmTrap(), team));
+        inventory.setItem(15, this.createTrapPurchaseButton(this.game.getTeamUpgradesConfig().getItsATrap(), team));
+        inventory.setItem(16, this.createTrapPurchaseButton(this.game.getTeamUpgradesConfig().getMiningFatigueTrap(), team));
+        inventory.setItem(23, this.createTrapPurchaseButton(this.game.getTeamUpgradesConfig().getCountermeasuresTrap(), team));
+
+        // Active Traps
+
+        ItemStack noTrapItem = this.game.getPlugin().getItemStorage().getItem(this.game.getTeamUpgradesConfig().getNoTrap());
+
+        BedwarsTrap trap1 = team.getPrimaryTraps()[0];
+
+        if (trap1 != null) {
+            inventory.setItem(38, createTrapDisplayItem(trap1));
+        } else {
+            inventory.setItem(38, noTrapItem);
+        }
+
+        BedwarsTrap trap2 = team.getPrimaryTraps()[1];
+
+        if (trap2 != null) {
+            inventory.setItem(39, createTrapDisplayItem(trap2));
+        } else {
+            inventory.setItem(39, noTrapItem);
+        }
+
+        BedwarsTrap trap3 = team.getSecondaryTraps()[0];
+
+        if (trap3 != null) {
+            inventory.setItem(41, createTrapDisplayItem(trap3));
+        } else {
+            inventory.setItem(41, noTrapItem);
+        }
+
+        BedwarsTrap trap4 = team.getSecondaryTraps()[1];
+
+        if (trap4 != null) {
+            inventory.setItem(42, createTrapDisplayItem(trap4));
+        } else {
+            inventory.setItem(42, noTrapItem);
+        }
 
         return inventory;
     }
@@ -129,6 +175,114 @@ public class UpgradesMenu implements InventoryHolder {
         meta.setLore(lore);
 
         item.setItemMeta(meta);
+
+    }
+
+    public ItemStack createTrapPurchaseButton(int itemId, BedwarsTeam team) {
+
+        ItemStack item = this.game.getPlugin().getItemStorage().getItem(itemId);
+
+        if (item == null) {
+            return new ItemStack(Material.AIR);
+        }
+
+        ItemMeta meta = item.getItemMeta();
+
+        if (meta == null) {
+            return new ItemStack(Material.AIR);
+        }
+
+        List<String> lore = meta.getLore();
+
+        if (lore == null) {
+            lore = new ArrayList<>();
+        }
+
+        int primaryPrice = getTrapPrice(false, team);
+
+        int secondaryPrice = getTrapPrice(true, team);
+
+        lore.add("");
+
+        if (primaryPrice < 0) {
+            lore.add("§r§7Buy as primary:");
+            lore.add("§r§cSlots full");
+        } else {
+            lore.add("§r§7Buy as primary:");
+            lore.add("§r§b" + primaryPrice + " " + Material.DIAMOND.name() + "S");
+        }
+
+        lore.add("");
+
+        if (secondaryPrice < 0) {
+            lore.add("§r§7Buy as secondary:");
+            lore.add("§r§cSlots full");
+        } else {
+            lore.add("§r§7Buy as secondary:");
+            lore.add("§r§b" + secondaryPrice + " " + Material.DIAMOND.name() + "S");
+        }
+
+        lore.add("");
+
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+
+        return item;
+    }
+
+    public ItemStack createTrapDisplayItem(BedwarsTrap trap) {
+
+        if (trap == null) {
+            return new ItemStack(Material.AIR);
+        }
+
+        ItemStack item = this.game.getPlugin().getItemStorage().getItem(trap.getItemId());
+
+        if (item == null) {
+            return new ItemStack(Material.AIR);
+        }
+
+        ItemMeta meta = item.getItemMeta();
+
+        if (meta == null) {
+            return new ItemStack(Material.AIR);
+        }
+
+        List<String> lore = meta.getLore();
+
+        if (lore == null) {
+            lore = new ArrayList<>();
+        }
+
+        lore.add("");
+        lore.add("§r§aRight-click to delete");
+        lore.add("");
+
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+
+        return item;
+    }
+
+    public static int getTrapPrice(boolean secondary, BedwarsTeam team) {
+
+        if (secondary) {
+            if (BedwarsTeam.getTrapsCount(team.getSecondaryTraps()) == 0) {
+                return  2;
+            } else if (BedwarsTeam.getTrapsCount(team.getSecondaryTraps()) == 1) {
+                return  8;
+            } else {
+                return  -1;
+            }
+        } else {
+            if (BedwarsTeam.getTrapsCount(team.getPrimaryTraps()) == 0) {
+                return  1;
+            } else if (BedwarsTeam.getTrapsCount(team.getPrimaryTraps()) == 1) {
+                return  4;
+            } else {
+                return  -1;
+            }
+        }
 
     }
 

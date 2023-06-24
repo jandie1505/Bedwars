@@ -1124,6 +1124,71 @@ public final class DefaultConfigValues {
 
         config.put("165", dragonBuffUpgrade);
 
+        // No Trap Item
+
+        JSONObject noTrap = new JSONObject();
+
+        noTrap.put("type", Material.GRAY_STAINED_GLASS.name());
+        noTrap.put("name", "§rNo Trap");
+
+        config.put("166", noTrap);
+
+        // Alarm Trap
+
+        JSONObject alarmTrap = new JSONObject();
+
+        alarmTrap.put("type", Material.REDSTONE_TORCH.name());
+        alarmTrap.put("name", "§rAlarm Trap");
+
+        JSONArray alarmTrapLore = new JSONArray();
+        alarmTrapLore.put("§r§fReveals invisible players and");
+        alarmTrapLore.put("§r§fgives them glowing for 30 secs.");
+        alarmTrap.put("lore", alarmTrapLore);
+
+        config.put("167", alarmTrap);
+
+        // It's a trap
+
+        JSONObject itsATrap = new JSONObject();
+
+        itsATrap.put("type", Material.TRIPWIRE_HOOK.name());
+        itsATrap.put("name", "§rIt's a trao");
+
+        JSONArray itsATrapLore = new JSONArray();
+        itsATrapLore.put("§r§fGives blindness and slowness");
+        itsATrapLore.put("§r§ffor 10 secsonds.");
+        itsATrap.put("lore", itsATrapLore);
+
+        config.put("168", itsATrap);
+
+        // Mining Fatigue Trap
+
+        JSONObject miningFatigueTrap = new JSONObject();
+
+        miningFatigueTrap.put("type", Material.IRON_PICKAXE.name());
+        miningFatigueTrap.put("name", "§rMining Fatigue Trap");
+
+        JSONArray miningFatigueTrapLore = new JSONArray();
+        miningFatigueTrapLore.put("§r§fGives mining fatigue");
+        miningFatigueTrapLore.put("§r§ffor 20 seconds.");
+        miningFatigueTrap.put("lore", miningFatigueTrapLore);
+
+        config.put("169", miningFatigueTrap);
+
+        // Countermeasures Trap
+
+        JSONObject countermeasuresTrap = new JSONObject();
+
+        countermeasuresTrap.put("type", Material.POTION.name());
+        countermeasuresTrap.put("name", "§rCountermeasures Trap");
+
+        JSONArray countermeasuresTrapLore = new JSONArray();
+        countermeasuresTrapLore.put("§r§fGives the team speed and");
+        countermeasuresTrapLore.put("§r§f jump boost for 30 secs.");
+        countermeasuresTrap.put("lore", countermeasuresTrapLore);
+
+        config.put("170", countermeasuresTrap);
+
         return config;
     }
 
@@ -1456,6 +1521,12 @@ public final class DefaultConfigValues {
         dragonBuffUpgrade.put("item", 165);
 
         upgradeConfig.put("dragonbuff", dragonBuffUpgrade);
+
+        upgradeConfig.put("noTrap", 166);
+        upgradeConfig.put("alarmTrap", 167);
+        upgradeConfig.put("itsATrap", 168);
+        upgradeConfig.put("miningFatigueTrap", 169);
+        upgradeConfig.put("countermeasuresTrap", 170);
 
         // Save upgradeConfig
 
