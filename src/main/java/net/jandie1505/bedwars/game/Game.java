@@ -279,6 +279,12 @@ public class Game implements GamePart {
 
             }
 
+            // teleport spectator to map
+
+            if (!isIngame && player.getWorld() != this.centerLocation.getWorld()) {
+                player.teleport(this.centerLocation);
+            }
+
         }
 
     }
