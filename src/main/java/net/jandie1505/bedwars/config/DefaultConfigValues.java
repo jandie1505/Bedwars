@@ -1046,7 +1046,17 @@ public final class DefaultConfigValues {
 
         // Milk Bucket
 
-        config.put("151", buildDefaultItem(Material.MILK_BUCKET));
+        JSONObject magicMilk = new JSONObject();
+
+        magicMilk.put("type", Material.MILK_BUCKET.name());
+        magicMilk.put("name", "§rStealth Milk");
+
+        JSONArray magicMilkLore = new JSONArray();
+        magicMilkLore.put("§r$fPrevents you from triggering");
+        magicMilkLore.put("§r§fenemy traps for 30 seconds.");
+        magicMilk.put("lore", magicMilkLore);
+
+        config.put("151", magicMilk);
 
         // Sponge
 
@@ -1264,7 +1274,7 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(148, 2, Material.EMERALD, 7, 23));
         shopItems.put(buildShopEntry(149, 3, Material.GOLD_INGOT, 7, 24));
         shopItems.put(buildShopEntry(150, 48, Material.GOLD_INGOT, 7, 25));
-        shopItems.put(buildShopEntry(151, 1, Material.EMERALD, 7, 28));
+        shopItems.put(buildShopEntry(151, 4, Material.EMERALD, 7, 28));
         shopItems.put(buildShopEntry(152, 3, Material.GOLD_INGOT, 7, 29));
         shopItems.put(buildShopEntry(153, 24, Material.GOLD_INGOT, 7, 30));
         shopItems.put(buildShopEntry(154, 64, Material.IRON_INGOT, 7, 31));
