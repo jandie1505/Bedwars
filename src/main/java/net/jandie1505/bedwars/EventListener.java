@@ -1,6 +1,7 @@
 package net.jandie1505.bedwars;
 
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.game.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.menu.shop.ShopEntry;
 import net.jandie1505.bedwars.game.menu.shop.ShopMenu;
 import net.jandie1505.bedwars.game.menu.shop.UpgradeEntry;
@@ -17,6 +18,7 @@ import org.bukkit.block.Chest;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.EnderChest;
 import org.bukkit.block.data.type.Bed;
+import org.bukkit.entity.Egg;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,11 +29,9 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -920,6 +920,65 @@ public class EventListener implements Listener {
         }
 
         event.setCancelled(true);
+
+    }
+
+    @EventHandler
+    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+
+        if (event.getEntity() instanceof Egg) {
+
+            if (!(this.plugin.getGame() instanceof Game)) {
+                return;
+            }
+
+            int itemId = this.plugin.getItemStorage().getItemId(((Egg) event.getEntity()).getItem());
+
+            if (itemId < 0) {
+                return;
+            }
+
+            if (((Game) this.plugin.getGame()).getItemShop().getBridgeEgg() == null || itemId != ((Game) this.plugin.getGame()).getItemShop().getBridgeEgg()) {
+                return;
+            }
+
+            if (event.getEntity().getShooter() == null) {
+                return;
+            }
+
+            if (!(event.getEntity().getShooter() instanceof Player)) {
+                return;
+            }
+
+            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(((Player) event.getEntity().getShooter()).getUniqueId());
+
+            if (playerData == null) {
+                return;
+            }
+
+            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
+
+            if (team == null) {
+                return;
+            }
+
+            Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getChatColor()) + "_WOOL");
+
+            if (material == null) {
+                return;
+            }
+
+            Vector vector = event.getEntity().getVelocity();
+
+            vector.setX(vector.getX() / 2.0);
+            vector.setY(vector.getY() / 2.0);
+            vector.setZ(vector.getZ() / 2.0);
+
+            event.getEntity().setVelocity(vector);
+
+            ((Game) this.plugin.getGame()).addBridgeEgg(new BridgeEgg((Game) this.plugin.getGame(), (Egg) event.getEntity(), material));
+
+        }
 
     }
 

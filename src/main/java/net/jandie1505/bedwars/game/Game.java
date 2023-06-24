@@ -3,6 +3,7 @@ package net.jandie1505.bedwars.game;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
+import net.jandie1505.bedwars.game.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
@@ -48,6 +49,7 @@ public class Game implements GamePart {
     private final int villagerBlockPlaceProtection;
     private final Location centerLocation;
     private final int mapRadius;
+    private final List<BridgeEgg> bridgeEggs;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
@@ -74,6 +76,7 @@ public class Game implements GamePart {
         this.villagerBlockPlaceProtection = villagerBlockPlaceProtection;
         this.centerLocation = this.buildLocationWithWorld(centerLocation);
         this.mapRadius = mapRadius;
+        this.bridgeEggs = Collections.synchronizedList(new ArrayList<>());
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
@@ -180,6 +183,10 @@ public class Game implements GamePart {
         // TEAM VILLAGER MANAGEMENT
 
         this.villagers();
+
+        // BRIDGE EGGS
+
+        this.bridgeEggs();
 
         // GAME END CONDITIONS
 
@@ -488,6 +495,26 @@ public class Game implements GamePart {
             if (!upgradesVillagerExists && !team.getUpgradesVillagerLocations().isEmpty()) {
                 this.spawnUpgradesVillager(team, team.getUpgradesVillagerLocations().get(0));
             }
+
+        }
+
+    }
+
+    private void bridgeEggs() {
+
+        for (BridgeEgg bridgeEgg : this.getBridgeEggs()) {
+
+            if (bridgeEgg == null) {
+                this.bridgeEggs.remove(null);
+                continue;
+            }
+
+            if (bridgeEgg.canBeRemoved()) {
+                this.bridgeEggs.remove(bridgeEgg);
+                continue;
+            }
+
+            bridgeEgg.tick();
 
         }
 
@@ -1267,6 +1294,16 @@ public class Game implements GamePart {
         return List.copyOf(this.teams);
     }
 
+    public BedwarsTeam getTeam(int id) {
+
+        if (id < this.teams.size()) {
+            return this.teams.get(id);
+        } else {
+            return null;
+        }
+
+    }
+
     public List<Generator> getGenerators() {
         return List.copyOf(this.generators);
     }
@@ -1366,5 +1403,17 @@ public class Game implements GamePart {
 
     public int getMapRadius() {
         return this.mapRadius;
+    }
+
+    public List<BridgeEgg> getBridgeEggs() {
+        return List.copyOf(this.bridgeEggs);
+    }
+
+    public void addBridgeEgg(BridgeEgg bridgeEgg) {
+        this.bridgeEggs.add(bridgeEgg);
+    }
+
+    public void removeBridgeEgg(BridgeEgg bridgeEgg) {
+        this.bridgeEggs.remove(bridgeEgg);
     }
 }

@@ -1198,7 +1198,7 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(147, 8, Material.GOLD_INGOT, 7, 22));
         shopItems.put(buildShopEntry(148, 2, Material.EMERALD, 7, 23));
         shopItems.put(buildShopEntry(149, 3, Material.GOLD_INGOT, 7, 24));
-        shopItems.put(buildShopEntry(150, 24, Material.GOLD_INGOT, 7, 25));
+        shopItems.put(buildShopEntry(150, 48, Material.GOLD_INGOT, 7, 25));
         shopItems.put(buildShopEntry(151, 1, Material.EMERALD, 7, 28));
         shopItems.put(buildShopEntry(152, 3, Material.GOLD_INGOT, 7, 29));
         shopItems.put(buildShopEntry(153, 24, Material.GOLD_INGOT, 7, 30));
@@ -1313,6 +1313,7 @@ public final class DefaultConfigValues {
         specialItemsConfig.put("defaultWeapon", 109);
         specialItemsConfig.put("fireball", 145);
         specialItemsConfig.put("enhancedFireball", 146);
+        specialItemsConfig.put("bridgeEgg", 150);
         specialItemsConfig.put("safetyPlatform", 153);
 
         itemShopConfig.put("specialItems", specialItemsConfig);
