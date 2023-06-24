@@ -13,6 +13,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
+import org.bukkit.block.DoubleChest;
+import org.bukkit.block.EnderChest;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
@@ -24,16 +27,12 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -461,6 +460,16 @@ public class EventListener implements Listener {
             return;
         }
 
+        if (event.getInventory().getType() == InventoryType.WORKBENCH) {
+
+            if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+                return;
+            }
+
+            event.setCancelled(true);
+            return;
+        }
+
         if (event.getInventory().getHolder() == event.getWhoClicked()) {
 
             if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
@@ -477,6 +486,13 @@ public class EventListener implements Listener {
             if (event.isShiftClick() && event.getCurrentItem() != null && this.plugin.getItemStorage().isArmorItem(event.getCurrentItem())) {
                 event.setCancelled(true);
                 event.getWhoClicked().sendMessage("§cYou can upgrade your armor in item shop");
+                return;
+            }
+
+            // Block crafting
+
+            if (event.getSlotType() == InventoryType.SlotType.CRAFTING) {
+                event.setCancelled(true);
                 return;
             }
 
@@ -695,11 +711,6 @@ public class EventListener implements Listener {
             return;
         }
 
-        if (event.getSlotType() == InventoryType.SlotType.CRAFTING || event.getSlotType() == InventoryType.SlotType.FUEL || event.getSlotType() == InventoryType.SlotType.RESULT) {
-            event.setCancelled(true);
-            return;
-        }
-
         if (this.plugin.getGame() instanceof Game) {
 
             if (((Game) this.plugin.getGame()).getItemShop().getDefaultWeapon() != null && this.plugin.getItemStorage().getItemId(event.getCurrentItem()) == ((Game) this.plugin.getGame()).getItemShop().getDefaultWeapon()) {
@@ -760,6 +771,16 @@ public class EventListener implements Listener {
             return;
         }
 
+        if (event.getInventory().getType() == InventoryType.WORKBENCH) {
+
+            if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+                return;
+            }
+
+            event.setCancelled(true);
+            return;
+        }
+
         if (event.getInventory().getHolder() == event.getWhoClicked()) {
 
             if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
@@ -770,6 +791,11 @@ public class EventListener implements Listener {
             if (event.getInventorySlots().contains(36) || event.getInventorySlots().contains(37) || event.getInventorySlots().contains(38) || event.getInventorySlots().contains(39)) {
                 event.setCancelled(true);
                 event.getWhoClicked().sendMessage("§cYou can upgrade your armor in item shop");
+                return;
+            }
+
+            if (event.getRawSlots().contains(0) || event.getRawSlots().contains(1) || event.getRawSlots().contains(2) || event.getRawSlots().contains(3) || event.getRawSlots().contains(4)) {
+                event.setCancelled(true);
                 return;
             }
 
@@ -884,6 +910,17 @@ public class EventListener implements Listener {
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent event) {
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onCraftItem(CraftItemEvent event) {
+
+        if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+            return;
+        }
+
+        event.setCancelled(true);
+
     }
 
 }
