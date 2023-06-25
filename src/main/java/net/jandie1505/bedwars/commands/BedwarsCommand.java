@@ -89,6 +89,12 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             case "forcemap":
                 this.forcemapSubcommand(sender, args);
                 break;
+            case "getlobbyvalue":
+                this.getLobbyValueSubcommand(sender, args);
+                break;
+            case "setlobbyvalue":
+                this.setLobbyValueSubcommand(sender, args);
+                break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
                 break;
@@ -1201,6 +1207,159 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
         ((Lobby) this.plugin.getGame()).selectMap(mapData);
         sender.sendMessage("§aMap successfully selected");
+
+    }
+
+    public void votemapCommand(CommandSender sender, String[] args) {
+
+        if (!(this.plugin.getGame() instanceof Lobby)) {
+            sender.sendMessage("§cNo lobby running");
+            return;
+        }
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("§cThe command needs to be executed by a player");
+            return;
+        }
+
+        LobbyPlayerData playerData = ((Lobby) this.plugin.getGame()).getPlayers().get(((Player) sender).getUniqueId());
+
+        if (playerData == null) {
+            sender.sendMessage("§cYou are not in the lobby");
+            return;
+        }
+
+        if (!((Lobby) this.plugin.getGame()).isMapVoting() || ((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
+            sender.sendMessage("§cMap voting is already over");
+            return;
+        }
+
+        if (args.length < 2) {
+            playerData.setVote(null);
+            sender.sendMessage("§aYou successfully removed your vote");
+            return;
+        }
+
+        String mapName = args[1];
+
+        for (int i = 2; i < args.length; i++) {
+
+            mapName = mapName + " " + args[i];
+
+        }
+
+        MapData mapData = null;
+
+        for (MapData map : ((Lobby) this.plugin.getGame()).getMaps()) {
+
+            if (map.getName().equals(mapName)) {
+                mapData = map;
+                break;
+            }
+
+        }
+
+        if (mapData == null) {
+            sender.sendMessage("§cMap does not exist");
+            return;
+        }
+
+        playerData.setVote(mapData);
+        sender.sendMessage("§aYou voted for " + mapData.getName());
+
+    }
+
+    public void getLobbyValueSubcommand(CommandSender sender, String[] args) {
+
+        if (!this.hasAdminPermission(sender)) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (!(this.plugin.getGame() instanceof Lobby)) {
+            sender.sendMessage("§cNo game running");
+            return;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage("§cUsage: /bedwars getlobbyvalue time/map/voting/requiredplayers/paused");
+            return;
+        }
+
+        switch (args[2]) {
+            case "time":
+                sender.sendMessage("§7Time: " + ((Lobby) this.plugin.getGame()).getTime());
+                break;
+            case "map":
+                if (((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
+                    sender.sendMessage("§7Selected Map:" + ((Lobby) this.plugin.getGame()).getSelectedMap().getName() + " (" + ((Lobby) this.plugin.getGame()).getSelectedMap().getWorld() + ")");
+                } else {
+                    sender.sendMessage("§7Selected Map: ---");
+                }
+                break;
+            case "voting":
+                sender.sendMessage("§7Map Voting: " + ((Lobby) this.plugin.getGame()).isMapVoting());
+                break;
+            case "requiredplayers":
+                sender.sendMessage("§7Required Players: " + ((Lobby) this.plugin.getGame()).getRequiredPlayers());
+                break;
+            case "paused":
+                sender.sendMessage("§7Timer Paused: " + ((Lobby) this.plugin.getGame()).isTimerPaused());
+                break;
+            default:
+                sender.sendMessage("§cUnknown value");
+                break;
+        }
+
+    }
+
+    public void setLobbyValueSubcommand(CommandSender sender, String[] args) {
+
+        if (!this.hasAdminPermission(sender)) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (!(this.plugin.getGame() instanceof Lobby)) {
+            sender.sendMessage("§cNo game running");
+            return;
+        }
+
+        if (args.length < 3) {
+            sender.sendMessage("§cUsage: /bedwars setlobbyvalue time/voting/requiredplayers/paused");
+            return;
+        }
+
+        try {
+
+            switch (args[2]) {
+                case "time":
+                    ((Lobby) this.plugin.getGame()).setTime(Integer.parseInt(args[3]));
+                    sender.sendMessage("§aTime set");
+                    break;
+                case "map":
+                    sender.sendMessage("§7Use /bedwars forcemap <mapName> instead");
+                    break;
+                case "voting":
+                    ((Lobby) this.plugin.getGame()).setMapVoting(Boolean.parseBoolean(args[3]));
+                    sender.sendMessage("§aMap voting set");
+                    break;
+                case "requiredplayers":
+                    ((Lobby) this.plugin.getGame()).setRequiredPlayers(Integer.parseInt(args[3]));
+                    sender.sendMessage("§aRequired Players set");
+                    break;
+                case "paused":
+                    ((Lobby) this.plugin.getGame()).setTimerPaused(Boolean.parseBoolean(args[3]));
+                    sender.sendMessage("§7Timer paused set");
+                    break;
+                default:
+                    sender.sendMessage("§cUnknown value");
+                    break;
+            }
+
+        } catch (IllegalArgumentException e) {
+            sender.sendMessage("§cInvalid argument");
+        }
 
     }
 

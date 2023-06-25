@@ -22,22 +22,28 @@ import java.util.*;
 
 public class Lobby implements GamePart {
     private final Bedwars plugin;
+    private final List<MapData> maps;
+    private final Map<UUID, LobbyPlayerData> players;
     private int timeStep;
     private int time;
-    private Map<UUID, LobbyPlayerData> players;
     private boolean forcestart;
-    private List<MapData> maps;
     private MapData selectedMap;
     private boolean mapVoting;
+    private int requiredPlayers;
+    private boolean timerPaused;
 
     public Lobby(Bedwars plugin) {
         this.plugin = plugin;
+        this.maps = new ArrayList<>();
+        this.players = Collections.synchronizedMap(new HashMap<>());
         this.timeStep = 0;
         this.time = 60;
-        this.players = Collections.synchronizedMap(new HashMap<>());
         this.forcestart = false;
-        this.maps = new ArrayList<>();
         this.selectedMap = null;
+
+        this.mapVoting = this.plugin.getConfigManager().getConfig().optBoolean("mapVoting", false);
+        this.requiredPlayers = this.plugin.getConfigManager().getConfig().optInt("requiredPlayers", 2);
+        this.timerPaused = false;
 
         JSONArray mapArray = this.plugin.getMapConfig().getConfig().optJSONArray("maps");
 
@@ -500,7 +506,11 @@ public class Lobby implements GamePart {
                 continue;
             }
 
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§aStarting in " + this.time + " seconds"));
+            if (this.players.size() >= this.requiredPlayers) {
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§aStarting in " + this.time + " seconds"));
+            } else {
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§cNot enough players (" + this.players.size() + "/" + this.requiredPlayers + ")"));
+            }
 
         }
 
@@ -514,11 +524,24 @@ public class Lobby implements GamePart {
 
         }
 
+        // Select Map if timer is 10 or lower
+
+        if (this.selectedMap == null && this.time <= 10) {
+            this.autoSelectMap();
+            this.displayMap();
+        }
+
         // TIME
 
         if (this.timeStep >= 20) {
             if (this.time > 0) {
-                this.time--;
+
+                if (this.players.size() >= this.requiredPlayers) {
+                    this.time--;
+                } else if (this.time < 90) {
+                    this.time++;
+                }
+
             } else {
                 return GameStatus.NEXT_STATUS;
             }
@@ -833,5 +856,37 @@ public class Lobby implements GamePart {
 
     public void selectMap(MapData selectedMap) {
         this.selectedMap = selectedMap;
+    }
+
+    public boolean isMapVoting() {
+        return this.mapVoting;
+    }
+
+    public void setMapVoting(boolean mapVoting) {
+        this.mapVoting = mapVoting;
+    }
+
+    public int getRequiredPlayers() {
+        return this.requiredPlayers;
+    }
+
+    public void setRequiredPlayers(int requiredPlayers) {
+        this.requiredPlayers = requiredPlayers;
+    }
+
+    public boolean isTimerPaused() {
+        return timerPaused;
+    }
+
+    public void setTimerPaused(boolean timerPaused) {
+        this.timerPaused = timerPaused;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
     }
 }

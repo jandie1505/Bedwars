@@ -16,6 +16,8 @@ public final class DefaultConfigValues {
         JSONObject config = new JSONObject();
 
         config.put("testingMode", false);
+        config.put("mapVoting", true);
+        config.put("requiredPlayers", 2);
 
         return config;
     }
