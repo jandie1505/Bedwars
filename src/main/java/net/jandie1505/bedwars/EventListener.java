@@ -16,6 +16,7 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Egg;
@@ -1228,6 +1229,16 @@ public class EventListener implements Listener {
 
             event.setCancelled(true);
 
+        }
+
+    }
+
+    @EventHandler
+    public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent event) {
+        Advancement advancement = event.getAdvancement();
+
+        for (String criteria : advancement.getCriteria()) {
+            event.getPlayer().getAdvancementProgress(advancement).revokeCriteria(criteria);
         }
 
     }
