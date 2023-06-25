@@ -26,6 +26,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
@@ -1158,6 +1159,24 @@ public class EventListener implements Listener {
             playerData.setTrapCooldown(30*20);
             event.getPlayer().sendMessage("§bMilk activated");
 
+            return;
+        }
+
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent event) {
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            return;
+        }
+
+        if (event.getEntity().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
+            return;
+        }
+
+        if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+            event.setDamage(100);
             return;
         }
 
