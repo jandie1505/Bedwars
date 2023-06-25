@@ -3,6 +3,8 @@ package net.jandie1505.bedwars.game.player;
 import org.bukkit.Bukkit;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.util.UUID;
+
 public class PlayerData {
     private boolean alive;
     private int respawnCountdown;
@@ -16,6 +18,7 @@ public class PlayerData {
     private int shearsUpgrade;
     private int fireballCooldown;
     private int trapCooldown;
+    private UUID trackingTarget;
 
     public PlayerData(int team) {
         this.alive = false;
@@ -30,6 +33,7 @@ public class PlayerData {
         this.shearsUpgrade = 0;
         this.fireballCooldown = 0;
         this.trapCooldown = 0;
+        this.trackingTarget = null;
     }
 
     public boolean isAlive() {
@@ -130,5 +134,13 @@ public class PlayerData {
 
     public void setTrapCooldown(int trapCooldown) {
         this.trapCooldown = trapCooldown;
+    }
+
+    public UUID getTrackingTarget() {
+        return trackingTarget;
+    }
+
+    public void setTrackingTarget(UUID trackingTarget) {
+        this.trackingTarget = trackingTarget;
     }
 }

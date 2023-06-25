@@ -37,9 +37,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class EventListener implements Listener {
     private final Bedwars plugin;
@@ -318,6 +316,8 @@ public class EventListener implements Listener {
             return;
         }
 
+        // Prevent armor modification
+
         if (!this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
 
             if (this.plugin.getItemStorage().isArmorItem(event.getItem())) {
@@ -331,6 +331,8 @@ public class EventListener implements Listener {
             }
 
         }
+
+        // Get information
 
         if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
             return;
@@ -347,6 +349,8 @@ public class EventListener implements Listener {
         if (playerData == null) {
             return;
         }
+
+        // Fireball
 
         if (((Game) this.plugin.getGame()).getItemShop().getFireballItem() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getFireballItem()) {
             event.setCancelled(true);
@@ -375,6 +379,8 @@ public class EventListener implements Listener {
             return;
         }
 
+        // enhanced fireball
+
         if (((Game) this.plugin.getGame()).getItemShop().getEnhancedFireballItem() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getEnhancedFireballItem()) {
             event.setCancelled(true);
 
@@ -402,6 +408,8 @@ public class EventListener implements Listener {
             return;
         }
 
+        // Safety platform
+
         if (((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform()) {
             event.setCancelled(true);
 
@@ -424,6 +432,45 @@ public class EventListener implements Listener {
             }
 
             this.spawnSafetyPlatform(this.plugin, event.getPlayer(), material);
+
+            return;
+        }
+
+        // Player tracker
+
+        if (((Game) this.plugin.getGame()).getItemShop().getPlayerTracker() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getPlayerTracker()) {
+            event.setCancelled(true);
+
+            List<UUID> randomPlayerList = new ArrayList<>(((Game) this.plugin.getGame()).getPlayers().keySet());
+            Collections.shuffle(randomPlayerList);
+
+            for (UUID trackingPlayerId : randomPlayerList) {
+
+                if (playerData.getTrackingTarget() != null && trackingPlayerId.equals(playerData.getTrackingTarget())) {
+                    continue;
+                }
+
+                Player trackingPlayer = this.plugin.getServer().getPlayer(trackingPlayerId);
+
+                if (trackingPlayer == null) {
+                    continue;
+                }
+
+                PlayerData trackingPlayerData = ((Game) this.plugin.getGame()).getPlayers().get(trackingPlayerId);
+
+                if (trackingPlayerData == null) {
+                    continue;
+                }
+
+                if (trackingPlayerData.getTeam() == playerData.getTeam()) {
+                    continue;
+                }
+
+                playerData.setTrackingTarget(trackingPlayerId);
+                event.getPlayer().sendMessage("§bTracking target changed to " + trackingPlayer.getName());
+                break;
+
+            }
 
             return;
         }

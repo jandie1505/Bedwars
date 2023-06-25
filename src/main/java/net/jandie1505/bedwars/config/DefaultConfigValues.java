@@ -1080,6 +1080,21 @@ public final class DefaultConfigValues {
 
         config.put("154", unprotectedChest);
 
+        // Player tracker
+
+        JSONObject playerTracker = new JSONObject();
+
+        playerTracker.put("type", Material.COMPASS.name());
+        playerTracker.put("name", "§rPlayerTracker");
+
+        JSONArray playerTrackerLore = new JSONArray();
+        playerTrackerLore.put("§r$fPoints to a random player from another team.");
+        playerTrackerLore.put("§r§fMust be activated by right-clicking.");
+        playerTrackerLore.put("§r§fTarget can also be changed via right-clicking.");
+        playerTracker.put("lore", playerTrackerLore);
+
+        config.put("155", playerTracker);
+
         // Sharpness Upgrade
 
         JSONObject sharpnessUpgrade = new JSONObject();
@@ -1390,6 +1405,7 @@ public final class DefaultConfigValues {
         specialItemsConfig.put("enhancedFireball", 146);
         specialItemsConfig.put("bridgeEgg", 150);
         specialItemsConfig.put("safetyPlatform", 153);
+        specialItemsConfig.put("playerTracker", 155);
 
         itemShopConfig.put("specialItems", specialItemsConfig);
 

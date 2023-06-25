@@ -431,6 +431,23 @@ public class Game implements GamePart {
                 playerData.setTrapCooldown(playerData.getTrapCooldown() - 1);
             }
 
+            // Player Tracker
+
+            if (this.timeStep >= 20) {
+                if (playerData.getTrackingTarget() != null) {
+                    Player trackingPlayer = this.plugin.getServer().getPlayer(playerData.getTrackingTarget());
+
+                    if (trackingPlayer != null) {
+                        player.setCompassTarget(trackingPlayer.getCompassTarget());
+                    } else {
+                        playerData.setTrackingTarget(null);
+                    }
+
+                } else {
+                    player.setCompassTarget(player.getLocation());
+                }
+            }
+
         }
 
     }
