@@ -91,9 +91,10 @@ public class Bedwars extends JavaPlugin {
 
                 // Manage player visibility when not ingame
 
-                if (!(this.game instanceof Game)) {
 
-                    for (Player player : List.copyOf(this.getServer().getOnlinePlayers())) {
+                for (Player player : List.copyOf(this.getServer().getOnlinePlayers())) {
+
+                    if (!(this.game instanceof Game)) {
 
                         for (Player otherPlayer : List.copyOf(this.getServer().getOnlinePlayers())) {
 
@@ -101,12 +102,14 @@ public class Bedwars extends JavaPlugin {
                                 player.showPlayer(this, otherPlayer);
                             }
 
-                            if (player.getScoreboard() != this.getServer().getScoreboardManager().getMainScoreboard()) {
-                                player.setScoreboard(this.getServer().getScoreboardManager().getMainScoreboard());
-                            }
-
                         }
 
+                    }
+
+                    if (this.game == null) {
+                        if (player.getScoreboard() != this.getServer().getScoreboardManager().getMainScoreboard()) {
+                            player.setScoreboard(this.getServer().getScoreboardManager().getMainScoreboard());
+                        }
                     }
 
                 }

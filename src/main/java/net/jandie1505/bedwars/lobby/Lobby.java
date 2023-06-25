@@ -15,6 +15,10 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scoreboard.Criteria;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Scoreboard;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -506,11 +510,95 @@ public class Lobby implements GamePart {
                 continue;
             }
 
+            LobbyPlayerData playerData = this.players.get(playerId);
+
+            // Enforce game mode
+
+            if (player.getGameMode() != GameMode.ADVENTURE && !this.plugin.isPlayerBypassing(playerId)) {
+                player.setGameMode(GameMode.ADVENTURE);
+            }
+
+            // Set Health
+
+            if (player.getHealth() < 20) {
+                player.setHealth(20);
+            }
+
+            // Set Food
+
+            if (player.getFoodLevel() < 20) {
+                player.setFoodLevel(20);
+            }
+
+            if (player.getSaturation() < 20) {
+                player.setSaturation(20);
+            }
+
+            // Display action bar
+
             if (this.players.size() >= this.requiredPlayers) {
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§aStarting in " + this.time + " seconds"));
             } else {
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§cNot enough players (" + this.players.size() + "/" + this.requiredPlayers + ")"));
             }
+
+            // Messages
+
+            if ((this.time <= 5 || (this.time % 10 == 0)) && this.players.size() >= this.requiredPlayers && this.timeStep >= 20) {
+                player.sendMessage("§7The game starts in " + this.time + " seconds");
+            }
+
+            // Scoreboard
+
+            String mapName = "---";
+
+            if (this.selectedMap != null) {
+                mapName = this.selectedMap.getName();
+            }
+
+            Scoreboard scoreboard = this.plugin.getServer().getScoreboardManager().getNewScoreboard();
+            Objective objective = scoreboard.registerNewObjective("lobby", Criteria.DUMMY, "");
+
+            objective.setDisplayName("§6§lBEDWARS");
+
+            objective.getScore("§§§§").setScore(7);
+
+            if (this.players.size() >= 2) {
+
+                objective.getScore("§bStarting in " + this.time).setScore(6);
+                objective.getScore("§§§").setScore(5);
+                objective.getScore("§7Players: §a" + this.players.size() + " / 2").setScore(4);
+
+            } else {
+
+                objective.getScore("§cNot enough players").setScore(6);
+                objective.getScore("§§§").setScore(5);
+                objective.getScore("§7Players: §c" + this.players.size() + " / " + this.requiredPlayers).setScore(4);
+
+            }
+
+            objective.getScore("§§").setScore(3);
+            objective.getScore("§7Map: §a" + mapName).setScore(2);
+
+            objective.getScore("§").setScore(0);
+
+            if (this.selectedMap != null) {
+                if (playerData.getTeam() > 0) {
+                    LobbyTeamData team = this.selectedMap.getTeams().get(playerData.getTeam());
+
+                    if (team != null) {
+                        objective.getScore("§7Team: " + team.getChatColor() + team.getName()).setScore(1);
+                    } else {
+                        objective.getScore("§7Team: §c?").setScore(1);
+                    }
+                } else {
+                    objective.getScore("§7Team: §a" + "---").setScore(1);
+                }
+            }
+
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+            player.setScoreboard(scoreboard);
 
         }
 
