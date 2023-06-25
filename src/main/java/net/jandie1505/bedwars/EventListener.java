@@ -2,6 +2,7 @@ package net.jandie1505.bedwars;
 
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.BridgeEgg;
+import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.menu.shop.ShopEntry;
 import net.jandie1505.bedwars.game.menu.shop.ShopMenu;
 import net.jandie1505.bedwars.game.menu.shop.UpgradeEntry;
@@ -15,9 +16,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
-import org.bukkit.block.DoubleChest;
-import org.bukkit.block.EnderChest;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Fireball;
@@ -28,12 +26,13 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -50,19 +49,20 @@ public class EventListener implements Listener {
     }
 
     @EventHandler
-    public void onEntityDeath(EntityDeathEvent event) {
+    public void onPlayerDeath(PlayerDeathEvent event) {
 
-        if (!(event.getEntity() instanceof Player)) {
-            return;
-        }
-
-        if (Boolean.FALSE.equals(((Player) event.getEntity()).getPlayer().getWorld().getGameRuleValue(GameRule.DO_IMMEDIATE_RESPAWN))) {
+        if (Boolean.FALSE.equals(event.getEntity().getPlayer().getWorld().getGameRuleValue(GameRule.DO_IMMEDIATE_RESPAWN))) {
             this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> {
-                ((Player) event.getEntity()).spigot().respawn();
+                event.getEntity().spigot().respawn();
             }, 1);
         }
 
+        // Copy and clear item drops
+
+        List<ItemStack> items = new ArrayList<>(event.getDrops());
         event.getDrops().clear();
+
+        // Ingame checks
 
         if (!(this.plugin.getGame() instanceof Game)) {
             return;
@@ -72,17 +72,52 @@ public class EventListener implements Listener {
             return;
         }
 
-        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getUniqueId());
+        // Increase deaths count
 
+        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getUniqueId());
         playerData.setDeaths(playerData.getDeaths() + 1);
+
+        // Cleanup saved item drops
+
+        for (ItemStack item : List.copyOf(items)) {
+
+            boolean canItemDrop = false;
+            for (Generator generator : ((Game) this.plugin.getGame()).getGenerators()) {
+
+                if (generator.getItem().isSimilar(item)) {
+                    canItemDrop = true;
+                    break;
+                }
+
+            }
+
+            if (!canItemDrop) {
+                items.remove(item);
+            }
+
+        }
+
+        // Give items + increase kill count or drop items
 
         if (event.getEntity().getKiller() != null && ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getKiller().getUniqueId()) != null) {
 
             PlayerData killerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getKiller().getUniqueId());
-
             killerData.setKills(killerData.getKills() + 1);
 
+            for (ItemStack item : items) {
+                event.getEntity().getKiller().getInventory().addItem(item);
+                event.getEntity().getKiller().sendMessage("§7+ " + item.getAmount() + " " + item.getType());
+            }
+
+        } else {
+
+            for (ItemStack item : items) {
+                event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), item);
+            }
+
         }
+
+        // Remove player if team has no bed
 
         BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
 
@@ -91,7 +126,11 @@ public class EventListener implements Listener {
             return;
         }
 
+        // Make player respawn
+
         playerData.setAlive(false);
+
+        // Decrease upgrades
 
         if (playerData.getPickaxeUpgrade() > 1) {
             playerData.setPickaxeUpgrade(playerData.getPickaxeUpgrade() - 1);
