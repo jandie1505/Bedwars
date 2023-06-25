@@ -28,6 +28,8 @@ public class Lobby implements GamePart {
     private final Bedwars plugin;
     private final List<MapData> maps;
     private final Map<UUID, LobbyPlayerData> players;
+    private final int mapVoteButtonItemId;
+    private final int teamSelectionButtonItemId;
     private int timeStep;
     private int time;
     private boolean forcestart;
@@ -40,13 +42,15 @@ public class Lobby implements GamePart {
         this.plugin = plugin;
         this.maps = new ArrayList<>();
         this.players = Collections.synchronizedMap(new HashMap<>());
+        this.mapVoteButtonItemId = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapVoteButton", -1);
+        this.teamSelectionButtonItemId = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("teamSelectionButton", -1);
         this.timeStep = 0;
         this.time = 120;
         this.forcestart = false;
         this.selectedMap = null;
 
-        this.mapVoting = this.plugin.getConfigManager().getConfig().optBoolean("mapVoting", false);
-        this.requiredPlayers = this.plugin.getConfigManager().getConfig().optInt("requiredPlayers", 2);
+        this.mapVoting = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optBoolean("mapVoting", false);
+        this.requiredPlayers = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("requiredPlayers", 2);
         this.timerPaused = false;
 
         JSONArray mapArray = this.plugin.getMapConfig().getConfig().optJSONArray("maps");
@@ -599,6 +603,39 @@ public class Lobby implements GamePart {
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
 
             player.setScoreboard(scoreboard);
+
+            // Items
+
+            if (!this.plugin.isPlayerBypassing(player.getUniqueId())) {
+
+                ItemStack lobbyVoteHotbarItem = this.plugin.getItemStorage().getItem(this.mapVoteButtonItemId);
+                ItemStack lobbyTeamSelectionHotbarItem = this.plugin.getItemStorage().getItem(this.teamSelectionButtonItemId);
+
+                if (lobbyVoteHotbarItem != null && lobbyTeamSelectionHotbarItem != null) {
+
+                    for (ItemStack item : Arrays.copyOf(player.getInventory().getContents(), player.getInventory().getContents().length)) {
+
+                        if (item == null || item.getType() == Material.AIR) {
+                            continue;
+                        }
+
+                        if (!item.isSimilar(lobbyVoteHotbarItem) && !item.isSimilar(lobbyTeamSelectionHotbarItem)) {
+                            player.getInventory().clear();
+                        }
+
+                    }
+
+                    if (!player.getInventory().contains(lobbyVoteHotbarItem)) {
+                        player.getInventory().setItem(3, lobbyVoteHotbarItem);
+                    }
+
+                    if (!player.getInventory().contains(lobbyTeamSelectionHotbarItem)) {
+                        player.getInventory().setItem(5, lobbyTeamSelectionHotbarItem);
+                    }
+
+                }
+
+            }
 
         }
 

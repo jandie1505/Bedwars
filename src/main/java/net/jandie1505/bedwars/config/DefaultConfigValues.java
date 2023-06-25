@@ -15,9 +15,40 @@ public final class DefaultConfigValues {
     public static JSONObject getGeneralConfig() {
         JSONObject config = new JSONObject();
 
+        // General values
+
         config.put("testingMode", false);
-        config.put("mapVoting", true);
-        config.put("requiredPlayers", 2);
+        config.put("backButton", 0);
+
+        // Lobby
+
+
+        JSONObject lobbyConfig = new JSONObject();
+        lobbyConfig.put("mapVoting", true);
+        lobbyConfig.put("requiredPlayers", 2);
+        lobbyConfig.put("mapVoteButton", 1);
+        lobbyConfig.put("teamSelectionButton", 2);
+
+        JSONObject lobbyBorder = new JSONObject();
+        lobbyBorder.put("x1", -9);
+        lobbyBorder.put("y1", -60);
+        lobbyBorder.put("z1", -9);
+        lobbyBorder.put("x2", 9);
+        lobbyBorder.put("y2", 255);
+        lobbyBorder.put("z2", 9);
+        lobbyConfig.put("border", lobbyBorder);
+
+        JSONObject lobbySpawnpoint = new JSONObject();
+        lobbySpawnpoint.put("x", 0.5);
+        lobbySpawnpoint.put("y", 0.0);
+        lobbySpawnpoint.put("z", 0.5);
+        lobbySpawnpoint.put("yaw", -90);
+        lobbySpawnpoint.put("pitch", 0);
+        lobbyConfig.put("spawnpoint", lobbySpawnpoint);
+
+        config.put("lobby", lobbyConfig);
+
+        // Return
 
         return config;
     }
@@ -535,7 +566,7 @@ public final class DefaultConfigValues {
         JSONObject mapVotingButton = new JSONObject();
 
         mapVotingButton.put("type", "EMPTY_MAP");
-        mapVotingButton.put("name", "§b§lMap Voting §r§b(right click)");
+        mapVotingButton.put("name", "§r§b§lMap Voting §r§b(right click)");
 
         config.put("1", mapVotingButton);
 
@@ -544,7 +575,7 @@ public final class DefaultConfigValues {
         JSONObject teamSelectionButton = new JSONObject();
 
         teamSelectionButton.put("type", "PLAYER_HEAD");
-        teamSelectionButton.put("name", "§b§lTeam Selection §r§b(right click)");
+        teamSelectionButton.put("name", "§r§b§lTeam Selection §r§b(right click)");
 
         config.put("2", teamSelectionButton);
 
