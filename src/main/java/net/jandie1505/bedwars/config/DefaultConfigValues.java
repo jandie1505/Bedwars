@@ -1085,7 +1085,7 @@ public final class DefaultConfigValues {
         JSONObject playerTracker = new JSONObject();
 
         playerTracker.put("type", Material.COMPASS.name());
-        playerTracker.put("name", "§rPlayerTracker");
+        playerTracker.put("name", "§rPlayer Tracker");
 
         JSONArray playerTrackerLore = new JSONArray();
         playerTrackerLore.put("§r$fPoints to a random player from another team.");
@@ -1293,6 +1293,7 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(152, 3, Material.GOLD_INGOT, 7, 29));
         shopItems.put(buildShopEntry(153, 24, Material.GOLD_INGOT, 7, 30));
         shopItems.put(buildShopEntry(154, 64, Material.IRON_INGOT, 7, 31));
+        shopItems.put(buildShopEntry(155, 2, Material.EMERALD, 7, 32));
 
         itemShopConfig.put("shopItems", shopItems);
 
