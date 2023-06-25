@@ -41,7 +41,7 @@ public class Lobby implements GamePart {
         this.maps = new ArrayList<>();
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.timeStep = 0;
-        this.time = 60;
+        this.time = 120;
         this.forcestart = false;
         this.selectedMap = null;
 
@@ -614,7 +614,7 @@ public class Lobby implements GamePart {
 
         // Select Map if timer is 10 or lower
 
-        if (this.selectedMap == null && this.time <= 10) {
+        if (this.selectedMap == null && this.time <= 60) {
             this.autoSelectMap();
             this.displayMap();
         }
@@ -626,7 +626,7 @@ public class Lobby implements GamePart {
 
                 if (this.players.size() >= this.requiredPlayers) {
                     this.time--;
-                } else if (this.time < 90) {
+                } else if (this.time < 60) {
                     this.time++;
                 }
 

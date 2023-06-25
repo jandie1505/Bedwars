@@ -11,6 +11,7 @@ import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.team.traps.*;
+import net.jandie1505.bedwars.lobby.Lobby;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,10 +27,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
@@ -1176,17 +1174,60 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
 
-        if (!(this.plugin.getGame() instanceof Game)) {
-            return;
-        }
+        if (this.plugin.getGame() instanceof Game) {
 
-        if (event.getEntity().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
-            return;
-        }
+            if (event.getEntity().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
+                return;
+            }
 
-        if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-            event.setDamage(100);
-            return;
+            if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+                event.setDamage(100);
+                return;
+            }
+
+            if (this.plugin.isPlayerBypassing(event.getEntity().getUniqueId())) {
+                return;
+            }
+
+            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getUniqueId());
+
+            if (playerData == null) {
+                event.setCancelled(true);
+                return;
+            }
+
+            if (event instanceof EntityDamageByEntityEvent) {
+
+                if (!(((EntityDamageByEntityEvent) event).getDamager() instanceof Player)) {
+                    return;
+                }
+
+                if (this.plugin.isPlayerBypassing(((EntityDamageByEntityEvent) event).getDamager().getUniqueId())) {
+                    return;
+                }
+
+                PlayerData damagerData = ((Game) this.plugin.getGame()).getPlayers().get(((EntityDamageByEntityEvent) event).getDamager().getUniqueId());
+
+                if (damagerData == null) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+                if (playerData.getTeam() == damagerData.getTeam()) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+            }
+
+        } else {
+
+            if (!this.plugin.isPlayerBypassing(event.getEntity().getUniqueId())) {
+                return;
+            }
+
+            event.setCancelled(true);
+
         }
 
     }
