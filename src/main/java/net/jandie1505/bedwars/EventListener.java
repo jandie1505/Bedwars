@@ -1124,6 +1124,15 @@ public class EventListener implements Listener {
                 return;
             }
 
+            Vector tpVector = event.getEntity().getVelocity().clone();
+            tpVector.divide(new Vector(tpVector.length(), tpVector.length(), tpVector.length()));
+
+            Location location = event.getEntity().getLocation();
+            location.add(tpVector);
+            location.add(0, -2, 0);
+
+            event.getEntity().teleport(location);
+
             Vector vector = event.getEntity().getVelocity();
 
             vector.setX(vector.getX() / 2.0);
