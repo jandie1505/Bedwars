@@ -347,7 +347,7 @@ public class Game implements GamePart {
 
                     if (this.timeStep >= 20) {
 
-                        player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 20, 0);
+                        player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 25, 0);
                         player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
 
                         playerData.setRespawnCountdown(playerData.getRespawnCountdown() - 1);
