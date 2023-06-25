@@ -147,6 +147,10 @@ public class Game implements GamePart {
 
         this.world.getWorldBorder().setCenter(centerLocation);
         this.world.getWorldBorder().setSize(mapRadius * 2);
+
+        this.world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
+        this.world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        this.world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
     }
 
     @Override
