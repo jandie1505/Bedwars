@@ -101,9 +101,9 @@ public final class DefaultConfigValues {
         JSONArray teamEmeraldGeneratorSpeed = new JSONArray();
         teamEmeraldGeneratorSpeed.put(0);
         teamEmeraldGeneratorSpeed.put(0);
+        teamEmeraldGeneratorSpeed.put(0);
         teamEmeraldGeneratorSpeed.put(45*20);
         teamEmeraldGeneratorSpeed.put(30*20);
-        teamEmeraldGeneratorSpeed.put(15*20);
 
         // Green Team Create
 
