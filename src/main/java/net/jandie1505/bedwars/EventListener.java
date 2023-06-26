@@ -217,7 +217,10 @@ public class EventListener implements Listener {
                     event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
                     event.getPlayer().sendMessage("§bTNT activated");
 
-                    TNTPrimed tnt = (TNTPrimed) event.getBlockPlaced().getLocation().getWorld().spawnEntity(event.getBlockPlaced().getLocation(), EntityType.PRIMED_TNT);
+                    Location location = event.getBlockPlaced().getLocation().clone();
+                    location.add(0.5, 0, 0.5);
+
+                    TNTPrimed tnt = (TNTPrimed) event.getBlockPlaced().getLocation().getWorld().spawnEntity(location, EntityType.PRIMED_TNT);
                     tnt.setSource(event.getPlayer());
                     tnt.setFuseTicks(80);
                 }
