@@ -1194,6 +1194,10 @@ public class EventListener implements Listener {
 
         if (this.plugin.getGame() instanceof Game) {
 
+            if (!(event.getEntity() instanceof Player)) {
+                return;
+            }
+
             if (event.getEntity().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
                 return;
             }
