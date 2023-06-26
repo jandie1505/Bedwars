@@ -1257,4 +1257,65 @@ public class EventListener implements Listener {
 
     }
 
+    @EventHandler
+    public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
+
+        if (this.plugin.getGame() instanceof Game) {
+            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+            if (playerData != null) {
+                BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
+
+                if (team == null) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+                if (event.getMessage().startsWith("@everyone ") || event.getMessage().startsWith("@shout ") || event.getMessage().startsWith("@global ") || event.getMessage().startsWith("@all ")) {
+                    if (event.getMessage().startsWith("@everyone ")) {
+                        event.setMessage(event.getMessage().substring(10));
+                    } else if (event.getMessage().startsWith("@shout ")) {
+                        event.setMessage(event.getMessage().substring(7));
+                    } else if (event.getMessage().startsWith("@global ")) {
+                        event.setMessage(event.getMessage().substring(8));
+                    } else if (event.getMessage().startsWith("@all ")) {
+                        event.setMessage(event.getMessage().substring(5));
+                    }
+
+                    event.setFormat("§7[§6GLOBAL§7] " + team.getChatColor() + "%1$s§7: §7%2$s");
+                } else {
+                    event.setFormat("§7[" + team.getChatColor() + team.getName() + "§7] " + team.getChatColor() + "%1$s§7: §7%2$s");
+
+                    event.getRecipients().clear();
+
+                    for (Player recipientPlayer : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+                        PlayerData recipientPlayerData = ((Game) this.plugin.getGame()).getPlayers().get(recipientPlayer.getUniqueId());
+
+                        if (playerData.getTeam() == recipientPlayerData.getTeam()) {
+                            event.getRecipients().add(recipientPlayer);
+                        }
+
+                    }
+                }
+
+            } else {
+                event.setFormat("§r§7[§7§oSPECTATOR§r§7] §7%1$s§7: §7%2$s");
+
+                event.getRecipients().clear();
+
+                for (Player recipientPlayer : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+                    PlayerData recipientPlayerData = ((Game) this.plugin.getGame()).getPlayers().get(recipientPlayer.getUniqueId());
+
+                    if (recipientPlayerData == null) {
+                        event.getRecipients().add(recipientPlayer);
+                    }
+
+                }
+            }
+
+        } else {
+            event.setFormat("§7%1$s§7: §7%2$s");
+        }
+    }
+
 }
