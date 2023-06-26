@@ -1128,6 +1128,21 @@ public final class DefaultConfigValues {
 
         config.put("155", playerTracker);
 
+        JSONObject replacementBed = new JSONObject();
+
+        replacementBed.put("type", Material.BLACK_BED.name());
+        replacementBed.put("name", "§rReplacement Bed");
+
+        JSONArray replacementBedLore = new JSONArray();
+        replacementBedLore.put("§r$fIn case you lost your own bed or want to");
+        replacementBedLore.put("§r§fgive one th the opponents out of pity.");
+        replacementBedLore.put("§r§fYou need to place it on the original bed");
+        replacementBedLore.put("§r§flocation to activate it.");
+        replacementBedLore.put("§r§fCannot be used after irreplaceable beds gone.");
+        replacementBed.put("lore", replacementBedLore);
+
+        config.put("156", replacementBed);
+
         // Sharpness Upgrade
 
         JSONObject sharpnessUpgrade = new JSONObject();
@@ -1327,6 +1342,7 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(153, 24, Material.GOLD_INGOT, 7, 30));
         shopItems.put(buildShopEntry(154, 64, Material.IRON_INGOT, 7, 31));
         shopItems.put(buildShopEntry(155, 2, Material.EMERALD, 7, 32));
+        shopItems.put(buildShopEntry(156, 200, Material.EMERALD, 7, 34));
 
         itemShopConfig.put("shopItems", shopItems);
 
