@@ -19,9 +19,8 @@ import org.bukkit.Sound;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
-import org.bukkit.entity.Egg;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Player;
+import org.bukkit.block.data.type.TNT;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -209,6 +208,21 @@ public class EventListener implements Listener {
 
                 }
 
+            }
+
+            if (event.getBlockPlaced().getType() == Material.TNT) {
+                event.setCancelled(true);
+
+                if (event.getItemInHand().getType() == Material.TNT && event.getItemInHand().getAmount() > 0) {
+                    event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+                    event.getPlayer().sendMessage("§bTNT activated");
+
+                    TNTPrimed tnt = (TNTPrimed) event.getBlockPlaced().getLocation().getWorld().spawnEntity(event.getBlockPlaced().getLocation(), EntityType.PRIMED_TNT);
+                    tnt.setSource(event.getPlayer());
+                    tnt.setFuseTicks(80);
+                }
+
+                return;
             }
 
             ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().add(event.getBlockPlaced().getLocation());

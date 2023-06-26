@@ -23,7 +23,6 @@ public class ItemShop {
     private Integer enhancedFireballItem;
     private Integer safetyPlatform;
     private Integer bridgeEgg;
-    private Integer tnt;
     private Integer playerTracker;
 
     public ItemShop(Game game) {
@@ -38,7 +37,6 @@ public class ItemShop {
         this.enhancedFireballItem = null;
         this.safetyPlatform = null;
         this.bridgeEgg = null;
-        this.tnt = null;
         this.playerTracker = null;
     }
 
@@ -169,10 +167,6 @@ public class ItemShop {
         return bridgeEgg;
     }
 
-    public Integer getTnt() {
-        return tnt;
-    }
-
     public Integer getPlayerTracker() {
         return playerTracker;
     }
@@ -253,7 +247,6 @@ public class ItemShop {
             this.enhancedFireballItem = specialItems.optInt("enhancedFireball", -1);
             this.safetyPlatform = specialItems.optInt("safetyPlatform", -1);
             this.bridgeEgg = specialItems.optInt("bridgeEgg", -1);
-            this.tnt = specialItems.optInt("tnt", -1);
             this.playerTracker = specialItems.optInt("playerTracker", -1);
 
         }
