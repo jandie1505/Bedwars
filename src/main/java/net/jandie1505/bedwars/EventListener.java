@@ -68,6 +68,10 @@ public class EventListener implements Listener {
             return;
         }
 
+        // Death Message
+
+        event.setDeathMessage(this.getDeathMessage(event));
+
         // Increase deaths count
 
         PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getUniqueId());
@@ -136,6 +140,148 @@ public class EventListener implements Listener {
             playerData.setShearsUpgrade(playerData.getShearsUpgrade() - 1);
         }
 
+    }
+
+    private String getDeathMessage(PlayerDeathEvent event) {
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            return "";
+        }
+
+        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getUniqueId());
+
+        if (playerData == null) {
+            return "";
+        }
+
+        BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
+
+        if (team == null) {
+            return "";
+        }
+
+        String deathMessage = team.getChatColor() + event.getEntity().getDisplayName() + "§7 ";
+
+        if (event.getEntity().getLastDamageCause() == null) {
+            return deathMessage + "died";
+        }
+
+        if (event.getEntity().getKiller() != null) {
+
+            if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent) {
+
+                if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof Player) {
+                    deathMessage = deathMessage + "lost in close combat against";
+                } else if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof Projectile) {
+
+                    if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof Arrow || ((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof SpectralArrow) {
+                        deathMessage = deathMessage + "was defeated in bow fight by";
+                    } else if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof Fireball) {
+                        deathMessage = deathMessage + "was blown into a thousand pieces by a fireball, thrown by";
+                    } else if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof ThrownPotion) {
+                        deathMessage = deathMessage + "was killed by magic by";
+                    } else if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof Trident) {
+                        deathMessage = deathMessage + "was impaled on a trident by";
+                    } else if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof Snowball) {
+                        deathMessage = deathMessage + "lost the snowball fight against";
+                    } else {
+                        deathMessage = deathMessage + "was killed by";
+                    }
+
+                } else if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof TNTPrimed) {
+                    deathMessage = deathMessage + "was blown away by";
+                } else {
+                    deathMessage = deathMessage + "died in combat with";
+                }
+
+            } else {
+
+                switch (event.getEntity().getLastDamageCause().getCause()) {
+                    case DROWNING:
+                        deathMessage = deathMessage + "would have been better not to hide in the water from";
+                        break;
+                    case FALL:
+                        deathMessage = deathMessage + "was knocked off a hill by";
+                        break;
+                    case FREEZE:
+                        deathMessage = deathMessage + "wanted a cool down in fight with";
+                        break;
+                    case LAVA:
+                        deathMessage = deathMessage + "took a hot bath, gifted by";
+                        break;
+                    case VOID:
+                        deathMessage = deathMessage + "was knocked into the void by";
+                        break;
+                    case SUFFOCATION:
+                        deathMessage = deathMessage + "was strangled by";
+                        break;
+                    case FIRE_TICK:
+                        deathMessage = deathMessage + "burned to death while in combat with";
+                        break;
+                    case FIRE:
+                        deathMessage = deathMessage + "was burned to death by";
+                        break;
+                    case ENTITY_EXPLOSION:
+                        deathMessage = deathMessage + "exploded in combat with";
+                        break;
+                    default:
+                        deathMessage = deathMessage + "died in combat with";
+                        break;
+                }
+
+            }
+
+            PlayerData killerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getKiller().getUniqueId());
+
+            if (killerData == null) {
+                return deathMessage;
+            }
+
+            BedwarsTeam killerTeam = ((Game) this.plugin.getGame()).getTeam(killerData.getTeam());
+
+            if (killerTeam == null) {
+                return deathMessage;
+            }
+
+            deathMessage = deathMessage + " " + killerTeam.getChatColor() + event.getEntity().getKiller().getDisplayName();
+
+            return deathMessage;
+        } else {
+
+            switch (event.getEntity().getLastDamageCause().getCause()) {
+                case DROWNING:
+                    deathMessage = deathMessage + "could not surface in time before running out of air";
+                case ENTITY_EXPLOSION:
+                    deathMessage = deathMessage + "became a suicide bomber";
+                    break;
+                case FIRE_TICK:
+                    deathMessage = deathMessage + "has not found any water to extinguish";
+                    break;
+                case SUFFOCATION:
+                    deathMessage = deathMessage + "had to make the experience that you need air to breathe";
+                    break;
+                case MAGIC:
+                    deathMessage = deathMessage + "has felt the painful side of magic";
+                    break;
+                case LAVA:
+                    deathMessage = deathMessage + "wanted to take a hot bath";
+                    break;
+                case FIRE:
+                    deathMessage = deathMessage + "has learned that fire is hot";
+                    break;
+                case FALL:
+                    deathMessage = deathMessage + "should have looked down better before jumping";
+                    break;
+                case VOID:
+                    deathMessage = deathMessage + "has found a hole";
+                    break;
+                default:
+                    deathMessage = deathMessage + "died";
+                    break;
+            }
+
+            return deathMessage;
+        }
     }
 
     @EventHandler
