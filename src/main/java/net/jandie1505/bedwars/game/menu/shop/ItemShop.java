@@ -24,6 +24,7 @@ public class ItemShop {
     private Integer safetyPlatform;
     private Integer bridgeEgg;
     private Integer playerTracker;
+    private Integer ironGolemSpawnEgg;
 
     public ItemShop(Game game) {
         this.game = game;
@@ -38,6 +39,7 @@ public class ItemShop {
         this.safetyPlatform = null;
         this.bridgeEgg = null;
         this.playerTracker = null;
+        this.ironGolemSpawnEgg = null;
     }
 
     public Integer[] getMenuItems() {
@@ -171,6 +173,10 @@ public class ItemShop {
         return playerTracker;
     }
 
+    public Integer getIronGolemSpawnEgg() {
+        return ironGolemSpawnEgg;
+    }
+
     public void initEntries(JSONObject shopConfig) {
         JSONArray menuItems = shopConfig.optJSONArray("menuItems");
 
@@ -248,6 +254,7 @@ public class ItemShop {
             this.safetyPlatform = specialItems.optInt("safetyPlatform", -1);
             this.bridgeEgg = specialItems.optInt("bridgeEgg", -1);
             this.playerTracker = specialItems.optInt("playerTracker", -1);
+            this.ironGolemSpawnEgg = specialItems.optInt("ironGolemSpawnEgg", -1);
 
         }
 

@@ -3,6 +3,7 @@ package net.jandie1505.bedwars.config;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.potion.PotionEffectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -1038,6 +1039,18 @@ public final class DefaultConfigValues {
 
         // Iron Golem Spawn Egg
 
+        JSONObject ironGolemSpawnEgg = new JSONObject();
+
+        ironGolemSpawnEgg.put("type", Material.IRON_BLOCK.name());
+        ironGolemSpawnEgg.put("name", "§rBASE DEFENDER");
+
+        JSONArray ironGolemSpawnEggLore = new JSONArray();
+        ironGolemSpawnEggLore.put("§r§fIt will protect your base with its life.");
+        ironGolemSpawnEggLore.put("§r§fPlace the block where you want to spawn it.");
+        ironGolemSpawnEgg.put("lore", ironGolemSpawnEggLore);
+
+        config.put("144", ironGolemSpawnEgg);
+
         // Fireball
 
         JSONObject fireball = new JSONObject();
@@ -1331,18 +1344,19 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(141, 2, Material.EMERALD, 6, 21));
 
         shopItems.put(buildShopEntry(142, 3, Material.GOLD_INGOT, 7, 19));
-        shopItems.put(buildShopEntry(145, 30, Material.IRON_INGOT, 7, 20));
-        shopItems.put(buildShopEntry(146, 1, Material.EMERALD, 7, 21));
-        shopItems.put(buildShopEntry(147, 8, Material.GOLD_INGOT, 7, 22));
-        shopItems.put(buildShopEntry(148, 2, Material.EMERALD, 7, 23));
-        shopItems.put(buildShopEntry(149, 3, Material.GOLD_INGOT, 7, 24));
-        shopItems.put(buildShopEntry(150, 48, Material.GOLD_INGOT, 7, 25));
-        shopItems.put(buildShopEntry(151, 4, Material.EMERALD, 7, 28));
-        shopItems.put(buildShopEntry(152, 3, Material.GOLD_INGOT, 7, 29));
-        shopItems.put(buildShopEntry(153, 24, Material.GOLD_INGOT, 7, 30));
-        shopItems.put(buildShopEntry(154, 64, Material.IRON_INGOT, 7, 31));
-        shopItems.put(buildShopEntry(155, 2, Material.EMERALD, 7, 32));
-        shopItems.put(buildShopEntry(156, 200, Material.EMERALD, 7, 34));
+        shopItems.put(buildShopEntry(144, 256, Material.IRON_INGOT, 7, 21));
+        shopItems.put(buildShopEntry(145, 30, Material.IRON_INGOT, 7, 22));
+        shopItems.put(buildShopEntry(146, 1, Material.EMERALD, 7, 23));
+        shopItems.put(buildShopEntry(147, 8, Material.GOLD_INGOT, 7, 24));
+        shopItems.put(buildShopEntry(148, 2, Material.EMERALD, 7, 25));
+        shopItems.put(buildShopEntry(149, 3, Material.GOLD_INGOT, 7, 28));
+        shopItems.put(buildShopEntry(150, 48, Material.GOLD_INGOT, 7, 29));
+        shopItems.put(buildShopEntry(151, 4, Material.EMERALD, 7, 30));
+        shopItems.put(buildShopEntry(152, 3, Material.GOLD_INGOT, 7, 31));
+        shopItems.put(buildShopEntry(153, 24, Material.GOLD_INGOT, 7, 32));
+        shopItems.put(buildShopEntry(154, 64, Material.IRON_INGOT, 7, 33));
+        shopItems.put(buildShopEntry(155, 2, Material.EMERALD, 7, 34));
+        shopItems.put(buildShopEntry(156, 200, Material.EMERALD, 7, 37));
 
         itemShopConfig.put("shopItems", shopItems);
 
@@ -1451,6 +1465,7 @@ public final class DefaultConfigValues {
         JSONObject specialItemsConfig = new JSONObject();
 
         specialItemsConfig.put("defaultWeapon", 109);
+        specialItemsConfig.put("ironGolemSpawnEgg", 144);
         specialItemsConfig.put("fireball", 145);
         specialItemsConfig.put("enhancedFireball", 146);
         specialItemsConfig.put("bridgeEgg", 150);

@@ -3,6 +3,7 @@ package net.jandie1505.bedwars.game;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.GameStatus;
+import net.jandie1505.bedwars.game.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
@@ -19,10 +20,7 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Villager;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -52,6 +50,7 @@ public class Game implements GamePart {
     private final Location centerLocation;
     private final int mapRadius;
     private final List<BridgeEgg> bridgeEggs;
+    private final List<BaseDefender> baseDefenders;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
@@ -79,6 +78,7 @@ public class Game implements GamePart {
         this.centerLocation = this.buildLocationWithWorld(centerLocation);
         this.mapRadius = mapRadius;
         this.bridgeEggs = Collections.synchronizedList(new ArrayList<>());
+        this.baseDefenders = Collections.synchronizedList(new ArrayList<>());
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
@@ -197,6 +197,12 @@ public class Game implements GamePart {
         // TRAPS
 
         this.traps();
+
+        // BASE DEFENDERS
+
+        if (this.timeStep >= 20) {
+            this.ironGolems();
+        }
 
         // GAME END CONDITIONS
 
@@ -607,6 +613,26 @@ public class Game implements GamePart {
                 }
 
             }
+
+        }
+
+    }
+
+    private void ironGolems() {
+
+        for (BaseDefender baseDefender : this.getBaseDefenders()) {
+
+            if (baseDefender == null) {
+                this.baseDefenders.remove(null);
+                continue;
+            }
+
+            if (baseDefender.canBeRemoved()) {
+                this.baseDefenders.remove(baseDefender);
+                continue;
+            }
+
+            baseDefender.tick();
 
         }
 
@@ -1521,5 +1547,17 @@ public class Game implements GamePart {
 
     public void removeBridgeEgg(BridgeEgg bridgeEgg) {
         this.bridgeEggs.remove(bridgeEgg);
+    }
+
+    public List<BaseDefender> getBaseDefenders() {
+        return List.copyOf(this.baseDefenders);
+    }
+
+    public void addBaseDefender(BaseDefender baseDefender) {
+        this.baseDefenders.add(baseDefender);
+    }
+
+    public void removeBaseDefender(BaseDefender baseDefender) {
+        this.baseDefenders.remove(baseDefender);
     }
 }

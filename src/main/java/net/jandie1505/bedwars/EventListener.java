@@ -1,6 +1,7 @@
 package net.jandie1505.bedwars;
 
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.game.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.menu.shop.ShopEntry;
@@ -168,6 +169,8 @@ public class EventListener implements Listener {
                 return;
             }
 
+            // BLOCK PLACE PROTECTION
+
             if (((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection() > 0 || ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection() > 0) {
 
                 for (BedwarsTeam team : ((Game) this.plugin.getGame()).getTeams()) {
@@ -208,6 +211,8 @@ public class EventListener implements Listener {
 
             }
 
+            // TNT
+
             if (event.getBlockPlaced().getType() == Material.TNT) {
                 event.setCancelled(true);
 
@@ -224,6 +229,51 @@ public class EventListener implements Listener {
                 }
 
                 return;
+            }
+
+            // IRON GOLEM
+
+            if (((Game) this.plugin.getGame()).getItemShop().getIronGolemSpawnEgg() != null) {
+
+                ItemStack golemItem = this.plugin.getItemStorage().getItem(((Game) this.plugin.getGame()).getItemShop().getIronGolemSpawnEgg());
+
+                if (golemItem != null) {
+
+                    if (event.getBlockPlaced().getType() == golemItem.getType() && event.getItemInHand().isSimilar(golemItem)) {
+                        event.setCancelled(true);
+
+                        if (event.getItemInHand().getAmount() > 0) {
+                            event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+
+                            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+                            if (playerData == null) {
+                                return;
+                            }
+
+                            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
+
+                            if (team == null) {
+                                return;
+                            }
+
+                            if (event.getBlockPlaced().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
+                                return;
+                            }
+
+                            Location location = event.getBlockPlaced().getLocation().clone();
+                            location.add(0.5, 0, 0.5);
+
+                            IronGolem ironGolem = (IronGolem) event.getBlockPlaced().getWorld().spawnEntity(location, EntityType.IRON_GOLEM);
+                            ((Game) this.plugin.getGame()).addBaseDefender(new BaseDefender((Game) this.plugin.getGame(), ironGolem, team.getId()));
+
+                        }
+
+                        return;
+                    }
+
+                }
+
             }
 
             ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().add(event.getBlockPlaced().getLocation());
@@ -1321,6 +1371,17 @@ public class EventListener implements Listener {
         } else {
             event.setFormat("§7%1$s§7: §7%2$s");
         }
+    }
+
+    @EventHandler
+    public void onEntityTarget(EntityTargetEvent event) {
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            return;
+        }
+
+        event.setCancelled(true);
+
     }
 
 }
