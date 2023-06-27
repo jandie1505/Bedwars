@@ -1307,6 +1307,17 @@ public class Game implements GamePart {
 
         }
 
+        for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+
+            if (this.plugin.isPlayerBypassing(player.getUniqueId())) {
+                continue;
+            }
+
+            player.getInventory().clear();
+            player.getEnderChest().clear();
+
+        }
+
         return null;
     }
 
