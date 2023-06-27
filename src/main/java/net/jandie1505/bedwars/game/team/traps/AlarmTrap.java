@@ -1,6 +1,5 @@
 package net.jandie1505.bedwars.game.team.traps;
 
-import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;

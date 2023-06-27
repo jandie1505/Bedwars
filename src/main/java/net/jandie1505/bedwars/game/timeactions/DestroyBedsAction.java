@@ -4,7 +4,6 @@ import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import org.bukkit.Sound;
-import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 
 public class DestroyBedsAction extends TimeAction {
