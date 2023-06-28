@@ -29,6 +29,7 @@ public class Lobby implements GamePart {
     private final Map<UUID, LobbyPlayerData> players;
     private final int mapVoteButtonItemId;
     private final int teamSelectionButtonItemId;
+    private final int mapButtonItemId;
     private int timeStep;
     private int time;
     private boolean forcestart;
@@ -43,6 +44,7 @@ public class Lobby implements GamePart {
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.mapVoteButtonItemId = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapVoteButton", -1);
         this.teamSelectionButtonItemId = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("teamSelectionButton", -1);
+        this.mapButtonItemId = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapButton", -1);
         this.timeStep = 0;
         this.time = 120;
         this.forcestart = false;
@@ -1014,5 +1016,17 @@ public class Lobby implements GamePart {
 
     public void setTime(int time) {
         this.time = time;
+    }
+
+    public int getMapButtonItemId() {
+        return this.mapButtonItemId;
+    }
+
+    public int getMapVoteButtonItemId() {
+        return this.mapVoteButtonItemId;
+    }
+
+    public int getTeamSelectionButtonItemId() {
+        return teamSelectionButtonItemId;
     }
 }

@@ -12,6 +12,10 @@ import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.team.traps.*;
+import net.jandie1505.bedwars.lobby.Lobby;
+import net.jandie1505.bedwars.lobby.LobbyPlayerData;
+import net.jandie1505.bedwars.lobby.MapData;
+import net.jandie1505.bedwars.lobby.inventory.VotingMenu;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -523,50 +527,104 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
 
-        if (!(this.plugin.getGame() instanceof Game)) {
-            return;
-        }
+        if (this.plugin.getGame() instanceof Game) {
 
-        // Prevent armor modification
+            // Prevent armor modification
 
-        if (!this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+            if (!this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
 
-            if (this.plugin.getItemStorage().isArmorItem(event.getItem())) {
-                event.setCancelled(true);
+                if (this.plugin.getItemStorage().isArmorItem(event.getItem())) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+                if (event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && !event.getPlayer().isSneaking() && event.getClickedBlock().getBlockData() instanceof Bed) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+            }
+
+            // Get information
+
+            if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
                 return;
             }
 
-            if (event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && !event.getPlayer().isSneaking() && event.getClickedBlock().getBlockData() instanceof Bed) {
-                event.setCancelled(true);
+            int itemId = this.plugin.getItemStorage().getItemId(event.getItem());
+
+            if (itemId < 0) {
                 return;
             }
 
-        }
+            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
 
-        // Get information
+            if (playerData == null) {
+                return;
+            }
 
-        if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
-            return;
-        }
+            // Fireball
 
-        int itemId = this.plugin.getItemStorage().getItemId(event.getItem());
+            if (((Game) this.plugin.getGame()).getItemShop().getFireballItem() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getFireballItem()) {
+                event.setCancelled(true);
 
-        if (itemId < 0) {
-            return;
-        }
+                if (playerData.getFireballCooldown() <= 0) {
 
-        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+                    ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
 
-        if (playerData == null) {
-            return;
-        }
+                    if (itemStack != null && itemStack.getAmount() > 0) {
+                        itemStack.setAmount(itemStack.getAmount() - 1);
+                    }
 
-        // Fireball
+                    Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
+                    fireball.setShooter(event.getPlayer());
+                    fireball.setDirection(event.getPlayer().getEyeLocation().getDirection());
+                    fireball.setYield(2);
+                    fireball.setIsIncendiary(false);
+                    fireball.setTicksLived(3*20);
 
-        if (((Game) this.plugin.getGame()).getItemShop().getFireballItem() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getFireballItem()) {
-            event.setCancelled(true);
+                    playerData.setFireballCooldown(2*20);
 
-            if (playerData.getFireballCooldown() <= 0) {
+                } else {
+                    event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getFireballCooldown() / 20.0) + " to use the fireball again");
+                }
+
+                return;
+            }
+
+            // enhanced fireball
+
+            if (((Game) this.plugin.getGame()).getItemShop().getEnhancedFireballItem() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getEnhancedFireballItem()) {
+                event.setCancelled(true);
+
+                if (playerData.getFireballCooldown() <= 0) {
+
+                    ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+                    if (itemStack != null && itemStack.getAmount() > 0) {
+                        itemStack.setAmount(itemStack.getAmount() - 1);
+                    }
+
+                    Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
+                    fireball.setShooter(event.getPlayer());
+                    fireball.setDirection(event.getPlayer().getEyeLocation().getDirection().multiply(2));
+                    fireball.setYield(4);
+                    fireball.setIsIncendiary(false);
+                    fireball.setTicksLived(10*20);
+
+                    playerData.setFireballCooldown(3*20);
+
+                } else {
+                    event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getFireballCooldown() / 20.0) + " to use the fireball again");
+                }
+
+                return;
+            }
+
+            // Safety platform
+
+            if (((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform()) {
+                event.setCancelled(true);
 
                 ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
 
@@ -574,116 +632,94 @@ public class EventListener implements Listener {
                     itemStack.setAmount(itemStack.getAmount() - 1);
                 }
 
-                Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
-                fireball.setShooter(event.getPlayer());
-                fireball.setDirection(event.getPlayer().getEyeLocation().getDirection());
-                fireball.setYield(2);
-                fireball.setIsIncendiary(false);
-                fireball.setTicksLived(3*20);
+                BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
 
-                playerData.setFireballCooldown(2*20);
-
-            } else {
-                event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getFireballCooldown() / 20.0) + " to use the fireball again");
-            }
-
-            return;
-        }
-
-        // enhanced fireball
-
-        if (((Game) this.plugin.getGame()).getItemShop().getEnhancedFireballItem() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getEnhancedFireballItem()) {
-            event.setCancelled(true);
-
-            if (playerData.getFireballCooldown() <= 0) {
-
-                ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
-
-                if (itemStack != null && itemStack.getAmount() > 0) {
-                    itemStack.setAmount(itemStack.getAmount() - 1);
+                if (team == null || team.getChatColor() == null) {
+                    return;
                 }
 
-                Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
-                fireball.setShooter(event.getPlayer());
-                fireball.setDirection(event.getPlayer().getEyeLocation().getDirection().multiply(2));
-                fireball.setYield(4);
-                fireball.setIsIncendiary(false);
-                fireball.setTicksLived(10*20);
+                Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getChatColor()) + "_STAINED_GLASS");
 
-                playerData.setFireballCooldown(3*20);
+                if (material == null) {
+                    return;
+                }
 
-            } else {
-                event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getFireballCooldown() / 20.0) + " to use the fireball again");
-            }
+                this.spawnSafetyPlatform(this.plugin, event.getPlayer(), material);
 
-            return;
-        }
-
-        // Safety platform
-
-        if (((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform()) {
-            event.setCancelled(true);
-
-            ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
-
-            if (itemStack != null && itemStack.getAmount() > 0) {
-                itemStack.setAmount(itemStack.getAmount() - 1);
-            }
-
-            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
-
-            if (team == null || team.getChatColor() == null) {
                 return;
             }
 
-            Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getChatColor()) + "_STAINED_GLASS");
+            // Player tracker
 
-            if (material == null) {
+            if (((Game) this.plugin.getGame()).getItemShop().getPlayerTracker() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getPlayerTracker()) {
+                event.setCancelled(true);
+
+                List<UUID> randomPlayerList = new ArrayList<>(((Game) this.plugin.getGame()).getPlayers().keySet());
+                Collections.shuffle(randomPlayerList);
+
+                for (UUID trackingPlayerId : randomPlayerList) {
+
+                    if (playerData.getTrackingTarget() != null && trackingPlayerId.equals(playerData.getTrackingTarget())) {
+                        continue;
+                    }
+
+                    Player trackingPlayer = this.plugin.getServer().getPlayer(trackingPlayerId);
+
+                    if (trackingPlayer == null) {
+                        continue;
+                    }
+
+                    PlayerData trackingPlayerData = ((Game) this.plugin.getGame()).getPlayers().get(trackingPlayerId);
+
+                    if (trackingPlayerData == null) {
+                        continue;
+                    }
+
+                    if (trackingPlayerData.getTeam() == playerData.getTeam()) {
+                        continue;
+                    }
+
+                    playerData.setTrackingTarget(trackingPlayerId);
+                    event.getPlayer().sendMessage("§bTracking target changed to " + trackingPlayer.getName());
+                    break;
+
+                }
+
+                return;
+            }
+        } else if (this.plugin.getGame() instanceof Lobby) {
+
+            if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
                 return;
             }
 
-            this.spawnSafetyPlatform(this.plugin, event.getPlayer(), material);
+            int itemId = this.plugin.getItemStorage().getItemId(event.getItem());
 
-            return;
-        }
+            if (itemId >= 0 && itemId == ((Lobby) this.plugin.getGame()).getMapVoteButtonItemId()) {
+                event.setCancelled(true);
 
-        // Player tracker
-
-        if (((Game) this.plugin.getGame()).getItemShop().getPlayerTracker() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getPlayerTracker()) {
-            event.setCancelled(true);
-
-            List<UUID> randomPlayerList = new ArrayList<>(((Game) this.plugin.getGame()).getPlayers().keySet());
-            Collections.shuffle(randomPlayerList);
-
-            for (UUID trackingPlayerId : randomPlayerList) {
-
-                if (playerData.getTrackingTarget() != null && trackingPlayerId.equals(playerData.getTrackingTarget())) {
-                    continue;
+                if (!((Lobby) this.plugin.getGame()).isMapVoting()) {
+                    event.getPlayer().sendMessage("§cMap voting is currently disabled");
+                    event.getPlayer().closeInventory();
+                    return;
                 }
 
-                Player trackingPlayer = this.plugin.getServer().getPlayer(trackingPlayerId);
-
-                if (trackingPlayer == null) {
-                    continue;
+                if (((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
+                    event.getPlayer().sendMessage("§cMap voting is already over");
+                    event.getPlayer().closeInventory();
+                    return;
                 }
 
-                PlayerData trackingPlayerData = ((Game) this.plugin.getGame()).getPlayers().get(trackingPlayerId);
-
-                if (trackingPlayerData == null) {
-                    continue;
-                }
-
-                if (trackingPlayerData.getTeam() == playerData.getTeam()) {
-                    continue;
-                }
-
-                playerData.setTrackingTarget(trackingPlayerId);
-                event.getPlayer().sendMessage("§bTracking target changed to " + trackingPlayer.getName());
-                break;
-
+                event.getPlayer().openInventory(new VotingMenu((Lobby) this.plugin.getGame(), event.getPlayer().getUniqueId()).getVotingMenu());
+                return;
             }
 
-            return;
+            if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+                return;
+            }
+
+            event.setCancelled(true);
+
         }
 
     }
@@ -1067,6 +1103,69 @@ public class EventListener implements Listener {
                     team.getSecondaryTraps()[1] = null;
                     event.getWhoClicked().sendMessage("§aTrap successfully removed");
                     event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
+                }
+
+            }
+
+            return;
+        }
+
+        if (event.getInventory().getHolder() instanceof VotingMenu) {
+            event.setCancelled(true);
+
+            if (!(this.plugin.getGame() instanceof Lobby)) {
+                return;
+            }
+
+            int itemId = this.plugin.getItemStorage().getItemId(event.getCurrentItem());
+
+            if (itemId < 0) {
+                return;
+            }
+
+            if (itemId != ((Lobby) this.plugin.getGame()).getMapButtonItemId()) {
+                return;
+            }
+
+            if (!((Lobby) this.plugin.getGame()).isMapVoting()) {
+                event.getWhoClicked().sendMessage("§cMap voting is currently disabled");
+                event.getWhoClicked().closeInventory();
+                return;
+            }
+
+            if (((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
+                event.getWhoClicked().sendMessage("§cMap voting is already over");
+                event.getWhoClicked().closeInventory();
+                return;
+            }
+
+            List<String> lore = event.getCurrentItem().getItemMeta().getLore();
+
+            if (lore.size() < 2) {
+                return;
+            }
+
+            LobbyPlayerData playerData = ((Lobby) this.plugin.getGame()).getPlayers().get(event.getWhoClicked().getUniqueId());
+
+            for (MapData map : ((Lobby) this.plugin.getGame()).getMaps()) {
+
+                if (map.getWorld().equals(lore.get(1))) {
+
+                    event.getWhoClicked().closeInventory();
+
+                    if (playerData.getVote() == map) {
+
+                        playerData.setVote(null);
+                        event.getWhoClicked().sendMessage("§aYou removed your vote");
+
+                    } else {
+
+                        playerData.setVote(map);
+                        event.getWhoClicked().sendMessage("§aYou changed your vote to " + map.getName());
+
+                    }
+
+                    return;
                 }
 
             }

@@ -29,6 +29,7 @@ public final class DefaultConfigValues {
         lobbyConfig.put("requiredPlayers", 2);
         lobbyConfig.put("mapVoteButton", 1);
         lobbyConfig.put("teamSelectionButton", 2);
+        lobbyConfig.put("mapButton", 171);
 
         JSONObject lobbyBorder = new JSONObject();
         lobbyBorder.put("x1", -9);
@@ -1274,6 +1275,10 @@ public final class DefaultConfigValues {
         countermeasuresTrap.put("lore", countermeasuresTrapLore);
 
         config.put("170", countermeasuresTrap);
+
+        // Map Button (in votemap)
+
+        config.put("171", buildDefaultItem(Material.GREEN_TERRACOTTA));
 
         return config;
     }
