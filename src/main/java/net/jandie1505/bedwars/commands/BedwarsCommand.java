@@ -724,8 +724,10 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        sender.sendMessage("§4The usage of this command is NOT SUPPORTED. It is used to manually load, unload and enter worlds. It has not been tested for functionality with the rest of the plugin. Please use this command only if you absolutely have to and if no game is running. No responsibility is taken for broken, unreset worlds or other errors.");
+
         if (args.length < 2) {
-            sender.sendMessage("§cUsage: /bedwars world list/load/unload");
+            sender.sendMessage("§cUsage: /bedwars world list/load/unload/teleport");
             return;
         }
 
@@ -788,6 +790,15 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 if (world == null) {
                     sender.sendMessage("§cWorld is not loaded");
                     return;
+                }
+
+                if (world == this.plugin.getServer().getWorlds().get(0)) {
+                    sender.sendMessage("§cYou cannot unload the default world");
+                    return;
+                }
+
+                for (Player player : List.copyOf(world.getPlayers())) {
+                    player.teleport(new Location(this.plugin.getServer().getWorlds().get(0), 0.5, 0, 0.5));
                 }
 
                 boolean save = false;
