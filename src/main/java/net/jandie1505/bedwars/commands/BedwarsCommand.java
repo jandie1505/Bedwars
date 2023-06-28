@@ -38,9 +38,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         if (args.length < 1) {
 
             if (this.hasAdminPermission(sender)) {
-                sender.sendMessage("§7Usage: /bedwars stop/status/start/force-stop/players/bypass/gameinfo/getgamevalue");
+                sender.sendMessage("§7Usage: /bedwars stop/status/start/force-stop/players/bypass/mapteleport/gameinfo/getgamevalue/setgamevalue/maps/forcemap/votemap/getlobbyvalue/setlobbyvalue/reload/leave/pause");
             } else {
-                sender.sendMessage("§cCurrently no commands for you :(");
+                sender.sendMessage("§7Usage: /bedwars leave/maps/votemap/");
             }
 
             return true;
@@ -104,6 +104,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 break;
             case "leave":
                 this.leaveSubcommand(sender);
+                break;
+            case "pause":
+                this.pauseSubcommand(sender, args);
                 break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
@@ -1420,6 +1423,28 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
     }
 
+    public void pauseSubcommand(CommandSender sender, String[] args) {
+
+        if (!this.hasAdminPermission(sender)) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage("§7Game pause status: " + this.plugin.isPaused());
+            return;
+        }
+
+        this.plugin.setPaused(Boolean.parseBoolean(args[1]));
+
+        if (this.plugin.isPaused()) {
+            sender.sendMessage("§aGame pause enabled");
+        } else {
+            sender.sendMessage("§aGame pause disabled");
+        }
+
+    }
+
     public boolean hasAdminPermission(CommandSender sender) {
         return sender == this.plugin.getServer().getConsoleSender() || (sender instanceof Player && sender.hasPermission("bedwars.admin"));
     }
@@ -1482,6 +1507,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 tabComplete.add("getlobbyvalue");
                 tabComplete.add("setlobbyvalue");
                 tabComplete.add("reload");
+                tabComplete.add("pause");
             }
 
         }

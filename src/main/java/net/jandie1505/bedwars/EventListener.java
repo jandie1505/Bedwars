@@ -312,6 +312,11 @@ public class EventListener implements Listener {
             return;
         }
 
+        if (this.plugin.getGame() != null && this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (this.plugin.getGame() instanceof Game) {
 
             if (!((Game) this.plugin.getGame()).getPlayers().containsKey(event.getPlayer().getUniqueId())) {
@@ -446,6 +451,11 @@ public class EventListener implements Listener {
             return;
         }
 
+        if (this.plugin.getGame() != null && this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (this.plugin.getGame() instanceof Game) {
 
             if (!((Game) this.plugin.getGame()).getPlayers().containsKey(event.getPlayer().getUniqueId())) {
@@ -526,6 +536,11 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+
+        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+            return;
+        }
 
         if (this.plugin.getGame() instanceof Game) {
 
@@ -754,6 +769,11 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
 
+        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (this.plugin.getGame() instanceof Game && ((Game) this.plugin.getGame()).getPlayers().containsKey(event.getPlayer().getUniqueId())) {
 
             event.setCancelled(true);
@@ -787,6 +807,11 @@ public class EventListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
 
         if (!(event.getWhoClicked() instanceof Player)) {
+            return;
+        }
+
+        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+            event.setCancelled(true);
             return;
         }
 
@@ -1237,6 +1262,11 @@ public class EventListener implements Listener {
             return;
         }
 
+        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (event.getInventory().getType() == InventoryType.WORKBENCH) {
 
             if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
@@ -1316,6 +1346,11 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
 
+        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (!(this.plugin.getGame() instanceof Game)) {
 
             if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
@@ -1348,6 +1383,11 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+
+        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+            return;
+        }
 
         if (!(this.plugin.getGame() instanceof Game)) {
 
@@ -1482,6 +1522,11 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
 
+        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (!(this.plugin.getGame() instanceof Game)) {
             return;
         }
@@ -1508,6 +1553,20 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
 
+        if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
+
+            if (event.getDamage() < 100) {
+                event.setDamage(100);
+            }
+
+            return;
+        }
+
+        if (this.plugin.getGame() != null && this.plugin.isPaused() && (!this.plugin.isPlayerBypassing(event.getEntity().getUniqueId()) || !(event instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) event).getDamager() instanceof Player && !this.plugin.isPlayerBypassing(((EntityDamageByEntityEvent) event).getDamager().getUniqueId())))) {
+            event.setCancelled(true);
+            return;
+        }
+
         if (this.plugin.getGame() instanceof Game) {
 
             if (!(event.getEntity() instanceof Player)) {
@@ -1515,11 +1574,6 @@ public class EventListener implements Listener {
             }
 
             if (event.getEntity().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
-                return;
-            }
-
-            if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-                event.setDamage(100);
                 return;
             }
 
@@ -1700,6 +1754,16 @@ public class EventListener implements Listener {
 
         } else {
             event.setQuitMessage("§e" + event.getPlayer().getDisplayName() + " §7left the game");
+        }
+
+    }
+
+    @EventHandler
+    public void PlayerMoveEvent(PlayerMoveEvent event) {
+
+        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+            event.setCancelled(true);
+            return;
         }
 
     }

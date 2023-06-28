@@ -6,6 +6,8 @@ import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.items.ItemStorage;
 import net.jandie1505.bedwars.lobby.Lobby;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -26,6 +28,7 @@ public class Bedwars extends JavaPlugin {
     private List<World> managedWorlds;
     private ItemStorage itemStorage;
     private boolean nextStatus;
+    private boolean paused;
 
     @Override
     public void onEnable() {
@@ -57,7 +60,7 @@ public class Bedwars extends JavaPlugin {
 
                 // Manage game
 
-                if (this.game != null) {
+                if (this.game != null && !this.isPaused()) {
 
                     try {
 
@@ -121,6 +124,11 @@ public class Bedwars extends JavaPlugin {
                         if (player.getScoreboard() != this.getServer().getScoreboardManager().getMainScoreboard()) {
                             player.setScoreboard(this.getServer().getScoreboardManager().getMainScoreboard());
                         }
+                    }
+
+                    if (this.game != null && this.isPaused()) {
+                        player.sendTitle("§b\u23F8", "§7§lGAME PAUSED", 0, 20, 0);
+                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b\u23F8 GAME PAUSED"));
                     }
 
                 }
@@ -269,12 +277,20 @@ public class Bedwars extends JavaPlugin {
         }
     }
 
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+
     public void nextStatus() {
         this.nextStatus = true;
     }
 
     public GamePart getGame() {
         return this.game;
+    }
+
+    public boolean isPaused() {
+        return this.paused;
     }
 
     public ItemStorage getItemStorage() {
