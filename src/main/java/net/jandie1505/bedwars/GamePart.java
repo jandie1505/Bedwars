@@ -1,6 +1,16 @@
 package net.jandie1505.bedwars;
 
-public interface GamePart {
-    GameStatus tick();
-    GamePart getNextStatus();
+public abstract class GamePart {
+    private final Bedwars plugin;
+
+    public GamePart(Bedwars plugin) {
+        this.plugin = plugin;
+    }
+
+    public abstract GameStatus tick();
+    public abstract GamePart getNextStatus();
+
+    public Bedwars getPlugin() {
+        return this.plugin;
+    }
 }

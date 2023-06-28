@@ -23,8 +23,7 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-public class Lobby implements GamePart {
-    private final Bedwars plugin;
+public class Lobby extends GamePart {
     private final List<MapData> maps;
     private final Map<UUID, LobbyPlayerData> players;
     private final int mapVoteButtonItemId;
@@ -42,38 +41,38 @@ public class Lobby implements GamePart {
     private Location lobbySpawn;
 
     public Lobby(Bedwars plugin) {
-        this.plugin = plugin;
+        super(plugin);
         this.maps = new ArrayList<>();
         this.players = Collections.synchronizedMap(new HashMap<>());
-        this.mapVoteButtonItemId = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapVoteButton", -1);
-        this.teamSelectionButtonItemId = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("teamSelectionButton", -1);
-        this.mapButtonItemId = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapButton", -1);
+        this.mapVoteButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapVoteButton", -1);
+        this.teamSelectionButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("teamSelectionButton", -1);
+        this.mapButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapButton", -1);
         this.timeStep = 0;
         this.time = 120;
         this.forcestart = false;
         this.selectedMap = null;
-        this.mapVoting = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optBoolean("mapVoting", false);
-        this.requiredPlayers = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("requiredPlayers", 2);
+        this.mapVoting = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optBoolean("mapVoting", false);
+        this.requiredPlayers = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("requiredPlayers", 2);
         this.timerPaused = false;
-        this.lobbyBorderEnabled = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optBoolean("enable", false);
+        this.lobbyBorderEnabled = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optBoolean("enable", false);
         this.lobbyBorder = new int[]{
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x1", -10),
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y1", -10),
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z1", -10),
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x2", 10),
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y2", 10),
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z2", 10)
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x1", -10),
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y1", -10),
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z1", -10),
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x2", 10),
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y2", 10),
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z2", 10)
         };
         this.lobbySpawn = new Location(
-                this.plugin.getServer().getWorlds().get(0),
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
-                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
+                this.getPlugin().getServer().getWorlds().get(0),
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
+                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
         );
 
-        JSONArray mapArray = this.plugin.getMapConfig().getConfig().optJSONArray("maps");
+        JSONArray mapArray = this.getPlugin().getMapConfig().getConfig().optJSONArray("maps");
 
         if (mapArray == null) {
             mapArray = new JSONArray();
@@ -84,7 +83,7 @@ public class Lobby implements GamePart {
             index++;
 
             if (!(object instanceof JSONObject)) {
-                this.plugin.getLogger().warning("Map Config: Index " + index + " is not a json object");
+                this.getPlugin().getLogger().warning("Map Config: Index " + index + " is not a json object");
                 continue;
             }
 
@@ -93,7 +92,7 @@ public class Lobby implements GamePart {
             String name = map.optString("name");
 
             if (name == null) {
-                this.plugin.getLogger().warning("Map Config: Missing name of map with index " + index);
+                this.getPlugin().getLogger().warning("Map Config: Missing name of map with index " + index);
                 continue;
             }
 
@@ -157,7 +156,7 @@ public class Lobby implements GamePart {
             for (Object object2 : teamsArray) {
 
                 if (!(object2 instanceof JSONObject)) {
-                    this.plugin.getLogger().warning("Map Config: A team of map " + name + " (" + index + ") is not a json object");
+                    this.getPlugin().getLogger().warning("Map Config: A team of map " + name + " (" + index + ") is not a json object");
                     continue;
                 }
 
@@ -166,7 +165,7 @@ public class Lobby implements GamePart {
                 String teamName = team.optString("name");
 
                 if (teamName == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing name of a team of " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing name of a team of " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -175,35 +174,35 @@ public class Lobby implements GamePart {
                 try {
                     teamColor = Color.fromRGB(team.optInt("color", -1));
                 } catch (IllegalArgumentException e) {
-                    this.plugin.getLogger().warning("Map Config: Missing/Wrong color of team " + teamName + " of map " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing/Wrong color of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
                 String teamChatColorString = team.optString("chatColor");
 
                 if (teamChatColorString == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing chatColor of team " + teamName + " of map " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing chatColor of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
                 ChatColor teamChatColor = ChatColor.valueOf(teamChatColorString);
 
                 if (teamChatColor == null) {
-                    this.plugin.getLogger().warning("Map Config: Wrong chatColor of team " + teamName + " of map " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Wrong chatColor of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
                 int baseRadius = team.optInt("baseRadius", -1);
 
                 if (baseRadius < 0) {
-                    this.plugin.getLogger().warning("Map Config: Missing baseRadius of team " + teamName + " of map " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing baseRadius of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
                 JSONArray teamSpawnpointArray = team.optJSONArray("spawnpoints");
 
                 if (teamSpawnpointArray == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing spawnpoints of team " + teamName + " of map " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing spawnpoints of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -212,7 +211,7 @@ public class Lobby implements GamePart {
                 JSONArray bedLocationsArray = team.optJSONArray("bedLocations");
 
                 if (bedLocationsArray == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing spawnpoints of team " + teamName + " of map " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing spawnpoints of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -221,7 +220,7 @@ public class Lobby implements GamePart {
                 JSONArray teamGeneratorsArray = team.optJSONArray("generators");
 
                 if (teamGeneratorsArray == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing teamGenerators of team " + teamName + " of map " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing teamGenerators of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -230,7 +229,7 @@ public class Lobby implements GamePart {
                 JSONArray shopVillagerLocationArray = team.optJSONArray("shopVillagers");
 
                 if (shopVillagerLocationArray == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing shopVillagers of team " + teamName + " of map " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing shopVillagers of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -239,7 +238,7 @@ public class Lobby implements GamePart {
                 JSONArray upgradeVillagerLocationArray = team.optJSONArray("upgradeVillagers");
 
                 if (upgradeVillagerLocationArray == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing upgradeVillagers of team " + teamName + " of map " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing upgradeVillagers of team " + teamName + " of map " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -270,7 +269,7 @@ public class Lobby implements GamePart {
             for (Object object2 : timeActionArray) {
 
                 if (!(object2 instanceof JSONObject)) {
-                    this.plugin.getLogger().warning("Map Config: A timeAction of map " + name + " (" + index + ") is not a json object");
+                    this.getPlugin().getLogger().warning("Map Config: A timeAction of map " + name + " (" + index + ") is not a json object");
                     continue;
                 }
 
@@ -279,14 +278,14 @@ public class Lobby implements GamePart {
                 String type = timeActionData.optString("type");
 
                 if (type == null) {
-                    this.plugin.getLogger().warning("Map Config: Missing type of a timeAction of " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing type of a timeAction of " + name + " (" + index + ")");
                     continue;
                 }
 
                 int time = timeActionData.optInt("time", -1);
 
                 if (time < 0) {
-                    this.plugin.getLogger().warning("Map Config: Missing time of a timeAction of " + name + " (" + index + ")");
+                    this.getPlugin().getLogger().warning("Map Config: Missing time of a timeAction of " + name + " (" + index + ")");
                     continue;
                 }
 
@@ -296,7 +295,7 @@ public class Lobby implements GamePart {
                         int generatorLevel = timeActionData.optInt("generatorLevel", -1);
 
                         if (generatorLevel < 0) {
-                            this.plugin.getLogger().warning("Map Config: Wrong generatorLevel of a timeAction of " + name + " (" + index + ")");
+                            this.getPlugin().getLogger().warning("Map Config: Wrong generatorLevel of a timeAction of " + name + " (" + index + ")");
                             continue;
                         }
 
@@ -310,7 +309,7 @@ public class Lobby implements GamePart {
                                 generatorUpgradeTimeActions.add(new LobbyGeneratorUpgradeTimeActionData(2, generatorLevel, time));
                                 continue;
                             default:
-                                this.plugin.getLogger().warning("Map Config: Wrong generatorType of a timeAction of " + name + " (" + index + ")");
+                                this.getPlugin().getLogger().warning("Map Config: Wrong generatorType of a timeAction of " + name + " (" + index + ")");
                                 break;
                         }
 
@@ -323,28 +322,28 @@ public class Lobby implements GamePart {
                         int radius = timeActionData.optInt("radius", -1);
 
                         if (radius < 0) {
-                            this.plugin.getLogger().warning("Map Config: Wrong radius of a timeAction of " + name + " (" + index + ")");
+                            this.getPlugin().getLogger().warning("Map Config: Wrong radius of a timeAction of " + name + " (" + index + ")");
                             continue;
                         }
 
                         String chatMessage = timeActionData.optString("chatMessage");
 
                         if (chatMessage == null) {
-                            this.plugin.getLogger().warning("Map Config: Wrong chatMessage of a timeAction of " + name + " (" + index + ")");
+                            this.getPlugin().getLogger().warning("Map Config: Wrong chatMessage of a timeAction of " + name + " (" + index + ")");
                             continue;
                         }
 
                         String scoreboardText = timeActionData.optString("scoreboardText");
 
                         if (scoreboardText == null) {
-                            this.plugin.getLogger().warning("Map Config: Wrong scoreboardText of a timeAction of " + name + " (" + index + ")");
+                            this.getPlugin().getLogger().warning("Map Config: Wrong scoreboardText of a timeAction of " + name + " (" + index + ")");
                             continue;
                         }
 
                         worldborderChangeTimeActions.add(new LobbyWorldborderChangeTimeActionData(time, radius, chatMessage, scoreboardText));
                         break;
                     default:
-                        this.plugin.getLogger().warning("Map Config: Wrong type of a timeAction of " + name + " (" + index + ")");
+                        this.getPlugin().getLogger().warning("Map Config: Wrong type of a timeAction of " + name + " (" + index + ")");
                         continue;
                 }
 
@@ -374,21 +373,21 @@ public class Lobby implements GamePart {
         double x = spawnpoint.optDouble("x", Double.MIN_VALUE);
 
         if (x == Double.MIN_VALUE) {
-            this.plugin.getLogger().warning("Map Config: Wrong x in a spawnpoint in team");
+            this.getPlugin().getLogger().warning("Map Config: Wrong x in a spawnpoint in team");
             return null;
         }
 
         double y = spawnpoint.optDouble("y", Double.MIN_VALUE);
 
         if (y == Double.MIN_VALUE) {
-            this.plugin.getLogger().warning("Map Config: Wrong y in a spawnpoint in team");
+            this.getPlugin().getLogger().warning("Map Config: Wrong y in a spawnpoint in team");
             return null;
         }
 
         double z = spawnpoint.optDouble("z", Double.MIN_VALUE);
 
         if (z == Double.MIN_VALUE) {
-            this.plugin.getLogger().warning("Map Config: Wrong z in a spawnpoint in team");
+            this.getPlugin().getLogger().warning("Map Config: Wrong z in a spawnpoint in team");
             return null;
         }
 
@@ -399,14 +398,14 @@ public class Lobby implements GamePart {
         float yaw = spawnpoint.optFloat("yaw", Float.MIN_VALUE);
 
         if (yaw == Float.MIN_VALUE) {
-            this.plugin.getLogger().warning("Map Config: Wrong yaw in a spawnpoint in team");
+            this.getPlugin().getLogger().warning("Map Config: Wrong yaw in a spawnpoint in team");
             return new Location(null, x, y, z);
         }
 
         float pitch = spawnpoint.optFloat("pitch", Float.MIN_VALUE);
 
         if (pitch == Float.MIN_VALUE) {
-            this.plugin.getLogger().warning("Map Config: Wrong pitch in a spawnpoint in team");
+            this.getPlugin().getLogger().warning("Map Config: Wrong pitch in a spawnpoint in team");
             return new Location(null, x, y, z);
         }
 
@@ -420,14 +419,14 @@ public class Lobby implements GamePart {
         for (Object locationObject : locations) {
 
             if (!(locationObject instanceof JSONObject)) {
-                this.plugin.getLogger().warning("Map Config: Wrong location");
+                this.getPlugin().getLogger().warning("Map Config: Wrong location");
                 continue;
             }
 
             Location location = this.buildLocationFromJSONObject((JSONObject) locationObject, enableDirections);
 
             if (location == null) {
-                this.plugin.getLogger().warning("Map Config: Wrong location");
+                this.getPlugin().getLogger().warning("Map Config: Wrong location");
                 continue;
             }
 
@@ -445,7 +444,7 @@ public class Lobby implements GamePart {
         for (Object generatorObject : generators) {
 
             if (!(generatorObject instanceof JSONObject)) {
-                this.plugin.getLogger().warning("Map Config: Wrong generator");
+                this.getPlugin().getLogger().warning("Map Config: Wrong generator");
                 continue;
             }
 
@@ -454,28 +453,28 @@ public class Lobby implements GamePart {
             JSONObject locationData = generator.optJSONObject("location");
 
             if (locationData == null) {
-                this.plugin.getLogger().warning("Map Config: Location missing in a generator");
+                this.getPlugin().getLogger().warning("Map Config: Location missing in a generator");
                 continue;
             }
 
             double x = locationData.optDouble("x", Double.MIN_VALUE);
 
             if (x == Double.MIN_VALUE) {
-                this.plugin.getLogger().warning("Map Config: Wrong x in a generator");
+                this.getPlugin().getLogger().warning("Map Config: Wrong x in a generator");
                 continue;
             }
 
             double y = locationData.optDouble("y", Double.MIN_VALUE);
 
             if (y == Double.MIN_VALUE) {
-                this.plugin.getLogger().warning("Map Config: Wrong y in a generator");
+                this.getPlugin().getLogger().warning("Map Config: Wrong y in a generator");
                 continue;
             }
 
             double z = locationData.optDouble("z", Double.MIN_VALUE);
 
             if (z == Double.MIN_VALUE) {
-                this.plugin.getLogger().warning("Map Config: Wrong z in a generator");
+                this.getPlugin().getLogger().warning("Map Config: Wrong z in a generator");
                 continue;
             }
 
@@ -484,7 +483,7 @@ public class Lobby implements GamePart {
             Material generatorMaterial = Material.getMaterial(generator.optString("material", ""));
 
             if (generatorMaterial == null) {
-                this.plugin.getLogger().warning("Map Config: Wrong material in a generator");
+                this.getPlugin().getLogger().warning("Map Config: Wrong material in a generator");
                 continue;
             }
 
@@ -492,7 +491,7 @@ public class Lobby implements GamePart {
             JSONArray generatorUpgradeStepArray = generator.optJSONArray("speed");
 
             if (generatorUpgradeStepArray == null) {
-                this.plugin.getLogger().warning("Map Config: Missing speed in a generator");
+                this.getPlugin().getLogger().warning("Map Config: Missing speed in a generator");
                 continue;
             }
 
@@ -501,7 +500,7 @@ public class Lobby implements GamePart {
                 double speed = generatorUpgradeStepArray.optDouble(i, Double.MIN_VALUE);
 
                 if (speed == Double.MIN_VALUE) {
-                    this.plugin.getLogger().warning("Map Config: Wrong speed in a generator");
+                    this.getPlugin().getLogger().warning("Map Config: Wrong speed in a generator");
                     continue;
                 }
 
@@ -518,7 +517,7 @@ public class Lobby implements GamePart {
     }
 
     private void logMissingMapConfigItem(String missingItem, int index, String mapName) {
-        this.plugin.getLogger().warning("Map Config: Missing " + missingItem + " of map " + mapName + " (" + index + ")");
+        this.getPlugin().getLogger().warning("Map Config: Missing " + missingItem + " of map " + mapName + " (" + index + ")");
     }
 
     @Override
@@ -527,7 +526,7 @@ public class Lobby implements GamePart {
         // PLAYER MANAGEMENT
 
         for (UUID playerId : this.getPlayers().keySet()) {
-            Player player = this.plugin.getServer().getPlayer(playerId);
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
 
             if (player == null) {
                 this.players.remove(playerId);
@@ -538,7 +537,7 @@ public class Lobby implements GamePart {
 
             // Enforce game mode
 
-            if (player.getGameMode() != GameMode.ADVENTURE && !this.plugin.isPlayerBypassing(playerId)) {
+            if (player.getGameMode() != GameMode.ADVENTURE && !this.getPlugin().isPlayerBypassing(playerId)) {
                 player.setGameMode(GameMode.ADVENTURE);
             }
 
@@ -574,7 +573,7 @@ public class Lobby implements GamePart {
 
             // Lobby border
 
-            if (!this.plugin.isPlayerBypassing(playerId) && this.lobbyBorderEnabled) {
+            if (!this.getPlugin().isPlayerBypassing(playerId) && this.lobbyBorderEnabled) {
 
                 Location location = player.getLocation();
 
@@ -593,7 +592,7 @@ public class Lobby implements GamePart {
                     mapName = this.selectedMap.getName();
                 }
 
-                Scoreboard scoreboard = this.plugin.getServer().getScoreboardManager().getNewScoreboard();
+                Scoreboard scoreboard = this.getPlugin().getServer().getScoreboardManager().getNewScoreboard();
                 Objective objective = scoreboard.registerNewObjective("lobby", Criteria.DUMMY, "");
 
                 objective.setDisplayName("§6§lBEDWARS");
@@ -640,10 +639,10 @@ public class Lobby implements GamePart {
 
             // Items
 
-            if (!this.plugin.isPlayerBypassing(player.getUniqueId())) {
+            if (!this.getPlugin().isPlayerBypassing(player.getUniqueId())) {
 
-                ItemStack lobbyVoteHotbarItem = this.plugin.getItemStorage().getItem(this.mapVoteButtonItemId);
-                ItemStack lobbyTeamSelectionHotbarItem = this.plugin.getItemStorage().getItem(this.teamSelectionButtonItemId);
+                ItemStack lobbyVoteHotbarItem = this.getPlugin().getItemStorage().getItem(this.mapVoteButtonItemId);
+                ItemStack lobbyTeamSelectionHotbarItem = this.getPlugin().getItemStorage().getItem(this.teamSelectionButtonItemId);
 
                 if (lobbyVoteHotbarItem != null && lobbyTeamSelectionHotbarItem != null) {
 
@@ -675,7 +674,7 @@ public class Lobby implements GamePart {
 
         // ADD PLAYERS
 
-        for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+        for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
 
             if (!this.players.containsKey(player.getUniqueId())) {
                 this.players.put(player.getUniqueId(), new LobbyPlayerData());
@@ -797,7 +796,7 @@ public class Lobby implements GamePart {
     private void displayMap() {
 
         for (UUID playerId : this.getPlayers().keySet()) {
-            Player player = this.plugin.getServer().getPlayer(playerId);
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
 
             if (player == null) {
                 continue;
@@ -822,19 +821,19 @@ public class Lobby implements GamePart {
         }
 
         if (this.selectedMap == null) {
-            this.plugin.getLogger().warning("Game stopped because automatic map selection failed");
+            this.getPlugin().getLogger().warning("Game stopped because automatic map selection failed");
             return null;
         }
 
         MapData selectedMap = this.selectedMap;
 
-        World world = this.plugin.loadWorld(selectedMap.getWorld());
+        World world = this.getPlugin().loadWorld(selectedMap.getWorld());
 
         if (world == null) {
             return null;
         }
 
-        JSONObject shopConfig = this.plugin.getShopConfig().getConfig();
+        JSONObject shopConfig = this.getPlugin().getShopConfig().getConfig();
 
         ArmorConfig armorConfig = new ArmorConfig(
                 shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("enableArmorSystem", false),
@@ -862,7 +861,7 @@ public class Lobby implements GamePart {
         );
 
         Game game = new Game(
-                this.plugin,
+                this.getPlugin(),
                 world,
                 selectedMap.getTeams(),
                 selectedMap.getGlobalGenerators(),
@@ -882,7 +881,7 @@ public class Lobby implements GamePart {
 
         for (UUID playerId : this.getPlayers().keySet()) {
             LobbyPlayerData playerData = this.getPlayers().get(playerId);
-            Player player = this.plugin.getServer().getPlayer(playerId);
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
 
             if (player != null) {
                 player.sendMessage("§bMap: " + this.selectedMap.getName());
@@ -923,14 +922,14 @@ public class Lobby implements GamePart {
         int itemId = teamUpgrade.optInt("item", -1);
 
         if (itemId < 0) {
-            this.plugin.getLogger().warning("Shop Config: Missing/wrong item in team upgrade");
+            this.getPlugin().getLogger().warning("Shop Config: Missing/wrong item in team upgrade");
             return this.getErrorUpgrade();
         }
 
         JSONArray priceListArray = teamUpgrade.optJSONArray("prices");
 
         if (priceListArray == null) {
-            this.plugin.getLogger().warning("Shop Config: Missing/Wrong prices in team upgrade");
+            this.getPlugin().getLogger().warning("Shop Config: Missing/Wrong prices in team upgrade");
             return this.getErrorUpgrade();
         }
 
@@ -942,7 +941,7 @@ public class Lobby implements GamePart {
             int price = priceListArray.optInt(i, -1);
 
             if (price < 0) {
-                this.plugin.getLogger().warning("Shop Config: Wrong price in prices in team upgrade");
+                this.getPlugin().getLogger().warning("Shop Config: Wrong price in prices in team upgrade");
                 return this.getErrorUpgrade();
             }
 
@@ -982,10 +981,6 @@ public class Lobby implements GamePart {
 
     public void forcestart() {
         this.forcestart = true;
-    }
-
-    public Bedwars getPlugin() {
-        return this.plugin;
     }
 
     public Map<UUID, LobbyPlayerData> getPlayers() {

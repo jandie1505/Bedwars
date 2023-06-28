@@ -31,8 +31,7 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-public class Game implements GamePart {
-    private final Bedwars plugin;
+public class Game extends GamePart {
     private final World world;
     private final List<BedwarsTeam> teams;
     private final Map<UUID, PlayerData> players;
@@ -60,7 +59,7 @@ public class Game implements GamePart {
     private boolean noWinnerEnd;
 
     public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
-        this.plugin = plugin;
+        super(plugin);
         this.world = world;
         this.teams = Collections.synchronizedList(new ArrayList<>());
         this.players = Collections.synchronizedMap(new HashMap<>());
@@ -164,8 +163,8 @@ public class Game implements GamePart {
 
         // STOP IF WORLD NOT LOADED (RUN SECOND)
 
-        if (this.world == null || !this.plugin.getServer().getWorlds().contains(this.world)) {
-            this.plugin.getLogger().warning("Bedwars game end because world is not loaded");
+        if (this.world == null || !this.getPlugin().getServer().getWorlds().contains(this.world)) {
+            this.getPlugin().getLogger().warning("Bedwars game end because world is not loaded");
             return GameStatus.ABORT;
         }
 
@@ -244,7 +243,7 @@ public class Game implements GamePart {
      */
     private void allPlayersManagement() {
 
-        for (Player player : this.plugin.getServer().getOnlinePlayers()) {
+        for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
 
             // Is Ingame
 
@@ -253,7 +252,7 @@ public class Game implements GamePart {
             // Scoreboard
 
             if (!this.playerScoreboards.containsKey(player.getUniqueId())) {
-                this.playerScoreboards.put(player.getUniqueId(), this.plugin.getServer().getScoreboardManager().getNewScoreboard());
+                this.playerScoreboards.put(player.getUniqueId(), this.getPlugin().getServer().getScoreboardManager().getNewScoreboard());
             }
 
             if (this.timeStep >= 20) {
@@ -265,25 +264,25 @@ public class Game implements GamePart {
 
             // Game mode
 
-            if (!isIngame && !this.plugin.isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
+            if (!isIngame && !this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
                 player.setGameMode(GameMode.SPECTATOR);
             }
 
             // Set player visibility
 
-            for (Player otherPlayer : this.plugin.getServer().getOnlinePlayers()) {
+            for (Player otherPlayer : this.getPlugin().getServer().getOnlinePlayers()) {
 
-                if (this.plugin.isPlayerBypassing(player.getUniqueId()) && !player.canSee(otherPlayer)) {
+                if (this.getPlugin().isPlayerBypassing(player.getUniqueId()) && !player.canSee(otherPlayer)) {
 
-                    player.showPlayer(this.plugin, otherPlayer);
+                    player.showPlayer(this.getPlugin(), otherPlayer);
 
                 } else if (this.players.containsKey(otherPlayer.getUniqueId()) && !player.canSee(otherPlayer)) {
 
-                    player.showPlayer(this.plugin, otherPlayer);
+                    player.showPlayer(this.getPlugin(), otherPlayer);
 
                 } else if (!this.players.containsKey(otherPlayer.getUniqueId()) && player.canSee(otherPlayer)) {
 
-                    player.hidePlayer(this.plugin, otherPlayer);
+                    player.hidePlayer(this.getPlugin(), otherPlayer);
 
                 }
 
@@ -303,7 +302,7 @@ public class Game implements GamePart {
 
         for (UUID playerId : this.getPlayers().keySet()) {
             PlayerData playerData = this.players.get(playerId);
-            Player player = this.plugin.getServer().getPlayer(playerId);
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
 
             if (playerData == null) {
                 this.players.remove(playerId);
@@ -343,13 +342,13 @@ public class Game implements GamePart {
                     playerData.setRespawnCountdown(this.respawnCountdown);
                 }
 
-                if (!this.plugin.isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
+                if (!this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
                     player.setGameMode(GameMode.SURVIVAL);
                 }
 
             } else {
 
-                if (!this.plugin.isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
+                if (!this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
                     player.setGameMode(GameMode.SPECTATOR);
                 }
 
@@ -445,7 +444,7 @@ public class Game implements GamePart {
 
             if (this.timeStep >= 20) {
                 if (playerData.getTrackingTarget() != null) {
-                    Player trackingPlayer = this.plugin.getServer().getPlayer(playerData.getTrackingTarget());
+                    Player trackingPlayer = this.getPlugin().getServer().getPlayer(playerData.getTrackingTarget());
 
                     if (trackingPlayer != null) {
                         player.setCompassTarget(trackingPlayer.getCompassTarget());
@@ -468,7 +467,7 @@ public class Game implements GamePart {
     private void scoreboardCleanup() {
 
         for (UUID playerId : this.getPlayerScoreboards().keySet()) {
-            Player player = this.plugin.getServer().getPlayer(playerId);
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
 
             if (player == null) {
                 this.playerScoreboards.remove(playerId);
@@ -650,11 +649,11 @@ public class Game implements GamePart {
 
         }
 
-        if (this.plugin.getConfigManager().getConfig().optBoolean("testingMode", false)) {
+        if (this.getPlugin().getConfigManager().getConfig().optBoolean("testingMode", false)) {
 
             if (aliveTeams.size() == 1) {
 
-                for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+                for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b§lGAME END CONDITION TRIGGERED: §r" + aliveTeams.get(0).getChatColor() + "Team " + aliveTeams.get(0).getName() + " §bhas won"));
                 }
 
@@ -663,7 +662,7 @@ public class Game implements GamePart {
 
             if (aliveTeams.size() < 1) {
 
-                for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+                for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b§lGAME END CONDITION TRIGGERED: §r§cNo team has won"));
                 }
 
@@ -703,7 +702,7 @@ public class Game implements GamePart {
                 item = player.getItemOnCursor();
             }
 
-            int itemId = this.plugin.getItemStorage().getItemId(item);
+            int itemId = this.getPlugin().getItemStorage().getItemId(item);
 
             if (itemId < 0) {
                 continue;
@@ -722,7 +721,7 @@ public class Game implements GamePart {
             if (item != null && (item.getType().toString().endsWith("SWORD") || item.getType().toString().endsWith("AXE"))) {
 
                 if (item.getItemMeta() == null) {
-                    item.setItemMeta(this.plugin.getServer().getItemFactory().getItemMeta(item.getType()));
+                    item.setItemMeta(this.getPlugin().getServer().getItemFactory().getItemMeta(item.getType()));
                 }
 
                 int enchantmentLevel = 0;
@@ -755,10 +754,10 @@ public class Game implements GamePart {
 
             // Protection Team Upgrade
 
-            if (item != null && this.plugin.getItemStorage().isArmorItem(item)) {
+            if (item != null && this.getPlugin().getItemStorage().isArmorItem(item)) {
 
                 if (item.getItemMeta() == null) {
-                    item.setItemMeta(this.plugin.getServer().getItemFactory().getItemMeta(item.getType()));
+                    item.setItemMeta(this.getPlugin().getServer().getItemFactory().getItemMeta(item.getType()));
                 }
 
                 int enchantmentLevel = 0;
@@ -866,7 +865,7 @@ public class Game implements GamePart {
                         continue;
                     }
 
-                    int item2Id = this.plugin.getItemStorage().getItemId(item2);
+                    int item2Id = this.getPlugin().getItemStorage().getItemId(item2);
 
                     if (item2Id < 0) {
                         continue;
@@ -967,14 +966,14 @@ public class Game implements GamePart {
                     bootsItemId = this.armorConfig.getDefaultBoots();
                 }
 
-                if (this.plugin.getItemStorage().getItemId(player.getInventory().getBoots()) != bootsItemId) {
+                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getBoots()) != bootsItemId) {
 
-                    ItemStack item = this.plugin.getItemStorage().getItem(bootsItemId);
+                    ItemStack item = this.getPlugin().getItemStorage().getItem(bootsItemId);
 
                     if (item != null) {
 
                         if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getColor());
                         }
 
                         player.getInventory().setBoots(item);
@@ -992,18 +991,18 @@ public class Game implements GamePart {
                     leggingsItemId = this.armorConfig.getDefaultLeggings();
                 }
 
-                if (this.plugin.getItemStorage().getItemId(player.getInventory().getLeggings()) != leggingsItemId) {
+                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getLeggings()) != leggingsItemId) {
 
-                    ItemStack item = this.plugin.getItemStorage().getItem(leggingsItemId);
+                    ItemStack item = this.getPlugin().getItemStorage().getItem(leggingsItemId);
 
                     if (item != null) {
 
                         if (leggingsItemId != this.armorConfig.getDefaultLeggings()) {
-                            item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 2));
+                            item = this.getPlugin().getItemStorage().copyItemMeta(item, this.getPlugin().getItemStorage().getArmorPiece(item.getType(), 2));
                         }
 
                         if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getColor());
                         }
 
                         player.getInventory().setLeggings(item);
@@ -1021,18 +1020,18 @@ public class Game implements GamePart {
                     chestplateItemId = this.armorConfig.getDefaultChestplate();
                 }
 
-                if (this.plugin.getItemStorage().getItemId(player.getInventory().getChestplate()) != chestplateItemId) {
+                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getChestplate()) != chestplateItemId) {
 
-                    ItemStack item = this.plugin.getItemStorage().getItem(chestplateItemId);
+                    ItemStack item = this.getPlugin().getItemStorage().getItem(chestplateItemId);
 
                     if (item != null) {
 
                         if (chestplateItemId != this.armorConfig.getDefaultChestplate()) {
-                            item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 1));
+                            item = this.getPlugin().getItemStorage().copyItemMeta(item, this.getPlugin().getItemStorage().getArmorPiece(item.getType(), 1));
                         }
 
                         if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getColor());
                         }
 
                         player.getInventory().setChestplate(item);
@@ -1050,18 +1049,18 @@ public class Game implements GamePart {
                     helmetItemId = this.armorConfig.getDefaultHelmet();
                 }
 
-                if (this.plugin.getItemStorage().getItemId(player.getInventory().getHelmet()) != helmetItemId) {
+                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getHelmet()) != helmetItemId) {
 
-                    ItemStack item = this.plugin.getItemStorage().getItem(helmetItemId);
+                    ItemStack item = this.getPlugin().getItemStorage().getItem(helmetItemId);
 
                     if (item != null) {
 
                         if (helmetItemId != this.armorConfig.getDefaultHelmet()) {
-                            item = this.plugin.getItemStorage().copyItemMeta(item, this.plugin.getItemStorage().getArmorPiece(item.getType(), 0));
+                            item = this.getPlugin().getItemStorage().copyItemMeta(item, this.getPlugin().getItemStorage().getArmorPiece(item.getType(), 0));
                         }
 
                         if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.plugin.getItemStorage().colorArmor(item, team.getColor());
+                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getColor());
                         }
 
                         player.getInventory().setHelmet(item);
@@ -1141,9 +1140,9 @@ public class Game implements GamePart {
 
             for (UUID teamPlayerId : bedwarsTeam.getPlayers()) {
 
-                Player teamPlayer = this.plugin.getServer().getPlayer(teamPlayerId);
+                Player teamPlayer = this.getPlugin().getServer().getPlayer(teamPlayerId);
 
-                if (teamPlayer == player && this.plugin.isPlayerBypassing(player.getUniqueId())) {
+                if (teamPlayer == player && this.getPlugin().isPlayerBypassing(player.getUniqueId())) {
 
                     if (team.getEntries().contains(player.getName())) {
                         team.removeEntry(player.getName());
@@ -1178,9 +1177,9 @@ public class Game implements GamePart {
 
         }
 
-        for (Player teamPlayer : this.plugin.getServer().getOnlinePlayers()) {
+        for (Player teamPlayer : this.getPlugin().getServer().getOnlinePlayers()) {
 
-            if (teamPlayer == player && this.plugin.isPlayerBypassing(player.getUniqueId())) {
+            if (teamPlayer == player && this.getPlugin().isPlayerBypassing(player.getUniqueId())) {
 
                 if (spectatorTeam.getEntries().contains(player.getName())) {
                     spectatorTeam.removeEntry(player.getName());
@@ -1276,7 +1275,7 @@ public class Game implements GamePart {
     }
 
     public void prepareGame() {
-        for (Player player : this.plugin.getServer().getOnlinePlayers()) {
+        for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
 
             if (!this.players.containsKey(player.getUniqueId())) {
                 continue;
@@ -1317,7 +1316,7 @@ public class Game implements GamePart {
 
         if (this.winner != null) {
 
-            for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+            for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
                 player.sendMessage("§bTeam " + this.winner.getChatColor() + this.winner.getName() + " §bhas won");
 
                 if (this.winner.getPlayers().contains(player.getUniqueId())) {
@@ -1327,15 +1326,15 @@ public class Game implements GamePart {
 
         } else if (this.noWinnerEnd) {
 
-            for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+            for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
                 player.sendMessage("§bGame ended §cwithout §ba winner");
             }
 
         }
 
-        for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+        for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
 
-            if (this.plugin.isPlayerBypassing(player.getUniqueId())) {
+            if (this.getPlugin().isPlayerBypassing(player.getUniqueId())) {
                 continue;
             }
 
@@ -1396,7 +1395,7 @@ public class Game implements GamePart {
     }
 
     public boolean addPlayer(UUID playerId, int team) {
-        Player player = this.plugin.getServer().getPlayer(playerId);
+        Player player = this.getPlugin().getServer().getPlayer(playerId);
 
         if (player != null) {
             player.getInventory().clear();
@@ -1408,10 +1407,6 @@ public class Game implements GamePart {
 
     public boolean removePlayer(UUID playerId) {
         return this.players.remove(playerId) != null;
-    }
-
-    public Bedwars getPlugin() {
-        return this.plugin;
     }
 
     public Map<UUID, PlayerData> getPlayers() {
