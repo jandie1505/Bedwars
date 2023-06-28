@@ -1560,7 +1560,7 @@ public class EventListener implements Listener {
 
         } else {
 
-            if (!this.plugin.isPlayerBypassing(event.getEntity().getUniqueId())) {
+            if (this.plugin.isPlayerBypassing(event.getEntity().getUniqueId())) {
                 return;
             }
 
