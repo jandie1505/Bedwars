@@ -21,6 +21,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,6 +66,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             case "bypass":
                 this.bypassSubcommand(sender, args);
                 break;
+            case "maptp":
             case "mapteleport":
                 this.mapTeleportSubcommand(sender);
                 break;
@@ -99,6 +101,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 break;
             case "reload":
                 this.reloadSubcommand(sender);
+                break;
+            case "leave":
+                this.leaveSubcommand(sender);
                 break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
@@ -1396,6 +1401,25 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
     }
 
+    public void leaveSubcommand(CommandSender sender) {
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("§cThis command can only be executed by a player");
+            return;
+        }
+
+        if (this.plugin.getGame() instanceof Game) {
+            if (((Game) this.plugin.getGame()).removePlayer(((Player) sender).getUniqueId())) {
+                sender.sendMessage("§aLeft game successfully");
+            } else {
+                sender.sendMessage("§cYou are not ingame");
+            }
+        } else {
+            sender.sendMessage("§cYou need to be ingame to use this command");
+        }
+
+    }
+
     public boolean hasAdminPermission(CommandSender sender) {
         return sender == this.plugin.getServer().getConsoleSender() || (sender instanceof Player && sender.hasPermission("bedwars.admin"));
     }
@@ -1436,6 +1460,33 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
-        return List.of();
+        List<String> tabComplete = new ArrayList<>();
+
+        if (args.length == 1) {
+
+            tabComplete.add("maps");
+            tabComplete.add("votemap");
+            tabComplete.add("leave");
+
+            if (this.hasAdminPermission(sender)) {
+                tabComplete.add("status");
+                tabComplete.add("stop");
+                tabComplete.add("start");
+                tabComplete.add("force-stop");
+                tabComplete.add("players");
+                tabComplete.add("mapteleport");
+                tabComplete.add("gameinfo");
+                tabComplete.add("getgamevalue");
+                tabComplete.add("setgamevalue");
+                tabComplete.add("forcemap");
+                tabComplete.add("getlobbyvalue");
+                tabComplete.add("setlobbyvalue");
+                tabComplete.add("reload");
+            }
+
+        }
+
+
+        return List.copyOf(tabComplete);
     }
 }
