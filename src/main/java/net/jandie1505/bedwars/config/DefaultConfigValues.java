@@ -115,7 +115,7 @@ public final class DefaultConfigValues {
         greenTeamData.put("name", "Green");
         greenTeamData.put("color", Color.LIME.asRGB());
         greenTeamData.put("chatColor", "GREEN");
-        greenTeamData.put("baseRadius", 10);
+        greenTeamData.put("baseRadius", 15);
 
         // Green Base Center
 
@@ -231,7 +231,7 @@ public final class DefaultConfigValues {
         redTeamData.put("name", "Red");
         redTeamData.put("color", Color.RED.asRGB());
         redTeamData.put("chatColor", "RED");
-        redTeamData.put("baseRadius", 10);
+        redTeamData.put("baseRadius", 15);
 
         // Red BaseCenter
 
