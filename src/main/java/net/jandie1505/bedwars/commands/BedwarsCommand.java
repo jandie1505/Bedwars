@@ -118,7 +118,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
     }
 
     private void stopSubcommand(CommandSender sender) {
-        sender.sendMessage("§cCurrently not supported, use force-stop instead");
+        this.forceStopSubcommand(sender);
     }
 
     private void statusSubcommand(CommandSender sender) {
