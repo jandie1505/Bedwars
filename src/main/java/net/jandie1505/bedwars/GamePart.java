@@ -7,7 +7,7 @@ public abstract class GamePart {
         this.plugin = plugin;
     }
 
-    public abstract GameStatus tick();
+    public abstract boolean tick();
     public abstract GamePart getNextStatus();
 
     public Bedwars getPlugin() {

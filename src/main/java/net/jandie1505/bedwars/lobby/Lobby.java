@@ -2,7 +2,6 @@ package net.jandie1505.bedwars.lobby;
 
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
-import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
@@ -521,7 +520,7 @@ public class Lobby extends GamePart {
     }
 
     @Override
-    public GameStatus tick() {
+    public boolean tick() {
 
         // PLAYER MANAGEMENT
 
@@ -701,14 +700,16 @@ public class Lobby extends GamePart {
                 }
 
             } else {
-                return GameStatus.NEXT_STATUS;
+                this.getPlugin().nextStatus();
+                return true;
             }
         }
 
         // FORCE START
 
         if (this.forcestart) {
-            return GameStatus.NEXT_STATUS;
+            this.getPlugin().nextStatus();
+            return true;
         }
 
         // TIME STEP
@@ -719,7 +720,7 @@ public class Lobby extends GamePart {
             this.timeStep++;
         }
 
-        return GameStatus.NORMAL;
+        return true;
     }
 
     private List<MapData> getHighestVotedMaps() {

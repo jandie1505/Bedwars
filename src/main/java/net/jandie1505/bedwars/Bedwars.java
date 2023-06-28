@@ -25,6 +25,7 @@ public class Bedwars extends JavaPlugin {
     private int exceptionCount;
     private List<World> managedWorlds;
     private ItemStorage itemStorage;
+    private boolean nextStatus;
 
     @Override
     public void onEnable() {
@@ -36,6 +37,7 @@ public class Bedwars extends JavaPlugin {
         this.exceptionCount = 0;
         this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
         this.itemStorage = new ItemStorage(this);
+        this.nextStatus = false;
 
         this.configManager.reloadConfig();
         this.mapConfig.reloadConfig();
@@ -59,12 +61,21 @@ public class Bedwars extends JavaPlugin {
 
                     try {
 
-                        GameStatus gameStatus = this.game.tick();
+                        if (this.game.tick()) {
 
-                        if (gameStatus == GameStatus.NEXT_STATUS) {
-                            this.game = this.game.getNextStatus();
-                        } else if (gameStatus == GameStatus.ABORT) {
-                            this.game = null;
+                            if (this.nextStatus) {
+
+                                this.nextStatus = false;
+                                this.game = this.game.getNextStatus();
+                                this.getLogger().info("Updated game part");
+
+                            }
+
+                        } else {
+
+                            this.stopGame();
+                            this.getLogger().warning("Game stopped because it was aborted by tick");
+
                         }
 
                     } catch (Exception e) {
@@ -248,12 +259,18 @@ public class Bedwars extends JavaPlugin {
 
     public void stopGame() {
         this.game = null;
+        this.getLogger().info("Stopped game");
     }
 
     public void startGame() {
         if (this.game == null) {
             this.game = new Lobby(this);
+            this.getLogger().info("Started game");
         }
+    }
+
+    public void nextStatus() {
+        this.nextStatus = true;
     }
 
     public GamePart getGame() {

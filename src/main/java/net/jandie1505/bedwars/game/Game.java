@@ -2,7 +2,6 @@ package net.jandie1505.bedwars.game;
 
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
-import net.jandie1505.bedwars.GameStatus;
 import net.jandie1505.bedwars.game.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.generators.Generator;
@@ -153,7 +152,7 @@ public class Game extends GamePart {
     }
 
     @Override
-    public GameStatus tick() {
+    public boolean tick() {
 
         // PREPARE GAME (RUN FIRST)
 
@@ -165,7 +164,7 @@ public class Game extends GamePart {
 
         if (this.world == null || !this.getPlugin().getServer().getWorlds().contains(this.world)) {
             this.getPlugin().getLogger().warning("Bedwars game end because world is not loaded");
-            return GameStatus.ABORT;
+            return false;
         }
 
         // PLAYER MANAGEMENT
@@ -210,11 +209,13 @@ public class Game extends GamePart {
         // CHECK GAME END CONDITIONS (RUN BEFORE TIME)
 
         if (this.winner != null) {
-            return GameStatus.NEXT_STATUS;
+            this.getPlugin().nextStatus();
+            return true;
         }
 
         if (this.noWinnerEnd) {
-            return GameStatus.NEXT_STATUS;
+            this.getPlugin().nextStatus();
+            return true;
         }
 
         // TIME (RUN BEFORE TIME STEP)
@@ -223,7 +224,8 @@ public class Game extends GamePart {
             if (this.time > 0) {
                 this.time--;
             } else {
-                return GameStatus.NEXT_STATUS;
+                this.getPlugin().nextStatus();
+                return true;
             }
         }
 
@@ -235,7 +237,7 @@ public class Game extends GamePart {
             this.timeStep++;
         }
 
-        return GameStatus.NORMAL;
+        return true;
     }
 
     /**
