@@ -97,6 +97,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             case "setlobbyvalue":
                 this.setLobbyValueSubcommand(sender, args);
                 break;
+            case "reload":
+                this.reloadSubcommand(sender);
+                break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
                 break;
@@ -1361,6 +1364,23 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
         } catch (IllegalArgumentException e) {
             sender.sendMessage("§cInvalid argument");
+        }
+
+    }
+
+    public void reloadSubcommand(CommandSender sender) {
+
+        if (!this.hasAdminPermission(sender)) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        sender.sendMessage("§bReloading plugin...");
+        this.plugin.reloadPlugin();
+        sender.sendMessage("§aPlugin successfully reloaded");
+
+        if (this.plugin.getGame() != null) {
+            sender.sendMessage("§aSome changes do not take effect until the next round");
         }
 
     }

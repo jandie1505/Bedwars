@@ -97,6 +97,14 @@ public class ItemStorage {
         this.items.put(id, item.clone());
     }
 
+    public boolean removeItem(int id) {
+        return this.items.remove(id) != null;
+    }
+
+    public void clearItems() {
+        this.items.clear();
+    }
+
     public void initItems() {
 
         JSONObject itemsConfig = this.plugin.getItemConfig().getConfig();

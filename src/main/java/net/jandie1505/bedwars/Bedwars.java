@@ -196,6 +196,20 @@ public class Bedwars extends JavaPlugin {
 
     }
 
+    public void reloadPlugin() {
+        this.getLogger().info("Reloading plugin...");
+
+        this.configManager.reloadConfig();
+        this.mapConfig.reloadConfig();
+        this.itemConfig.reloadConfig();
+        this.shopConfig.reloadConfig();
+
+        this.itemStorage.clearItems();
+        this.itemStorage.initItems();
+
+        this.getLogger().info("Plugin successfully reloaded");
+    }
+
     public ConfigManager getConfigManager() {
         return this.configManager;
     }
