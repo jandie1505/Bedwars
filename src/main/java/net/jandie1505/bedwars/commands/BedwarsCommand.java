@@ -88,6 +88,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             case "forcemap":
                 this.forcemapSubcommand(sender, args);
                 break;
+            case "votemap":
+                this.votemapCommand(sender, args);
+                break;
             case "getlobbyvalue":
                 this.getLobbyValueSubcommand(sender, args);
                 break;
