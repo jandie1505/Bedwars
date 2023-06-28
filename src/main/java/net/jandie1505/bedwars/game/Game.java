@@ -400,7 +400,7 @@ public class Game extends GamePart {
 
             int healPoolUpgrade = this.getUpgradeLevel(team.getHealPoolUpgrade(), this.teamUpgradesConfig.getHealPoolUpgrade().getUpgradeLevels());
 
-            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(team.getSpawnpoints().get(0), player.getLocation()) <= team.getBaseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
+            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(team.getBaseCenter(), player.getLocation()) <= team.getBaseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15 * 20, healPoolUpgrade - 1));
             }
 
@@ -574,7 +574,7 @@ public class Game extends GamePart {
 
             if (team.hasPrimaryTraps()) {
 
-                List<Entity> entitiesInRadius = List.copyOf(this.world.getNearbyEntities(team.getSpawnpoints().get(0), team.getBaseRadius(), team.getBaseRadius(), team.getBaseRadius()));
+                List<Entity> entitiesInRadius = List.copyOf(this.world.getNearbyEntities(team.getBaseCenter(), team.getBaseRadius(), team.getBaseRadius(), team.getBaseRadius()));
 
                 for (Entity entity : entitiesInRadius) {
 

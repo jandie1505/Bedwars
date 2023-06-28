@@ -117,6 +117,14 @@ public final class DefaultConfigValues {
         greenTeamData.put("chatColor", "GREEN");
         greenTeamData.put("baseRadius", 10);
 
+        // Green Base Center
+
+        JSONObject greenTeamBaseCenter = new JSONObject();
+        greenTeamBaseCenter.put("x", 54.5);
+        greenTeamBaseCenter.put("y", 1.0);
+        greenTeamBaseCenter.put("z", 0.5);
+        greenTeamData.put("baseCenter", greenTeamBaseCenter);
+
         // Green Spawnpoints
 
         JSONArray greenTeamSpawnpoints = new JSONArray();
@@ -224,6 +232,14 @@ public final class DefaultConfigValues {
         redTeamData.put("color", Color.RED.asRGB());
         redTeamData.put("chatColor", "RED");
         redTeamData.put("baseRadius", 10);
+
+        // Red BaseCenter
+
+        JSONObject redTeamBaseCenter = new JSONObject();
+        redTeamBaseCenter.put("x", -53.5);
+        redTeamBaseCenter.put("y", 1.0);
+        redTeamBaseCenter.put("z", 0.5);
+        redTeamData.put("baseCenter", redTeamBaseCenter);
 
         // Red Spawnpoints
 

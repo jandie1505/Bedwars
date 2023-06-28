@@ -10,6 +10,7 @@ public class LobbyTeamData {
     private final String name;
     private final ChatColor chatColor;
     private final Color color;
+    private final Location baseCenter;
     private final int baseRadius;
     private final List<Location> spawnpoints;
     private final List<Location> bedLocations;
@@ -17,10 +18,11 @@ public class LobbyTeamData {
     private final List<Location> shopVillagerLocations;
     private final List<Location> upgradesVillagerLocations;
 
-    public LobbyTeamData(String name, ChatColor chatColor, Color color, List<Location> spawnpoints, int baseRadius, List<Location> bedLocations, List<LobbyGeneratorData> generators, List<Location> shopVillagerLocations, List<Location> upgradesVillagerLocations) {
+    public LobbyTeamData(String name, ChatColor chatColor, Color color, List<Location> spawnpoints, Location baseCenter, int baseRadius, List<Location> bedLocations, List<LobbyGeneratorData> generators, List<Location> shopVillagerLocations, List<Location> upgradesVillagerLocations) {
         this.name = name;
         this.chatColor = chatColor;
         this.color = color;
+        this.baseCenter = baseCenter;
         this.baseRadius = baseRadius;
         this.spawnpoints = List.copyOf(spawnpoints);
         this.bedLocations = List.copyOf(bedLocations);
@@ -39,6 +41,10 @@ public class LobbyTeamData {
 
     public Color getColor() {
         return color;
+    }
+
+    public Location getBaseCenter() {
+        return baseCenter;
     }
 
     public int getBaseRadius() {

@@ -191,6 +191,13 @@ public class Lobby extends GamePart {
                     continue;
                 }
 
+                Location baseCenter = buildLocationFromJSONObject(team.optJSONObject("baseCenter", new JSONObject()), false);
+
+                if (baseCenter == null) {
+                    this.getPlugin().getLogger().warning("Map Config: Missing baseCenter of team " + teamName + " of map " + name + " (" + index + ")");
+                    continue;
+                }
+
                 int baseRadius = team.optInt("baseRadius", -1);
 
                 if (baseRadius < 0) {
@@ -243,7 +250,7 @@ public class Lobby extends GamePart {
 
                 List<Location> upgradeVillagerLocations = this.buildLocationList(upgradeVillagerLocationArray, true);
 
-                teams.add(new LobbyTeamData(teamName, teamChatColor, teamColor, teamSpawnpoints, baseRadius, teamBedLocations, teamGenerators, shopVillagerLocations, upgradeVillagerLocations));
+                teams.add(new LobbyTeamData(teamName, teamChatColor, teamColor, teamSpawnpoints, baseCenter, baseRadius, teamBedLocations, teamGenerators, shopVillagerLocations, upgradeVillagerLocations));
             }
 
             JSONArray globalGeneratorArray = map.optJSONArray("globalGenerators");
