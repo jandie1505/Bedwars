@@ -37,6 +37,9 @@ public class Lobby implements GamePart {
     private boolean mapVoting;
     private int requiredPlayers;
     private boolean timerPaused;
+    private boolean lobbyBorderEnabled;
+    private int[] lobbyBorder;
+    private Location lobbySpawn;
 
     public Lobby(Bedwars plugin) {
         this.plugin = plugin;
@@ -49,10 +52,26 @@ public class Lobby implements GamePart {
         this.time = 120;
         this.forcestart = false;
         this.selectedMap = null;
-
         this.mapVoting = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optBoolean("mapVoting", false);
         this.requiredPlayers = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("requiredPlayers", 2);
         this.timerPaused = false;
+        this.lobbyBorderEnabled = this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optBoolean("enable", false);
+        this.lobbyBorder = new int[]{
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x1", -10),
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y1", -10),
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z1", -10),
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x2", 10),
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y2", 10),
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z2", 10)
+        };
+        this.lobbySpawn = new Location(
+                this.plugin.getServer().getWorlds().get(0),
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
+                this.plugin.getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
+        );
 
         JSONArray mapArray = this.plugin.getMapConfig().getConfig().optJSONArray("maps");
 
@@ -551,6 +570,18 @@ public class Lobby implements GamePart {
 
             if ((this.time <= 5 || (this.time % 10 == 0)) && this.players.size() >= this.requiredPlayers && this.timeStep >= 20) {
                 player.sendMessage("§7The game starts in " + this.time + " seconds");
+            }
+
+            // Lobby border
+
+            if (!this.plugin.isPlayerBypassing(playerId) && this.lobbyBorderEnabled) {
+
+                Location location = player.getLocation();
+
+                if (!(location.getBlockX() >= this.lobbyBorder[0] && location.getBlockY() >= this.lobbyBorder[1] && location.getBlockZ() >= this.lobbyBorder[2] && location.getBlockX() <= this.lobbyBorder[3] && location.getBlockY() <= this.lobbyBorder[4] && location.getBlockZ() <= this.lobbyBorder[5])) {
+                    player.teleport(this.lobbySpawn);
+                }
+
             }
 
             // Scoreboard

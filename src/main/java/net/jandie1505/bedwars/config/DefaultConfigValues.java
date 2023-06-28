@@ -32,6 +32,7 @@ public final class DefaultConfigValues {
         lobbyConfig.put("mapButton", 171);
 
         JSONObject lobbyBorder = new JSONObject();
+        lobbyBorder.put("enable", false);
         lobbyBorder.put("x1", -9);
         lobbyBorder.put("y1", -60);
         lobbyBorder.put("z1", -9);
