@@ -797,6 +797,7 @@ public class EventListener implements Listener {
             // Ingame
 
             if (!(this.plugin.getGame() instanceof Game)) {
+                event.setCancelled(true);
                 return;
             }
 
@@ -1153,6 +1154,12 @@ public class EventListener implements Listener {
                 return;
             }
 
+            // Block if not ingame
+            if (!(this.plugin.getGame() instanceof Game)) {
+                event.setCancelled(true);
+                return;
+            }
+
             // Block armor slots
             if (event.getInventorySlots().contains(36) || event.getInventorySlots().contains(37) || event.getInventorySlots().contains(38) || event.getInventorySlots().contains(39)) {
                 event.setCancelled(true);
@@ -1160,6 +1167,7 @@ public class EventListener implements Listener {
                 return;
             }
 
+            // Block Crafting
             if (event.getRawSlots().contains(0) || event.getRawSlots().contains(1) || event.getRawSlots().contains(2) || event.getRawSlots().contains(3) || event.getRawSlots().contains(4)) {
                 event.setCancelled(true);
                 return;
@@ -1235,6 +1243,21 @@ public class EventListener implements Listener {
                 }
 
             }
+        }
+
+    }
+
+    @EventHandler
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+
+            if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+                return;
+            }
+
+            event.setCancelled(true);
+            return;
         }
 
     }

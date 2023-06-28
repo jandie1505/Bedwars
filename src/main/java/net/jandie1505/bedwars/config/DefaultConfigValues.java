@@ -566,7 +566,7 @@ public final class DefaultConfigValues {
 
         JSONObject mapVotingButton = new JSONObject();
 
-        mapVotingButton.put("type", "EMPTY_MAP");
+        mapVotingButton.put("type", Material.MAP.name());
         mapVotingButton.put("name", "§r§b§lMap Voting §r§b(right click)");
 
         config.put("1", mapVotingButton);

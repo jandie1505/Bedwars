@@ -553,55 +553,57 @@ public class Lobby implements GamePart {
 
             // Scoreboard
 
-            String mapName = "---";
+            if (this.timeStep >= 20) {
+                String mapName = "---";
 
-            if (this.selectedMap != null) {
-                mapName = this.selectedMap.getName();
-            }
-
-            Scoreboard scoreboard = this.plugin.getServer().getScoreboardManager().getNewScoreboard();
-            Objective objective = scoreboard.registerNewObjective("lobby", Criteria.DUMMY, "");
-
-            objective.setDisplayName("§6§lBEDWARS");
-
-            objective.getScore("§§§§").setScore(7);
-
-            if (this.players.size() >= 2) {
-
-                objective.getScore("§bStarting in " + this.time).setScore(6);
-                objective.getScore("§§§").setScore(5);
-                objective.getScore("§7Players: §a" + this.players.size() + " / 2").setScore(4);
-
-            } else {
-
-                objective.getScore("§cNot enough players").setScore(6);
-                objective.getScore("§§§").setScore(5);
-                objective.getScore("§7Players: §c" + this.players.size() + " / " + this.requiredPlayers).setScore(4);
-
-            }
-
-            objective.getScore("§§").setScore(3);
-            objective.getScore("§7Map: §a" + mapName).setScore(2);
-
-            objective.getScore("§").setScore(0);
-
-            if (this.selectedMap != null) {
-                if (playerData.getTeam() > 0) {
-                    LobbyTeamData team = this.selectedMap.getTeams().get(playerData.getTeam());
-
-                    if (team != null) {
-                        objective.getScore("§7Team: " + team.getChatColor() + team.getName()).setScore(1);
-                    } else {
-                        objective.getScore("§7Team: §c?").setScore(1);
-                    }
-                } else {
-                    objective.getScore("§7Team: §a" + "---").setScore(1);
+                if (this.selectedMap != null) {
+                    mapName = this.selectedMap.getName();
                 }
+
+                Scoreboard scoreboard = this.plugin.getServer().getScoreboardManager().getNewScoreboard();
+                Objective objective = scoreboard.registerNewObjective("lobby", Criteria.DUMMY, "");
+
+                objective.setDisplayName("§6§lBEDWARS");
+
+                objective.getScore("§§§§").setScore(7);
+
+                if (this.players.size() >= 2) {
+
+                    objective.getScore("§bStarting in " + this.time).setScore(6);
+                    objective.getScore("§§§").setScore(5);
+                    objective.getScore("§7Players: §a" + this.players.size() + " / 2").setScore(4);
+
+                } else {
+
+                    objective.getScore("§cNot enough players").setScore(6);
+                    objective.getScore("§§§").setScore(5);
+                    objective.getScore("§7Players: §c" + this.players.size() + " / " + this.requiredPlayers).setScore(4);
+
+                }
+
+                objective.getScore("§§").setScore(3);
+                objective.getScore("§7Map: §a" + mapName).setScore(2);
+
+                objective.getScore("§").setScore(0);
+
+                if (this.selectedMap != null) {
+                    if (playerData.getTeam() > 0) {
+                        LobbyTeamData team = this.selectedMap.getTeams().get(playerData.getTeam());
+
+                        if (team != null) {
+                            objective.getScore("§7Team: " + team.getChatColor() + team.getName()).setScore(1);
+                        } else {
+                            objective.getScore("§7Team: §c?").setScore(1);
+                        }
+                    } else {
+                        objective.getScore("§7Team: §a" + "---").setScore(1);
+                    }
+                }
+
+                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+
+                player.setScoreboard(scoreboard);
             }
-
-            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-
-            player.setScoreboard(scoreboard);
 
             // Items
 
