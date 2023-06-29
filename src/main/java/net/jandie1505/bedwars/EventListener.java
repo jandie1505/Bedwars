@@ -1605,8 +1605,6 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
 
-        System.out.println(event);
-
         if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
 
             if (event.getDamage() < 100) {
@@ -1644,8 +1642,6 @@ public class EventListener implements Listener {
 
             if (event instanceof EntityDamageByEntityEvent) {
 
-                System.out.println(((EntityDamageByEntityEvent) event).getDamager());
-
                 Entity customDamager = null;
 
                 if (((EntityDamageByEntityEvent) event).getDamager() instanceof Projectile) {
@@ -1659,8 +1655,6 @@ public class EventListener implements Listener {
                 if (customDamager == null) {
                     customDamager = ((EntityDamageByEntityEvent) event).getDamager();
                 }
-
-                System.out.println("damage event: " + customDamager);
 
                 if (customDamager instanceof Player) {
 
@@ -1688,7 +1682,6 @@ public class EventListener implements Listener {
                         return;
                     }
 
-                    System.out.println("lowered irongolem lifetime");
                     baseDefender.setLifetime(baseDefender.getLifetime() - 10);
 
                 }
