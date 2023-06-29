@@ -704,6 +704,52 @@ public class Game extends GamePart {
                 item = player.getItemOnCursor();
             }
 
+            if (item == null) {
+                return;
+            }
+
+            // Replace Wool
+
+            replaceBlockWithTeamColor(item, team);
+
+            // Group Items
+
+            if ((item.getType().name().endsWith("WOOL") || item.getType().name().endsWith("GLASS")) && slot < player.getInventory().getSize() && this.timeStep >= 20) {
+
+                for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2++) {
+                    ItemStack item2 = player.getInventory().getItem(slot2);
+
+                    if (slot <= slot2) {
+                        continue;
+                    }
+
+                    if (item2 == null) {
+                        continue;
+                    }
+
+                    if (!item.isSimilar(item2)) {
+                        continue;
+                    }
+
+                    for (int amount = 0; amount < item.getAmount(); amount++) {
+
+                        if (item2.getAmount() >= item2.getMaxStackSize()) {
+                            break;
+                        }
+
+                        if (item.getAmount() <= 0) {
+                            break;
+                        }
+
+                        item2.setAmount(item2.getAmount() + 1);
+                        item.setAmount(item.getAmount() - 1);
+
+                    }
+
+                }
+
+            }
+
             int itemId = this.getPlugin().getItemStorage().getItemId(item);
 
             if (itemId < 0) {
@@ -784,72 +830,6 @@ public class Game extends GamePart {
                         ItemMeta meta = item.getItemMeta();
                         meta.removeEnchant(Enchantment.PROTECTION_ENVIRONMENTAL);
                         item.setItemMeta(meta);
-                    }
-
-                }
-
-            }
-
-            // Replace Wool
-
-            if (item.getType().toString().endsWith("WOOL")) {
-                String blockColor = Bedwars.getBlockColorString(team.getChatColor());
-
-                if (blockColor != null) {
-                    Material material = Material.getMaterial(blockColor + "_WOOL");
-
-                    if (material != null && item.getType() != material) {
-                        item.setType(material);
-                    }
-                }
-            }
-
-            // Replace Glass
-
-            if (item.getType().toString().endsWith("STAINED_GLASS") || item.getType().toString().endsWith("GLASS")) {
-                String blockColor = Bedwars.getBlockColorString(team.getChatColor());
-
-                if (blockColor != null) {
-                    Material material = Material.getMaterial(blockColor + "_STAINED_GLASS");
-
-                    if (material != null && item.getType() != material) {
-                        item.setType(material);
-                    }
-                }
-            }
-
-            // Group Items
-
-            if ((item.getType().name().endsWith("WOOL") || item.getType().name().endsWith("GLASS")) && slot < player.getInventory().getSize() && this.timeStep >= 20) {
-
-                for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2++) {
-                    ItemStack item2 = player.getInventory().getItem(slot2);
-
-                    if (slot <= slot2) {
-                        continue;
-                    }
-
-                    if (item2 == null) {
-                        continue;
-                    }
-
-                    if (!item.isSimilar(item2)) {
-                        continue;
-                    }
-
-                    for (int amount = 0; amount < item.getAmount(); amount++) {
-
-                        if (item2.getAmount() >= item2.getMaxStackSize()) {
-                            break;
-                        }
-
-                        if (item.getAmount() <= 0) {
-                            break;
-                        }
-
-                        item2.setAmount(item2.getAmount() + 1);
-                        item.setAmount(item.getAmount() - 1);
-
                     }
 
                 }
@@ -1556,5 +1536,38 @@ public class Game extends GamePart {
 
     public void removeBaseDefender(BaseDefender baseDefender) {
         this.baseDefenders.remove(baseDefender);
+    }
+
+    public static void replaceBlockWithTeamColor(ItemStack item, BedwarsTeam team) {
+
+        String[] array = item.getType().name().split("_");
+        String typeSuffix = array[array.length - 1];
+
+        if (!typeSuffix.equals("WOOL") && !typeSuffix.equals("GLASS")) {
+            return;
+        }
+
+        if (typeSuffix.equals("GLASS")) {
+            typeSuffix = "STAINED_GLASS";
+        }
+
+        String blockColor = Bedwars.getBlockColorString(team.getChatColor());
+
+        if (blockColor == null) {
+            return;
+        }
+
+        Material material = Material.getMaterial(blockColor + "_" + typeSuffix);
+
+        if (material == null) {
+            return;
+        }
+
+        if (item.getType() == material) {
+            return;
+        }
+
+        item.setType(material);
+
     }
 }

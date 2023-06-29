@@ -929,8 +929,22 @@ public class EventListener implements Listener {
                     return;
                 }
 
+                ItemStack item = this.plugin.getGame().getPlugin().getItemStorage().getItem(itemId);
+
+                if (item == null) {
+                    return;
+                }
+
+                PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getWhoClicked().getUniqueId());
+                if (playerData != null) {
+                    BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
+                    if (team != null) {
+                        Game.replaceBlockWithTeamColor(item, team);
+                    }
+                }
+
                 event.getWhoClicked().sendMessage("§aItem successfully purchased");
-                event.getWhoClicked().getInventory().addItem(((Game) this.plugin.getGame()).getPlugin().getItemStorage().getItem(itemId));
+                event.getWhoClicked().getInventory().addItem(item);
                 event.getWhoClicked().openInventory(new ShopMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getPage(ShopMenu.getMenuPage(event.getInventory())));
 
                 return;
