@@ -1393,6 +1393,13 @@ public class EventListener implements Listener {
             }
         }
 
+        Block block = event.getPlayer().getWorld().getBlockAt(event.getPlayer().getLocation().clone().add(0, -1, 0));
+
+        if (block.getType() == Material.AIR) {
+            event.setCancelled(true);
+            event.getPlayer().sendMessage("§cYou cannot drop items while you are not on the ground");
+        }
+
     }
 
     @EventHandler
