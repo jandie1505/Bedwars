@@ -54,7 +54,7 @@ public class BaseDefender {
         }
 
         if (!this.ironGolem.hasPotionEffect(PotionEffectType.SPEED)) {
-            this.ironGolem.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 0, 3600*20, false, false));
+            this.ironGolem.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600*20, 0, false, false));
         }
 
         if (!this.ironGolem.isCustomNameVisible()) {
@@ -164,5 +164,25 @@ public class BaseDefender {
 
     public boolean canBeRemoved() {
         return this.game == null || this.ironGolem == null || this.ironGolem.isDead();
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public IronGolem getIronGolem() {
+        return ironGolem;
+    }
+
+    public int getTeamId() {
+        return teamId;
+    }
+
+    public int getLifetime() {
+        return lifetime;
+    }
+
+    public void setLifetime(int lifetime) {
+        this.lifetime = lifetime;
     }
 }

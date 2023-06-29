@@ -20,6 +20,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -1529,6 +1530,18 @@ public class Game extends GamePart {
 
     public List<BaseDefender> getBaseDefenders() {
         return List.copyOf(this.baseDefenders);
+    }
+
+    public BaseDefender getBaseDefenderByEntity(IronGolem ironGolem) {
+        for (BaseDefender b : this.getBaseDefenders()) {
+
+            if (b.getIronGolem() == ironGolem) {
+                return b;
+            }
+
+        }
+
+        return null;
     }
 
     public void addBaseDefender(BaseDefender baseDefender) {

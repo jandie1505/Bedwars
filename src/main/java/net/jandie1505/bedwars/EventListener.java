@@ -194,6 +194,11 @@ public class EventListener implements Listener {
 
                 } else if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof TNTPrimed) {
                     deathMessage = deathMessage + "was blown away by";
+                } else if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof IronGolem) {
+
+                    deathMessage = deathMessage + getIronGolemDeathMessage((IronGolem) ((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager(), deathMessage);
+                    deathMessage = deathMessage + " §7while running away from";
+
                 } else {
                     deathMessage = deathMessage + "died in combat with";
                 }
@@ -252,39 +257,68 @@ public class EventListener implements Listener {
             return deathMessage;
         } else {
 
-            switch (event.getEntity().getLastDamageCause().getCause()) {
-                case DROWNING:
-                    deathMessage = deathMessage + "could not surface in time before running out of air";
-                case ENTITY_EXPLOSION:
-                    deathMessage = deathMessage + "became a suicide bomber";
-                    break;
-                case FIRE_TICK:
-                    deathMessage = deathMessage + "has not found any water to extinguish";
-                    break;
-                case SUFFOCATION:
-                    deathMessage = deathMessage + "had to make the experience that you need air to breathe";
-                    break;
-                case MAGIC:
-                    deathMessage = deathMessage + "has felt the painful side of magic";
-                    break;
-                case LAVA:
-                    deathMessage = deathMessage + "wanted to take a hot bath";
-                    break;
-                case FIRE:
-                    deathMessage = deathMessage + "has learned that fire is hot";
-                    break;
-                case FALL:
-                    deathMessage = deathMessage + "should have looked down better before jumping";
-                    break;
-                case VOID:
-                    deathMessage = deathMessage + "has found a hole";
-                    break;
-                default:
-                    deathMessage = deathMessage + "died";
-                    break;
+            if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent) {
+
+                if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof IronGolem) {
+
+                    deathMessage = deathMessage + getIronGolemDeathMessage((IronGolem) ((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager(), deathMessage);
+
+                }
+
+            } else {
+
+                switch (event.getEntity().getLastDamageCause().getCause()) {
+                    case DROWNING:
+                        deathMessage = deathMessage + "could not surface in time before running out of air";
+                    case ENTITY_EXPLOSION:
+                        deathMessage = deathMessage + "became a suicide bomber";
+                        break;
+                    case FIRE_TICK:
+                        deathMessage = deathMessage + "has not found any water to extinguish";
+                        break;
+                    case SUFFOCATION:
+                        deathMessage = deathMessage + "had to make the experience that you need air to breathe";
+                        break;
+                    case MAGIC:
+                        deathMessage = deathMessage + "has felt the painful side of magic";
+                        break;
+                    case LAVA:
+                        deathMessage = deathMessage + "wanted to take a hot bath";
+                        break;
+                    case FIRE:
+                        deathMessage = deathMessage + "has learned that fire is hot";
+                        break;
+                    case FALL:
+                        deathMessage = deathMessage + "should have looked down better before jumping";
+                        break;
+                    case VOID:
+                        deathMessage = deathMessage + "has found a hole";
+                        break;
+                    default:
+                        deathMessage = deathMessage + "died";
+                        break;
+                }
+
             }
 
             return deathMessage;
+        }
+    }
+
+    private String getIronGolemDeathMessage(IronGolem ironGolem, String deathMessage) {
+        BaseDefender baseDefender = ((Game) this.plugin.getGame()).getBaseDefenderByEntity(ironGolem);
+
+        if (baseDefender != null) {
+            BedwarsTeam baseDefenderTeam = ((Game) this.plugin.getGame()).getTeam(baseDefender.getTeamId());
+
+            if (baseDefenderTeam != null) {
+                return "has experienced the BaseDefender of " + baseDefenderTeam.getChatColor() + " Team " + baseDefenderTeam.getName();
+            } else {
+                return  "was killed by a BaseDefender";
+            }
+
+        } else {
+            return "died";
         }
     }
 
@@ -1611,24 +1645,35 @@ public class EventListener implements Listener {
 
             if (event instanceof EntityDamageByEntityEvent) {
 
-                if (!(((EntityDamageByEntityEvent) event).getDamager() instanceof Player)) {
-                    return;
-                }
+                if (((EntityDamageByEntityEvent) event).getDamager() instanceof Player) {
 
-                if (this.plugin.isPlayerBypassing(((EntityDamageByEntityEvent) event).getDamager().getUniqueId())) {
-                    return;
-                }
+                    if (this.plugin.isPlayerBypassing(((EntityDamageByEntityEvent) event).getDamager().getUniqueId())) {
+                        return;
+                    }
 
-                PlayerData damagerData = ((Game) this.plugin.getGame()).getPlayers().get(((EntityDamageByEntityEvent) event).getDamager().getUniqueId());
+                    PlayerData damagerData = ((Game) this.plugin.getGame()).getPlayers().get(((EntityDamageByEntityEvent) event).getDamager().getUniqueId());
 
-                if (damagerData == null) {
-                    event.setCancelled(true);
-                    return;
-                }
+                    if (damagerData == null) {
+                        event.setCancelled(true);
+                        return;
+                    }
 
-                if (playerData.getTeam() == damagerData.getTeam()) {
-                    event.setCancelled(true);
-                    return;
+                    if (playerData.getTeam() == damagerData.getTeam()) {
+                        event.setCancelled(true);
+                        return;
+                    }
+
+                } else if (((EntityDamageByEntityEvent) event).getDamager() instanceof IronGolem) {
+
+                    BaseDefender baseDefender = ((Game) this.plugin.getGame()).getBaseDefenderByEntity((IronGolem) ((EntityDamageByEntityEvent) event).getDamager());
+
+                    if (baseDefender == null) {
+                        return;
+                    }
+
+                    System.out.println("lowered irongolem lifetime");
+                    baseDefender.setLifetime(baseDefender.getLifetime() - 10);
+
                 }
 
             }
