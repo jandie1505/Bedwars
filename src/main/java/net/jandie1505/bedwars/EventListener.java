@@ -16,10 +16,7 @@ import net.jandie1505.bedwars.lobby.Lobby;
 import net.jandie1505.bedwars.lobby.LobbyPlayerData;
 import net.jandie1505.bedwars.lobby.MapData;
 import net.jandie1505.bedwars.lobby.inventory.VotingMenu;
-import org.bukkit.GameRule;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
@@ -312,7 +309,7 @@ public class EventListener implements Listener {
             BedwarsTeam baseDefenderTeam = ((Game) this.plugin.getGame()).getTeam(baseDefender.getTeamId());
 
             if (baseDefenderTeam != null) {
-                return "has experienced the BaseDefender of " + baseDefenderTeam.getChatColor() + " Team " + baseDefenderTeam.getName();
+                return "has experienced the BaseDefender of " + baseDefenderTeam.getChatColor() + "Team " + baseDefenderTeam.getName();
             } else {
                 return  "was killed by a BaseDefender";
             }
@@ -1608,6 +1605,8 @@ public class EventListener implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
 
+        System.out.println(event);
+
         if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
 
             if (event.getDamage() < 100) {
@@ -1645,7 +1644,25 @@ public class EventListener implements Listener {
 
             if (event instanceof EntityDamageByEntityEvent) {
 
-                if (((EntityDamageByEntityEvent) event).getDamager() instanceof Player) {
+                System.out.println(((EntityDamageByEntityEvent) event).getDamager());
+
+                Entity customDamager = null;
+
+                if (((EntityDamageByEntityEvent) event).getDamager() instanceof Projectile) {
+
+                    if (((Projectile) ((EntityDamageByEntityEvent) event).getDamager()).getShooter() instanceof Entity) {
+                        customDamager = (Entity) ((Projectile) ((EntityDamageByEntityEvent) event).getDamager()).getShooter();
+                    }
+
+                }
+
+                if (customDamager == null) {
+                    customDamager = ((EntityDamageByEntityEvent) event).getDamager();
+                }
+
+                System.out.println("damage event: " + customDamager);
+
+                if (customDamager instanceof Player) {
 
                     if (this.plugin.isPlayerBypassing(((EntityDamageByEntityEvent) event).getDamager().getUniqueId())) {
                         return;
@@ -1663,7 +1680,7 @@ public class EventListener implements Listener {
                         return;
                     }
 
-                } else if (((EntityDamageByEntityEvent) event).getDamager() instanceof IronGolem) {
+                } else if (customDamager instanceof IronGolem) {
 
                     BaseDefender baseDefender = ((Game) this.plugin.getGame()).getBaseDefenderByEntity((IronGolem) ((EntityDamageByEntityEvent) event).getDamager());
 
@@ -1845,7 +1862,6 @@ public class EventListener implements Listener {
             return;
         }
 
-        ((Player) event.getHitEntity()).damage(0.5, event.getEntity());
         event.getHitEntity().setVelocity(event.getEntity().getVelocity());
 
     }
