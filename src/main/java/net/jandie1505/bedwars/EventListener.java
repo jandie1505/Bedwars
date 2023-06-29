@@ -1662,7 +1662,7 @@ public class EventListener implements Listener {
                         return;
                     }
 
-                    PlayerData damagerData = ((Game) this.plugin.getGame()).getPlayers().get(((EntityDamageByEntityEvent) event).getDamager().getUniqueId());
+                    PlayerData damagerData = ((Game) this.plugin.getGame()).getPlayers().get(customDamager.getUniqueId());
 
                     if (damagerData == null) {
                         event.setCancelled(true);
