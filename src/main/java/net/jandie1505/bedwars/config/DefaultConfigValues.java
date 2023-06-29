@@ -1055,6 +1055,8 @@ public final class DefaultConfigValues {
 
         // Snowball
 
+        config.put("143", buildDefaultItem(Material.SNOWBALL));
+
         // Iron Golem Spawn Egg
 
         JSONObject ironGolemSpawnEgg = new JSONObject();
@@ -1366,6 +1368,7 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(141, 2, Material.EMERALD, 6, 21));
 
         shopItems.put(buildShopEntry(142, 3, Material.GOLD_INGOT, 7, 19));
+        shopItems.put(buildShopEntry(143, 15, Material.IRON_INGOT, 7, 20));
         shopItems.put(buildShopEntry(144, 256, Material.IRON_INGOT, 7, 21));
         shopItems.put(buildShopEntry(145, 30, Material.IRON_INGOT, 7, 22));
         shopItems.put(buildShopEntry(146, 1, Material.EMERALD, 7, 23));

@@ -1834,4 +1834,20 @@ public class EventListener implements Listener {
 
     }
 
+    @EventHandler
+    public void onProjectileHit(ProjectileHitEvent event) {
+
+        if (!(event.getEntity() instanceof Snowball)) {
+            return;
+        }
+
+        if (!(event.getHitEntity() instanceof Player)) {
+            return;
+        }
+
+        ((Player) event.getHitEntity()).damage(0.5, event.getEntity());
+        event.getHitEntity().setVelocity(event.getEntity().getVelocity());
+
+    }
+
 }
