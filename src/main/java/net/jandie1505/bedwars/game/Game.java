@@ -706,7 +706,7 @@ public class Game extends GamePart {
             }
 
             if (item == null) {
-                return;
+                continue;
             }
 
             // Replace Wool
