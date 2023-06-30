@@ -1478,7 +1478,7 @@ public class EventListener implements Listener {
                 continue;
             }
 
-            if (block.getType() == Material.END_STONE) {
+            if (block.getType() == Material.END_STONE && !(event.getEntity() instanceof TNTPrimed)) {
                 event.blockList().remove(block);
                 continue;
             }
