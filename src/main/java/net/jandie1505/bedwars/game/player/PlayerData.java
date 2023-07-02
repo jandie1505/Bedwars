@@ -23,6 +23,7 @@ public class PlayerData {
     private int fireballCooldown;
     private int trapCooldown;
     private UUID trackingTarget;
+    private int milkTimer;
 
     public PlayerData(Game game, int team) {
         this.game = game;
@@ -40,6 +41,7 @@ public class PlayerData {
         this.fireballCooldown = 0;
         this.trapCooldown = 0;
         this.trackingTarget = null;
+        this.milkTimer = 0;
     }
 
     public boolean isAlive() {
@@ -156,5 +158,13 @@ public class PlayerData {
 
     public Inventory getEnderchest() {
         return enderchest;
+    }
+
+    public int getMilkTimer() {
+        return milkTimer;
+    }
+
+    public void setMilkTimer(int milkTimer) {
+        this.milkTimer = milkTimer;
     }
 }

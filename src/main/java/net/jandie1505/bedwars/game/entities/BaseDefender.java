@@ -116,6 +116,11 @@ public class BaseDefender {
                 continue;
             }
 
+            if (playerData.getMilkTimer() > 0) {
+                nearbyEntities.remove(entity);
+                continue;
+            }
+
         }
 
         if (nearbyEntities.isEmpty()) {

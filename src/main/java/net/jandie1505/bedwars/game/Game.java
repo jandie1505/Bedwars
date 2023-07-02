@@ -460,6 +460,18 @@ public class Game extends GamePart {
                 }
             }
 
+            // tnt particles
+
+            if (this.getPlugin().getConfigManager().getConfig().optBoolean("tntParticles", false) && player.getInventory().contains(Material.TNT) && playerData.getMilkTimer() <= 0) {
+                player.getWorld().spawnParticle(Particle.REDSTONE, player.getLocation().clone().add(0, 2.5, 0), 20, 0, 0, 0, 1, new Particle.DustOptions(Color.RED, 1.0F));
+            }
+
+            // milk timer
+
+            if (playerData.getMilkTimer() > 0) {
+                playerData.setMilkTimer(playerData.getMilkTimer() - 1);
+            }
+
         }
 
     }
@@ -594,6 +606,10 @@ public class Game extends GamePart {
                         continue;
                     }
 
+                    if (playerData.getMilkTimer() > 0) {
+                        return;
+                    }
+
                     if (team.getPlayers().contains(player.getUniqueId())) {
                         continue;
                     }
@@ -715,41 +731,47 @@ public class Game extends GamePart {
 
             // Group Items
 
-            if ((item.getType().name().endsWith("WOOL") || item.getType().name().endsWith("GLASS")) && slot < player.getInventory().getSize() && this.timeStep >= 20) {
+            if (this.getPlugin().getConfigManager().getConfig().optBoolean("inventorySort", false)) {
 
-                for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2++) {
-                    ItemStack item2 = player.getInventory().getItem(slot2);
+                if ((item.getType().name().endsWith("WOOL") || item.getType().name().endsWith("GLASS")) && slot < player.getInventory().getSize() && this.timeStep >= 20) {
 
-                    if (slot <= slot2) {
-                        continue;
-                    }
+                    for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2++) {
+                        ItemStack item2 = player.getInventory().getItem(slot2);
 
-                    if (item2 == null) {
-                        continue;
-                    }
-
-                    if (!item.isSimilar(item2)) {
-                        continue;
-                    }
-
-                    for (int amount = 0; amount < item.getAmount(); amount++) {
-
-                        if (item2.getAmount() >= item2.getMaxStackSize()) {
-                            break;
+                        if (slot <= slot2) {
+                            continue;
                         }
 
-                        if (item.getAmount() <= 0) {
-                            break;
+                        if (item2 == null) {
+                            continue;
                         }
 
-                        item2.setAmount(item2.getAmount() + 1);
-                        item.setAmount(item.getAmount() - 1);
+                        if (!item.isSimilar(item2)) {
+                            continue;
+                        }
+
+                        for (int amount = 0; amount < item.getAmount(); amount++) {
+
+                            if (item2.getAmount() >= item2.getMaxStackSize()) {
+                                break;
+                            }
+
+                            if (item.getAmount() <= 0) {
+                                break;
+                            }
+
+                            item2.setAmount(item2.getAmount() + 1);
+                            item.setAmount(item.getAmount() - 1);
+
+                        }
 
                     }
 
                 }
 
             }
+
+            // item ids
 
             int itemId = this.getPlugin().getItemStorage().getItemId(item);
 

@@ -488,6 +488,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         infoString = infoString + "\nShears Upgrade: " + playerData.getShearsUpgrade();
                         infoString = infoString + "\nFireball Cooldown: " + playerData.getFireballCooldown();
                         infoString = infoString + "\nTrap Cooldown: " + playerData.getTrapCooldown();
+                        infoString = infoString + "\nMilk Timer: " + playerData.getMilkTimer();
 
                         sender.sendMessage(infoString);
 
@@ -545,6 +546,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                                 break;
                             case "trapcooldown":
                                 sender.sendMessage("§7Trap Cooldown: " + playerData.getTrapCooldown());
+                                break;
+                            case "milktimer":
+                                sender.sendMessage("§7Milk Timer: " + playerData.getMilkTimer());
                                 break;
                             default:
                                 sender.sendMessage("§cUsage: /bedwars players getvalue <player> team/alive/respawncountdown/kills/deaths/bedsbroken/armor/pickaxe/shears/fireballcooldown/trapcooldown");
@@ -616,6 +620,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                             case "trapcooldown":
                                 playerData.setTrapCooldown(Integer.parseInt(args[4]));
                                 sender.sendMessage("§aTrap cooldown set");
+                                break;
+                            case "milktimer":
+                                playerData.setMilkTimer(Integer.parseInt(args[4]));
                                 break;
                             default:
                                 sender.sendMessage("§cUsage: /bedwars players getvalue <player> team/alive/respawncountdown/kills/deaths/bedsbroken/armor/pickaxe/shears");

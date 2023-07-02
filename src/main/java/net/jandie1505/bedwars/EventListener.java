@@ -1606,7 +1606,7 @@ public class EventListener implements Listener {
             event.setCancelled(true);
 
             Bedwars.removeSpecificAmountOfItems(event.getPlayer().getInventory(), Material.MILK_BUCKET, 1);
-            playerData.setTrapCooldown(30*20);
+            playerData.setMilkTimer(30*20);
             event.getPlayer().sendMessage("§bMilk activated");
 
             return;

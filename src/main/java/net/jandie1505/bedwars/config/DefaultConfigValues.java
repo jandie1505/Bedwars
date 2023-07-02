@@ -20,9 +20,10 @@ public final class DefaultConfigValues {
 
         config.put("testingMode", false);
         config.put("backButton", 0);
+        config.put("tntParticles", true);
+        config.put("inventorySort", true);
 
         // Lobby
-
 
         JSONObject lobbyConfig = new JSONObject();
         lobbyConfig.put("mapVoting", true);
