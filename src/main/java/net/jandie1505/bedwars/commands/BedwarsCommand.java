@@ -36,7 +36,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         if (args.length < 1) {
 
             if (this.hasAdminPermission(sender)) {
-                sender.sendMessage("§7Usage: /bedwars stop/status/start/force-stop/players/bypass/mapteleport/gameinfo/getgamevalue/setgamevalue/maps/forcemap/votemap/getlobbyvalue/setlobbyvalue/reload/leave/pause");
+                sender.sendMessage("§7Usage: /bedwars stop/status/start/force-stop/players/bypass/mapteleport/gameinfo/getgamevalue/setgamevalue/maps/forcemap/votemap/getlobbyvalue/setlobbyvalue/reload/leave/pause/give");
             } else {
                 sender.sendMessage("§7Usage: /bedwars leave/maps/votemap/");
             }
@@ -105,6 +105,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 break;
             case "pause":
                 this.pauseSubcommand(sender, args);
+                break;
+            case "give":
+                this.giveSubcommand(sender, args);
                 break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
@@ -1509,6 +1512,44 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
     }
 
+    public void giveSubcommand(CommandSender sender, String[] args) {
+
+        if (!this.hasAdminPermission(sender)) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (args.length < 3) {
+            sender.sendMessage("§cUsage: /bedwars give <Player> <ItemId>");
+            return;
+        }
+
+        Player player = this.getPlayer(args[1]);
+
+        if (player == null) {
+            sender.sendMessage("§cPlayer not online");
+            return;
+        }
+
+        ItemStack item;
+
+        try {
+            item = this.plugin.getItemStorage().getItem(Integer.parseInt(args[2]));
+        } catch (IllegalArgumentException e) {
+            sender.sendMessage("§cPlease specify a valid int as item id");
+            return;
+        }
+
+        if (item == null) {
+            sender.sendMessage("§cItem does not exist");
+            return;
+        }
+
+        player.getInventory().addItem(item);
+        sender.sendMessage("§aItem was given to player");
+
+    }
+
     public boolean hasAdminPermission(CommandSender sender) {
         return sender == this.plugin.getServer().getConsoleSender() || (sender instanceof Player && sender.hasPermission("bedwars.admin"));
     }
@@ -1572,6 +1613,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 tabComplete.add("setlobbyvalue");
                 tabComplete.add("reload");
                 tabComplete.add("pause");
+                tabComplete.add("give");
             }
 
         }
