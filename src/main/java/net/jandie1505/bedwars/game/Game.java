@@ -1283,7 +1283,6 @@ public class Game extends GamePart {
             player.setSaturation(20);
 
             player.getInventory().clear();
-            player.getEnderChest().clear();
 
             for (PotionEffect potionEffect : List.copyOf(player.getActivePotionEffects())) {
                 player.removePotionEffect(potionEffect.getType());
@@ -1322,7 +1321,6 @@ public class Game extends GamePart {
             }
 
             player.getInventory().clear();
-            player.getEnderChest().clear();
 
         }
 
@@ -1383,10 +1381,9 @@ public class Game extends GamePart {
 
         if (player != null) {
             player.getInventory().clear();
-            player.getEnderChest().clear();
         }
 
-        return this.players.put(playerId, new PlayerData(team)) != null;
+        return this.players.put(playerId, new PlayerData(this, team)) != null;
     }
 
     public boolean removePlayer(UUID playerId) {

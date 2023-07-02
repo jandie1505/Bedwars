@@ -1,11 +1,15 @@
 package net.jandie1505.bedwars.game.player;
 
+import net.jandie1505.bedwars.game.Game;
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.UUID;
 
 public class PlayerData {
+    private final Game game;
+    private final Inventory enderchest;
     private boolean alive;
     private int respawnCountdown;
     private int team;
@@ -20,7 +24,9 @@ public class PlayerData {
     private int trapCooldown;
     private UUID trackingTarget;
 
-    public PlayerData(int team) {
+    public PlayerData(Game game, int team) {
+        this.game = game;
+        this.enderchest = this.game.getPlugin().getServer().createInventory(null, 27, "Enderchest");
         this.alive = false;
         this.respawnCountdown = 0;
         this.team = team;
@@ -142,5 +148,13 @@ public class PlayerData {
 
     public void setTrackingTarget(UUID trackingTarget) {
         this.trackingTarget = trackingTarget;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public Inventory getEnderchest() {
+        return enderchest;
     }
 }

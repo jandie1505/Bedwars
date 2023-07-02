@@ -591,21 +591,33 @@ public class EventListener implements Listener {
 
             }
 
-            // Get information
+            // filter for right clicks
 
             if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
                 return;
             }
 
-            int itemId = this.plugin.getItemStorage().getItemId(event.getItem());
-
-            if (itemId < 0) {
-                return;
-            }
+            // Get playerdata
 
             PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
 
             if (playerData == null) {
+                return;
+            }
+
+            // ender chest
+
+            if (event.getClickedBlock() != null && event.getClickedBlock().getType() == Material.ENDER_CHEST) {
+                event.setCancelled(true);
+                event.getPlayer().openInventory(playerData.getEnderchest());
+                return;
+            }
+
+            // item ids
+
+            int itemId = this.plugin.getItemStorage().getItemId(event.getItem());
+
+            if (itemId < 0) {
                 return;
             }
 

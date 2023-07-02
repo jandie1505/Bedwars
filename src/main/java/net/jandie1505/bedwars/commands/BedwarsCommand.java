@@ -11,15 +11,13 @@ import net.jandie1505.bedwars.game.timeactions.*;
 import net.jandie1505.bedwars.lobby.Lobby;
 import net.jandie1505.bedwars.lobby.LobbyPlayerData;
 import net.jandie1505.bedwars.lobby.MapData;
-import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
-import org.bukkit.WorldCreator;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -623,6 +621,72 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
                         break;
                     }
+                    case "enderchest":
+                        if (args.length < 3) {
+                            sender.sendMessage("§cUsage: /bedwars players enderchest <Name> [clear/remove]");
+                            return;
+                        }
+
+                        UUID playerId = this.getPlayerUUID(args[2]);
+
+                        if (playerId == null) {
+                            sender.sendMessage("§cPlayer does not exist");
+                            return;
+                        }
+
+                        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(playerId);
+
+                        if (playerData == null) {
+                            sender.sendMessage("§cPlayer not ingame");
+                            return;
+                        }
+
+                        if (args.length == 3) {
+
+                            if (sender instanceof Player) {
+                                ((Player) sender).openInventory(playerData.getEnderchest());
+                            } else {
+                                sender.sendMessage("Ender Chest Contents:");
+
+                                for (ItemStack item : playerData.getEnderchest().getContents()) {
+                                    sender.sendMessage("§7" + item.toString());
+                                }
+                            }
+
+                        } else {
+
+                            switch (args[3]) {
+                                case "clear":
+                                    playerData.getEnderchest().clear();
+                                    sender.sendMessage("§aCleared enderchest");
+                                    break;
+                                case "remove":
+
+                                    if (args.length != 5) {
+                                        sender.sendMessage("§cUsage: /bedwars players enderchest <Name> remove slot/material");
+                                        return;
+                                    }
+
+                                    Material material = Material.getMaterial(args[4]);
+
+                                    if (material != null) {
+                                        playerData.getEnderchest().remove(material);
+                                        sender.sendMessage("§aRemoved material " + material.name());
+                                        return;
+                                    }
+
+                                    playerData.getEnderchest().setItem(Integer.parseInt(args[4]), new ItemStack(Material.AIR));
+                                    sender.sendMessage("§aRemoved item on slot " + Integer.parseInt(args[4]));
+
+                                    break;
+                                default:
+                                    sender.sendMessage("§cInvalid subcommand");
+                                    break;
+                            }
+
+                        }
+
+                        break;
                     default:
                         sender.sendMessage("§cUnknown subcommand");
                         break;
