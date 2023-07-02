@@ -1565,7 +1565,7 @@ public class EventListener implements Listener {
 
             Location location = event.getEntity().getLocation();
             location.add(tpVector);
-            location.add(0, -2, 0);
+            location.add(0, -1, 0);
 
             event.getEntity().teleport(location);
 
