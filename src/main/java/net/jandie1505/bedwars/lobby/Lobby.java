@@ -1063,4 +1063,8 @@ public class Lobby extends GamePart {
     public int getTeamSelectionButtonItemId() {
         return teamSelectionButtonItemId;
     }
+
+    public Location getLobbySpawn() {
+        return this.lobbySpawn.clone();
+    }
 }
