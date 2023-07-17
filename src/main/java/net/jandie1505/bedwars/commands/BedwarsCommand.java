@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.commands;
 
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
+import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
@@ -109,6 +110,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             case "give":
                 this.giveSubcommand(sender, args);
                 break;
+            case "cloudsystemmode":
+                this.cloudsystemModeSubcommand(sender, args);
+                break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
                 break;
@@ -130,7 +134,19 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
     }
 
     private void stopSubcommand(CommandSender sender) {
-        this.forceStopSubcommand(sender);
+
+        if (this.plugin.getGame() instanceof Lobby || this.plugin.getGame() instanceof Endlobby) {
+            this.plugin.stopGame();
+            sender.sendMessage("§aGame stopped");
+        } else if (this.plugin.getGame() instanceof Game) {
+            ((Game) this.plugin.getGame()).stopGame();
+            sender.sendMessage("§aGame stopped (send to endlobby)");
+        } else if (this.plugin.getGame() != null) {
+            sender.sendMessage("§cUnknown game status. Use force-stop instead.");
+        } else {
+            sender.sendMessage("§cNo game running");
+        }
+
     }
 
     private void statusSubcommand(CommandSender sender) {
@@ -146,6 +162,8 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage("§7Current game status: LOBBY");
         } else if (gamePart instanceof Game) {
             sender.sendMessage("§7Current game status: INGAME");
+        } else if (gamePart instanceof Endlobby) {
+            sender.sendMessage("§7Current game status: ENDLOBBY");
         } else if (gamePart == null){
             sender.sendMessage("§7Current game status: ---");
         } else {
@@ -1554,6 +1572,27 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
         player.getInventory().addItem(item);
         sender.sendMessage("§aItem was given to player");
+
+    }
+
+    public void cloudsystemModeSubcommand(CommandSender sender, String[] args) {
+
+        if (!this.hasAdminPermission(sender)) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (args.length > 1 && args[0].equalsIgnoreCase("disable")) {
+
+            this.plugin.setCloudSystemMode(false);
+            sender.sendMessage("§aCloudSystem mode disabled. To re-enable it, restart the server.");
+
+        } else {
+
+            sender.sendMessage("§7CloudSystem mode: " + this.plugin.isCloudSystemMode());
+            sender.sendMessage("§7To disable it, use /bedwars cloudsystemmode disable (restart for re-enabling required).");
+
+        }
 
     }
 

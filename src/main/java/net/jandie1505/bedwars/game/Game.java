@@ -1,7 +1,10 @@
 package net.jandie1505.bedwars.game;
 
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
+import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.generators.Generator;
@@ -20,7 +23,6 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -1312,29 +1314,47 @@ public class Game extends GamePart {
 
         }
 
+        // CLOUDSYSTEM MODE
+
+        if (this.getPlugin().isCloudSystemMode()) {
+
+            // Custom command
+
+            String customCommand = this.getPlugin().getConfigManager().getConfig().optJSONObject("cloudSystemMode", new JSONObject()).optString("switchToIngameCommand", "");
+
+            if (!customCommand.equalsIgnoreCase("")) {
+                this.getPlugin().getServer().dispatchCommand(this.getPlugin().getServer().getConsoleSender(), customCommand);
+            }
+
+            // CloudNet ingame state
+
+            try {
+
+                try {
+                    Class.forName("eu.cloudnetservice.driver.inject.InjectionLayer");
+                    Class.forName("eu.cloudnetservice.modules.bridge.BridgeServiceHelper");
+
+                    BridgeServiceHelper bridgeServiceHelper = InjectionLayer.ext().instance(BridgeServiceHelper.class);
+
+                    if (bridgeServiceHelper != null) {
+                        bridgeServiceHelper.changeToIngame();
+                        this.getPlugin().getLogger().info("Changed server to ingame state (CloudNet)");
+                    }
+                } catch (ClassNotFoundException ignored) {
+                    // ignored (cloudnet not installed)
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
         this.prepared = true;
     }
 
     @Override
     public GamePart getNextStatus() {
-
-        if (this.winner != null) {
-
-            for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
-                player.sendMessage("§bTeam " + this.winner.getChatColor() + this.winner.getName() + " §bhas won");
-
-                if (this.winner.getPlayers().contains(player.getUniqueId())) {
-                    player.sendTitle("§6§lVICTORY", "§7§lYour team has won the game", 10, 5*20, 10);
-                }
-            }
-
-        } else if (this.noWinnerEnd) {
-
-            for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
-                player.sendMessage("§bGame ended §cwithout §ba winner");
-            }
-
-        }
 
         for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
 
@@ -1346,7 +1366,7 @@ public class Game extends GamePart {
 
         }
 
-        return null;
+        return new Endlobby(this.getPlugin(), this);
     }
 
     public boolean respawnPlayer(Player player) {
@@ -1569,6 +1589,20 @@ public class Game extends GamePart {
 
     public void removeBaseDefender(BaseDefender baseDefender) {
         this.baseDefenders.remove(baseDefender);
+    }
+
+    public boolean isNoWinnerEnd() {
+        return this.noWinnerEnd;
+    }
+
+    public BedwarsTeam getWinner() {
+        return this.winner;
+    }
+
+    public void stopGame() {
+        this.winner = null;
+        this.noWinnerEnd = true;
+        this.getPlugin().nextStatus();
     }
 
     public static void replaceBlockWithTeamColor(ItemStack item, BedwarsTeam team) {

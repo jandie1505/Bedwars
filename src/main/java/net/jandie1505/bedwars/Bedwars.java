@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.json.JSONObject;
 
 import java.time.Duration;
 import java.util.*;
@@ -29,6 +30,7 @@ public class Bedwars extends JavaPlugin {
     private ItemStorage itemStorage;
     private boolean nextStatus;
     private boolean paused;
+    private boolean cloudSystemMode;
 
     @Override
     public void onEnable() {
@@ -41,11 +43,15 @@ public class Bedwars extends JavaPlugin {
         this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
         this.itemStorage = new ItemStorage(this);
         this.nextStatus = false;
+        this.paused = false;
+        this.cloudSystemMode = false;
 
         this.configManager.reloadConfig();
         this.mapConfig.reloadConfig();
         this.itemConfig.reloadConfig();
         this.shopConfig.reloadConfig();
+
+        this.cloudSystemMode = this.configManager.getConfig().optJSONObject("cloudSystemMode", new JSONObject()).optBoolean("enable", false);
 
         this.itemStorage.initItems();
 
@@ -149,6 +155,11 @@ public class Bedwars extends JavaPlugin {
             }
 
         }, 0, 1);
+
+        if (this.isCloudSystemMode()) {
+            this.getLogger().info("Cloud System Mode enabled (autostart game + switch to ingame + shutdown on end)");
+            this.startGame();
+        }
     }
 
     public void onDisable() {
@@ -295,6 +306,14 @@ public class Bedwars extends JavaPlugin {
 
     public ItemStorage getItemStorage() {
         return this.itemStorage;
+    }
+
+    public boolean isCloudSystemMode() {
+        return this.cloudSystemMode;
+    }
+
+    public void setCloudSystemMode(boolean cloudSystemMode) {
+        this.cloudSystemMode = cloudSystemMode;
     }
 
     public static String getDurationFormat(long seconds) {
