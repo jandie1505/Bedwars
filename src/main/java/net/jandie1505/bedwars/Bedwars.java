@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars;
 
+import de.myzelyam.api.vanish.VanishAPI;
 import net.jandie1505.bedwars.commands.BedwarsCommand;
 import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
@@ -31,6 +32,7 @@ public class Bedwars extends JavaPlugin {
     private boolean nextStatus;
     private boolean paused;
     private boolean cloudSystemMode;
+    private boolean svLoaded;
 
     @Override
     public void onEnable() {
@@ -54,6 +56,14 @@ public class Bedwars extends JavaPlugin {
         this.cloudSystemMode = this.configManager.getConfig().optJSONObject("cloudSystemMode", new JSONObject()).optBoolean("enable", false);
 
         this.itemStorage.initItems();
+
+        try {
+            Class.forName("de.myzelyam.api.vanish.VanishAPI");
+            this.svLoaded = true;
+            this.getLogger().info("SuperVanish/PremiumVanish integration enabled (auto-bypass when vanished)");
+        } catch (ClassNotFoundException ignored) {
+            this.svLoaded = false;
+        }
 
         this.getCommand("bedwars").setExecutor(new BedwarsCommand(this));
         this.getCommand("bedwars").setTabCompleter(new BedwarsCommand(this));
@@ -273,7 +283,24 @@ public class Bedwars extends JavaPlugin {
     }
 
     public boolean isPlayerBypassing(UUID playerId) {
-        return this.bypassingPlayers.contains(playerId);
+
+        if (this.getBypassingPlayers().contains(playerId)) {
+            return true;
+        }
+
+        if (this.svLoaded) {
+
+            Player player = this.getServer().getPlayer(playerId);
+
+            if (player == null) {
+                return false;
+            }
+
+            return VanishAPI.isInvisible(player);
+
+        }
+
+        return false;
     }
 
     public void stopGame() {

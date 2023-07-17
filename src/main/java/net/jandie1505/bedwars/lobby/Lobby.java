@@ -682,6 +682,10 @@ public class Lobby extends GamePart {
 
         for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
 
+            if (this.getPlugin().isPlayerBypassing(player.getUniqueId())) {
+                continue;
+            }
+
             if (!this.players.containsKey(player.getUniqueId())) {
                 this.players.put(player.getUniqueId(), new LobbyPlayerData());
             }
