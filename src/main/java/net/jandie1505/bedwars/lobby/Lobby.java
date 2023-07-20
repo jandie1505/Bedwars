@@ -702,10 +702,12 @@ public class Lobby extends GamePart {
 
         // Update CloudNet motd and slots
 
-        if (this.selectedMap != null) {
-            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.getName());
-        } else {
-            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Map Voting");
+        if (this.timeStep >= 20 && this.time % 10 == 0) {
+            if (this.selectedMap != null) {
+                this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.getName());
+            } else {
+                this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Map Voting");
+            }
         }
 
         // Select Map if timer is 10 or lower
