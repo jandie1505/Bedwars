@@ -288,7 +288,7 @@ public class Bedwars extends JavaPlugin {
             return true;
         }
 
-        if (this.svLoaded) {
+        if (this.getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("supervanish-premiumvanish", false) && this.svLoaded) {
 
             Player player = this.getServer().getPlayer(playerId);
 

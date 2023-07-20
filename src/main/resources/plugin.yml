@@ -3,12 +3,16 @@ name: Bedwars
 version: 1.0
 api-version: 1.13
 permissions:
+  bedwars.fulljoin:
+    default: op
+    description: allows to join full servers
   bedwars.admin:
     default: op
     description: admin permission
   bedwars.*:
     default: op
     children:
+      - bedwars.fulljoin
       - bedwars.admin
     description: wildcard permission
 commands:

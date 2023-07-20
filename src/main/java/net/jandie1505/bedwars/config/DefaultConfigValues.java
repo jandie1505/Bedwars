@@ -61,6 +61,24 @@ public final class DefaultConfigValues {
 
         config.put("cloudSystemMode", cloudSystemConfig);
 
+        // integrations
+
+        JSONObject integrationsConfig = new JSONObject();
+
+        integrationsConfig.put("cloudnet", true);
+        integrationsConfig.put("supervanish-premiumvanish", true);
+
+        config.put("integrations", integrationsConfig);
+
+        // Slot system
+
+        JSONObject slotSystem = new JSONObject();
+
+        slotSystem.put("playersPerTeam", -1);
+        slotSystem.put("teamCount", -1);
+
+        config.put("slotSystem", slotSystem);
+
         // Return
 
         return config;

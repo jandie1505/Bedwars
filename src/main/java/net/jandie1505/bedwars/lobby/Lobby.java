@@ -1,5 +1,7 @@
 package net.jandie1505.bedwars.lobby;
 
+import eu.cloudnetservice.driver.inject.InjectionLayer;
+import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.Game;
@@ -28,6 +30,7 @@ public class Lobby extends GamePart {
     private final int mapVoteButtonItemId;
     private final int teamSelectionButtonItemId;
     private final int mapButtonItemId;
+    private final List<UUID> loginBypassList;
     private int timeStep;
     private int time;
     private boolean forcestart;
@@ -46,6 +49,7 @@ public class Lobby extends GamePart {
         this.mapVoteButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapVoteButton", -1);
         this.teamSelectionButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("teamSelectionButton", -1);
         this.mapButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapButton", -1);
+        this.loginBypassList = Collections.synchronizedList(new ArrayList<>());
         this.timeStep = 0;
         this.time = 120;
         this.forcestart = false;
@@ -692,6 +696,14 @@ public class Lobby extends GamePart {
 
         }
 
+        // Update CloudNet motd and slots
+
+        if (this.selectedMap != null) {
+            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.getName());
+        } else {
+            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Map Voting");
+        }
+
         // Select Map if timer is 10 or lower
 
         if (this.selectedMap == null && this.time <= 60) {
@@ -991,6 +1003,53 @@ public class Lobby extends GamePart {
         return new TeamUpgrade(itemId, List.copyOf(prices), List.copyOf(currencies), List.copyOf(levels));
     }
 
+    private void updateCloudNetMotdAndSlots(int maxPlayers, String motd) {
+
+        if (this.getPlugin().getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("cloudnet", false)) {
+
+            try {
+
+                try {
+                    Class.forName("eu.cloudnetservice.driver.inject.InjectionLayer");
+                    Class.forName("eu.cloudnetservice.modules.bridge.BridgeServiceHelper");
+
+                    BridgeServiceHelper bridgeServiceHelper = InjectionLayer.ext().instance(BridgeServiceHelper.class);
+
+                    if (bridgeServiceHelper != null) {
+
+                        if (maxPlayers > 0) {
+                            bridgeServiceHelper.maxPlayers().set(maxPlayers);
+                        }
+
+                        if (motd != null) {
+                            bridgeServiceHelper.motd().set(motd);
+                        }
+
+                    }
+                } catch (ClassNotFoundException ignored) {
+                    // ignored (cloudnet not installed)
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+    public int getMaxPlayers() {
+
+        int teams = this.getPlugin().getConfigManager().getConfig().optJSONObject("slotSystem", new JSONObject()).optInt("teamCount", -1);
+        int playersPerTeam = this.getPlugin().getConfigManager().getConfig().optJSONObject("slotSystem", new JSONObject()).optInt("playersPerTeam", -1);
+
+        if (teams <= 0 || playersPerTeam <= 0) {
+            return -1;
+        }
+
+        return teams * playersPerTeam;
+    }
+
     public void forcestart() {
         this.forcestart = true;
     }
@@ -1010,6 +1069,22 @@ public class Lobby extends GamePart {
 
     public boolean removePlayer(UUID playerId) {
         return this.players.remove(playerId) != null;
+    }
+
+    public void addLoginBypassPlayer(UUID playerId) {
+        this.loginBypassList.add(playerId);
+    }
+
+    public boolean removeLoginBypassPlayer(UUID playerId) {
+        return this.loginBypassList.remove(playerId);
+    }
+
+    public List<UUID> getLoginBypassList() {
+        return List.copyOf(this.loginBypassList);
+    }
+
+    public void clearLoginBypassList() {
+        this.loginBypassList.clear();
     }
 
     public List<MapData> getMaps() {

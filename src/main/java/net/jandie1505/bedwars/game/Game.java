@@ -1328,24 +1328,28 @@ public class Game extends GamePart {
 
             // CloudNet ingame state
 
-            try {
+            if (this.getPlugin().getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("cloudnet", false)) {
 
                 try {
-                    Class.forName("eu.cloudnetservice.driver.inject.InjectionLayer");
-                    Class.forName("eu.cloudnetservice.modules.bridge.BridgeServiceHelper");
 
-                    BridgeServiceHelper bridgeServiceHelper = InjectionLayer.ext().instance(BridgeServiceHelper.class);
+                    try {
+                        Class.forName("eu.cloudnetservice.driver.inject.InjectionLayer");
+                        Class.forName("eu.cloudnetservice.modules.bridge.BridgeServiceHelper");
 
-                    if (bridgeServiceHelper != null) {
-                        bridgeServiceHelper.changeToIngame();
-                        this.getPlugin().getLogger().info("Changed server to ingame state (CloudNet)");
+                        BridgeServiceHelper bridgeServiceHelper = InjectionLayer.ext().instance(BridgeServiceHelper.class);
+
+                        if (bridgeServiceHelper != null) {
+                            bridgeServiceHelper.changeToIngame();
+                            this.getPlugin().getLogger().info("Changed server to ingame state (CloudNet)");
+                        }
+                    } catch (ClassNotFoundException ignored) {
+                        // ignored (cloudnet not installed)
                     }
-                } catch (ClassNotFoundException ignored) {
-                    // ignored (cloudnet not installed)
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
-            } catch (Exception e) {
-                e.printStackTrace();
             }
 
         }

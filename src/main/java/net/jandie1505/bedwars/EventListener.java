@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars;
 
+import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.BridgeEgg;
@@ -22,6 +23,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -30,11 +32,13 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
+import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
+import org.json.JSONObject;
 
 import java.util.*;
 
@@ -1873,11 +1877,123 @@ public class EventListener implements Listener {
             return;
         }
 
-        if (!(event.getHitEntity() instanceof Player)) {
+        if (!(event.getHitEntity() instanceof Player) && !(event.getHitEntity() instanceof IronGolem)) {
             return;
         }
 
-        event.getHitEntity().setVelocity(event.getEntity().getVelocity());
+        event.getHitEntity().setVelocity(event.getEntity().getVelocity().clone().multiply(2));
+
+    }
+
+    @EventHandler
+    public void onPlayerLogin(PlayerLoginEvent event) {
+
+        // slot of the slot system (+ bypassed join for admins)
+        // bypassed join: admins can join without being added to the game (bypassed players will not be added to the game)
+
+        boolean isFullThroughSlotSystem = false;
+
+        if (this.plugin.getGame() instanceof Lobby && ((Lobby) this.plugin.getGame()).getMaxPlayers() > 0 && ((Lobby) this.plugin.getGame()).getPlayers().size() >= ((Lobby) this.plugin.getGame()).getMaxPlayers() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+
+            if (event.getPlayer().hasPermission("bedwars.admin")) {
+
+                if (((Lobby) this.plugin.getGame()).getLoginBypassList().contains(event.getPlayer().getUniqueId())) {
+
+                    ((Lobby) this.plugin.getGame()).removeLoginBypassPlayer(event.getPlayer().getUniqueId());
+                    this.plugin.addBypassingPlayer(event.getPlayer().getUniqueId());
+                    event.getPlayer().sendMessage("§aAuto-bypass enabled");
+
+                } else {
+                    event.disallow(PlayerLoginEvent.Result.KICK_FULL, "§cServer is currently full.\nReconnect to join auto-bypassed.");
+                    isFullThroughSlotSystem = true;
+                }
+
+            } else {
+                event.disallow(PlayerLoginEvent.Result.KICK_FULL, "§cServer is currently full");
+                isFullThroughSlotSystem = true;
+            }
+
+        }
+
+        // check if player is getting kicked because server is full
+
+        if (event.getResult() != PlayerLoginEvent.Result.KICK_FULL) {
+            return;
+        }
+
+        // check if the player can bypass a full server
+
+        if (!event.getPlayer().hasPermission("bedwars.admin") && !event.getPlayer().hasPermission("bedwars.fulljoin")) {
+            return;
+        }
+
+        // find a target to kick so that the prioritized player can join
+
+        for (Player player : List.copyOf(this.plugin.getServer().getOnlinePlayers())) {
+
+            // player is not a target if the slots were set by the slot system and the player is not ingame
+            // this prevents having more ingame players on the server than there are slots (of the slot system) available
+            if (this.plugin.getGame() instanceof Lobby && isFullThroughSlotSystem && !((Lobby) this.plugin.getGame()).getPlayers().containsKey(player.getUniqueId())) {
+                continue;
+            }
+
+            // player is not a target if the player is ingame (it would be illogical to kick an ingame player that a spectator can join)
+            if (this.plugin.getGame() instanceof Game && ((Game) this.plugin.getGame()).getPlayers().containsKey(player.getUniqueId())) {
+                continue;
+            }
+
+            // admins cannot be kicked
+            if (player.hasPermission("bedwars.admin")) {
+                continue;
+            }
+
+            // fulljoin players cannot kick other fulljoin players, but admins can kick other fulljoin players
+            if (player.hasPermission("bedwars.fulljoin") && !event.getPlayer().hasPermission("bedwars.admin")) {
+                continue;
+            }
+
+            // kick the target if one was found and allow the player to log in
+            player.kickPlayer("§cYou were kicked to make room for a player with higher priority");
+            event.allow();
+
+            break;
+        }
+
+    }
+
+    @EventHandler
+    public void onServerListPing(ServerListPingEvent event) {
+
+        if (this.plugin.getGame() instanceof Lobby) {
+
+            int maxPlayers = ((Lobby) this.plugin.getGame()).getMaxPlayers();
+
+            if (maxPlayers < 0) {
+                event.setMaxPlayers(maxPlayers);
+            }
+
+            if (((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
+                event.setMotd(((Lobby) this.plugin.getGame()).getSelectedMap().getName());
+            } else {
+                event.setMotd("MAP VOTING");
+            }
+
+            return;
+        }
+
+        if (this.plugin.getGame() instanceof Game) {
+
+            event.setMotd("INGAME");
+
+            return;
+        }
+
+        if (this.plugin.getGame() instanceof Endlobby) {
+
+            event.setMotd("ENDLOBBY");
+
+            return;
+        }
 
     }
 
