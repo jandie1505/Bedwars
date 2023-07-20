@@ -1,5 +1,9 @@
 package net.jandie1505.bedwars.lobby;
 
+import de.simonsator.partyandfriends.spigot.api.pafplayers.PAFPlayer;
+import de.simonsator.partyandfriends.spigot.api.pafplayers.PAFPlayerManager;
+import de.simonsator.partyandfriends.spigot.api.party.PartyManager;
+import de.simonsator.partyandfriends.spigot.api.party.PlayerParty;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import net.jandie1505.bedwars.Bedwars;
@@ -708,7 +712,6 @@ public class Lobby extends GamePart {
 
         if (this.selectedMap == null && this.time <= 60) {
             this.autoSelectMap();
-            this.displayMap();
         }
 
         // TIME
@@ -813,7 +816,7 @@ public class Lobby extends GamePart {
 
         }
 
-        this.selectedMap = selectedMap;
+        this.selectMap(selectedMap);
 
     }
 
@@ -836,12 +839,93 @@ public class Lobby extends GamePart {
 
     }
 
+    private void createPartyTeams() {
+
+        if (this.selectedMap == null) {
+            return;
+        }
+
+        if (this.getPlugin().getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("partyandfriends", false)) {
+
+            try {
+                Class.forName("de.simonsator.partyandfriends.spigot.api.pafplayers.PAFPlayer");
+                Class.forName("de.simonsator.partyandfriends.spigot.api.pafplayers.PAFPlayerManager");
+                Class.forName("de.simonsator.partyandfriends.spigot.api.party.PartyManager");
+                Class.forName("de.simonsator.partyandfriends.spigot.api.party.PlayerParty");
+
+                List<PlayerParty> parties = new ArrayList<>();
+
+                for (UUID playerId : this.getPlayers().keySet()) {
+                    Player player = this.getPlugin().getServer().getPlayer(playerId);
+
+                    if (player == null) {
+                        continue;
+                    }
+
+                    PAFPlayer pafPlayer = PAFPlayerManager.getInstance().getPlayer(playerId);
+
+                    if (pafPlayer == null) {
+                        continue;
+                    }
+
+                    PlayerParty party = PartyManager.getInstance().getParty(pafPlayer);
+
+                    if (!parties.contains(party)) {
+                        parties.add(party);
+                    }
+
+                }
+
+                for (PlayerParty party : parties) {
+
+                    int maxPlayers = this.getPlugin().getConfigManager().getConfig().optJSONObject("slotSystem", new JSONObject()).optInt("playersPerTeam", -1);
+
+                    if (maxPlayers > 0 && party.getAllPlayers().size() > maxPlayers) {
+                        continue;
+                    }
+
+                    for (LobbyTeamData team : this.selectedMap.getTeams()) {
+                        int teamId = this.selectedMap.getTeams().indexOf(team);
+
+                        if (teamId < 0) {
+                            continue;
+                        }
+
+                        int playersInTeam = party.getAllPlayers().size() + this.getTeamPlayers(teamId).size();
+
+                        if (playersInTeam > maxPlayers) {
+                            continue;
+                        }
+
+                        for (PAFPlayer pafPlayer : party.getAllPlayers()) {
+                            LobbyPlayerData playerData = this.players.get(pafPlayer.getUniqueId());
+
+                            if (playerData == null) {
+                                continue;
+                            }
+
+                            playerData.setTeam(teamId);
+
+                        }
+
+                        break;
+                    }
+
+                }
+
+            } catch (ClassNotFoundException ignored) {
+                // ignored
+            }
+
+        }
+
+    }
+
     @Override
     public GamePart getNextStatus() {
 
         if (this.selectedMap == null) {
             this.autoSelectMap();
-            this.displayMap();
         }
 
         if (this.selectedMap == null) {
@@ -1050,6 +1134,21 @@ public class Lobby extends GamePart {
         return teams * playersPerTeam;
     }
 
+    public List<UUID> getTeamPlayers(int teamId) {
+        List<UUID> teamPlayers = new ArrayList<>();
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            LobbyPlayerData playerData = this.players.get(playerId);
+
+            if (teamId == playerData.getTeam()) {
+                teamPlayers.add(playerId);
+            }
+
+        }
+
+        return List.copyOf(teamPlayers);
+    }
+
     public void forcestart() {
         this.forcestart = true;
     }
@@ -1097,6 +1196,8 @@ public class Lobby extends GamePart {
 
     public void selectMap(MapData selectedMap) {
         this.selectedMap = selectedMap;
+        this.displayMap();
+        this.createPartyTeams();
     }
 
     public boolean isMapVoting() {
