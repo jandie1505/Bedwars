@@ -474,6 +474,12 @@ public class Game extends GamePart {
                 playerData.setMilkTimer(playerData.getMilkTimer() - 1);
             }
 
+            // Iron golem timer
+
+            if (playerData.getIronGolemCooldown() > 0) {
+                playerData.setIronGolemCooldown(playerData.getIronGolemCooldown() - 1);
+            }
+
         }
 
     }

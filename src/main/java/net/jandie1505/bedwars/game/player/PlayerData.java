@@ -24,6 +24,7 @@ public class PlayerData {
     private int trapCooldown;
     private UUID trackingTarget;
     private int milkTimer;
+    private int ironGolemCooldown;
 
     public PlayerData(Game game, int team) {
         this.game = game;
@@ -42,6 +43,7 @@ public class PlayerData {
         this.trapCooldown = 0;
         this.trackingTarget = null;
         this.milkTimer = 0;
+        this.ironGolemCooldown = 0;
     }
 
     public boolean isAlive() {
@@ -166,5 +168,13 @@ public class PlayerData {
 
     public void setMilkTimer(int milkTimer) {
         this.milkTimer = milkTimer;
+    }
+
+    public int getIronGolemCooldown() {
+        return ironGolemCooldown;
+    }
+
+    public void setIronGolemCooldown(int ironGolemCooldown) {
+        this.ironGolemCooldown = ironGolemCooldown;
     }
 }

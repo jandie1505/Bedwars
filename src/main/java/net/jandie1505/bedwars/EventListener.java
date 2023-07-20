@@ -432,14 +432,19 @@ public class EventListener implements Listener {
                     if (event.getBlockPlaced().getType() == golemItem.getType() && event.getItemInHand().isSimilar(golemItem)) {
                         event.setCancelled(true);
 
+                        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+                        if (playerData == null) {
+                            return;
+                        }
+
+                        if (playerData.getIronGolemCooldown() > 0) {
+                            event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getIronGolemCooldown() / 20.0) + " to place an iron golem again");
+                            return;
+                        }
+
                         if (event.getItemInHand().getAmount() > 0) {
                             event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
-
-                            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
-
-                            if (playerData == null) {
-                                return;
-                            }
 
                             BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
 
@@ -457,6 +462,7 @@ public class EventListener implements Listener {
                             IronGolem ironGolem = (IronGolem) event.getBlockPlaced().getWorld().spawnEntity(location, EntityType.IRON_GOLEM);
                             ((Game) this.plugin.getGame()).addBaseDefender(new BaseDefender((Game) this.plugin.getGame(), ironGolem, team.getId()));
 
+                            playerData.setIronGolemCooldown(10*20);
                         }
 
                         return;

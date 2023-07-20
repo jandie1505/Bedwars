@@ -872,6 +872,10 @@ public class Lobby extends GamePart {
 
                     PlayerParty party = PartyManager.getInstance().getParty(pafPlayer);
 
+                    if (party == null) {
+                        return;
+                    }
+
                     if (!parties.contains(party)) {
                         parties.add(party);
                     }
