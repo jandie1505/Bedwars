@@ -1545,7 +1545,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 3) {
-            sender.sendMessage("§cUsage: /bedwars give <Player> <ItemId>");
+            sender.sendMessage("§cUsage: /bedwars give <Player> <ItemId> [amount]");
             return;
         }
 
@@ -1568,6 +1568,24 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         if (item == null) {
             sender.sendMessage("§cItem does not exist");
             return;
+        }
+
+        if (args.length > 3) {
+
+            try {
+                int amount = Integer.parseInt(args[3]);
+
+                if (amount < 0) {
+                    sender.sendMessage("§cThe amount must be higher than 0");
+                    return;
+                }
+
+                item.setAmount(amount);
+            } catch (IllegalArgumentException e) {
+                sender.sendMessage("§cPlease specify a valid int value");
+                return;
+            }
+
         }
 
         player.getInventory().addItem(item);
