@@ -855,6 +855,8 @@ public class Lobby extends GamePart {
                 Class.forName("de.simonsator.partyandfriends.spigot.api.party.PartyManager");
                 Class.forName("de.simonsator.partyandfriends.spigot.api.party.PlayerParty");
 
+                // Add all parties on this server to a list
+
                 List<PlayerParty> parties = new ArrayList<>();
 
                 for (UUID playerId : this.getPlayers().keySet()) {
@@ -882,13 +884,21 @@ public class Lobby extends GamePart {
 
                 }
 
+                // create party teams
+
+                List<Integer> partyTeams = new ArrayList<>();
+
                 for (PlayerParty party : parties) {
+
+                    // check if the party size is higher than the max players per team if enabled
 
                     int maxPlayers = this.getPlugin().getConfigManager().getConfig().optJSONObject("slotSystem", new JSONObject()).optInt("playersPerTeam", -1);
 
                     if (maxPlayers > 0 && party.getAllPlayers().size() > maxPlayers) {
                         continue;
                     }
+
+                    // iterate through all teams to find the right team for the party
 
                     for (LobbyTeamData team : this.selectedMap.getTeams()) {
                         int teamId = this.selectedMap.getTeams().indexOf(team);
@@ -897,11 +907,56 @@ public class Lobby extends GamePart {
                             continue;
                         }
 
+                        // calculate team size of that team when the party would have joined the team
+
                         int playersInTeam = party.getAllPlayers().size() + this.getTeamPlayers(teamId).size();
 
-                        if (playersInTeam > maxPlayers) {
+                        // check if the amount of players is higher than the max players per team value if enabled
+
+                        if (maxPlayers > 0 && playersInTeam > maxPlayers) {
                             continue;
                         }
+
+                        // check if this team has been marked that it already contains a party
+                        // this is done to put every party into a separate team as long as there are enough empty teams
+
+                        if (partyTeams.contains(teamId)) {
+
+                            boolean otherTeamAvailable = false;
+
+                            for (LobbyTeamData anotherTeam : this.selectedMap.getTeams()) {
+                                int otherTeamId = this.selectedMap.getTeams().indexOf(anotherTeam);
+
+                                if (otherTeamId < 0) {
+                                    continue;
+                                }
+
+                                if (partyTeams.contains(otherTeamId)) {
+                                    continue;
+                                }
+
+                                if (this.getTeamPlayers(otherTeamId).isEmpty()) {
+                                    otherTeamAvailable = true;
+                                    break;
+                                }
+
+                            }
+
+                            // continue if another team is available for this party
+
+                            if (otherTeamAvailable) {
+                                continue;
+                            }
+
+                        }
+
+                        // at this point, the team for the party has been selected
+
+                        // mark team that it contains a party
+
+                        partyTeams.add(teamId);
+
+                        // add party players to team
 
                         for (PAFPlayer pafPlayer : party.getAllPlayers()) {
                             LobbyPlayerData playerData = this.players.get(pafPlayer.getUniqueId());
@@ -913,6 +968,8 @@ public class Lobby extends GamePart {
                             playerData.setTeam(teamId);
 
                         }
+
+                        // break out of the team loop because a team was found for that party
 
                         break;
                     }
