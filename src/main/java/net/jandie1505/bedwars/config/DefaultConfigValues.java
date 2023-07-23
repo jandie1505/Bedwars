@@ -67,6 +67,7 @@ public final class DefaultConfigValues {
 
         integrationsConfig.put("cloudnet", true);
         integrationsConfig.put("supervanish-premiumvanish", true);
+        integrationsConfig.put("partyandfriends", true);
 
         config.put("integrations", integrationsConfig);
 
