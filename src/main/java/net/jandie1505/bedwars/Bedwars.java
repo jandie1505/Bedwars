@@ -9,6 +9,8 @@ import net.jandie1505.bedwars.items.ItemStorage;
 import net.jandie1505.bedwars.lobby.Lobby;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.black_ixx.playerpoints.PlayerPoints;
+import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -341,6 +343,38 @@ public class Bedwars extends JavaPlugin {
 
     public void setCloudSystemMode(boolean cloudSystemMode) {
         this.cloudSystemMode = cloudSystemMode;
+    }
+
+    public void givePointsToPlayer(Player player, int amount, String message) {
+
+        if (this.configManager.getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("playerpoints", false)) {
+
+            try {
+                Class.forName("org.black_ixx.playerpoints.PlayerPoints");
+                Class.forName("org.black_ixx.playerpoints.PlayerPointsAPI");
+
+                PlayerPointsAPI pointsAPI = PlayerPoints.getInstance().getAPI();
+
+                if (amount <= 0) {
+                    return;
+                }
+
+                if (amount > this.configManager.getConfig().optJSONObject("rewards", new JSONObject()).optInt("maxRewardsAmount", 5000)) {
+                    amount = this.configManager.getConfig().optJSONObject("rewards", new JSONObject()).optInt("maxRewardsAmount", 5000);
+                }
+
+                pointsAPI.give(player.getUniqueId(), amount);
+
+                if (message != null) {
+                    player.sendMessage(message.replace("{points}", String.valueOf(amount)));
+                }
+
+            } catch (ClassNotFoundException e) {
+
+            }
+
+        }
+
     }
 
     public static String getDurationFormat(long seconds) {

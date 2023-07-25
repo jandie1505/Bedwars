@@ -68,6 +68,7 @@ public final class DefaultConfigValues {
         integrationsConfig.put("cloudnet", true);
         integrationsConfig.put("supervanish-premiumvanish", true);
         integrationsConfig.put("partyandfriends", true);
+        integrationsConfig.put("playerpoints", true);
 
         config.put("integrations", integrationsConfig);
 
@@ -79,6 +80,20 @@ public final class DefaultConfigValues {
         slotSystem.put("teamCount", -1);
 
         config.put("slotSystem", slotSystem);
+
+        // Rewards
+
+        JSONObject rewardsConfig = new JSONObject();
+
+        rewardsConfig.put("victory", 500);
+        rewardsConfig.put("bedDestroyed", 100);
+        rewardsConfig.put("playerKill", 20);
+        rewardsConfig.put("teamUpgradePurchased", 10);
+        rewardsConfig.put("trapPurchased", 5);
+        rewardsConfig.put("playerUpgradePurchased", 2);
+        rewardsConfig.put("maxRewardsAmount", 5000);
+
+        config.put("rewards", rewardsConfig);
 
         // Return
 

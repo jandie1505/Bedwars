@@ -85,6 +85,11 @@ public class Endlobby extends GamePart {
                 player.sendMessage("§7 Your team: §9" + team.getChatColor() + team.getName());
             }
 
+            if (this.game.getWinner() != null && this.game.getWinner().getId() == playerData.getTeam()) {
+                playerData.setRewardPoints(playerData.getRewardPoints() + this.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("victory", 500));
+                this.getPlugin().givePointsToPlayer(player, playerData.getRewardPoints(), "§6Reward for this game: + {points} points");
+            }
+
         }
 
         this.tick = 0;

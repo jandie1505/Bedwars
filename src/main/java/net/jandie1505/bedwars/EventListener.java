@@ -108,6 +108,7 @@ public class EventListener implements Listener {
 
             PlayerData killerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getKiller().getUniqueId());
             killerData.setKills(killerData.getKills() + 1);
+            playerData.setRewardPoints(playerData.getRewardPoints() + this.plugin.getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("playerKill", 0));
 
             for (ItemStack item : items) {
                 event.getEntity().getKiller().getInventory().addItem(item);
@@ -128,6 +129,7 @@ public class EventListener implements Listener {
 
         if (team == null || team.hasBed() <= 0) {
             ((Game) this.plugin.getGame()).removePlayer(event.getEntity().getUniqueId());
+            this.plugin.givePointsToPlayer(event.getEntity(), playerData.getRewardPoints(), "§6Reward for this game: + {points} points");
             return;
         }
 
@@ -534,6 +536,9 @@ public class EventListener implements Listener {
                         for (Location location : team.getBedLocations()) {
 
                             if (location.equals(event.getBlock().getLocation()) || location.equals(otherHalf.getLocation())) {
+
+                                playerData.setBedsBroken(playerData.getBedsBroken() + 1);
+                                playerData.setRewardPoints(playerData.getRewardPoints() + this.plugin.getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("bedDestroyed", 0));
 
                                 for (Player player : this.plugin.getServer().getOnlinePlayers()) {
 
@@ -1038,6 +1043,7 @@ public class EventListener implements Listener {
 
                 event.getWhoClicked().sendMessage("§aItem successfully purchased");
                 upgradeEntry.upgradePlayer(playerData);
+                playerData.setRewardPoints(playerData.getRewardPoints() + this.plugin.getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("playerUpgradePurchased", 0));
                 event.getWhoClicked().openInventory(new ShopMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getPage(ShopMenu.getMenuPage(event.getInventory())));
 
                 return;
@@ -1127,6 +1133,7 @@ public class EventListener implements Listener {
 
                 event.getWhoClicked().sendMessage("§aUpgrade successfully purchased");
                 team.setTeamUpgrade(teamUpgrade, team.getTeamUpgrade(teamUpgrade) + 1);
+                playerData.setRewardPoints(playerData.getRewardPoints() + this.plugin.getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("teamUpgradePurchased", 0));
                 event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
 
                 return;
@@ -1173,6 +1180,7 @@ public class EventListener implements Listener {
 
                     event.getWhoClicked().sendMessage("§aTrap successfully purchased");
                     BedwarsTeam.addTrap(trapArray, bedwarsTrap);
+                    playerData.setRewardPoints(playerData.getRewardPoints() + this.plugin.getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("trapPurchased", 0));
                     event.getWhoClicked().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getWhoClicked().getUniqueId()).getUpgradesMenu());
 
                 }
