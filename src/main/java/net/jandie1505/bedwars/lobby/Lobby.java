@@ -6,6 +6,7 @@ import de.simonsator.partyandfriends.spigot.api.party.PartyManager;
 import de.simonsator.partyandfriends.spigot.api.party.PlayerParty;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
+import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.Game;
@@ -380,6 +381,12 @@ public class Lobby extends GamePart {
             ));
         }
 
+        if (this.mapVoting) {
+            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Map Voting");
+        } else {
+            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Random Map");
+        }
+
     }
 
     private Location buildLocationFromJSONObject(JSONObject spawnpoint, boolean enableDirections) {
@@ -698,16 +705,6 @@ public class Lobby extends GamePart {
                 this.players.put(player.getUniqueId(), new LobbyPlayerData());
             }
 
-        }
-
-        // Update CloudNet motd and slots
-
-        if (this.timeStep >= 20 && this.time % 10 == 0) {
-            if (this.selectedMap != null) {
-                this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.getName());
-            } else {
-                this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Map Voting");
-            }
         }
 
         // Select Map if timer is 10 or lower
@@ -1081,6 +1078,8 @@ public class Lobby extends GamePart {
             this.players.remove(playerId);
         }
 
+        this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.getName());
+
         return game;
     }
 
@@ -1159,6 +1158,7 @@ public class Lobby extends GamePart {
                 try {
                     Class.forName("eu.cloudnetservice.driver.inject.InjectionLayer");
                     Class.forName("eu.cloudnetservice.modules.bridge.BridgeServiceHelper");
+                    Class.forName("eu.cloudnetservice.wrapper.holder.ServiceInfoHolder");
 
                     BridgeServiceHelper bridgeServiceHelper = InjectionLayer.ext().instance(BridgeServiceHelper.class);
 
@@ -1173,6 +1173,11 @@ public class Lobby extends GamePart {
                         }
 
                     }
+
+                    ServiceInfoHolder serviceInfoHolder = InjectionLayer.ext().instance(ServiceInfoHolder.class);
+
+                    serviceInfoHolder.publishServiceInfoUpdate();
+
                 } catch (ClassNotFoundException ignored) {
                     // ignored (cloudnet not installed)
                 }
@@ -1261,6 +1266,19 @@ public class Lobby extends GamePart {
         this.selectedMap = selectedMap;
         this.displayMap();
         this.createPartyTeams();
+
+        if (this.selectedMap != null) {
+            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.getName());
+        } else {
+
+            if (this.mapVoting) {
+                this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Map Voting");
+            } else {
+                this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Random Map");
+            }
+
+        }
+
     }
 
     public boolean isMapVoting() {
