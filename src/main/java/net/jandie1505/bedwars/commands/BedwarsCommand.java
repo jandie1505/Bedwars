@@ -37,7 +37,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         if (args.length < 1) {
 
             if (this.hasAdminPermission(sender)) {
-                sender.sendMessage("§7Usage: /bedwars stop/status/start/force-stop/players/bypass/mapteleport/gameinfo/getgamevalue/setgamevalue/maps/forcemap/votemap/getlobbyvalue/setlobbyvalue/reload/leave/pause/give");
+                sender.sendMessage("§7Usage: /bedwars stop/status/start/force-stop/players/bypass/mapteleport/gameinfo/getgamevalue/setgamevalue/maps/forcemap/votemap/getlobbyvalue/setlobbyvalue/reload/leave/pause/give/cloudsystemmode");
             } else {
                 sender.sendMessage("§7Usage: /bedwars leave/maps/votemap/");
             }
@@ -199,7 +199,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         }
 
         if (args.length < 2) {
-            sender.sendMessage("§cUsage: /bedwars players add/remove/get/info [player]");
+            sender.sendMessage("§cUsage: /bedwars players add/remove/get/info/getvalue/setvalue/enderchest [player]");
             return;
         }
 
@@ -1093,6 +1093,8 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         out = out + " DESTROY_BEDS " + ((DestroyBedsAction) timeAction).isDisableBeds();
                     } else if (timeAction instanceof WorldborderChangeTimeAction) {
                         out = out + " WORLDBORDER_CHANGE " + ((WorldborderChangeTimeAction) timeAction).getRadius();
+                    } else if (timeAction instanceof EndgameWitherTimeAction) {
+                        out = out + " ENDGAME_WITHER";
                     } else {
                         out = out + " UNKNOWN";
                     }
@@ -1656,33 +1658,209 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String s, String[] args) {
         List<String> tabComplete = new ArrayList<>();
 
-        if (args.length == 1) {
+        switch (args.length) {
+            case 1:
 
-            tabComplete.add("maps");
-            tabComplete.add("votemap");
-            tabComplete.add("leave");
+                tabComplete.add("maps");
+                tabComplete.add("votemap");
+                tabComplete.add("leave");
 
-            if (this.hasAdminPermission(sender)) {
-                tabComplete.add("status");
-                tabComplete.add("stop");
-                tabComplete.add("start");
-                tabComplete.add("force-stop");
-                tabComplete.add("players");
-                tabComplete.add("mapteleport");
-                tabComplete.add("gameinfo");
-                tabComplete.add("getgamevalue");
-                tabComplete.add("setgamevalue");
-                tabComplete.add("forcemap");
-                tabComplete.add("getlobbyvalue");
-                tabComplete.add("setlobbyvalue");
-                tabComplete.add("reload");
-                tabComplete.add("pause");
-                tabComplete.add("give");
+                if (this.hasAdminPermission(sender)) {
+                    tabComplete.add("status");
+                    tabComplete.add("stop");
+                    tabComplete.add("start");
+                    tabComplete.add("force-stop");
+                    tabComplete.add("players");
+                    tabComplete.add("mapteleport");
+                    tabComplete.add("gameinfo");
+                    tabComplete.add("getgamevalue");
+                    tabComplete.add("setgamevalue");
+                    tabComplete.add("forcemap");
+                    tabComplete.add("getlobbyvalue");
+                    tabComplete.add("setlobbyvalue");
+                    tabComplete.add("reload");
+                    tabComplete.add("pause");
+                    tabComplete.add("give");
+                    tabComplete.add("cloudsystemmode");
+                }
+
+                break;
+            case 2:
+
+                switch (args[0]) {
+                    case "players":
+
+                        if (!this.hasAdminPermission(sender)) {
+                            break;
+                        }
+
+                        if (this.plugin.getGame() instanceof Lobby || this.plugin.getGame() instanceof Game) {
+                            tabComplete.add("add");
+                            tabComplete.add("remove");
+                            tabComplete.add("get");
+                            tabComplete.add("info");
+                            tabComplete.add("getvalue");
+                            tabComplete.add("setvalue");
+                        }
+
+                        if (this.plugin.getGame() instanceof Game) {
+                            tabComplete.add("enderchest");
+                        }
+
+                        break;
+                    case "bypass":
+
+                        if (!this.hasAdminPermission(sender)) {
+                            break;
+                        }
+
+                        tabComplete.add("true");
+                        tabComplete.add("false");
+                        break;
+                    case "getgamevalue":
+
+                        if (!this.hasAdminPermission(sender)) {
+                            break;
+                        }
+
+                        if (this.plugin.getGame() instanceof Game) {
+                            tabComplete.add("world");
+                            tabComplete.add("generators");
+                            tabComplete.add("timeactions");
+                            tabComplete.add("respawncooldown");
+                            tabComplete.add("playerblocks");
+                            tabComplete.add("maxtime");
+                            tabComplete.add("spawnprotection");
+                            tabComplete.add("villagerprotection");
+                            tabComplete.add("center");
+                            tabComplete.add("radius");
+                            tabComplete.add("time");
+                            tabComplete.add("emeraldlevel");
+                            tabComplete.add("diamondlevel");
+                            tabComplete.add("armorconfig");
+                            tabComplete.add("teamupgradesconfig");
+                            tabComplete.add("itemshop");
+                        }
+
+                        break;
+                    case "setgamevalue":
+
+                        if (!this.hasAdminPermission(sender)) {
+                            break;
+                        }
+
+                        if (this.plugin.getGame() instanceof Game) {
+                            tabComplete.add("time");
+                            tabComplete.add("emeraldlevel");
+                            tabComplete.add("diamondlevel");
+                        }
+
+                        break;
+                    case "forcemap":
+                    case "votemap":
+
+                        if (!this.hasAdminPermission(sender) && args[0].equals("forcemap")) {
+                            break;
+                        }
+
+                        if (!(this.plugin.getGame() instanceof Lobby)) {
+                            break;
+                        }
+
+                        for (MapData map : ((Lobby) this.plugin.getGame()).getMaps()) {
+                            tabComplete.add(map.getName());
+                        }
+
+                        break;
+                    case "getlobbyvalue":
+
+                        if (!this.hasAdminPermission(sender)) {
+                            break;
+                        }
+
+                        if (!(this.plugin.getGame() instanceof Lobby)) {
+                            break;
+                        }
+
+                        tabComplete.add("time");
+                        tabComplete.add("map");
+                        tabComplete.add("voting");
+                        tabComplete.add("requiredplayers");
+                        tabComplete.add("paused");
+
+                        break;
+                    case "setlobbyvalue":
+
+                        if (!this.hasAdminPermission(sender)) {
+                            break;
+                        }
+
+                        if (!(this.plugin.getGame() instanceof Lobby)) {
+                            break;
+                        }
+
+                        tabComplete.add("time");
+                        tabComplete.add("voting");
+                        tabComplete.add("requiredplayers");
+                        tabComplete.add("paused");
+
+                        break;
+                    case "pause":
+
+                        if (!this.hasAdminPermission(sender)) {
+                            break;
+                        }
+
+                        tabComplete.add("false");
+                        tabComplete.add("true");
+
+                        break;
+                    case "give":
+
+                        if (!this.hasAdminPermission(sender)) {
+                            break;
+                        }
+
+                        this.ingamePlayerNames(tabComplete);
+
+                        break;
+                    case "cloudsystemmode":
+
+                        if (!this.hasAdminPermission(sender)) {
+                            break;
+                        }
+
+                        tabComplete.add("disable");
+
+                        break;
+                    default:
+                        break;
+                }
+
+                break;
+            default:
+                break;
+        }
+
+        return List.copyOf(tabComplete);
+    }
+
+    private void ingamePlayerNames(List<String> players) {
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            return;
+        }
+
+        for (UUID playerId : ((Game) this.plugin.getGame()).getPlayers().keySet()) {
+            Player player = this.plugin.getServer().getPlayer(playerId);
+
+            if (player == null) {
+                continue;
             }
+
+            players.add(player.getName());
 
         }
 
-
-        return List.copyOf(tabComplete);
     }
 }
