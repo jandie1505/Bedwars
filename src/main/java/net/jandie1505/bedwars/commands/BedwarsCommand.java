@@ -1600,7 +1600,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        if (args.length > 1 && args[0].equalsIgnoreCase("disable")) {
+        if (args.length > 1 && args[1].equalsIgnoreCase("disable")) {
 
             this.plugin.setCloudSystemMode(false);
             sender.sendMessage("§aCloudSystem mode disabled. To re-enable it, restart the server.");
