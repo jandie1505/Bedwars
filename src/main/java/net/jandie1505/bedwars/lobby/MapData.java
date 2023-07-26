@@ -17,10 +17,11 @@ public class MapData {
     private final List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions;
     private final List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions;
     private final List<LobbyWorldborderChangeTimeActionData> worldBorderChangeTimeActions;
+    private final List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions;
     private final Location centerLocation;
     private final int mapRadius;
 
-    public MapData(String name, String world, int respawnCooldown, int maxTime, List<LobbyTeamData> teams, List<LobbyGeneratorData> globalGenerators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions, List<LobbyWorldborderChangeTimeActionData> worldBorderChangeTimeActions, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
+    public MapData(String name, String world, int respawnCooldown, int maxTime, List<LobbyTeamData> teams, List<LobbyGeneratorData> globalGenerators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions, List<LobbyWorldborderChangeTimeActionData> worldBorderChangeTimeActions, List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
         this.name = name;
         this.world = world;
         this.respawnCooldown = respawnCooldown;
@@ -32,6 +33,7 @@ public class MapData {
         this.generatorUpgradeTimeActions = generatorUpgradeTimeActions;
         this.destroyBedsTimeActions = destroyBedsTimeActions;
         this.worldBorderChangeTimeActions = worldBorderChangeTimeActions;
+        this.endgameWitherTimeActions = endgameWitherTimeActions;
         this.centerLocation = centerLocation;
         this.mapRadius = mapRadius;
     }
@@ -78,6 +80,10 @@ public class MapData {
 
     public List<LobbyWorldborderChangeTimeActionData> getWorldBorderChangeTimeActions() {
         return worldBorderChangeTimeActions;
+    }
+
+    public List<LobbyEndgameWitherTimeActionData> getEndgameWitherTimeActions() {
+        return endgameWitherTimeActions;
     }
 
     public Location getCenterLocation() {

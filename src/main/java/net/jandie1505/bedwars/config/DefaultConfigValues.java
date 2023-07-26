@@ -583,21 +583,18 @@ public final class DefaultConfigValues {
 
         JSONObject firstBorder = new JSONObject();
         firstBorder.put("type", "WORLDBORDER_CHANGE");
-        firstBorder.put("radius", 57);
-        firstBorder.put("chatMessage", "§cThe world border is shrinking (1st border");
-        firstBorder.put("scoreboardText", "1st border");
+        firstBorder.put("radius", 23);
+        firstBorder.put("chatMessage", "§cThe world border is shrinking");
+        firstBorder.put("scoreboardText", "Border");
         firstBorder.put("time", 600);
 
         timeActions.put(firstBorder);
 
-        JSONObject secondBorder = new JSONObject();
-        secondBorder.put("type", "WORLDBORDER_CHANGE");
-        secondBorder.put("radius", 23);
-        secondBorder.put("chatMessage", "§cThe world border is shrinking (2nd border)");
-        secondBorder.put("scoreboardText", "2nd border");
-        secondBorder.put("time", 300);
+        JSONObject endgameWithers = new JSONObject();
+        endgameWithers.put("type", "ENDGAME_WITHER");
+        endgameWithers.put("time", 300);
 
-        timeActions.put(secondBorder);
+        timeActions.put(endgameWithers);
 
         minimalistMap.put("timeActions", timeActions);
 
@@ -1265,12 +1262,12 @@ public final class DefaultConfigValues {
 
         config.put("164", healPoolUpgrade);
 
-        // Dragon Buff Upgrade
+        // Endgame Buff Upgrade
 
         JSONObject dragonBuffUpgrade = new JSONObject();
 
-        dragonBuffUpgrade.put("type", Material.DRAGON_EGG.toString());
-        dragonBuffUpgrade.put("name", "Dragon Buff");
+        dragonBuffUpgrade.put("type", Material.WITHER_SKELETON_SKULL.toString());
+        dragonBuffUpgrade.put("name", "Endgame Buff");
 
         config.put("165", dragonBuffUpgrade);
 
@@ -1666,21 +1663,23 @@ public final class DefaultConfigValues {
 
         JSONArray dragonBuffUpgradeLevels = new JSONArray();
 
-        dragonBuffUpgradeLevels.put(1);
         dragonBuffUpgradeLevels.put(2);
+        dragonBuffUpgradeLevels.put(4);
+        dragonBuffUpgradeLevels.put(6);
 
         dragonBuffUpgrade.put("levels", dragonBuffUpgradeLevels);
 
         JSONArray dragonBuffUpgradePrices = new JSONArray();
 
-        dragonBuffUpgradePrices.put(5);
-        dragonBuffUpgradePrices.put(10);
+        dragonBuffUpgradePrices.put(25);
+        dragonBuffUpgradePrices.put(50);
+        dragonBuffUpgradePrices.put(100);
 
         dragonBuffUpgrade.put("prices", dragonBuffUpgradePrices);
 
         dragonBuffUpgrade.put("item", 165);
 
-        upgradeConfig.put("dragonbuff", dragonBuffUpgrade);
+        upgradeConfig.put("endgamebuff", dragonBuffUpgrade);
 
         upgradeConfig.put("noTrap", 166);
         upgradeConfig.put("alarmTrap", 167);

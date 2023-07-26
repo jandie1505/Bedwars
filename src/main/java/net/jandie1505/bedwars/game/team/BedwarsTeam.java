@@ -30,7 +30,7 @@ public class BedwarsTeam {
     private int hasteUpgrade;
     private int forgeUpgrade;
     private int healPoolUpgrade;
-    private int dragonBuffUpgrade;
+    private int endgameBuffUpgrade;
     private boolean disableBed;
 
     public BedwarsTeam(Game game, LobbyTeamData teamData) {
@@ -69,7 +69,7 @@ public class BedwarsTeam {
         this.hasteUpgrade = 0;
         this.forgeUpgrade = 0;
         this.healPoolUpgrade = 0;
-        this.dragonBuffUpgrade = 0;
+        this.endgameBuffUpgrade = 0;
 
         this.disableBed = false;
     }
@@ -205,12 +205,12 @@ public class BedwarsTeam {
         this.healPoolUpgrade = healPoolUpgrade;
     }
 
-    public int getDragonBuffUpgrade() {
-        return dragonBuffUpgrade;
+    public int getEndgameBuffUpgrade() {
+        return endgameBuffUpgrade;
     }
 
-    public void setDragonBuffUpgrade(int dragonBuffUpgrade) {
-        this.dragonBuffUpgrade = dragonBuffUpgrade;
+    public void setEndgameBuffUpgrade(int endgameBuffUpgrade) {
+        this.endgameBuffUpgrade = endgameBuffUpgrade;
     }
 
     public int getTeamUpgrade(TeamUpgrade teamUpgrade) {
@@ -225,8 +225,8 @@ public class BedwarsTeam {
             return this.getForgeUpgrade();
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHealPoolUpgrade()) {
             return this.getHealPoolUpgrade();
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getDragonBuffUpgrade()) {
-            return this.getDragonBuffUpgrade();
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getEndgameBuffUpgrade()) {
+            return this.getEndgameBuffUpgrade();
         } else {
             return -1;
         }
@@ -245,8 +245,8 @@ public class BedwarsTeam {
             this.forgeUpgrade = value;
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHealPoolUpgrade()) {
             this.healPoolUpgrade = value;
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getDragonBuffUpgrade()) {
-            this.dragonBuffUpgrade = value;
+        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getEndgameBuffUpgrade()) {
+            this.endgameBuffUpgrade = value;
         }
 
     }

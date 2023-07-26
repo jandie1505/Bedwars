@@ -7,6 +7,7 @@ import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.BridgeEgg;
+import net.jandie1505.bedwars.game.entities.EndgameWither;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
@@ -52,6 +53,7 @@ public class Game extends GamePart {
     private final int mapRadius;
     private final List<BridgeEgg> bridgeEggs;
     private final List<BaseDefender> baseDefenders;
+    private final List<EndgameWither> endgameWithers;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
@@ -60,7 +62,7 @@ public class Game extends GamePart {
     private BedwarsTeam winner;
     private boolean noWinnerEnd;
 
-    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
+    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions, List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
         super(plugin);
         this.world = world;
         this.teams = Collections.synchronizedList(new ArrayList<>());
@@ -80,6 +82,7 @@ public class Game extends GamePart {
         this.mapRadius = mapRadius;
         this.bridgeEggs = Collections.synchronizedList(new ArrayList<>());
         this.baseDefenders = Collections.synchronizedList(new ArrayList<>());
+        this.endgameWithers = Collections.synchronizedList(new ArrayList<>());
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
@@ -128,6 +131,10 @@ public class Game extends GamePart {
 
         for (LobbyWorldborderChangeTimeActionData worldborderChangeData : worldborderChangeTimeActions) {
             this.timeActions.add(new WorldborderChangeTimeAction(this, worldborderChangeData.getTime(), worldborderChangeData.getChatMessage(), worldborderChangeData.getScoreboardText(), worldborderChangeData.getRadius()));
+        }
+
+        for (LobbyEndgameWitherTimeActionData endgameWitherSpawnData : endgameWitherTimeActions) {
+            this.timeActions.add(new EndgameWitherTimeAction(this, endgameWitherSpawnData.getTime()));
         }
 
         Collections.sort(this.timeActions);
@@ -203,6 +210,12 @@ public class Game extends GamePart {
 
         if (this.timeStep >= 20) {
             this.ironGolems();
+        }
+
+        // ENDGAME WITHERS
+
+        if (this.timeStep >= 20) {
+            this.endgameWithers();
         }
 
         // GAME END CONDITIONS
@@ -610,6 +623,10 @@ public class Game extends GamePart {
                         continue;
                     }
 
+                    if (!playerData.isAlive()) {
+                        continue;
+                    }
+
                     if (playerData.getTrapCooldown() > 0) {
                         continue;
                     }
@@ -659,6 +676,26 @@ public class Game extends GamePart {
             }
 
             baseDefender.tick();
+
+        }
+
+    }
+
+    private void endgameWithers() {
+
+        for (EndgameWither endgameWither : this.getEndgameWithers()) {
+
+            if (endgameWither == null) {
+                this.endgameWithers.remove(null);
+                continue;
+            }
+
+            if (endgameWither.canBeRemoved()) {
+                this.endgameWithers.remove(endgameWither);
+                continue;
+            }
+
+            endgameWither.tick();
 
         }
 
@@ -1581,11 +1618,27 @@ public class Game extends GamePart {
         return List.copyOf(this.baseDefenders);
     }
 
+    public List<EndgameWither> getEndgameWithers() {
+        return List.copyOf(this.endgameWithers);
+    }
+
     public BaseDefender getBaseDefenderByEntity(IronGolem ironGolem) {
         for (BaseDefender b : this.getBaseDefenders()) {
 
             if (b.getIronGolem() == ironGolem) {
                 return b;
+            }
+
+        }
+
+        return null;
+    }
+
+    public EndgameWither getEndgameWitherByEntity(Wither wither) {
+        for (EndgameWither endgameWither : this.getEndgameWithers()) {
+
+            if (endgameWither.getWither() == wither) {
+                return endgameWither;
             }
 
         }
@@ -1599,6 +1652,14 @@ public class Game extends GamePart {
 
     public void removeBaseDefender(BaseDefender baseDefender) {
         this.baseDefenders.remove(baseDefender);
+    }
+
+    public void addEndgameWither(EndgameWither endgameWither) {
+        this.endgameWithers.add(endgameWither);
+    }
+
+    public void removeEndgameWither(EndgameWither endgameWither) {
+        this.endgameWithers.remove(endgameWither);
     }
 
     public boolean isNoWinnerEnd() {

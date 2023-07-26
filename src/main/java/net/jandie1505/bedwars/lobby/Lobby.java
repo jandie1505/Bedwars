@@ -274,6 +274,7 @@ public class Lobby extends GamePart {
             List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions = new ArrayList<>();
             List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions = new ArrayList<>();
             List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions = new ArrayList<>();
+            List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions = new ArrayList<>();
             JSONArray timeActionArray = map.optJSONArray("timeActions");
 
             if (timeActionArray == null) {
@@ -357,6 +358,9 @@ public class Lobby extends GamePart {
 
                         worldborderChangeTimeActions.add(new LobbyWorldborderChangeTimeActionData(time, radius, chatMessage, scoreboardText));
                         break;
+                    case "ENDGAME_WITHER":
+                        endgameWitherTimeActions.add(new LobbyEndgameWitherTimeActionData(time));
+                        break;
                     default:
                         this.getPlugin().getLogger().warning("Map Config: Wrong type of a timeAction of " + name + " (" + index + ")");
                         continue;
@@ -374,6 +378,7 @@ public class Lobby extends GamePart {
                     generatorUpgradeTimeActions,
                     destroyBedsTimeActions,
                     worldborderChangeTimeActions,
+                    endgameWitherTimeActions,
                     spawnBlockPlaceProtectionRadius,
                     villagerBlockPlaceProtectionRadius,
                     centerLocation,
@@ -1020,7 +1025,7 @@ public class Lobby extends GamePart {
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("haste", new JSONObject())),
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("generators", new JSONObject())),
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("healpool", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("dragonbuff", new JSONObject())),
+                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("endgamebuff", new JSONObject())),
                 shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("noTrap"),
                 shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("alarmTrap"),
                 shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("itsATrap"),
@@ -1036,6 +1041,7 @@ public class Lobby extends GamePart {
                 selectedMap.getGeneratorUpgradeTimeActions(),
                 selectedMap.getDestroyBedsTimeActions(),
                 selectedMap.getWorldBorderChangeTimeActions(),
+                selectedMap.getEndgameWitherTimeActions(),
                 new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
                 armorConfig,
                 teamUpgradesConfig,

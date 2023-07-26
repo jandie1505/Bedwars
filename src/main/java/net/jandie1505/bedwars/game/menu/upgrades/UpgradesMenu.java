@@ -48,32 +48,32 @@ public class UpgradesMenu implements InventoryHolder {
 
         TeamUpgrade sharpnessUpgrade = this.game.getTeamUpgradesConfig().getSharpnessUpgrade();
         ItemStack sharpnessItem = this.game.getPlugin().getItemStorage().getItem(sharpnessUpgrade.getItemId());
-        this.createUpgradeItem(sharpnessItem, sharpnessUpgrade, team.getAttackDamageUpgrade(), "Sharpness");
+        this.createUpgradeItem(sharpnessItem, sharpnessUpgrade, team.getAttackDamageUpgrade(), "Sharpness ");
         inventory.setItem(10, sharpnessItem);
 
         TeamUpgrade protectionUpgrade = this.game.getTeamUpgradesConfig().getProtectionUpgrade();
         ItemStack protectionItem = this.game.getPlugin().getItemStorage().getItem(protectionUpgrade.getItemId());
-        this.createUpgradeItem(protectionItem, protectionUpgrade, team.getProtectionUpgrade(), "Protection");
+        this.createUpgradeItem(protectionItem, protectionUpgrade, team.getProtectionUpgrade(), "Protection ");
         inventory.setItem(11, protectionItem);
 
         TeamUpgrade hasteUpgrade = this.game.getTeamUpgradesConfig().getHasteUpgrade();
         ItemStack hasteItem = this.game.getPlugin().getItemStorage().getItem(hasteUpgrade.getItemId());
-        this.createUpgradeItem(hasteItem, hasteUpgrade, team.getHasteUpgrade(), "Haste");
+        this.createUpgradeItem(hasteItem, hasteUpgrade, team.getHasteUpgrade(), "Haste ");
         inventory.setItem(12, hasteItem);
 
         TeamUpgrade forgeUpgrade = this.game.getTeamUpgradesConfig().getForgeUpgrade();
         ItemStack forgeItem = this.game.getPlugin().getItemStorage().getItem(forgeUpgrade.getItemId());
-        this.createUpgradeItem(forgeItem, forgeUpgrade, team.getForgeUpgrade(), "Generator");
+        this.createUpgradeItem(forgeItem, forgeUpgrade, team.getForgeUpgrade(), "Generator ");
         inventory.setItem(19, forgeItem);
 
         TeamUpgrade healPoolUpgrade = this.game.getTeamUpgradesConfig().getHealPoolUpgrade();
         ItemStack healPoolItem = this.game.getPlugin().getItemStorage().getItem(healPoolUpgrade.getItemId());
-        this.createUpgradeItem(healPoolItem, healPoolUpgrade, team.getHealPoolUpgrade(), "Heal Pool");
+        this.createUpgradeItem(healPoolItem, healPoolUpgrade, team.getHealPoolUpgrade(), "Heal Pool ");
         inventory.setItem(20, healPoolItem);
 
-        TeamUpgrade dragonBuffUpgrade = this.game.getTeamUpgradesConfig().getDragonBuffUpgrade();
+        TeamUpgrade dragonBuffUpgrade = this.game.getTeamUpgradesConfig().getEndgameBuffUpgrade();
         ItemStack dragonBuffItem = this.game.getPlugin().getItemStorage().getItem(dragonBuffUpgrade.getItemId());
-        this.createUpgradeItem(dragonBuffItem, dragonBuffUpgrade, team.getDragonBuffUpgrade(), "Dragon Buff");
+        this.createUpgradeItem(dragonBuffItem, dragonBuffUpgrade, team.getEndgameBuffUpgrade(), "Wither x");
         inventory.setItem(21, dragonBuffItem);
 
         // Buy Traps Button
@@ -157,7 +157,7 @@ public class UpgradesMenu implements InventoryHolder {
             if (level < 0) {
                 upgradeMessage = upgradeMessage + upgradeName;
             } else {
-                upgradeMessage = upgradeMessage + upgradeName + " " + level;
+                upgradeMessage = upgradeMessage + upgradeName + level;
             }
 
             if (upgradeLevel - 1 >= i) {

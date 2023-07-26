@@ -23,7 +23,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -1086,8 +1085,8 @@ public class EventListener implements Listener {
                 teamUpgrade = ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getForgeUpgrade();
             } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getHealPoolUpgrade().getItemId()) {
                 teamUpgrade = ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getHealPoolUpgrade();
-            } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getDragonBuffUpgrade().getItemId()) {
-                teamUpgrade = ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getDragonBuffUpgrade();
+            } else if (itemId == ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getEndgameBuffUpgrade().getItemId()) {
+                teamUpgrade = ((Game) this.plugin.getGame()).getTeamUpgradesConfig().getEndgameBuffUpgrade();
             } else {
                 teamUpgrade = null;
             }
