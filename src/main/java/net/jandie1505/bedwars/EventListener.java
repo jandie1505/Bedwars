@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.BridgeEgg;
+import net.jandie1505.bedwars.game.entities.EndgameWither;
 import net.jandie1505.bedwars.game.entities.SnowDefender;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.menu.shop.ShopEntry;
@@ -202,6 +203,11 @@ public class EventListener implements Listener {
                     deathMessage = deathMessage + getIronGolemDeathMessage((IronGolem) ((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager(), deathMessage);
                     deathMessage = deathMessage + " §7while running away from";
 
+                } else if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof Wither) {
+
+                    deathMessage = deathMessage + getEndgameWitherDeathMessage((Wither) ((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager(), deathMessage);
+                    deathMessage = deathMessage + " §7while running away from";
+
                 } else {
                     deathMessage = deathMessage + "died in combat with";
                 }
@@ -266,6 +272,14 @@ public class EventListener implements Listener {
 
                     deathMessage = deathMessage + getIronGolemDeathMessage((IronGolem) ((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager(), deathMessage);
 
+                } else if (((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager() instanceof Wither) {
+
+                    deathMessage = deathMessage + getEndgameWitherDeathMessage((Wither) ((EntityDamageByEntityEvent) event.getEntity().getLastDamageCause()).getDamager(), deathMessage);
+
+                } else {
+
+                    deathMessage = deathMessage + "died";
+
                 }
 
             } else {
@@ -318,6 +332,23 @@ public class EventListener implements Listener {
                 return "has experienced the BaseDefender of " + baseDefenderTeam.getChatColor() + "Team " + baseDefenderTeam.getName();
             } else {
                 return  "was killed by a BaseDefender";
+            }
+
+        } else {
+            return "died";
+        }
+    }
+
+    private String getEndgameWitherDeathMessage(Wither wither, String deathMessage) {
+        EndgameWither endgameWither = ((Game) this.plugin.getGame()).getEndgameWitherByEntity(wither);
+
+        if (endgameWither != null) {
+            BedwarsTeam baseDefenderTeam = ((Game) this.plugin.getGame()).getTeam(endgameWither.getTeamId());
+
+            if (baseDefenderTeam != null) {
+                return "has experienced the Endgame Wither of " + baseDefenderTeam.getChatColor() + "Team " + baseDefenderTeam.getName();
+            } else {
+                return  "was killed by a Endgame Wither";
             }
 
         } else {
@@ -557,7 +588,7 @@ public class EventListener implements Listener {
                 return;
             }
 
-            if (((Game) this.plugin.getGame()).getPlayerPlacedBlocks().contains(event.getBlock().getLocation()) || event.getBlock().getBlockData() instanceof Bed || event.getBlock().getType() == Material.FIRE) {
+            if (((Game) this.plugin.getGame()).getPlayerPlacedBlocks().contains(event.getBlock().getLocation()) || event.getBlock().getBlockData() instanceof Bed || event.getBlock().getType() == Material.FIRE || event.getBlock().getType() == Material.SNOW) {
 
                 PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
 
