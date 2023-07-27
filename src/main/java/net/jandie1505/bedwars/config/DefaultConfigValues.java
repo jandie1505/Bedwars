@@ -514,7 +514,7 @@ public final class DefaultConfigValues {
         thirdDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
         thirdDiamondUpgrade.put("generatorType", 1);
         thirdDiamondUpgrade.put("generatorLevel", 3);
-        thirdDiamondUpgrade.put("time", 2400);
+        thirdDiamondUpgrade.put("time", 2700);
 
         timeActions.put(thirdDiamondUpgrade);
 
@@ -522,7 +522,7 @@ public final class DefaultConfigValues {
         fourthDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
         fourthDiamondUpgrade.put("generatorType", 1);
         fourthDiamondUpgrade.put("generatorLevel", 4);
-        fourthDiamondUpgrade.put("time", 1800);
+        fourthDiamondUpgrade.put("time", 2400);
 
         timeActions.put(fourthDiamondUpgrade);
 
@@ -530,7 +530,7 @@ public final class DefaultConfigValues {
         fifthDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
         fifthDiamondUpgrade.put("generatorType", 1);
         fifthDiamondUpgrade.put("generatorLevel", 5);
-        fifthDiamondUpgrade.put("time", 1200);
+        fifthDiamondUpgrade.put("time", 2100);
 
         timeActions.put(fifthDiamondUpgrade);
 
@@ -546,7 +546,7 @@ public final class DefaultConfigValues {
         secondEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
         secondEmeraldUpgrade.put("generatorType", 2);
         secondEmeraldUpgrade.put("generatorLevel", 2);
-        secondEmeraldUpgrade.put("time", 2700);
+        secondEmeraldUpgrade.put("time", 3000);
 
         timeActions.put(secondEmeraldUpgrade);
 
@@ -554,7 +554,7 @@ public final class DefaultConfigValues {
         thirdEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
         thirdEmeraldUpgrade.put("generatorType", 2);
         thirdEmeraldUpgrade.put("generatorLevel", 3);
-        thirdEmeraldUpgrade.put("time", 2100);
+        thirdEmeraldUpgrade.put("time", 2700);
 
         timeActions.put(thirdEmeraldUpgrade);
 
@@ -562,7 +562,7 @@ public final class DefaultConfigValues {
         fourthEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
         fourthEmeraldUpgrade.put("generatorType", 2);
         fourthEmeraldUpgrade.put("generatorLevel", 4);
-        fourthEmeraldUpgrade.put("time", 1500);
+        fourthEmeraldUpgrade.put("time", 2400);
 
         timeActions.put(fourthEmeraldUpgrade);
 
@@ -570,14 +570,14 @@ public final class DefaultConfigValues {
         fifthEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
         fifthEmeraldUpgrade.put("generatorType", 2);
         fifthEmeraldUpgrade.put("generatorLevel", 5);
-        fifthEmeraldUpgrade.put("time", 1200);
+        fifthEmeraldUpgrade.put("time", 1800);
 
         timeActions.put(fifthEmeraldUpgrade);
 
         JSONObject bedsGone = new JSONObject();
         bedsGone.put("type", "DESTROY_BEDS");
         bedsGone.put("disableBeds", true);
-        bedsGone.put("time", 900);
+        bedsGone.put("time", 1500);
 
         timeActions.put(bedsGone);
 
@@ -586,13 +586,13 @@ public final class DefaultConfigValues {
         firstBorder.put("radius", 23);
         firstBorder.put("chatMessage", "§cThe world border is shrinking");
         firstBorder.put("scoreboardText", "Border");
-        firstBorder.put("time", 600);
+        firstBorder.put("time", 1200);
 
         timeActions.put(firstBorder);
 
         JSONObject endgameWithers = new JSONObject();
         endgameWithers.put("type", "ENDGAME_WITHER");
-        endgameWithers.put("time", 300);
+        endgameWithers.put("time", 600);
 
         timeActions.put(endgameWithers);
 
