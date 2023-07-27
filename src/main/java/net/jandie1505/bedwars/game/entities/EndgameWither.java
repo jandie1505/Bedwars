@@ -72,7 +72,7 @@ public class EndgameWither {
             return;
         }
 
-        this.targetTimer++;
+        this.targetTimer = 0;
         this.wither.setTarget(null);
 
         int tries = 0;

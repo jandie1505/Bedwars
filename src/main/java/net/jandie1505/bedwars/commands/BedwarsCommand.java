@@ -4,10 +4,15 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.game.entities.BaseDefender;
+import net.jandie1505.bedwars.game.entities.BridgeEgg;
+import net.jandie1505.bedwars.game.entities.EndgameWither;
+import net.jandie1505.bedwars.game.entities.SnowDefender;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.player.PlayerData;
+import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.timeactions.*;
 import net.jandie1505.bedwars.lobby.Lobby;
 import net.jandie1505.bedwars.lobby.LobbyPlayerData;
@@ -17,7 +22,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -37,7 +42,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         if (args.length < 1) {
 
             if (this.hasAdminPermission(sender)) {
-                sender.sendMessage("§7Usage: /bedwars stop/status/start/force-stop/players/bypass/mapteleport/gameinfo/getgamevalue/setgamevalue/maps/forcemap/votemap/getlobbyvalue/setlobbyvalue/reload/leave/pause/give/cloudsystemmode");
+                sender.sendMessage("§7Usage: /bedwars stop/status/start/force-stop/players/bypass/mapteleport/gameinfo/getgamevalue/setgamevalue/maps/forcemap/votemap/getlobbyvalue/setlobbyvalue/reload/leave/pause/give/cloudsystemmode/summon");
             } else {
                 sender.sendMessage("§7Usage: /bedwars leave/maps/votemap/");
             }
@@ -112,6 +117,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 break;
             case "cloudsystemmode":
                 this.cloudsystemModeSubcommand(sender, args);
+                break;
+            case "summon":
+                this.summonSubcommand(sender, args);
                 break;
             default:
                 sender.sendMessage("§cUnknown command. Run /bedwars without arguments for help.");
@@ -1616,6 +1624,117 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
     }
 
+    public void summonSubcommand(CommandSender sender, String[] args) {
+
+        if (!this.hasAdminPermission(sender)) {
+            sender.sendMessage("§cNo permission");
+            return;
+        }
+
+        if (!(this.plugin.getGame() instanceof Game)) {
+            sender.sendMessage("§cNo game running");
+            return;
+        }
+
+        if (args.length < 3) {
+            sender.sendMessage("§c/bedwars summon BASEDEFENDER/SNOWDEFENDER/ENDGAMEWITHER/BRIDGEEGG <teamId/material> [x] [y] [z] [yaw] [pitch]");
+            return;
+        }
+
+        try {
+
+            Location location = null;
+
+            if (args.length >= 6) {
+                location = new Location(((Game) this.plugin.getGame()).getWorld(), Integer.parseInt(args[3]), Integer.parseInt(args[4]), Integer.parseInt(args[5]));
+
+                if (args.length >= 7) {
+                    location.setYaw(Integer.parseInt(args[6]));
+
+                    if (args.length >= 8) {
+                        location.setPitch(Integer.parseInt(args[7]));
+                    }
+                }
+
+            } else {
+
+                if (sender instanceof Player && ((Player) sender).getLocation().getWorld() == ((Game) this.plugin.getGame()).getWorld()) {
+                    location = ((Player) sender).getLocation().clone();
+                }
+
+            }
+
+            if (location == null) {
+                sender.sendMessage("§cNo location found");
+                return;
+            }
+
+            switch (args[1]) {
+                case "BASEDEFENDER": {
+
+                    BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(Integer.parseInt(args[2]));
+
+                    if (team == null) {
+                        sender.sendMessage("§cUnknown team");
+                        return;
+                    }
+
+                    IronGolem ironGolem = ((Game) this.plugin.getGame()).getWorld().spawn(location, IronGolem.class);
+                    ((Game) this.plugin.getGame()).addBaseDefender(new BaseDefender((Game) this.plugin.getGame(), ironGolem, team.getId()));
+                    break;
+                }
+                case "SNOWDEFENDER": {
+
+                    BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(Integer.parseInt(args[2]));
+
+                    if (team == null) {
+                        sender.sendMessage("§cUnknown team");
+                        return;
+                    }
+
+                    Snowman snowman = ((Game) this.plugin.getGame()).getWorld().spawn(location, Snowman.class);
+                    ((Game) this.plugin.getGame()).addSnowDefender(new SnowDefender((Game) this.plugin.getGame(), snowman, team.getId()));
+                    break;
+                }
+                case "ENDGAMEWITHER": {
+
+                    BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(Integer.parseInt(args[2]));
+
+                    if (team == null) {
+                        sender.sendMessage("§cUnknown team");
+                        return;
+                    }
+
+                    Wither wither = ((Game) this.plugin.getGame()).getWorld().spawn(location, Wither.class);
+                    ((Game) this.plugin.getGame()).addEndgameWither(new EndgameWither((Game) this.plugin.getGame(), wither, team.getId()));
+                    break;
+                }
+                case "BRIDGEEGG":
+
+                    Material material = Material.getMaterial(args[2]);
+
+                    if (material == null) {
+                        sender.sendMessage("§cUnknown material");
+                        return;
+                    }
+
+                    Egg egg = ((Game) this.plugin.getGame()).getWorld().spawn(location, Egg.class);
+                    ((Game) this.plugin.getGame()).addBridgeEgg(new BridgeEgg((Game) this.plugin.getGame(), egg, material));
+                    break;
+                default:
+                    sender.sendMessage("§cUnknown entity");
+                    return;
+            }
+
+            sender.sendMessage("§aEntity successfully spawned");
+
+        } catch (IllegalArgumentException e) {
+            sender.sendMessage("§cIllegal argument");
+            return;
+        }
+
+    }
+
     public boolean hasAdminPermission(CommandSender sender) {
         return sender == this.plugin.getServer().getConsoleSender() || (sender instanceof Player && sender.hasPermission("bedwars.admin"));
     }
@@ -1682,6 +1801,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                     tabComplete.add("pause");
                     tabComplete.add("give");
                     tabComplete.add("cloudsystemmode");
+                    tabComplete.add("summon");
                 }
 
                 break;
@@ -1831,6 +1951,18 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         }
 
                         tabComplete.add("disable");
+
+                        break;
+                    case "summon":
+
+                        if (!this.hasAdminPermission(sender)) {
+                            break;
+                        }
+
+                        tabComplete.add("BASEDEFENDER");
+                        tabComplete.add("SNOWDEFENDER");
+                        tabComplete.add("ENDGAMEWITHER");
+                        tabComplete.add("BRIDGEEGG");
 
                         break;
                     default:

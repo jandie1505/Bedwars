@@ -17,6 +17,10 @@ public class EndgameWitherTimeAction extends TimeAction {
 
         for (BedwarsTeam team : this.getGame().getTeams()) {
 
+            if (!team.isAlive()) {
+                continue;
+            }
+
             int amount;
             TeamUpgrade endgameBuffUpgrade = this.getGame().getTeamUpgradesConfig().getEndgameBuffUpgrade();
 

@@ -8,6 +8,7 @@ import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.entities.EndgameWither;
+import net.jandie1505.bedwars.game.entities.SnowDefender;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
@@ -54,6 +55,7 @@ public class Game extends GamePart {
     private final List<BridgeEgg> bridgeEggs;
     private final List<BaseDefender> baseDefenders;
     private final List<EndgameWither> endgameWithers;
+    private final List<SnowDefender> snowDefenders;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
@@ -83,6 +85,7 @@ public class Game extends GamePart {
         this.bridgeEggs = Collections.synchronizedList(new ArrayList<>());
         this.baseDefenders = Collections.synchronizedList(new ArrayList<>());
         this.endgameWithers = Collections.synchronizedList(new ArrayList<>());
+        this.snowDefenders = Collections.synchronizedList(new ArrayList<>());
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
@@ -206,16 +209,12 @@ public class Game extends GamePart {
 
         this.traps();
 
-        // BASE DEFENDERS
+        // ENTITIES
 
         if (this.timeStep >= 20) {
             this.ironGolems();
-        }
-
-        // ENDGAME WITHERS
-
-        if (this.timeStep >= 20) {
             this.endgameWithers();
+            this.snowDefenders();
         }
 
         // GAME END CONDITIONS
@@ -696,6 +695,26 @@ public class Game extends GamePart {
             }
 
             endgameWither.tick();
+
+        }
+
+    }
+
+    public void snowDefenders() {
+
+        for (SnowDefender snowDefender : this.getSnowDefenders()) {
+
+            if (snowDefender == null) {
+                this.snowDefenders.remove(null);
+                continue;
+            }
+
+            if (snowDefender.canBeRemoved()) {
+                this.snowDefenders.remove(snowDefender);
+                continue;
+            }
+
+            snowDefender.tick();
 
         }
 
@@ -1622,6 +1641,10 @@ public class Game extends GamePart {
         return List.copyOf(this.endgameWithers);
     }
 
+    public List<SnowDefender> getSnowDefenders() {
+        return List.copyOf(this.snowDefenders);
+    }
+
     public BaseDefender getBaseDefenderByEntity(IronGolem ironGolem) {
         for (BaseDefender b : this.getBaseDefenders()) {
 
@@ -1646,6 +1669,18 @@ public class Game extends GamePart {
         return null;
     }
 
+    public SnowDefender getSnowDefenderByEntity(Golem golem) {
+        for (SnowDefender snowDefender : this.getSnowDefenders()) {
+
+            if (snowDefender.getGolem() == golem) {
+                return snowDefender;
+            }
+
+        }
+
+        return null;
+    }
+
     public void addBaseDefender(BaseDefender baseDefender) {
         this.baseDefenders.add(baseDefender);
     }
@@ -1660,6 +1695,14 @@ public class Game extends GamePart {
 
     public void removeEndgameWither(EndgameWither endgameWither) {
         this.endgameWithers.remove(endgameWither);
+    }
+
+    public void addSnowDefender(SnowDefender snowDefender) {
+        this.snowDefenders.add(snowDefender);
+    }
+
+    public void removeSnowDefender(SnowDefender snowDefender) {
+        this.snowDefenders.remove(snowDefender);
     }
 
     public boolean isNoWinnerEnd() {

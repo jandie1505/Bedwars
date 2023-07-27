@@ -1108,6 +1108,7 @@ public final class DefaultConfigValues {
         JSONArray ironGolemSpawnEggLore = new JSONArray();
         ironGolemSpawnEggLore.put("§r§fIt will protect your base with its life.");
         ironGolemSpawnEggLore.put("§r§fPlace the block where you want to spawn it.");
+        ironGolemSpawnEggLore.put("§r§fCan attack: Players");
         ironGolemSpawnEgg.put("lore", ironGolemSpawnEggLore);
 
         config.put("144", ironGolemSpawnEgg);
@@ -1216,6 +1217,21 @@ public final class DefaultConfigValues {
         replacementBed.put("lore", replacementBedLore);
 
         config.put("156", replacementBed);
+
+        // Snow Defender Spawn Item
+
+        JSONObject snowDefenderSpawnEgg = new JSONObject();
+
+        snowDefenderSpawnEgg.put("type", Material.SNOW_BLOCK.name());
+        snowDefenderSpawnEgg.put("name", "§rSNOW DEFENDER");
+
+        JSONArray snowDefenderSpawnEggLore = new JSONArray();
+        snowDefenderSpawnEggLore.put("§r§fThrows snowballs at your enemies.");
+        snowDefenderSpawnEggLore.put("§r§fPlace the block where you want to spawn it.");
+        snowDefenderSpawnEggLore.put("§r§fCan attack: Players, Base Defenders, Endgame Withers");
+        snowDefenderSpawnEgg.put("lore", snowDefenderSpawnEggLore);
+
+        config.put("157", snowDefenderSpawnEgg);
 
         // Sharpness Upgrade
 
@@ -1423,6 +1439,7 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(154, 64, Material.IRON_INGOT, 7, 33));
         shopItems.put(buildShopEntry(155, 2, Material.EMERALD, 7, 34));
         shopItems.put(buildShopEntry(156, 200, Material.EMERALD, 7, 37));
+        shopItems.put(buildShopEntry(157, 32, Material.GOLD_INGOT, 7, 38));
 
         itemShopConfig.put("shopItems", shopItems);
 
@@ -1537,6 +1554,7 @@ public final class DefaultConfigValues {
         specialItemsConfig.put("bridgeEgg", 150);
         specialItemsConfig.put("safetyPlatform", 153);
         specialItemsConfig.put("playerTracker", 155);
+        specialItemsConfig.put("snowDefenderSpawnEgg", 157);
 
         itemShopConfig.put("specialItems", specialItemsConfig);
 

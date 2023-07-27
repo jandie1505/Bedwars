@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.BridgeEgg;
+import net.jandie1505.bedwars.game.entities.SnowDefender;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.menu.shop.ShopEntry;
 import net.jandie1505.bedwars.game.menu.shop.ShopMenu;
@@ -463,7 +464,58 @@ public class EventListener implements Listener {
                             IronGolem ironGolem = (IronGolem) event.getBlockPlaced().getWorld().spawnEntity(location, EntityType.IRON_GOLEM);
                             ((Game) this.plugin.getGame()).addBaseDefender(new BaseDefender((Game) this.plugin.getGame(), ironGolem, team.getId()));
 
-                            playerData.setIronGolemCooldown(10*20);
+                            playerData.setIronGolemCooldown(15*20);
+                        }
+
+                        return;
+                    }
+
+                }
+
+            }
+
+            // SNOW DEFENDER
+
+            if (((Game) this.plugin.getGame()).getItemShop().getSnowDefenderSpawnEgg() != null) {
+
+                ItemStack snowDefenderItem = this.plugin.getItemStorage().getItem(((Game) this.plugin.getGame()).getItemShop().getSnowDefenderSpawnEgg());
+
+                if (snowDefenderItem != null) {
+
+                    if (event.getBlockPlaced().getType() == snowDefenderItem.getType() && event.getItemInHand().isSimilar(snowDefenderItem)) {
+                        event.setCancelled(true);
+
+                        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+                        if (playerData == null) {
+                            return;
+                        }
+
+                        if (playerData.getIronGolemCooldown() > 0) {
+                            event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getIronGolemCooldown() / 20.0) + " to place an snow golem again");
+                            return;
+                        }
+
+                        if (event.getItemInHand().getAmount() > 0) {
+                            event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+
+                            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
+
+                            if (team == null) {
+                                return;
+                            }
+
+                            if (event.getBlockPlaced().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
+                                return;
+                            }
+
+                            Location location = event.getBlockPlaced().getLocation().clone();
+                            location.add(0.5, 0, 0.5);
+
+                            Snowman snowman = event.getPlayer().getWorld().spawn(location, Snowman.class);
+                            ((Game) this.plugin.getGame()).addSnowDefender(new SnowDefender((Game) this.plugin.getGame(), snowman, team.getId()));
+
+                            playerData.setIronGolemCooldown(15*20);
                         }
 
                         return;
