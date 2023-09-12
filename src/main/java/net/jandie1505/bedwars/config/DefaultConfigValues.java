@@ -1177,6 +1177,13 @@ public final class DefaultConfigValues {
         safetyPlatform.put("type", Material.BLAZE_ROD.name());
         safetyPlatform.put("name", "§rSafety Platform");
 
+        JSONArray safetyPlatformLore = new JSONArray();
+        safetyPlatformLore.put("§r§fPlaces a 3x3 platform under your feet.");
+        safetyPlatformLore.put("§r§fPlace in main hand and right-click to deploy.");
+        safetyPlatformLore.put("§r§fPut in offhand and press F (swapping key) to deploy.");
+
+        safetyPlatform.put("lore", safetyPlatformLore);
+
         config.put("153", safetyPlatform);
 
         // Unprotected Chest

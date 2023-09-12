@@ -34,6 +34,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerListPingEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -710,6 +711,12 @@ public class EventListener implements Listener {
                 return;
             }
 
+            // check for main hand
+
+            if (event.getHand() != EquipmentSlot.HAND) {
+                return;
+            }
+
             // item ids
 
             int itemId = this.plugin.getItemStorage().getItemId(event.getItem());
@@ -781,25 +788,7 @@ public class EventListener implements Listener {
             if (((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform()) {
                 event.setCancelled(true);
 
-                ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
-
-                if (itemStack != null && itemStack.getAmount() > 0) {
-                    itemStack.setAmount(itemStack.getAmount() - 1);
-                }
-
-                BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
-
-                if (team == null || team.getChatColor() == null) {
-                    return;
-                }
-
-                Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getChatColor()) + "_STAINED_GLASS");
-
-                if (material == null) {
-                    return;
-                }
-
-                this.spawnSafetyPlatform(this.plugin, event.getPlayer(), material);
+                this.createSafetyPlatform(event.getPlayer(), playerData);
 
                 return;
             }
@@ -879,6 +868,45 @@ public class EventListener implements Listener {
 
     }
 
+    private void createSafetyPlatform(Player player, PlayerData playerData) {
+
+        Integer platformItemId = ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform();
+
+        if (platformItemId == null) {
+            return;
+        }
+
+        ItemStack itemStack = player.getInventory().getItem(player.getInventory().getHeldItemSlot());
+        int itemId = this.plugin.getItemStorage().getItemId(itemStack);
+
+        if (itemStack != null && itemId == platformItemId && itemStack.getAmount() > 0) {
+            itemStack.setAmount(itemStack.getAmount() - 1);
+        } else {
+            ItemStack offhandItem = player.getInventory().getItemInOffHand();
+            int offhandItemId = this.plugin.getItemStorage().getItemId(offhandItem);
+
+            if (offhandItem != null && offhandItemId == platformItemId && offhandItem.getType() != Material.AIR && offhandItem.getAmount() > 0) {
+                offhandItem.setAmount(offhandItem.getAmount() - 1);
+            }
+
+        }
+
+        BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
+
+        if (team == null || team.getChatColor() == null) {
+            return;
+        }
+
+        Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getChatColor()) + "_STAINED_GLASS");
+
+        if (material == null) {
+            return;
+        }
+
+        this.spawnSafetyPlatform(this.plugin, player, material);
+
+    }
+
     private void spawnSafetyPlatform(Bedwars plugin, Player player, Material material) {
 
         if (!(plugin.getGame() instanceof Game)) {
@@ -890,7 +918,7 @@ public class EventListener implements Listener {
         player.sendMessage("§bSafety Platform deployed");
 
         Location center = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-        center.add(0, -2, 0);
+        center.add(0, -1, 0);
 
         for (int x = center.getBlockX() - 1; x <= center.getBlockX() + 1; x++) {
             for (int z = center.getBlockZ() - 1; z <= center.getBlockZ() + 1; z++) {
@@ -1561,6 +1589,30 @@ public class EventListener implements Listener {
 
             event.setCancelled(true);
             return;
+        }
+
+        if (this.plugin.getGame() instanceof Game) {
+
+            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+            if (playerData == null) {
+                return;
+            }
+
+            int itemId = this.plugin.getItemStorage().getItemId(event.getMainHandItem());
+
+            if (itemId < 0) {
+                return;
+            }
+
+            if (((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform()) {
+                event.setCancelled(true);
+
+                this.createSafetyPlatform(event.getPlayer(), playerData);
+
+                return;
+            }
+
         }
 
     }
