@@ -58,8 +58,8 @@ public class SnowDefender {
             this.snowman.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 3600*20, 0, false, false));
         }
 
-        if (this.snowman.getMaxHealth() < 10) {
-            this.snowman.setMaxHealth(10);
+        if (this.snowman.getMaxHealth() < 20) {
+            this.snowman.setMaxHealth(20);
         }
 
         if (!this.snowman.isCustomNameVisible()) {

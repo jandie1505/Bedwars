@@ -17,12 +17,14 @@ public class BaseDefender {
     private final Game game;
     private final IronGolem ironGolem;
     private final int teamId;
+    private final double defMaxHealth;
     private int lifetime;
 
     public BaseDefender(Game game, IronGolem ironGolem, int teamId) {
         this.game = game;
         this.ironGolem = ironGolem;
         this.teamId = teamId;
+        this.defMaxHealth = ironGolem.getMaxHealth();
         this.lifetime = 300;
     }
 
@@ -59,6 +61,14 @@ public class BaseDefender {
 
         if (!this.ironGolem.isCustomNameVisible()) {
             this.ironGolem.setCustomNameVisible(true);
+        }
+
+        double setHealth = this.defMaxHealth * (((double) this.lifetime) / (double) 300);
+
+        if (setHealth > 1.0) {
+            this.ironGolem.setMaxHealth(setHealth);
+        } else {
+            this.ironGolem.setMaxHealth(1);
         }
 
         // TEAM
