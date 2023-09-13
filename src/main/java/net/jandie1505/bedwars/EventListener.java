@@ -2021,15 +2021,31 @@ public class EventListener implements Listener {
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
 
-        if (!(event.getEntity() instanceof Snowball)) {
+        if (event.getEntity() instanceof Snowball) {
+
+            if (event.getHitEntity() instanceof Player) {
+
+                event.setCancelled(true);
+                event.getHitEntity().setVelocity(event.getEntity().getVelocity().clone().multiply(1.5));
+                event.getEntity().remove();
+
+            } else if (event.getHitEntity() instanceof IronGolem || event.getHitEntity() instanceof TNTPrimed) {
+
+                event.setCancelled(true);
+                event.getHitEntity().setVelocity(event.getEntity().getVelocity().clone().multiply(2));
+                event.getEntity().remove();
+
+            } else if (event.getHitEntity() instanceof Fireball) {
+
+                event.setCancelled(true);
+                ((Fireball) event.getHitEntity()).setDirection(new Vector(0, 0, 0));
+                event.getHitEntity().setVelocity(event.getEntity().getVelocity().clone().multiply(4));
+                event.getEntity().remove();
+
+            }
+
             return;
         }
-
-        if (!(event.getHitEntity() instanceof Player) && !(event.getHitEntity() instanceof IronGolem)) {
-            return;
-        }
-
-        event.getHitEntity().setVelocity(event.getEntity().getVelocity().clone().multiply(2));
 
     }
 
