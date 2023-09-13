@@ -797,18 +797,30 @@ public class Game extends GamePart {
 
             if (this.getPlugin().getConfigManager().getConfig().optBoolean("inventorySort", false)) {
 
-                if ((item.getType().name().endsWith("WOOL") || item.getType().name().endsWith("GLASS")) && slot < player.getInventory().getSize() && this.timeStep >= 20) {
+                if ((item.getType().name().endsWith("WOOL") || item.getType().name().endsWith("GLASS") || item.getType() == Material.BLAZE_ROD || item.getType() == Material.FIRE_CHARGE || item.getType() == Material.SNOWBALL || item.getType() == Material.ENDER_PEARL || item.getType() == Material.GOLDEN_APPLE) && slot < player.getInventory().getSize() && this.timeStep >= 20) {
 
                     for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2++) {
                         ItemStack item2 = player.getInventory().getItem(slot2);
 
-                        if (slot <= slot2) {
+                        // Slot must not be offhand
+
+                        if (slot == 40) {
                             continue;
                         }
+
+                        // Target slot must be lower (or the offhand slot) than the origin slot
+
+                        if (slot <= slot2 && slot2 != 40) {
+                            continue;
+                        }
+
+                        // item must not be null
 
                         if (item2 == null) {
                             continue;
                         }
+
+                        //  items must be similar
 
                         if (!item.isSimilar(item2)) {
                             continue;
