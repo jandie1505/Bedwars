@@ -22,10 +22,12 @@ public class ItemShop {
     private Integer fireballItem;
     private Integer enhancedFireballItem;
     private Integer safetyPlatform;
+    private Integer enhancedSafetyPlatform;
     private Integer bridgeEgg;
     private Integer playerTracker;
     private Integer ironGolemSpawnEgg;
     private Integer snowDefenderSpawnEgg;
+    private Integer zapper;
 
     public ItemShop(Game game) {
         this.game = game;
@@ -38,10 +40,12 @@ public class ItemShop {
         this.fireballItem = null;
         this.enhancedFireballItem = null;
         this.safetyPlatform = null;
+        this.enhancedSafetyPlatform = null;
         this.bridgeEgg = null;
         this.playerTracker = null;
         this.ironGolemSpawnEgg = null;
         this.snowDefenderSpawnEgg = null;
+        this.zapper = null;
     }
 
     public Integer[] getMenuItems() {
@@ -167,6 +171,10 @@ public class ItemShop {
         return safetyPlatform;
     }
 
+    public Integer getEnhancedSafetyPlatform() {
+        return enhancedSafetyPlatform;
+    }
+
     public Integer getBridgeEgg() {
         return bridgeEgg;
     }
@@ -181,6 +189,10 @@ public class ItemShop {
 
     public Integer getSnowDefenderSpawnEgg() {
         return snowDefenderSpawnEgg;
+    }
+
+    public Integer getZapper() {
+        return zapper;
     }
 
     public void initEntries(JSONObject shopConfig) {
@@ -258,10 +270,12 @@ public class ItemShop {
             this.fireballItem = specialItems.optInt("fireball", -1);
             this.enhancedFireballItem = specialItems.optInt("enhancedFireball", -1);
             this.safetyPlatform = specialItems.optInt("safetyPlatform", -1);
+            this.enhancedSafetyPlatform = specialItems.optInt("enhancedSafetyPlatform", -1);
             this.bridgeEgg = specialItems.optInt("bridgeEgg", -1);
             this.playerTracker = specialItems.optInt("playerTracker", -1);
             this.ironGolemSpawnEgg = specialItems.optInt("ironGolemSpawnEgg", -1);
             this.snowDefenderSpawnEgg = specialItems.optInt("snowDefenderSpawnEgg", -1);
+            this.zapper = specialItems.optInt("zapper", -1);
 
         }
 

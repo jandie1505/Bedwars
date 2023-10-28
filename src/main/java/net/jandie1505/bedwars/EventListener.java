@@ -557,6 +557,52 @@ public class EventListener implements Listener {
 
             }
 
+            // Zapper
+            if(((Game) this.plugin.getGame()).getItemShop().getZapper() != null) {
+                ItemStack zapperItem = this.plugin.getItemStorage().getItem(((Game) this.plugin.getGame()).getItemShop().getZapper());
+
+                if(zapperItem != null) {
+                    if(event.getBlockPlaced().getType() == zapperItem.getType() && event.getItemInHand().isSimilar(zapperItem)) {
+                        event.setCancelled(true);
+
+                        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+                        if(playerData == null) {
+                            return;
+                        }
+
+                        if(event.getItemInHand().getAmount() > 0) {
+                            event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+
+                            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
+
+                            if(team == null) {
+                                return;
+                            }
+
+                            if(event.getBlockPlaced().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
+                                return;
+                            }
+
+                            List<BedwarsTeam> teams = new ArrayList<BedwarsTeam>(((Game) this.plugin.getGame()).getTeams());
+
+                            teams.remove(team);
+
+                            Random random = new Random();
+                            BedwarsTeam teamToZapp = teams.get(random.nextInt(teams.size()));
+
+                            List<UUID> playersToZapp = new ArrayList<UUID>(teamToZapp.getPlayers());
+
+                            UUID playerToZapp = playersToZapp.get(random.nextInt(playersToZapp.size()));
+
+                            Location zappLocation = Bukkit.getPlayer(playerToZapp).getLocation().clone();
+
+                            event.getPlayer().getWorld().spawnEntity(zappLocation, EntityType.LIGHTNING);
+                        }
+                    }
+                }
+            }
+
             ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().add(event.getBlockPlaced().getLocation());
 
         } else {
@@ -788,7 +834,17 @@ public class EventListener implements Listener {
             if (((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform()) {
                 event.setCancelled(true);
 
-                this.createSafetyPlatform(event.getPlayer(), playerData);
+                this.createSafetyPlatform(event.getPlayer(), playerData, false);
+
+                return;
+            }
+
+            // Enhanced Safety Platform
+
+            if(((Game) this.plugin.getGame()).getItemShop().getEnhancedSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getEnhancedSafetyPlatform()) {
+                event.setCancelled(true);
+
+                this.createSafetyPlatform(event.getPlayer(), playerData, true);
 
                 return;
             }
@@ -868,7 +924,7 @@ public class EventListener implements Listener {
 
     }
 
-    private void createSafetyPlatform(Player player, PlayerData playerData) {
+    private void createSafetyPlatform(Player player, PlayerData playerData, boolean enhanced) {
 
         Integer platformItemId = ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform();
 
@@ -903,7 +959,11 @@ public class EventListener implements Listener {
             return;
         }
 
-        this.spawnSafetyPlatform(this.plugin, player, material);
+        if(enhanced) {
+            this.spawnEnhancedSafetyPlatform(this.plugin, player, material);
+        } else {
+            this.spawnSafetyPlatform(this.plugin, player, material);
+        }
 
     }
 
@@ -932,6 +992,32 @@ public class EventListener implements Listener {
             }
         }
 
+    }
+
+    private void spawnEnhancedSafetyPlatform(Bedwars plugin, Player player, Material material) {
+
+        if (!(plugin.getGame() instanceof Game)) {
+            return;
+        }
+
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 3*20, 0, true, true));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 3*20, 1, true, true));
+        player.sendMessage("§bSafety Platform deployed");
+
+        Location center = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+        center.add(0, -1, 0);
+
+        for (int x = center.getBlockX() - 15; x <= center.getBlockX() + 15; x++) {
+            for (int z = center.getBlockZ() - 15; z <= center.getBlockZ() + 15; z++) {
+                Block block = player.getWorld().getBlockAt(new Location(player.getWorld(), x, center.getBlockY(), z));
+
+                if (block.getType() == Material.AIR) {
+                    block.setType(material);
+                    ((Game) plugin.getGame()).getPlayerPlacedBlocks().add(block.getLocation());
+                }
+
+            }
+        }
     }
 
     @EventHandler
@@ -1608,7 +1694,15 @@ public class EventListener implements Listener {
             if (((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform()) {
                 event.setCancelled(true);
 
-                this.createSafetyPlatform(event.getPlayer(), playerData);
+                this.createSafetyPlatform(event.getPlayer(), playerData, false);
+
+                return;
+            }
+
+            if(((Game) this.plugin.getGame()).getItemShop().getEnhancedSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getEnhancedSafetyPlatform()) {
+                event.setCancelled(true);
+
+                this.createSafetyPlatform(event.getPlayer(), playerData, true);
 
                 return;
             }
