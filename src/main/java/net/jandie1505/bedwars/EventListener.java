@@ -927,21 +927,22 @@ public class EventListener implements Listener {
     private void createSafetyPlatform(Player player, PlayerData playerData, boolean enhanced) {
 
         Integer platformItemId = ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform();
+        Integer enhancedPlatformItemId = ((Game) this.plugin.getGame()).getItemShop().getEnhancedSafetyPlatform();
 
-        if (platformItemId == null) {
+        if (platformItemId == null || enhancedPlatformItemId == null) {
             return;
         }
 
         ItemStack itemStack = player.getInventory().getItem(player.getInventory().getHeldItemSlot());
         int itemId = this.plugin.getItemStorage().getItemId(itemStack);
 
-        if (itemStack != null && itemId == platformItemId && itemStack.getAmount() > 0) {
+        if (itemStack != null && (itemId == platformItemId || itemId == enhancedPlatformItemId) && itemStack.getAmount() > 0) {
             itemStack.setAmount(itemStack.getAmount() - 1);
         } else {
             ItemStack offhandItem = player.getInventory().getItemInOffHand();
             int offhandItemId = this.plugin.getItemStorage().getItemId(offhandItem);
 
-            if (offhandItem != null && offhandItemId == platformItemId && offhandItem.getType() != Material.AIR && offhandItem.getAmount() > 0) {
+            if (offhandItem != null && (offhandItemId == platformItemId || offhandItemId == enhancedPlatformItemId) && offhandItem.getType() != Material.AIR && offhandItem.getAmount() > 0) {
                 offhandItem.setAmount(offhandItem.getAmount() - 1);
             }
 
