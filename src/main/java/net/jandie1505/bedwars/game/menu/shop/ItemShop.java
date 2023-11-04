@@ -28,6 +28,7 @@ public class ItemShop {
     private Integer ironGolemSpawnEgg;
     private Integer snowDefenderSpawnEgg;
     private Integer zapper;
+    private Integer spawnDust;
 
     public ItemShop(Game game) {
         this.game = game;
@@ -46,6 +47,7 @@ public class ItemShop {
         this.ironGolemSpawnEgg = null;
         this.snowDefenderSpawnEgg = null;
         this.zapper = null;
+        this.spawnDust = null;
     }
 
     public Integer[] getMenuItems() {
@@ -195,6 +197,10 @@ public class ItemShop {
         return zapper;
     }
 
+    public Integer getSpawnDust() {
+        return spawnDust;
+    }
+
     public void initEntries(JSONObject shopConfig) {
         JSONArray menuItems = shopConfig.optJSONArray("menuItems");
 
@@ -276,6 +282,7 @@ public class ItemShop {
             this.ironGolemSpawnEgg = specialItems.optInt("ironGolemSpawnEgg", -1);
             this.snowDefenderSpawnEgg = specialItems.optInt("snowDefenderSpawnEgg", -1);
             this.zapper = specialItems.optInt("zapper", -1);
+            this.spawnDust = specialItems.optInt("spawnDust", -1);
 
         }
 

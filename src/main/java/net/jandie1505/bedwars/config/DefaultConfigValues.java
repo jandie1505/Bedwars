@@ -1270,6 +1270,20 @@ public final class DefaultConfigValues {
 
         config.put("173", zapper);
 
+        // Spawn Dust
+
+        JSONObject spawnDust = new JSONObject();
+
+        spawnDust.put("type", Material.GLOWSTONE_DUST.name());
+        spawnDust.put("name", "§rSpawn Dust");
+
+        JSONArray spawnDustLore = new JSONArray();
+        spawnDustLore.put("§r§fTeleports you back to your Base");
+        spawnDustLore.put("§r§fafter 3 seconds without taking damage.");
+        spawnDust.put("lore", spawnDustLore);
+
+        config.put("174", spawnDust);
+
         // Sharpness Upgrade
 
         JSONObject sharpnessUpgrade = new JSONObject();
@@ -1395,6 +1409,7 @@ public final class DefaultConfigValues {
 
         //172 Enhanced Safety Platform
         //173 Zapper
+        //174 Spawn Dust
 
         return config;
     }
@@ -1482,6 +1497,7 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(157, 32, Material.GOLD_INGOT, 7, 38));
         shopItems.put(buildShopEntry(172, 5, Material.EMERALD, 7, 39));
         shopItems.put(buildShopEntry(173, 5, Material.EMERALD, 7, 40));
+        shopItems.put(buildShopEntry(174, 3, Material.EMERALD, 7, 41));
 
         itemShopConfig.put("shopItems", shopItems);
 
@@ -1599,6 +1615,7 @@ public final class DefaultConfigValues {
         specialItemsConfig.put("snowDefenderSpawnEgg", 157);
         specialItemsConfig.put("enhancedSafetyPlatform", 172);
         specialItemsConfig.put("zapper", 173);
+        specialItemsConfig.put("spawnDust", 174);
 
         itemShopConfig.put("specialItems", specialItemsConfig);
 

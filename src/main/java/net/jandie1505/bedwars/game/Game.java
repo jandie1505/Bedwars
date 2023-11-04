@@ -498,6 +498,16 @@ public class Game extends GamePart {
                 playerData.setZapperCooldown(playerData.getZapperCooldown() - 1);
             }
 
+            // Teleport to Base Cooldown
+
+            if(playerData.getTeleportToBaseCooldown() > 0) {
+                if(playerData.getTeleportToBaseCooldown() == 1) {
+                    Location teleportLocation = team.getSpawnpoints().get(0);
+                    player.teleport(teleportLocation);
+                }
+                playerData.setTeleportToBaseCooldown(playerData.getTeleportToBaseCooldown() - 1);
+            }
+
         }
 
     }

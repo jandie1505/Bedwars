@@ -894,6 +894,26 @@ public class EventListener implements Listener {
 
                 return;
             }
+
+            // Spawn Dust
+
+            if(((Game) this.plugin.getGame()).getItemShop().getSpawnDust() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSpawnDust()) {
+                event.setCancelled(true);
+
+                if(playerData.getTeleportToBaseCooldown() > 0) {
+                    event.getPlayer().sendMessage("§cYou can not use that again during teleport");
+                    return;
+                }
+
+                playerData.setTeleportToBaseCooldown(3*20 + 1);
+
+                ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+                if (itemStack != null && itemStack.getAmount() > 0) {
+                    itemStack.setAmount(itemStack.getAmount() - 1);
+                }
+            }
+
         } else if (this.plugin.getGame() instanceof Lobby) {
 
             if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
@@ -1938,6 +1958,10 @@ public class EventListener implements Listener {
                     if (playerData.getTeam() == damagerData.getTeam()) {
                         event.setCancelled(true);
                         return;
+                    }
+
+                    if(playerData.getTeleportToBaseCooldown() > 0) {
+                        playerData.setTeleportToBaseCooldown(0);
                     }
 
                 } else if (customDamager instanceof IronGolem) {

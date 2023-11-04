@@ -27,6 +27,7 @@ public class PlayerData {
     private int ironGolemCooldown;
     private int rewardPoints;
     private int zapperCooldown;
+    private int teleportToBaseCooldown;
 
     public PlayerData(Game game, int team) {
         this.game = game;
@@ -48,6 +49,7 @@ public class PlayerData {
         this.ironGolemCooldown = 0;
         this.rewardPoints = 0;
         this.zapperCooldown = 0;
+        this.teleportToBaseCooldown = 0;
     }
 
     public boolean isAlive() {
@@ -196,5 +198,13 @@ public class PlayerData {
 
     public void setZapperCooldown(int zapperCooldown) {
         this.zapperCooldown = zapperCooldown;
+    }
+
+    public int getTeleportToBaseCooldown() {
+        return teleportToBaseCooldown;
+    }
+
+    public void setTeleportToBaseCooldown(int teleportToBaseCooldown) {
+        this.teleportToBaseCooldown = teleportToBaseCooldown;
     }
 }
