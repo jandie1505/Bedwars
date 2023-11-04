@@ -492,6 +492,12 @@ public class Game extends GamePart {
                 playerData.setIronGolemCooldown(playerData.getIronGolemCooldown() - 1);
             }
 
+            // Zapper Cooldown
+
+            if(playerData.getZapperCooldown() > 0) {
+                playerData.setZapperCooldown(playerData.getZapperCooldown() - 1);
+            }
+
         }
 
     }

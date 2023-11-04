@@ -571,6 +571,11 @@ public class EventListener implements Listener {
                             return;
                         }
 
+                        if(playerData.getZapperCooldown() > 0) {
+                            event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getZapperCooldown() / 20.0) + " to use the Zapper again");
+                            return;
+                        }
+
                         if(event.getItemInHand().getAmount() > 0) {
                             event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
 
@@ -583,6 +588,8 @@ public class EventListener implements Listener {
                             if(event.getBlockPlaced().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
                                 return;
                             }
+
+                            playerData.setZapperCooldown(50*20);
 
                             List<BedwarsTeam> teams = new ArrayList<BedwarsTeam>(((Game) this.plugin.getGame()).getTeams());
 
