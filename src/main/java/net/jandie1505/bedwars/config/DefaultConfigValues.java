@@ -1284,6 +1284,21 @@ public final class DefaultConfigValues {
 
         config.put("174", spawnDust);
 
+        // Black Hole
+
+        JSONObject blackHole = new JSONObject();
+
+        blackHole.put("type", Material.BLACK_CONCRETE.name());
+        blackHole.put("name", "§rBlack Hole");
+
+        JSONArray blackHoleLore = new JSONArray();
+        blackHoleLore.put("§r§fClears all Player placed Blocks");
+        blackHoleLore.put("§r§fin a 15 Block diameter around the");
+        blackHoleLore.put("§r§fBlack Hole.");
+        blackHole.put("lore", blackHoleLore);
+
+        config.put("175", blackHole);
+
         // Sharpness Upgrade
 
         JSONObject sharpnessUpgrade = new JSONObject();
@@ -1410,6 +1425,7 @@ public final class DefaultConfigValues {
         //172 Enhanced Safety Platform
         //173 Zapper
         //174 Spawn Dust
+        //175 Black Hole
 
         return config;
     }
@@ -1498,6 +1514,7 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(172, 5, Material.EMERALD, 7, 39));
         shopItems.put(buildShopEntry(173, 5, Material.EMERALD, 7, 40));
         shopItems.put(buildShopEntry(174, 3, Material.EMERALD, 7, 41));
+        shopItems.put(buildShopEntry(175, 6, Material.EMERALD, 7, 42));
 
         itemShopConfig.put("shopItems", shopItems);
 
@@ -1616,6 +1633,7 @@ public final class DefaultConfigValues {
         specialItemsConfig.put("enhancedSafetyPlatform", 172);
         specialItemsConfig.put("zapper", 173);
         specialItemsConfig.put("spawnDust", 174);
+        specialItemsConfig.put("blackHole", 175);
 
         itemShopConfig.put("specialItems", specialItemsConfig);
 

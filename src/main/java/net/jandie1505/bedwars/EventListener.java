@@ -610,6 +610,52 @@ public class EventListener implements Listener {
                 }
             }
 
+            // Black Hole
+            if(((Game) this.plugin.getGame()).getItemShop().getBlackHole() != null) {
+                ItemStack blackHoleItem = this.plugin.getItemStorage().getItem(((Game) this.plugin.getGame()).getItemShop().getBlackHole());
+
+                if(blackHoleItem != null) {
+                    if(event.getBlockPlaced().getType() == blackHoleItem.getType() && event.getItemInHand().isSimilar(blackHoleItem)) {
+                        event.setCancelled(true);
+
+                        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+                        if(playerData == null) {
+                            return;
+                        }
+
+                        if(playerData.getBlackHoleCooldown() > 0) {
+                            event.getPlayer().sendMessage("§cYou have to wait " + ((double) playerData.getBlackHoleCooldown() / 20.0) + " to use a Black Hole again");
+                            return;
+                        }
+
+                        if(event.getItemInHand().getAmount() > 0) {
+                            event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+
+                            playerData.setBlackHoleCooldown(15*20);
+
+                            Location center = new Location(event.getBlockPlaced().getWorld(), event.getBlockPlaced().getX(), event.getBlockPlaced().getY(), event.getBlockPlaced().getZ());
+
+                            for(int x = center.getBlockX() - 7; x <= center.getBlockX() + 7; x++) {
+                                for(int y = center.getBlockY() - 7; y <= center.getBlockY() + 7; y++) {
+                                    for(int z = center.getBlockZ() - 7; z <= center.getBlockZ(); z++) {
+                                        Block block = event.getBlockPlaced().getWorld().getBlockAt(new Location(event.getBlockPlaced().getWorld(), x, y, z));
+
+                                        if(block.getType() != Material.AIR) {
+                                            if(((Game) plugin.getGame()).getPlayerPlacedBlocks().contains(block.getLocation())) {
+                                                block.setType(Material.AIR);
+                                                ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().remove(block.getLocation());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
             ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().add(event.getBlockPlaced().getLocation());
 
         } else {

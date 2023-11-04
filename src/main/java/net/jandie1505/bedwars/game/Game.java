@@ -508,6 +508,12 @@ public class Game extends GamePart {
                 playerData.setTeleportToBaseCooldown(playerData.getTeleportToBaseCooldown() - 1);
             }
 
+            // Black Hole Cooldown
+
+            if(playerData.getBlackHoleCooldown() > 0) {
+                playerData.setBlackHoleCooldown(playerData.getBlackHoleCooldown() - 1);
+            }
+
         }
 
     }

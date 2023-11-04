@@ -29,6 +29,7 @@ public class ItemShop {
     private Integer snowDefenderSpawnEgg;
     private Integer zapper;
     private Integer spawnDust;
+    private Integer blackHole;
 
     public ItemShop(Game game) {
         this.game = game;
@@ -48,6 +49,7 @@ public class ItemShop {
         this.snowDefenderSpawnEgg = null;
         this.zapper = null;
         this.spawnDust = null;
+        this.blackHole = null;
     }
 
     public Integer[] getMenuItems() {
@@ -201,6 +203,10 @@ public class ItemShop {
         return spawnDust;
     }
 
+    public Integer getBlackHole() {
+        return blackHole;
+    }
+
     public void initEntries(JSONObject shopConfig) {
         JSONArray menuItems = shopConfig.optJSONArray("menuItems");
 
@@ -283,6 +289,7 @@ public class ItemShop {
             this.snowDefenderSpawnEgg = specialItems.optInt("snowDefenderSpawnEgg", -1);
             this.zapper = specialItems.optInt("zapper", -1);
             this.spawnDust = specialItems.optInt("spawnDust", -1);
+            this.blackHole = specialItems.optInt("blackHole", -1);
 
         }
 
