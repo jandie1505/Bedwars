@@ -557,6 +557,105 @@ public class EventListener implements Listener {
 
             }
 
+            // Zapper
+            if(((Game) this.plugin.getGame()).getItemShop().getZapper() != null) {
+                ItemStack zapperItem = this.plugin.getItemStorage().getItem(((Game) this.plugin.getGame()).getItemShop().getZapper());
+
+                if(zapperItem != null) {
+                    if(event.getBlockPlaced().getType() == zapperItem.getType() && event.getItemInHand().isSimilar(zapperItem)) {
+                        event.setCancelled(true);
+
+                        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+                        if(playerData == null) {
+                            return;
+                        }
+
+                        if(playerData.getZapperCooldown() > 0) {
+                            event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getZapperCooldown() / 20.0) + " to use the Zapper again");
+                            return;
+                        }
+
+                        if(event.getItemInHand().getAmount() > 0) {
+                            event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+
+                            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
+
+                            if(team == null) {
+                                return;
+                            }
+
+                            if(event.getBlockPlaced().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
+                                return;
+                            }
+
+                            playerData.setZapperCooldown(50*20);
+
+                            List<BedwarsTeam> teams = new ArrayList<BedwarsTeam>(((Game) this.plugin.getGame()).getTeams());
+
+                            teams.remove(team);
+
+                            Random random = new Random();
+                            BedwarsTeam teamToZapp = teams.get(random.nextInt(teams.size()));
+
+                            List<UUID> playersToZapp = new ArrayList<UUID>(teamToZapp.getPlayers());
+
+                            UUID playerToZapp = playersToZapp.get(random.nextInt(playersToZapp.size()));
+
+                            Location zappLocation = Bukkit.getPlayer(playerToZapp).getLocation().clone();
+
+                            event.getPlayer().getWorld().spawnEntity(zappLocation, EntityType.LIGHTNING);
+                        }
+                    }
+                }
+            }
+
+            // Black Hole
+            if(((Game) this.plugin.getGame()).getItemShop().getBlackHole() != null) {
+                ItemStack blackHoleItem = this.plugin.getItemStorage().getItem(((Game) this.plugin.getGame()).getItemShop().getBlackHole());
+
+                if(blackHoleItem != null) {
+                    if(event.getBlockPlaced().getType() == blackHoleItem.getType() && event.getItemInHand().isSimilar(blackHoleItem)) {
+                        event.setCancelled(true);
+
+                        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
+
+                        if(playerData == null) {
+                            return;
+                        }
+
+                        if(playerData.getBlackHoleCooldown() > 0) {
+                            event.getPlayer().sendMessage("§cYou have to wait " + ((double) playerData.getBlackHoleCooldown() / 20.0) + " to use a Black Hole again");
+                            return;
+                        }
+
+                        if(event.getItemInHand().getAmount() > 0) {
+                            event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+
+                            playerData.setBlackHoleCooldown(15*20);
+
+                            Location center = new Location(event.getBlockPlaced().getWorld(), event.getBlockPlaced().getX(), event.getBlockPlaced().getY(), event.getBlockPlaced().getZ());
+
+                            for(int x = center.getBlockX() - 7; x <= center.getBlockX() + 7; x++) {
+                                for(int y = center.getBlockY() - 7; y <= center.getBlockY() + 7; y++) {
+                                    for(int z = center.getBlockZ() - 7; z <= center.getBlockZ(); z++) {
+                                        Block block = event.getBlockPlaced().getWorld().getBlockAt(new Location(event.getBlockPlaced().getWorld(), x, y, z));
+
+                                        if(block.getType() != Material.AIR) {
+                                            if(((Game) plugin.getGame()).getPlayerPlacedBlocks().contains(block.getLocation())) {
+                                                block.setType(Material.AIR);
+                                                ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().remove(block.getLocation());
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
             ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().add(event.getBlockPlaced().getLocation());
 
         } else {
@@ -788,7 +887,17 @@ public class EventListener implements Listener {
             if (((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform()) {
                 event.setCancelled(true);
 
-                this.createSafetyPlatform(event.getPlayer(), playerData);
+                this.createSafetyPlatform(event.getPlayer(), playerData, false);
+
+                return;
+            }
+
+            // Enhanced Safety Platform
+
+            if(((Game) this.plugin.getGame()).getItemShop().getEnhancedSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getEnhancedSafetyPlatform()) {
+                event.setCancelled(true);
+
+                this.createSafetyPlatform(event.getPlayer(), playerData, true);
 
                 return;
             }
@@ -831,6 +940,26 @@ public class EventListener implements Listener {
 
                 return;
             }
+
+            // Spawn Dust
+
+            if(((Game) this.plugin.getGame()).getItemShop().getSpawnDust() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSpawnDust()) {
+                event.setCancelled(true);
+
+                if(playerData.getTeleportToBaseCooldown() > 0) {
+                    event.getPlayer().sendMessage("§cYou can not use that again during teleport");
+                    return;
+                }
+
+                playerData.setTeleportToBaseCooldown(3*20 + 1);
+
+                ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+                if (itemStack != null && itemStack.getAmount() > 0) {
+                    itemStack.setAmount(itemStack.getAmount() - 1);
+                }
+            }
+
         } else if (this.plugin.getGame() instanceof Lobby) {
 
             if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
@@ -868,24 +997,25 @@ public class EventListener implements Listener {
 
     }
 
-    private void createSafetyPlatform(Player player, PlayerData playerData) {
+    private void createSafetyPlatform(Player player, PlayerData playerData, boolean enhanced) {
 
         Integer platformItemId = ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform();
+        Integer enhancedPlatformItemId = ((Game) this.plugin.getGame()).getItemShop().getEnhancedSafetyPlatform();
 
-        if (platformItemId == null) {
+        if (platformItemId == null || enhancedPlatformItemId == null) {
             return;
         }
 
         ItemStack itemStack = player.getInventory().getItem(player.getInventory().getHeldItemSlot());
         int itemId = this.plugin.getItemStorage().getItemId(itemStack);
 
-        if (itemStack != null && itemId == platformItemId && itemStack.getAmount() > 0) {
+        if (itemStack != null && (itemId == platformItemId || itemId == enhancedPlatformItemId) && itemStack.getAmount() > 0) {
             itemStack.setAmount(itemStack.getAmount() - 1);
         } else {
             ItemStack offhandItem = player.getInventory().getItemInOffHand();
             int offhandItemId = this.plugin.getItemStorage().getItemId(offhandItem);
 
-            if (offhandItem != null && offhandItemId == platformItemId && offhandItem.getType() != Material.AIR && offhandItem.getAmount() > 0) {
+            if (offhandItem != null && (offhandItemId == platformItemId || offhandItemId == enhancedPlatformItemId) && offhandItem.getType() != Material.AIR && offhandItem.getAmount() > 0) {
                 offhandItem.setAmount(offhandItem.getAmount() - 1);
             }
 
@@ -903,7 +1033,11 @@ public class EventListener implements Listener {
             return;
         }
 
-        this.spawnSafetyPlatform(this.plugin, player, material);
+        if(enhanced) {
+            this.spawnEnhancedSafetyPlatform(this.plugin, player, material);
+        } else {
+            this.spawnSafetyPlatform(this.plugin, player, material);
+        }
 
     }
 
@@ -932,6 +1066,32 @@ public class EventListener implements Listener {
             }
         }
 
+    }
+
+    private void spawnEnhancedSafetyPlatform(Bedwars plugin, Player player, Material material) {
+
+        if (!(plugin.getGame() instanceof Game)) {
+            return;
+        }
+
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 3*20, 0, true, true));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 3*20, 1, true, true));
+        player.sendMessage("§bSafety Platform deployed");
+
+        Location center = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+        center.add(0, -1, 0);
+
+        for (int x = center.getBlockX() - 15; x <= center.getBlockX() + 15; x++) {
+            for (int z = center.getBlockZ() - 15; z <= center.getBlockZ() + 15; z++) {
+                Block block = player.getWorld().getBlockAt(new Location(player.getWorld(), x, center.getBlockY(), z));
+
+                if (block.getType() == Material.AIR) {
+                    block.setType(material);
+                    ((Game) plugin.getGame()).getPlayerPlacedBlocks().add(block.getLocation());
+                }
+
+            }
+        }
     }
 
     @EventHandler
@@ -1608,7 +1768,15 @@ public class EventListener implements Listener {
             if (((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getSafetyPlatform()) {
                 event.setCancelled(true);
 
-                this.createSafetyPlatform(event.getPlayer(), playerData);
+                this.createSafetyPlatform(event.getPlayer(), playerData, false);
+
+                return;
+            }
+
+            if(((Game) this.plugin.getGame()).getItemShop().getEnhancedSafetyPlatform() != null && itemId == ((Game) this.plugin.getGame()).getItemShop().getEnhancedSafetyPlatform()) {
+                event.setCancelled(true);
+
+                this.createSafetyPlatform(event.getPlayer(), playerData, true);
 
                 return;
             }
@@ -1836,6 +2004,10 @@ public class EventListener implements Listener {
                     if (playerData.getTeam() == damagerData.getTeam()) {
                         event.setCancelled(true);
                         return;
+                    }
+
+                    if(playerData.getTeleportToBaseCooldown() > 0) {
+                        playerData.setTeleportToBaseCooldown(0);
                     }
 
                 } else if (customDamager instanceof IronGolem) {

@@ -1186,6 +1186,22 @@ public final class DefaultConfigValues {
 
         config.put("153", safetyPlatform);
 
+        // Enhanced Safety Platform
+
+        JSONObject enhancedSafetyPlatform = new JSONObject();
+
+        enhancedSafetyPlatform.put("type", Material.BLAZE_ROD.name());
+        enhancedSafetyPlatform.put("name", "§rEnhanced Safety Platform");
+
+        JSONArray enhancedSafetyPlatformLore = new JSONArray();
+        enhancedSafetyPlatformLore.put("§r§fPlaces a 31x31 platform under your feet.");
+        enhancedSafetyPlatformLore.put("§r§fPlace in main hand and right-click to deploy.");
+        enhancedSafetyPlatformLore.put("§r§fPut in offhand and press F (swapping key) to deploy.");
+
+        enhancedSafetyPlatform.put("lore", enhancedSafetyPlatformLore);
+
+        config.put("172", enhancedSafetyPlatform);
+
         // Unprotected Chest
 
         JSONObject unprotectedChest = new JSONObject();
@@ -1239,6 +1255,49 @@ public final class DefaultConfigValues {
         snowDefenderSpawnEgg.put("lore", snowDefenderSpawnEggLore);
 
         config.put("157", snowDefenderSpawnEgg);
+
+        // Zapper Item
+
+        JSONObject zapper = new JSONObject();
+
+        zapper.put("type", Material.LIGHTNING_ROD.name());
+        zapper.put("name", "§rZapper");
+
+        JSONArray zapperLore = new JSONArray();
+        zapperLore.put("§r§fZapps a random Enemy anywhere");
+        zapperLore.put("§r§fon the Map.");
+        zapper.put("lore", zapperLore);
+
+        config.put("173", zapper);
+
+        // Spawn Dust
+
+        JSONObject spawnDust = new JSONObject();
+
+        spawnDust.put("type", Material.GLOWSTONE_DUST.name());
+        spawnDust.put("name", "§rSpawn Dust");
+
+        JSONArray spawnDustLore = new JSONArray();
+        spawnDustLore.put("§r§fTeleports you back to your Base");
+        spawnDustLore.put("§r§fafter 3 seconds without taking damage.");
+        spawnDust.put("lore", spawnDustLore);
+
+        config.put("174", spawnDust);
+
+        // Black Hole
+
+        JSONObject blackHole = new JSONObject();
+
+        blackHole.put("type", Material.BLACK_CONCRETE.name());
+        blackHole.put("name", "§rBlack Hole");
+
+        JSONArray blackHoleLore = new JSONArray();
+        blackHoleLore.put("§r§fClears all Player placed Blocks");
+        blackHoleLore.put("§r§fin a 15 Block diameter around the");
+        blackHoleLore.put("§r§fBlack Hole.");
+        blackHole.put("lore", blackHoleLore);
+
+        config.put("175", blackHole);
 
         // Sharpness Upgrade
 
@@ -1322,7 +1381,7 @@ public final class DefaultConfigValues {
         JSONObject itsATrap = new JSONObject();
 
         itsATrap.put("type", Material.TRIPWIRE_HOOK.name());
-        itsATrap.put("name", "§rIt's a trao");
+        itsATrap.put("name", "§rIt's a trap");
 
         JSONArray itsATrapLore = new JSONArray();
         itsATrapLore.put("§r§fGives blindness and slowness");
@@ -1362,6 +1421,11 @@ public final class DefaultConfigValues {
         // Map Button (in votemap)
 
         config.put("171", buildDefaultItem(Material.GREEN_TERRACOTTA));
+
+        //172 Enhanced Safety Platform
+        //173 Zapper
+        //174 Spawn Dust
+        //175 Black Hole
 
         return config;
     }
@@ -1447,6 +1511,10 @@ public final class DefaultConfigValues {
         shopItems.put(buildShopEntry(155, 2, Material.EMERALD, 7, 34));
         shopItems.put(buildShopEntry(156, 200, Material.EMERALD, 7, 37));
         shopItems.put(buildShopEntry(157, 32, Material.GOLD_INGOT, 7, 38));
+        shopItems.put(buildShopEntry(172, 5, Material.EMERALD, 7, 39));
+        shopItems.put(buildShopEntry(173, 5, Material.EMERALD, 7, 40));
+        shopItems.put(buildShopEntry(174, 3, Material.EMERALD, 7, 41));
+        shopItems.put(buildShopEntry(175, 6, Material.EMERALD, 7, 42));
 
         itemShopConfig.put("shopItems", shopItems);
 
@@ -1562,6 +1630,10 @@ public final class DefaultConfigValues {
         specialItemsConfig.put("safetyPlatform", 153);
         specialItemsConfig.put("playerTracker", 155);
         specialItemsConfig.put("snowDefenderSpawnEgg", 157);
+        specialItemsConfig.put("enhancedSafetyPlatform", 172);
+        specialItemsConfig.put("zapper", 173);
+        specialItemsConfig.put("spawnDust", 174);
+        specialItemsConfig.put("blackHole", 175);
 
         itemShopConfig.put("specialItems", specialItemsConfig);
 

@@ -492,6 +492,28 @@ public class Game extends GamePart {
                 playerData.setIronGolemCooldown(playerData.getIronGolemCooldown() - 1);
             }
 
+            // Zapper Cooldown
+
+            if(playerData.getZapperCooldown() > 0) {
+                playerData.setZapperCooldown(playerData.getZapperCooldown() - 1);
+            }
+
+            // Teleport to Base Cooldown
+
+            if(playerData.getTeleportToBaseCooldown() > 0) {
+                if(playerData.getTeleportToBaseCooldown() == 1) {
+                    Location teleportLocation = team.getSpawnpoints().get(0);
+                    player.teleport(teleportLocation);
+                }
+                playerData.setTeleportToBaseCooldown(playerData.getTeleportToBaseCooldown() - 1);
+            }
+
+            // Black Hole Cooldown
+
+            if(playerData.getBlackHoleCooldown() > 0) {
+                playerData.setBlackHoleCooldown(playerData.getBlackHoleCooldown() - 1);
+            }
+
         }
 
     }
