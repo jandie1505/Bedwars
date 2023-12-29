@@ -2045,6 +2045,19 @@ public class EventListener implements Listener {
             }
 
             return;
+
+        } else if (event.getEntity() instanceof EnderPearl) {
+
+            if (event.getHitEntity() instanceof Player && event.getEntity().getShooter() instanceof Player) {
+
+                Location firstLocation = event.getHitEntity().getLocation().clone();
+                Location secondLocation = event.getEntity().getLocation().clone();
+
+                event.getHitEntity().teleport(secondLocation);
+                event.getEntity().teleport(firstLocation);
+
+            }
+
         }
 
     }
