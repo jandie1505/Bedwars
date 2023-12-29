@@ -643,8 +643,11 @@ public class EventListener implements Listener {
 
                                         if(block.getType() != Material.AIR) {
                                             if(((Game) plugin.getGame()).getPlayerPlacedBlocks().contains(block.getLocation())) {
-                                                block.setType(Material.AIR);
-                                                ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().remove(block.getLocation());
+                                                String name = block.getType().name();
+                                                if(name.contains("WOOL") || name.contains("GLASS")) {
+                                                    block.setType(Material.AIR);
+                                                    ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().remove(block.getLocation());
+                                                }
                                             }
                                         }
                                     }
