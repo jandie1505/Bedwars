@@ -2229,10 +2229,10 @@ public class EventListener implements Listener {
             if (event.getHitEntity() instanceof Player && event.getEntity().getShooter() instanceof Player) {
 
                 Location firstLocation = event.getHitEntity().getLocation().clone();
-                Location secondLocation = event.getEntity().getLocation().clone();
+                Location secondLocation = ((Player) event.getEntity().getShooter()).getLocation().clone();
 
                 event.getHitEntity().teleport(secondLocation);
-                event.getEntity().teleport(firstLocation);
+                ((Player) event.getEntity().getShooter()).teleport(firstLocation);
 
             }
 
