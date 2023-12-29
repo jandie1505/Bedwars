@@ -638,7 +638,7 @@ public class EventListener implements Listener {
 
                             for(int x = center.getBlockX() - 7; x <= center.getBlockX() + 7; x++) {
                                 for(int y = center.getBlockY() - 7; y <= center.getBlockY() + 7; y++) {
-                                    for(int z = center.getBlockZ() - 7; z <= center.getBlockZ(); z++) {
+                                    for(int z = center.getBlockZ() - 7; z <= center.getBlockZ() + 7; z++) {
                                         Block block = event.getBlockPlaced().getWorld().getBlockAt(new Location(event.getBlockPlaced().getWorld(), x, y, z));
 
                                         if(block.getType() != Material.AIR) {
@@ -955,6 +955,7 @@ public class EventListener implements Listener {
                 }
 
                 playerData.setTeleportToBaseCooldown(3*20 + 1);
+                event.getPlayer().sendMessage(("§bTeleporting..."));
 
                 ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
 
@@ -2010,6 +2011,8 @@ public class EventListener implements Listener {
                     }
 
                     if(playerData.getTeleportToBaseCooldown() > 0) {
+                        Player player = (Player) event.getEntity();
+                        player.sendMessage("§cTeleport cenceled");
                         playerData.setTeleportToBaseCooldown(0);
                     }
 
