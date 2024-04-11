@@ -26,6 +26,9 @@ public class PlayerData {
     private int milkTimer;
     private int ironGolemCooldown;
     private int rewardPoints;
+    private int zapperCooldown;
+    private int teleportToBaseCooldown;
+    private int blackHoleCooldown;
 
     public PlayerData(Game game, int team) {
         this.game = game;
@@ -46,6 +49,9 @@ public class PlayerData {
         this.milkTimer = 0;
         this.ironGolemCooldown = 0;
         this.rewardPoints = 0;
+        this.zapperCooldown = 0;
+        this.teleportToBaseCooldown = 0;
+        this.blackHoleCooldown = 0;
     }
 
     public boolean isAlive() {
@@ -186,5 +192,29 @@ public class PlayerData {
 
     public void setRewardPoints(int rewardPoints) {
         this.rewardPoints = rewardPoints;
+    }
+
+    public int getZapperCooldown() {
+        return zapperCooldown;
+    }
+
+    public void setZapperCooldown(int zapperCooldown) {
+        this.zapperCooldown = zapperCooldown;
+    }
+
+    public int getTeleportToBaseCooldown() {
+        return teleportToBaseCooldown;
+    }
+
+    public void setTeleportToBaseCooldown(int teleportToBaseCooldown) {
+        this.teleportToBaseCooldown = teleportToBaseCooldown;
+    }
+
+    public int getBlackHoleCooldown() {
+        return blackHoleCooldown;
+    }
+
+    public void setBlackHoleCooldown(int blackHoleCooldown) {
+        this.blackHoleCooldown = blackHoleCooldown;
     }
 }
