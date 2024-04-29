@@ -16,6 +16,11 @@
 
     <repositories>
         <repository>
+            <id>ChaosSquad-Repository</id>
+            <name>ChaosSquad Repository</name>
+            <url>https://chaossquad.net:8443/snapshots</url>
+        </repository>
+        <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
@@ -37,8 +42,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.19.2-R0.1-SNAPSHOT</version>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.chaossquad</groupId>
+            <artifactId>mclib</artifactId>
+            <version>master-1b5498ee518563d375307401638ffaf6d50980f0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.json/json -->
         <dependency>
