@@ -392,6 +392,11 @@ public class Lobby extends GamePart {
             this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Random Map");
         }
 
+        this.getTaskScheduler().scheduleRepeatingTask(this::lobbyTask, 1, 1, "lobby");
+    }
+
+    public boolean shouldRun() {
+        return true;
     }
 
     private Location buildLocationFromJSONObject(JSONObject spawnpoint, boolean enableDirections) {
@@ -546,8 +551,7 @@ public class Lobby extends GamePart {
         this.getPlugin().getLogger().warning("Map Config: Missing " + missingItem + " of map " + mapName + " (" + index + ")");
     }
 
-    @Override
-    public boolean tick() {
+    public boolean lobbyTask() {
 
         // PLAYER MANAGEMENT
 

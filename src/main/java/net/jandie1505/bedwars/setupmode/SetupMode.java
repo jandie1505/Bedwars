@@ -48,10 +48,15 @@ public class SetupMode extends GamePart {
             this.getPlugin().getLogger().warning("Game stopped because missing/wrong world in setup mode");
             return;
         }
+
+        this.getTaskScheduler().scheduleRepeatingTask(this::task, 1, 1, "setupMode");
     }
 
-    @Override
-    public boolean tick() {
+    public boolean shouldRun() {
+        return true;
+    }
+
+    public boolean task() {
 
         if (this.world == null) {
             return false;

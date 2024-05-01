@@ -94,10 +94,15 @@ public class Endlobby extends GamePart {
 
         this.tick = 0;
         this.time = 30;
+
+        this.getTaskScheduler().scheduleRepeatingTask(this::endlobbyTask, 1, 1, "endlobby");
     }
 
-    @Override
-    public boolean tick() {
+    public boolean shouldRun() {
+        return true;
+    }
+
+    public boolean endlobbyTask() {
 
         // PLAYERS
 

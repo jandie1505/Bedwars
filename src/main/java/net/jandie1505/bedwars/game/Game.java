@@ -162,131 +162,114 @@ public class Game extends GamePart {
         this.world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         this.world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         this.world.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+
+        // PREPARE GAME
+
+        this.getTaskScheduler().runTaskLater(this::prepareGame, 1, "prepare_game");
+
+        // TASKS
+
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerScoreboardTask, 1, 20, "player_scoreboards");
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerGameModeTask, 1, 1, "player_gamemodes");
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerVisibilityTask, 1, 1, "player_visibility");
+        this.getTaskScheduler().scheduleRepeatingTask(this::teleportSpectatorsTask, 1, 20, "player_teleport_spectators");
+
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerCleanupTask, 1, 20, "ingame_player_cleanup");
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerAliveStatusTask, 1, 20, "ingame_player_alive_status");
+        this.getTaskScheduler().scheduleRepeatingTask(this::inventoryTickTask, 1, 1, "ingame_player_inventory");
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerTeamUpgradeTask, 1, 20, "ingame_player_team_upgrades");
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerValuesTask, 1, 200, "ingame_player_values");
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerCooldownTask, 1, 1, "ingame_player_cooldowns");
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerTrackerTask, 1, 100, "ingame_player_player_tracker");
+        this.getTaskScheduler().scheduleRepeatingTask(this::tntParticleTask, 1, 20, "ingame_player_tnt_particles");
+
+        this.getTaskScheduler().scheduleRepeatingTask(this::scoreboardCleanup, 1, 1, "scoreboard_cleanup");
+        this.getTaskScheduler().scheduleRepeatingTask(this::generatorTick, 1, 1, "generators");
+        this.getTaskScheduler().scheduleRepeatingTask(this::timeActions, 1, 20, "time_actions");
+        this.getTaskScheduler().scheduleRepeatingTask(this::villagers, 1, 1, "villagers");
+        this.getTaskScheduler().scheduleRepeatingTask(this::bridgeEggs, 1, 1, "bridge_eggs");
+        this.getTaskScheduler().scheduleRepeatingTask(this::traps, 1, 1, "traps");
+        this.getTaskScheduler().scheduleRepeatingTask(this::ironGolems, 1, 20, "iron_golems");
+        this.getTaskScheduler().scheduleRepeatingTask(this::endgameWithers, 1, 20, "endgame_withers");
+        this.getTaskScheduler().scheduleRepeatingTask(this::snowDefenders, 1, 20, "snow_defenders");
+        this.getTaskScheduler().scheduleRepeatingTask(this::gameEndConditions, 1, 1, "game_end_conditions");
+        this.getTaskScheduler().scheduleRepeatingTask(this::gameEndCheck, 1, 1, "game_end_check");
+        this.getTaskScheduler().scheduleRepeatingTask(this::timeTask, 1, 20, "time");
+        this.getTaskScheduler().scheduleRepeatingTask(this::backwardCompatibleTimeStepTask, 1, 1, "time_step");
     }
 
     @Override
-    public boolean tick() {
-
-        // PREPARE GAME (RUN FIRST)
-
-        if (!this.prepared) {
-            this.prepareGame();
-        }
-
-        // STOP IF WORLD NOT LOADED (RUN SECOND)
-
-        if (this.world == null || !this.getPlugin().getServer().getWorlds().contains(this.world)) {
-            this.getPlugin().getLogger().warning("Bedwars game end because world is not loaded");
-            return false;
-        }
-
-        // PLAYER MANAGEMENT
-
-        this.allPlayersManagement();
-        this.ingamePlayersManagement();
-
-        // SCOREBOARDS CLEANUP
-
-        this.scoreboardCleanup();
-
-        // GENERATORS
-
-        this.generatorTick();
-
-        // TIME ACTIONS (PUBLIC GENERATOR UPGRADES)
-
-        this.timeActions();
-
-        // TEAM VILLAGER MANAGEMENT
-
-        this.villagers();
-
-        // BRIDGE EGGS
-
-        this.bridgeEggs();
-
-        // TRAPS
-
-        this.traps();
-
-        // ENTITIES
-
-        if (this.timeStep >= 20) {
-            this.ironGolems();
-            this.endgameWithers();
-            this.snowDefenders();
-        }
-
-        // GAME END CONDITIONS
-
-        this.gameEndConditions();
-
-        // CHECK GAME END CONDITIONS (RUN BEFORE TIME)
-
-        if (this.winner != null) {
-            this.getPlugin().nextStatus();
-            return true;
-        }
-
-        if (this.noWinnerEnd) {
-            this.getPlugin().nextStatus();
-            return true;
-        }
-
-        // TIME (RUN BEFORE TIME STEP)
-
-        if (this.timeStep >= 20) {
-            if (this.time > 0) {
-                this.time--;
-            } else {
-                this.getPlugin().nextStatus();
-                return true;
-            }
-        }
-
-        // TIME STEP (RUN LAST)
-
-        if (this.timeStep >= 20) {
-            this.timeStep = 0;
-        } else {
-            this.timeStep++;
-        }
-
-        return true;
+    public boolean shouldRun() {
+        return this.world != null && this.getPlugin().getServer().getWorlds().contains(world);
     }
 
+    // PLAYER TASKS
+
     /**
-     * Player Management
+     * This task handles the player scoreboard.
      */
-    private void allPlayersManagement() {
+    private void playerScoreboardTask() {
 
         for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
-
-            // Is Ingame
-
-            boolean isIngame = this.players.containsKey(player.getUniqueId());
-
-            // Scoreboard
 
             if (!this.playerScoreboards.containsKey(player.getUniqueId())) {
                 this.playerScoreboards.put(player.getUniqueId(), this.getPlugin().getServer().getScoreboardManager().getNewScoreboard());
             }
 
-            if (this.timeStep >= 20) {
-                this.scoreboardTick(
-                        player,
-                        this.getSidebar(this.players.get(player.getUniqueId()))
-                );
-            }
+            this.scoreboardTick(
+                    player,
+                    this.getSidebar(this.players.get(player.getUniqueId()))
+            );
 
-            // Game mode
+        }
 
-            if (!isIngame && !this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
+    }
+
+    /**
+     * This task handles player game modes.
+     * Bypassing players -> Do not modify game mode
+     * Spectator -> Spectator mode
+     * Ingame alive -> Survival mode
+     * Ingame dead -> Spectator mode
+     */
+    private void playerGameModeTask() {
+
+        for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
+            if (this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) return;
+
+            PlayerData playerData = this.getPlayers().get(player.getUniqueId());
+            if (playerData != null) {
+
+                if (playerData.isAlive()) {
+
+                    if (player.getGameMode() != GameMode.SURVIVAL) {
+                        player.setGameMode(GameMode.SURVIVAL);
+                    }
+
+                } else {
+
+                    if (player.getGameMode() != GameMode.SPECTATOR) {
+                        player.setGameMode(GameMode.SPECTATOR);
+                    }
+
+                }
+
+            } else {
                 player.setGameMode(GameMode.SPECTATOR);
             }
 
-            // Set player visibility
+        }
 
+    }
+
+    /**
+     * This task handles player visibility.
+     * Bypassing players should see all players.
+     * Ingame players should only see other ingame players.
+     * Spectators should only see ingame players.
+     */
+    private void playerVisibilityTask() {
+        for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
             for (Player otherPlayer : this.getPlugin().getServer().getOnlinePlayers()) {
 
                 if (this.getPlugin().isPlayerBypassing(player.getUniqueId()) && !player.canSee(otherPlayer)) {
@@ -304,18 +287,31 @@ public class Game extends GamePart {
                 }
 
             }
+        }
+    }
 
-            // teleport spectator to map
+    /**
+     * This task teleports spectators to the game map.
+     */
+    private void teleportSpectatorsTask() {
 
-            if (!isIngame && player.getWorld() != this.centerLocation.getWorld()) {
-                player.teleport(this.centerLocation);
-            }
+        for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
+            if (player.getWorld() == this.centerLocation.getWorld()) continue;
 
+            PlayerData playerData = this.getPlayers().get(player.getUniqueId());
+            if (playerData != null) continue;
+
+            player.teleport(this.centerLocation);
         }
 
     }
 
-    private void ingamePlayersManagement() {
+    // INGAME PLAYERS TASKS
+
+    /**
+     * Cleans up ingame players.
+     */
+    private void playerCleanupTask() {
 
         for (UUID playerId : this.getPlayers().keySet()) {
             PlayerData playerData = this.players.get(playerId);
@@ -326,18 +322,17 @@ public class Game extends GamePart {
                 continue;
             }
 
-            // Get Bedwars Team
+            BedwarsTeam team = this.getTeam(playerData.getTeam());
 
-            BedwarsTeam team = null;
-            try {
-                team = this.teams.get(playerData.getTeam());
-            } catch (IndexOutOfBoundsException ignored) {
-                // Player is getting removed when exception is thrown because teamData will then be null
-            }
+            // Cleanup when player has no team
 
             if (team == null) {
                 this.players.remove(playerId);
                 continue;
+            }
+
+            if (player == null) {
+                playerData.setAlive(false);
             }
 
             if (player == null) {
@@ -351,7 +346,20 @@ public class Game extends GamePart {
                 continue;
             }
 
-            // Player alive system
+        }
+
+    }
+
+    /**
+     * Handles player alive status.
+     */
+    private void playerAliveStatusTask() {
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            PlayerData playerData = this.getPlayer(playerId);
+            if (playerData == null) continue;
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
+            if (player == null) continue;
 
             if (playerData.isAlive()) {
 
@@ -369,28 +377,62 @@ public class Game extends GamePart {
                     player.setGameMode(GameMode.SPECTATOR);
                 }
 
-                if (this.timeStep >= 20) {
+                if (playerData.getRespawnCountdown() > 0) {
 
-                    if (playerData.getRespawnCountdown() > 0) {
+                    player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 25, 0);
+                    player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
 
-                        player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 25, 0);
-                        player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
+                    playerData.setRespawnCountdown(playerData.getRespawnCountdown() - 1);
 
-                        playerData.setRespawnCountdown(playerData.getRespawnCountdown() - 1);
+                } else {
 
-                    } else {
-
-                        this.respawnPlayer(player);
-
-                    }
+                    this.respawnPlayer(player);
 
                 }
 
             }
 
-            // Inventory
+        }
 
+    }
+
+    /**
+     * Handles inventory management for ingame players.
+     */
+    private void inventoryTickTask() {
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            PlayerData playerData = this.getPlayer(playerId);
+            if (playerData == null) continue;
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
+            if (player == null) continue;
+            BedwarsTeam team = this.getTeam(playerData.getTeam());
+            if (team == null) continue;
             this.inventoryTick(player, playerData, team);
+        }
+
+    }
+
+    /**
+     * Handles team upgrade behaviors on players.
+     */
+    private void playerTeamUpgradeTask() {
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            PlayerData playerData = this.getPlayer(playerId);
+            if (playerData == null) continue;
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
+            if (player == null) continue;
+            BedwarsTeam team = this.getTeam(playerData.getTeam());
+            if (team == null) continue;
+
+            // Heal Pool Upgrade
+
+            int healPoolUpgrade = this.getUpgradeLevel(team.getHealPoolUpgrade(), this.teamUpgradesConfig.getHealPoolUpgrade().getUpgradeLevels());
+
+            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(team.getBaseCenter(), player.getLocation()) <= team.getBaseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15 * 20, healPoolUpgrade - 1));
+            }
 
             // Haste Team Upgrade
 
@@ -411,19 +453,20 @@ public class Game extends GamePart {
 
             }
 
-            // Regeneration
+        }
 
-            int healPoolUpgrade = this.getUpgradeLevel(team.getHealPoolUpgrade(), this.teamUpgradesConfig.getHealPoolUpgrade().getUpgradeLevels());
+    }
 
-            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(team.getBaseCenter(), player.getLocation()) <= team.getBaseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15 * 20, healPoolUpgrade - 1));
-            }
+    /**
+     * Handles player values (food level, regeneration rate, ...)
+     */
+    private void playerValuesTask() {
 
-            // Saturation
-
-            if (!player.hasPotionEffect(PotionEffectType.SATURATION)) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 3600 * 20, 255, false, false));
-            }
+        for (UUID playerId : this.getPlayers().keySet()) {
+            PlayerData playerData = this.getPlayer(playerId);
+            if (playerData == null) continue;
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
+            if (player == null) continue;
 
             // Food Level
 
@@ -445,6 +488,21 @@ public class Game extends GamePart {
                 player.setUnsaturatedRegenRate(0);
             }
 
+        }
+
+    }
+
+    /**
+     * Handles player item cooldowns.
+     */
+    private void playerCooldownTask() {
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            PlayerData playerData = this.getPlayer(playerId);
+            if (playerData == null) continue;
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
+            if (player == null) continue;
+
             // Fireball Cooldown
 
             if (playerData.getFireballCooldown() > 0) {
@@ -455,29 +513,6 @@ public class Game extends GamePart {
 
             if (playerData.getTrapCooldown() > 0) {
                 playerData.setTrapCooldown(playerData.getTrapCooldown() - 1);
-            }
-
-            // Player Tracker
-
-            if (this.timeStep >= 20) {
-                if (playerData.getTrackingTarget() != null) {
-                    Player trackingPlayer = this.getPlugin().getServer().getPlayer(playerData.getTrackingTarget());
-
-                    if (trackingPlayer != null) {
-                        player.setCompassTarget(trackingPlayer.getCompassTarget());
-                    } else {
-                        playerData.setTrackingTarget(null);
-                    }
-
-                } else {
-                    player.setCompassTarget(player.getLocation());
-                }
-            }
-
-            // tnt particles
-
-            if (this.getPlugin().getConfigManager().getConfig().optBoolean("tntParticles", false) && player.getInventory().contains(Material.TNT) && playerData.getMilkTimer() <= 0) {
-                player.getWorld().spawnParticle(Particle.REDSTONE, player.getLocation().clone().add(0, 2.5, 0), 20, 0, 0, 0, 1, new Particle.DustOptions(Color.RED, 1.0F));
             }
 
             // milk timer
@@ -494,18 +529,8 @@ public class Game extends GamePart {
 
             // Zapper Cooldown
 
-            if(playerData.getZapperCooldown() > 0) {
+            if (playerData.getZapperCooldown() > 0) {
                 playerData.setZapperCooldown(playerData.getZapperCooldown() - 1);
-            }
-
-            // Teleport to Base Cooldown
-
-            if(playerData.getTeleportToBaseCooldown() > 0) {
-                if(playerData.getTeleportToBaseCooldown() == 1) {
-                    Location teleportLocation = team.getSpawnpoints().get(0);
-                    player.teleport(teleportLocation);
-                }
-                playerData.setTeleportToBaseCooldown(playerData.getTeleportToBaseCooldown() - 1);
             }
 
             // Black Hole Cooldown
@@ -514,6 +539,108 @@ public class Game extends GamePart {
                 playerData.setBlackHoleCooldown(playerData.getBlackHoleCooldown() - 1);
             }
 
+            // Teleport to Base Cooldown
+
+            if (playerData.getTeleportToBaseCooldown() > 0) {
+
+                if (playerData.getTeleportToBaseCooldown() == 1) {
+                    BedwarsTeam team = this.getTeam(playerData.getTeam());
+                    Location teleportLocation = team.getRandomSpawnpoint();
+                    player.teleport(teleportLocation);
+                }
+
+                playerData.setTeleportToBaseCooldown(playerData.getTeleportToBaseCooldown() - 1);
+            }
+
+        }
+
+    }
+
+    /**
+     * Handles player tracker for players.
+     */
+    private void playerTrackerTask() {
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            PlayerData playerData = this.getPlayer(playerId);
+            if (playerData == null) continue;
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
+            if (player == null) continue;
+            BedwarsTeam team = this.getTeam(playerData.getTeam());
+            if (team == null) continue;
+
+            if (playerData.getTrackingTarget() != null) {
+                Player trackingPlayer = this.getPlugin().getServer().getPlayer(playerData.getTrackingTarget());
+
+                if (trackingPlayer != null) {
+                    player.setCompassTarget(trackingPlayer.getCompassTarget());
+                } else {
+                    playerData.setTrackingTarget(null);
+                }
+
+            } else {
+                player.setCompassTarget(player.getLocation());
+            }
+
+        }
+
+    }
+
+    /**
+     * Handles tnt particles above player heads.
+     */
+    private void tntParticleTask() {
+
+        for (UUID playerId : this.getPlayers().keySet()) {
+            PlayerData playerData = this.getPlayer(playerId);
+            if (playerData == null) continue;
+            Player player = this.getPlugin().getServer().getPlayer(playerId);
+            if (player == null) continue;
+
+            if (this.getPlugin().getConfigManager().getConfig().optBoolean("tntParticles", false) && player.getInventory().contains(Material.TNT) && playerData.getMilkTimer() <= 0) {
+                player.getWorld().spawnParticle(Particle.REDSTONE, player.getLocation().clone().add(0, 2.5, 0), 20, 0, 0, 0, 1, new Particle.DustOptions(Color.RED, 1.0F));
+            }
+
+        }
+
+    }
+
+    // TASKS
+
+    private void gameEndCheck() {
+
+        if (this.winner != null) {
+            this.getPlugin().nextStatus();
+            return;
+        }
+
+        if (this.noWinnerEnd) {
+            this.getPlugin().nextStatus();
+            return;
+        }
+
+    }
+
+    /**
+     * Will hopefully be replaced soon.
+     */
+    @Deprecated
+    private void backwardCompatibleTimeStepTask() {
+
+        if (this.timeStep >= 20) {
+            this.timeStep = 0;
+        } else {
+            this.timeStep++;
+        }
+
+    }
+
+    private void timeTask() {
+
+        if (this.time > 0) {
+            this.time--;
+        } else {
+            this.getPlugin().nextStatus();
         }
 
     }
@@ -549,14 +676,10 @@ public class Game extends GamePart {
      */
     private void timeActions() {
 
-        if (this.timeStep >= 20) {
+        for (TimeAction timeAction : this.getTimeActions()) {
 
-            for (TimeAction timeAction : this.getTimeActions()) {
-
-                if (this.time <= timeAction.getTime() && !timeAction.isCompleted()) {
-                    timeAction.execute();
-                }
-
+            if (this.time <= timeAction.getTime() && !timeAction.isCompleted()) {
+                timeAction.execute();
             }
 
         }
@@ -1534,6 +1657,10 @@ public class Game extends GamePart {
 
     public Map<UUID, PlayerData> getPlayers() {
         return Map.copyOf(this.players);
+    }
+
+    public PlayerData getPlayer(UUID playerId) {
+        return this.players.get(playerId);
     }
 
     public World getWorld() {
