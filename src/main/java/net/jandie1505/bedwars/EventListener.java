@@ -188,8 +188,7 @@ public class EventListener implements GameListener {
                             Location location = event.getBlockPlaced().getLocation().clone();
                             location.add(0.5, 0, 0.5);
 
-                            IronGolem ironGolem = (IronGolem) event.getBlockPlaced().getWorld().spawnEntity(location, EntityType.IRON_GOLEM);
-                            ((Game) this.plugin.getGame()).addBaseDefender(new BaseDefender((Game) this.plugin.getGame(), ironGolem, team.getId()));
+                            ((Game) this.plugin.getGame()).addBaseDefender(new BaseDefender((Game) this.plugin.getGame(), location, team.getId()));
 
                             playerData.setIronGolemCooldown(15*20);
                         }
@@ -1710,16 +1709,6 @@ public class EventListener implements GameListener {
                         player.sendMessage("§cTeleport cenceled");
                         playerData.setTeleportToBaseCooldown(0);
                     }
-
-                } else if (customDamager instanceof IronGolem) {
-
-                    BaseDefender baseDefender = ((Game) this.plugin.getGame()).getBaseDefenderByEntity((IronGolem) ((EntityDamageByEntityEvent) event).getDamager());
-
-                    if (baseDefender == null) {
-                        return;
-                    }
-
-                    baseDefender.setLifetime(baseDefender.getLifetime() - 10);
 
                 }
 

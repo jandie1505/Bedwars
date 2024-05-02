@@ -1679,8 +1679,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    IronGolem ironGolem = ((Game) this.plugin.getGame()).getWorld().spawn(location, IronGolem.class);
-                    ((Game) this.plugin.getGame()).addBaseDefender(new BaseDefender((Game) this.plugin.getGame(), ironGolem, team.getId()));
+                    ((Game) this.plugin.getGame()).addBaseDefender(new BaseDefender((Game) this.plugin.getGame(), location, team.getId()));
                     break;
                 }
                 case "SNOWDEFENDER": {

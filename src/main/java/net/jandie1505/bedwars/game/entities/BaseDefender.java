@@ -3,201 +3,124 @@ package net.jandie1505.bedwars.game.entities;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
-import org.bukkit.entity.Entity;
+import org.bukkit.Location;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class BaseDefender {
-    private final Game game;
-    private final IronGolem ironGolem;
+public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
     private final int teamId;
-    private final double defMaxHealth;
-    private int lifetime;
 
-    public BaseDefender(Game game, IronGolem ironGolem, int teamId) {
-        this.game = game;
-        this.ironGolem = ironGolem;
+    public BaseDefender(Game game, Location location, int teamId) {
+        super(game, game.getWorld().spawn(location.clone(), IronGolem.class), 300);
         this.teamId = teamId;
-        this.defMaxHealth = ironGolem.getMaxHealth();
-        this.lifetime = 300;
+
+        this.getEntity().addScoreboardTag("bedwars.basedefender");
+        this.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600*20, 0, false, false, false));
+        this.getEntity().setCustomNameVisible(true);
+
+        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::nameTask, 1, 20, this::toBeRemoved, "base_defender_name");
+        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::targetSelectionTask, 1, 20, this::toBeRemoved, "base_defender_target_selection");
     }
 
-    public void tick() {
+    // TASKS
 
-        // CHECKS
+    private void nameTask() {
+        BedwarsTeam team = this.getGame().getTeam(teamId);
 
-        if (this.ironGolem == null) {
-            return;
-        }
-
-        if (this.ironGolem.isDead()) {
-            return;
-        }
-
-        // LIFETIME
-
-        if (this.lifetime > 0) {
-            this.lifetime--;
+        if (team != null) {
+            this.getEntity().setCustomName(team.getChatColor() + "§lBASE DEFENDER §7--> " + this.getTargetName() + " §7§l(" + this.getTime() + ")");
         } else {
-            this.ironGolem.remove();
-            return;
+            this.getEntity().setCustomName("§lBASE DEFENDER §7--> " + this.getTargetName() + " §7§l(" + this.getTime() + ")");
         }
-
-        // ENTITY VALUES
-
-        if (!this.ironGolem.getScoreboardTags().contains("basedefender")) {
-            this.ironGolem.addScoreboardTag("basedefender");
-        }
-
-        if (!this.ironGolem.hasPotionEffect(PotionEffectType.SPEED)) {
-            this.ironGolem.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600*20, 0, false, false));
-        }
-
-        if (!this.ironGolem.isCustomNameVisible()) {
-            this.ironGolem.setCustomNameVisible(true);
-        }
-
-        double setHealth = this.defMaxHealth * (((double) this.lifetime) / (double) 300);
-
-        if (setHealth > 1.0) {
-            this.ironGolem.setMaxHealth(setHealth);
-        } else {
-            this.ironGolem.setMaxHealth(1);
-        }
-
-        // TEAM
-
-        BedwarsTeam team = this.game.getTeam(teamId);
-
-        if (team == null) {
-            return;
-        }
-
-        // NAME
-
-        this.ironGolem.setCustomName(team.getChatColor() + "§lBASE DEFENDER §7--> " + this.getTargetName() + " §7§l(" + this.lifetime + ")");
-
-        // TARGET
-
-        if (this.ironGolem.getTarget() != null) {
-
-            if (this.ironGolem.getTarget() instanceof Player) {
-                PlayerData playerData = this.game.getPlayers().get(this.ironGolem.getTarget().getUniqueId());
-
-                if (((Player) this.ironGolem.getTarget()).isOnline() && playerData != null && playerData.isAlive()) {
-                    return;
-                }
-            }
-
-            this.ironGolem.setTarget(null);
-        }
-
-        List<Entity> nearbyEntities = new ArrayList<>(this.ironGolem.getNearbyEntities(15, 15, 15));
-
-        for (Entity entity : List.copyOf(nearbyEntities)) {
-
-            if (!(entity instanceof Player)) {
-                nearbyEntities.remove(entity);
-                continue;
-            }
-
-            Player player = (Player) entity;
-
-            PlayerData playerData = this.game.getPlayers().get(player.getUniqueId());
-
-            if (playerData == null) {
-                nearbyEntities.remove(entity);
-                continue;
-            }
-
-            if (!playerData.isAlive()) {
-                nearbyEntities.remove(entity);
-                continue;
-            }
-
-            if (playerData.getTeam() == this.teamId) {
-                nearbyEntities.remove(entity);
-                continue;
-            }
-
-            if (playerData.getMilkTimer() > 0) {
-                nearbyEntities.remove(entity);
-                continue;
-            }
-
-        }
-
-        if (nearbyEntities.isEmpty()) {
-            return;
-        }
-
-        if (nearbyEntities.contains(this.ironGolem.getTarget())) {
-            return;
-        }
-
-        Entity randomEntity = nearbyEntities.get(new Random().nextInt(nearbyEntities.size()));
-
-        if (!(randomEntity instanceof Player)) {
-            return;
-        }
-
-        this.ironGolem.setTarget((Player) randomEntity);
-
     }
+
+    private void targetSelectionTask() {
+        if (this.getEntity().getTarget() != null && this.getEntity().getTarget() instanceof Player player && this.isValidTarget(player)) return;
+        System.out.println("switching target from " + this.getEntity().getTarget());
+
+        this.getEntity().setTarget(null);
+
+        List<Player> nearbyPlayers = this.getEntity().getNearbyEntities(15, 15, 15).stream()
+                .filter(entity -> entity instanceof Player)
+                .map(entity -> (Player) entity)
+                .filter(this::isValidTarget)
+                .toList();
+
+        if (nearbyPlayers.isEmpty()) return;
+
+        Player nextTarget = nearbyPlayers.get(new Random().nextInt(nearbyPlayers.size()));
+        this.getEntity().setTarget(nextTarget);
+        this.nameTask();
+    }
+
+    // EVENTS
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        if (this.getEntity().getTarget() != event.getEntity()) return;
+        this.getEntity().setTarget(null);
+        this.nameTask();
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getEntity() != this.getEntity()) return;
+        if (!(event.getDamager() instanceof Player player)) return;
+        if (!this.isValidTarget(player)) return;
+
+        this.getEntity().setTarget(player);
+        this.nameTask();
+    }
+
+    @EventHandler
+    public void onEntityTargetSelect(EntityTargetEvent event) {
+        if (event.getEntity() != this.getEntity()) return;
+        event.setCancelled(true);
+    }
+
+    // UTILITIES
 
     private String getTargetName() {
+        if (this.getEntity().getTarget() == null) return "§7NONE";
+        if (!(this.getEntity().getTarget() instanceof Player player)) return "§7UNKNOWN";
 
-        if (this.ironGolem.getTarget() == null) {
-            return "§7NONE";
-        }
+        PlayerData playerData = this.getGame().getPlayers().get(player.getUniqueId());
+        if (playerData == null) return "§7" + player.getDisplayName();
 
-        if (!(this.ironGolem.getTarget() instanceof Player)) {
-            return "§7" + this.ironGolem.getTarget().getName();
-        }
+        BedwarsTeam team = this.getGame().getTeam(playerData.getTeam());
+        if (team == null) return "§7" + player.getDisplayName();
 
-        PlayerData playerData = this.game.getPlayers().get(this.ironGolem.getTarget().getUniqueId());
-
-        if (playerData == null) {
-            return "§7" + ((Player) this.ironGolem.getTarget()).getDisplayName();
-        }
-
-        BedwarsTeam team = this.game.getTeam(playerData.getTeam());
-
-        if (team == null) {
-            return "§7" + ((Player) this.ironGolem.getTarget()).getDisplayName();
-        }
-
-        return team.getChatColor() + ((Player) this.ironGolem.getTarget()).getDisplayName();
-
+        return team.getChatColor() + player.getDisplayName();
     }
 
-    public boolean canBeRemoved() {
-        return this.game == null || this.ironGolem == null || this.ironGolem.isDead();
+    /**
+     * Returns true if the player is a valid target for the iron golem.
+     * @param player player
+     * @return true if player is valid target
+     */
+    private boolean isValidTarget(Player player) {
+        if (player == null || !player.isOnline() || player.isDead()) return false;
+
+        PlayerData playerData = this.getGame().getPlayer(player.getUniqueId());
+        if (playerData == null) return false;
+        if (!playerData.isAlive()) return false;
+
+        return this.teamId < 0 || this.teamId != playerData.getTeam();
     }
 
-    public Game getGame() {
-        return game;
-    }
-
-    public IronGolem getIronGolem() {
-        return ironGolem;
-    }
+    // GETTER
 
     public int getTeamId() {
-        return teamId;
+        return this.teamId;
     }
 
-    public int getLifetime() {
-        return lifetime;
-    }
-
-    public void setLifetime(int lifetime) {
-        this.lifetime = lifetime;
-    }
 }

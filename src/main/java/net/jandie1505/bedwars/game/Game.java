@@ -193,7 +193,6 @@ public class Game extends GamePart implements GameListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::villagers, 1, 1, "villagers");
         this.getTaskScheduler().scheduleRepeatingTask(this::bridgeEggs, 1, 1, "bridge_eggs");
         this.getTaskScheduler().scheduleRepeatingTask(this::traps, 1, 1, "traps");
-        this.getTaskScheduler().scheduleRepeatingTask(this::ironGolems, 1, 20, "iron_golems");
         this.getTaskScheduler().scheduleRepeatingTask(this::endgameWithers, 1, 20, "endgame_withers");
         this.getTaskScheduler().scheduleRepeatingTask(this::snowDefenders, 1, 20, "snow_defenders");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndConditions, 1, 1, "game_end_conditions");
@@ -809,26 +808,6 @@ public class Game extends GamePart implements GameListener {
                 }
 
             }
-
-        }
-
-    }
-
-    private void ironGolems() {
-
-        for (BaseDefender baseDefender : this.getBaseDefenders()) {
-
-            if (baseDefender == null) {
-                this.baseDefenders.remove(null);
-                continue;
-            }
-
-            if (baseDefender.canBeRemoved()) {
-                this.baseDefenders.remove(baseDefender);
-                continue;
-            }
-
-            baseDefender.tick();
 
         }
 
@@ -1837,7 +1816,7 @@ public class Game extends GamePart implements GameListener {
     public BaseDefender getBaseDefenderByEntity(IronGolem ironGolem) {
         for (BaseDefender b : this.getBaseDefenders()) {
 
-            if (b.getIronGolem() == ironGolem) {
+            if (b.getEntity() == ironGolem) {
                 return b;
             }
 

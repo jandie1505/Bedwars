@@ -148,7 +148,7 @@ public class EndgameWither {
                 return false;
             }
 
-            if (baseDefender.canBeRemoved()) {
+            if (baseDefender.toBeRemoved()) {
                 return false;
             }
 

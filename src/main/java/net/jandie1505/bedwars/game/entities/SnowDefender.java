@@ -141,7 +141,7 @@ public class SnowDefender {
                 return false;
             }
 
-            if (baseDefender.canBeRemoved()) {
+            if (baseDefender.toBeRemoved()) {
                 return false;
             }
 
