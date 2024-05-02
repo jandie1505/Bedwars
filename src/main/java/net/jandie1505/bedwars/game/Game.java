@@ -3,6 +3,7 @@ package net.jandie1505.bedwars.game;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.GameListener;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.entities.BaseDefender;
@@ -12,6 +13,7 @@ import net.jandie1505.bedwars.game.entities.SnowDefender;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
+import net.jandie1505.bedwars.game.listeners.DeathListener;
 import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.game.menu.shop.ItemShop;
 import net.jandie1505.bedwars.game.player.PlayerData;
@@ -25,6 +27,8 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
@@ -35,7 +39,7 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-public class Game extends GamePart {
+public class Game extends GamePart implements GameListener {
     private final World world;
     private final List<BedwarsTeam> teams;
     private final Map<UUID, PlayerData> players;
@@ -196,6 +200,11 @@ public class Game extends GamePart {
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndCheck, 1, 1, "game_end_check");
         this.getTaskScheduler().scheduleRepeatingTask(this::timeTask, 1, 20, "time");
         this.getTaskScheduler().scheduleRepeatingTask(this::backwardCompatibleTimeStepTask, 1, 1, "time_step");
+
+        // EVENTS
+
+        this.getPlugin().registerListener(this);
+        this.getPlugin().registerListener(new DeathListener(this));
     }
 
     @Override
@@ -1592,6 +1601,25 @@ public class Game extends GamePart {
         return new Endlobby(this.getPlugin(), this);
     }
 
+    // EVENTS
+
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        PlayerData playerData = this.getPlayer(event.getPlayer().getUniqueId());
+        if (playerData == null) return;
+
+        Location location = event.getPlayer().getLocation();
+
+        if (location.getY() < -64) {
+            location.setY(-64);
+        }
+
+        event.setRespawnLocation(location);
+
+    }
+
+    // UTILITIES
+
     public boolean respawnPlayer(Player player) {
 
         if (player == null || !this.players.containsKey(player.getUniqueId())) {
@@ -1878,6 +1906,16 @@ public class Game extends GamePart {
         this.winner = null;
         this.noWinnerEnd = true;
         this.getPlugin().nextStatus();
+    }
+
+    @Override
+    public Game getGame() {
+        return this;
+    }
+
+    @Override
+    public boolean toBeRemoved() {
+        return false;
     }
 
     public static void replaceBlockWithTeamColor(ItemStack item, BedwarsTeam team) {

@@ -13,9 +13,13 @@ import org.black_ixx.playerpoints.PlayerPoints;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.json.JSONObject;
 
 import java.time.Duration;
@@ -31,6 +35,7 @@ public class Bedwars extends JavaPlugin {
     private int exceptionCount;
     private List<World> managedWorlds;
     private ItemStorage itemStorage;
+    private EventListener eventListener;
     private boolean nextStatus;
     private boolean paused;
     private boolean cloudSystemMode;
@@ -70,7 +75,21 @@ public class Bedwars extends JavaPlugin {
         this.getCommand("bedwars").setExecutor(new BedwarsCommand(this));
         this.getCommand("bedwars").setTabCompleter(new BedwarsCommand(this));
 
-        this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
+        this.eventListener = new EventListener(this);
+        this.getServer().getPluginManager().registerEvents(this.eventListener, this);
+
+        // Cleanup listeners task
+
+        new BukkitRunnable() {
+
+            @Override
+            public void run() {
+                cleanupGameListenersTask();
+            }
+
+        }.runTaskTimer(this, 1, 200);
+
+        // Task
 
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
 
@@ -184,6 +203,69 @@ public class Bedwars extends JavaPlugin {
         }
 
         this.getLogger().info(this.getName() + " was successfully disabled");
+    }
+
+    /**
+     * Get a list of all listeners (not registered listeners).
+     * This can be used to clear listeners of the game.
+     * @return List of listeners
+     */
+    public List<Listener> getListeners() {
+        List<RegisteredListener> registeredListenerList = List.copyOf(HandlerList.getRegisteredListeners(this));
+        List<Listener> listenerList = new ArrayList<>();
+
+        for (RegisteredListener registeredListener : registeredListenerList) {
+
+            if (!listenerList.contains(registeredListener.getListener())) {
+                listenerList.add(registeredListener.getListener());
+            }
+
+        }
+
+        return List.copyOf(listenerList);
+    }
+
+    /**
+     * This method cleans up all listeners which must not exist.
+     * It is used for removing game and map listeners of games/maps which are not loaded anymore.
+     */
+    public void cleanupGameListenersTask() {
+
+        for (Listener listener : this.getListeners()) {
+
+            // Prevent NullPointerException
+
+            if (listener == null) {
+                continue;
+            }
+
+            // Do not delete the global listener
+
+            if (listener == this.eventListener) {
+                continue;
+            }
+
+            // Do not delete the listener if it is a game listener, is not marked as to be removed and the game of it is the current game
+
+            if (listener instanceof GameListener gameListener && !gameListener.toBeRemoved() && gameListener.getGame() == this.game) {
+                continue;
+            }
+
+            // Delete the listener
+
+            HandlerList.unregisterAll(listener);
+            this.getLogger().fine("Unregistered listener " + listener);
+
+        }
+
+    }
+
+    /**
+     * Register a game listener as event listener.
+     * @param listener game listener
+     */
+    public void registerListener(GameListener listener) {
+        this.getServer().getPluginManager().registerEvents(listener, this);
     }
 
     public World loadWorld(String name) {
@@ -375,6 +457,10 @@ public class Bedwars extends JavaPlugin {
 
         }
 
+    }
+
+    public Bedwars getSelf() {
+        return this;
     }
 
     public static String getDurationFormat(long seconds) {
