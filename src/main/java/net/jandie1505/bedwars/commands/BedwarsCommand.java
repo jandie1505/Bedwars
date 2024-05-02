@@ -1691,8 +1691,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    Snowman snowman = ((Game) this.plugin.getGame()).getWorld().spawn(location, Snowman.class);
-                    ((Game) this.plugin.getGame()).addSnowDefender(new SnowDefender((Game) this.plugin.getGame(), snowman, team.getId()));
+                    ((Game) this.plugin.getGame()).addSnowDefender(new SnowDefender((Game) this.plugin.getGame(), location, team.getId()));
                     break;
                 }
                 case "ENDGAMEWITHER": {

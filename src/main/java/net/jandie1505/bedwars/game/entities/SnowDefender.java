@@ -3,250 +3,135 @@ package net.jandie1505.bedwars.game.entities;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
+import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.List;
+import java.util.Random;
 
-public class SnowDefender {
-    private final Game game;
-    private final Snowman snowman;
+public class SnowDefender extends ExpiringManagedEntity<Snowman> {
     private final int teamId;
-    private int lifetime;
-    private int targetTimer;
 
-    public SnowDefender(Game game, Snowman snowman, int teamId) {
-        this.game = game;
-        this.snowman = snowman;
+    public SnowDefender(Game game, Location location, int teamId) {
+        super(game, game.getWorld().spawn(location.clone(), Snowman.class), 300);
         this.teamId = teamId;
-        this.lifetime = 300;
+
+        this.getEntity().addScoreboardTag("bedwars.snowdefender");
+        this.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600*20, 1, false, false, false));
+        this.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 3600*20, 0, false, false, false));
+        this.getEntity().setCustomNameVisible(true);
+
+        AttributeInstance maxHealth = this.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        if (maxHealth != null) maxHealth.setBaseValue(20.0);
+
+        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::nameTask, 1, 20, this::toBeRemoved, "snow_defender_name");
+        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::entityTargetUpdateTask, 1, 20, this::toBeRemoved, "snow_defender_target_update");
+        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::targetTimerTask, 1, 15*20, this::toBeRemoved, "snow_defender_target_timer");
     }
 
-    public void tick() {
+    // TASKS
 
-        // CHECKS
+    private void nameTask() {
+        BedwarsTeam team = this.getGame().getTeam(this.teamId);
+        this.getEntity().setCustomName((team != null ? team.getChatColor() : "") + "SNOW DEFENDER §r§7(" + this.getTime() + ")");
+    }
 
-        if (this.snowman == null) {
-            return;
-        }
+    private void entityTargetUpdateTask() {
+        if (this.getEntity().getTarget() != null && this.isValidTarget(this.getEntity().getTarget())) return;
 
-        if (this.snowman.isDead()) {
-            return;
-        }
+        this.getEntity().setTarget(null);
 
-        // LIFETIME
+        List<LivingEntity> nearbyEntities = this.getEntity().getNearbyEntities(30, 30, 30).stream()
+                .filter(entity -> entity instanceof LivingEntity)
+                .map(entity -> (LivingEntity) entity)
+                .filter(this::isValidTarget)
+                .toList();
 
-        if (this.lifetime > 0) {
-            this.lifetime--;
-        } else {
-            this.snowman.remove();
-            return;
-        }
+        if (nearbyEntities.isEmpty()) return;
 
-        // ENTITY VALUES
-
-        if (!this.snowman.getScoreboardTags().contains("snowdefender")) {
-            this.snowman.addScoreboardTag("snowdefender");
-        }
-
-        if (!this.snowman.hasPotionEffect(PotionEffectType.SPEED)) {
-            this.snowman.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600*20, 0, false, false));
-        }
-
-        if (!this.snowman.hasPotionEffect(PotionEffectType.REGENERATION)) {
-            this.snowman.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 3600*20, 0, false, false));
-        }
-
-        if (this.snowman.getMaxHealth() < 20) {
-            this.snowman.setMaxHealth(20);
-        }
-
-        if (!this.snowman.isCustomNameVisible()) {
-            this.snowman.setCustomNameVisible(true);
-        }
-
-        // TEAM
-
-        BedwarsTeam team = this.game.getTeam(this.teamId);
-
-        if (team == null) {
-            this.snowman.remove();
-            return;
-        }
-
-        // NAME
-
-        this.snowman.setCustomName(team.getChatColor() + "SNOW DEFENDER" + this.getTargetName() + " (" + this.lifetime + ")");
-
-        // TARGET
-
-        if (this.isValidTarget(this.snowman.getTarget()) && this.targetTimer < 10) {
-            this.targetTimer++;
-            return;
-        }
-
-        this.targetTimer = 0;
-        this.snowman.setTarget(null);
-
-        List<Entity> nearbyEntities = List.copyOf(this.snowman.getWorld().getNearbyEntities(this.snowman.getLocation(), 15, 15, 15));
-
-        if (nearbyEntities.isEmpty()) {
-            return;
-        }
-
-        for (Entity entity : nearbyEntities) {
-
-            if (!(entity instanceof LivingEntity)) {
-                continue;
-            }
-
-            if (this.isValidTarget((LivingEntity) entity)) {
-                this.snowman.setTarget((LivingEntity) entity);
-                break;
-            }
-
-        }
+        LivingEntity nextTarget = nearbyEntities.get(new Random().nextInt(nearbyEntities.size()));
+        this.getEntity().setTarget(nextTarget);
+        this.nameTask();
 
     }
 
+    private void targetTimerTask() {
+        this.getEntity().setTarget(null);
+    }
+
+    // EVENTS
+
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        if (this.getEntity().getTarget() != event.getEntity()) return;
+        this.getEntity().setTarget(null);
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getEntity() != this.getEntity()) return;
+        if (!(event.getDamager() instanceof LivingEntity livingEntity)) return;
+        if (!this.isValidTarget(livingEntity)) return;
+
+        this.getEntity().setTarget(livingEntity);
+    }
+
+    @EventHandler
+    public void onEntityTargetSelect(EntityTargetEvent event) {
+        if (event.getEntity() != this.getEntity()) return;
+        event.setCancelled(true);
+    }
+
+    // UTILITIES
+
+    /**
+     * Returns if the specified entity is a valid target for the snow defender.
+     * @param entity entity
+     * @return true if entity is valid target
+     */
     private boolean isValidTarget(LivingEntity entity) {
+        if (entity == null) return false;
+        if (entity.isDead()) return false;
 
-        if (entity == null) {
-            return false;
+        // Check if entity is player of other team
+        if (entity instanceof Player player) {
+            PlayerData playerData = this.getGame().getPlayer(player.getUniqueId());
+            if (playerData == null) return false;
+            if (!playerData.isAlive()) return false;
+            return this.teamId < 0 || playerData.getTeam() != this.teamId;
         }
 
-        if (entity.isDead()) {
-            return false;
+        // Check if entity is base defender of other team
+        if (entity instanceof IronGolem ironGolem) {
+            BaseDefender baseDefender = this.getGame().getBaseDefenderByEntity(ironGolem);
+            if (baseDefender == null) return false;
+            if (baseDefender.toBeRemoved()) return false;
+            return baseDefender.getTeamId() < 0 || baseDefender.getTeamId() != this.teamId;
         }
 
-        if (entity instanceof Player) {
-            PlayerData playerData = this.game.getPlayers().get(entity.getUniqueId());
-
-            if (playerData == null) {
-                return false;
-            }
-
-            if (playerData.getTeam() == this.teamId) {
-                return false;
-            }
-
-            return playerData.isAlive();
-        }
-
-        if (entity instanceof IronGolem) {
-            BaseDefender baseDefender = this.game.getBaseDefenderByEntity((IronGolem) entity);
-
-            if (baseDefender == null) {
-                return false;
-            }
-
-            if (baseDefender.toBeRemoved()) {
-                return false;
-            }
-
-            if (baseDefender.getTeamId() == this.teamId) {
-                return false;
-            }
-
-            return true;
-        }
-
-        if (entity instanceof Wither) {
-            EndgameWither endgameWither = this.game.getEndgameWitherByEntity((Wither) entity);
-
-            if (endgameWither == null) {
-                return false;
-            }
-
-            if (endgameWither.canBeRemoved()) {
-                return false;
-            }
-
-            if (endgameWither.getTeamId() == this.teamId) {
-                return false;
-            }
-
-            return true;
+        // Check if entity is endgame wither of other team
+        if (entity instanceof Wither wither) {
+            EndgameWither endgameWither = this.getGame().getEndgameWitherByEntity(wither);
+            if (endgameWither == null) return false;
+            if (endgameWither.canBeRemoved()) return false;
+            return endgameWither.getTeamId() < 0 || endgameWither.getTeamId() != this.teamId;
         }
 
         return false;
     }
 
-    private String getTargetName() {
-
-        if (this.snowman.getTarget() == null) {
-            return "";
-        }
-
-        if (this.snowman.getTarget() instanceof Player) {
-            PlayerData playerData = this.game.getPlayers().get(this.snowman.getTarget().getUniqueId());
-
-            if (playerData == null) {
-                return " §7--> " + ((Player) this.snowman.getTarget()).getDisplayName();
-            }
-
-            BedwarsTeam team = this.game.getTeam(playerData.getTeam());
-
-            if (team == null) {
-                return " §7--> " + ((Player) this.snowman.getTarget()).getDisplayName();
-            }
-
-            return " §7--> " + team.getChatColor() + ((Player) this.snowman.getTarget()).getDisplayName();
-        }
-
-        if (this.snowman.getTarget() instanceof IronGolem) {
-            BaseDefender baseDefender = this.game.getBaseDefenderByEntity((IronGolem) this.snowman.getTarget());
-
-            if (baseDefender == null) {
-                return " §7--> ?";
-            }
-
-            BedwarsTeam team = this.game.getTeam(baseDefender.getTeamId());
-
-            if (team == null) {
-                return " §7--> BASE DEFENDER";
-            }
-
-            return " §7--> " + team.getChatColor() + "BASE DEFENDER";
-        }
-
-        if (this.snowman.getTarget() instanceof Wither) {
-            EndgameWither endgameWither = this.game.getEndgameWitherByEntity((Wither) this.snowman.getTarget());
-
-            if (endgameWither == null) {
-                return " §7--> ?";
-            }
-
-            BedwarsTeam team = this.game.getTeam(endgameWither.getTeamId());
-
-            if (team == null) {
-                return " §7--> ENDGAME WITHER";
-            }
-
-            return " §7--> " + team.getChatColor() + "ENDGAME WITHER";
-        }
-
-        return " §7--> ?";
-    }
-
-    public boolean canBeRemoved() {
-        return this.snowman == null || this.snowman.isDead();
-    }
-
-    public Game getGame() {
-        return game;
-    }
-
-    public Golem getGolem() {
-        return snowman;
-    }
+    // GETTER
 
     public int getTeamId() {
         return teamId;
     }
 
-    public int getLifetime() {
-        return lifetime;
-    }
 }

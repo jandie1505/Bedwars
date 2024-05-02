@@ -194,7 +194,6 @@ public class Game extends GamePart implements GameListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::bridgeEggs, 1, 1, "bridge_eggs");
         this.getTaskScheduler().scheduleRepeatingTask(this::traps, 1, 1, "traps");
         this.getTaskScheduler().scheduleRepeatingTask(this::endgameWithers, 1, 20, "endgame_withers");
-        this.getTaskScheduler().scheduleRepeatingTask(this::snowDefenders, 1, 20, "snow_defenders");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndConditions, 1, 1, "game_end_conditions");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndCheck, 1, 1, "game_end_check");
         this.getTaskScheduler().scheduleRepeatingTask(this::timeTask, 1, 20, "time");
@@ -828,26 +827,6 @@ public class Game extends GamePart implements GameListener {
             }
 
             endgameWither.tick();
-
-        }
-
-    }
-
-    public void snowDefenders() {
-
-        for (SnowDefender snowDefender : this.getSnowDefenders()) {
-
-            if (snowDefender == null) {
-                this.snowDefenders.remove(null);
-                continue;
-            }
-
-            if (snowDefender.canBeRemoved()) {
-                this.snowDefenders.remove(snowDefender);
-                continue;
-            }
-
-            snowDefender.tick();
 
         }
 
@@ -1840,7 +1819,7 @@ public class Game extends GamePart implements GameListener {
     public SnowDefender getSnowDefenderByEntity(Golem golem) {
         for (SnowDefender snowDefender : this.getSnowDefenders()) {
 
-            if (snowDefender.getGolem() == golem) {
+            if (snowDefender.getEntity() == golem) {
                 return snowDefender;
             }
 

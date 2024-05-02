@@ -238,8 +238,7 @@ public class EventListener implements GameListener {
                             Location location = event.getBlockPlaced().getLocation().clone();
                             location.add(0.5, 0, 0.5);
 
-                            Snowman snowman = event.getPlayer().getWorld().spawn(location, Snowman.class);
-                            ((Game) this.plugin.getGame()).addSnowDefender(new SnowDefender((Game) this.plugin.getGame(), snowman, team.getId()));
+                            ((Game) this.plugin.getGame()).addSnowDefender(new SnowDefender((Game) this.plugin.getGame(), location, team.getId()));
 
                             playerData.setIronGolemCooldown(15*20);
                         }
