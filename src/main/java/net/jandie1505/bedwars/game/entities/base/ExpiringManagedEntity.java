@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.entities;
+package net.jandie1505.bedwars.game.entities.base;
 
 import net.jandie1505.bedwars.game.Game;
 import org.bukkit.entity.Entity;

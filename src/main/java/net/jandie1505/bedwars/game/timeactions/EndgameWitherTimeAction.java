@@ -1,10 +1,9 @@
 package net.jandie1505.bedwars.game.timeactions;
 
 import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.game.entities.EndgameWither;
+import net.jandie1505.bedwars.game.entities.entities.EndgameWither;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
-import org.bukkit.entity.Wither;
 
 public class EndgameWitherTimeAction extends TimeAction {
 

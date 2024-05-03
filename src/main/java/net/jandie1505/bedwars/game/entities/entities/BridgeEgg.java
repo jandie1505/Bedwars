@@ -1,6 +1,7 @@
-package net.jandie1505.bedwars.game.entities;
+package net.jandie1505.bedwars.game.entities.entities;
 
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.game.entities.base.ExpiringManagedEntity;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

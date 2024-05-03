@@ -6,7 +6,8 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GameListener;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.endlobby.Endlobby;
-import net.jandie1505.bedwars.game.entities.*;
+import net.jandie1505.bedwars.game.entities.base.ManagedEntity;
+import net.jandie1505.bedwars.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
@@ -35,7 +36,6 @@ import org.bukkit.scoreboard.*;
 import org.json.JSONObject;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Game extends GamePart implements GameListener {
     private final World world;
