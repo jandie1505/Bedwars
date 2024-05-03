@@ -54,7 +54,6 @@ public class Game extends GamePart implements GameListener {
     private final int villagerBlockPlaceProtection;
     private final Location centerLocation;
     private final int mapRadius;
-    private final List<BridgeEgg> bridgeEggs;
     private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
     private int time;
@@ -82,7 +81,6 @@ public class Game extends GamePart implements GameListener {
         this.villagerBlockPlaceProtection = villagerBlockPlaceProtection;
         this.centerLocation = this.buildLocationWithWorld(centerLocation);
         this.mapRadius = mapRadius;
-        this.bridgeEggs = Collections.synchronizedList(new ArrayList<>());
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
@@ -185,7 +183,6 @@ public class Game extends GamePart implements GameListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::generatorTick, 1, 1, "generators");
         this.getTaskScheduler().scheduleRepeatingTask(this::timeActions, 1, 20, "time_actions");
         this.getTaskScheduler().scheduleRepeatingTask(this::villagers, 1, 1, "villagers");
-        this.getTaskScheduler().scheduleRepeatingTask(this::bridgeEggs, 1, 1, "bridge_eggs");
         this.getTaskScheduler().scheduleRepeatingTask(this::cleanupManagedEntitiesTask, 1, 10*20, "cleanup_managed_entities");
         this.getTaskScheduler().scheduleRepeatingTask(this::traps, 1, 1, "traps");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndConditions, 1, 1, "game_end_conditions");
@@ -720,26 +717,6 @@ public class Game extends GamePart implements GameListener {
             if (!upgradesVillagerExists && !team.getUpgradesVillagerLocations().isEmpty()) {
                 this.spawnUpgradesVillager(team, team.getUpgradesVillagerLocations().get(0));
             }
-
-        }
-
-    }
-
-    private void bridgeEggs() {
-
-        for (BridgeEgg bridgeEgg : this.getBridgeEggs()) {
-
-            if (bridgeEgg == null) {
-                this.bridgeEggs.remove(null);
-                continue;
-            }
-
-            if (bridgeEgg.canBeRemoved()) {
-                this.bridgeEggs.remove(bridgeEgg);
-                continue;
-            }
-
-            bridgeEgg.tick();
 
         }
 
@@ -1751,18 +1728,6 @@ public class Game extends GamePart implements GameListener {
 
     public int getMapRadius() {
         return this.mapRadius;
-    }
-
-    public List<BridgeEgg> getBridgeEggs() {
-        return List.copyOf(this.bridgeEggs);
-    }
-
-    public void addBridgeEgg(BridgeEgg bridgeEgg) {
-        this.bridgeEggs.add(bridgeEgg);
-    }
-
-    public void removeBridgeEgg(BridgeEgg bridgeEgg) {
-        this.bridgeEggs.remove(bridgeEgg);
     }
 
     // MANAGED ENTITIES

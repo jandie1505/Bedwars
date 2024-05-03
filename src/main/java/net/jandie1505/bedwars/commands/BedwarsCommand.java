@@ -1715,8 +1715,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    Egg egg = ((Game) this.plugin.getGame()).getWorld().spawn(location, Egg.class);
-                    ((Game) this.plugin.getGame()).addBridgeEgg(new BridgeEgg((Game) this.plugin.getGame(), egg, material));
+                    new BridgeEgg((Game) this.plugin.getGame(), location, material);
                     break;
                 default:
                     sender.sendMessage("§cUnknown entity");

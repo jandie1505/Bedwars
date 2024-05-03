@@ -17,6 +17,19 @@ public abstract class ManagedEntity<T extends Entity> implements GameListener {
         this.game.addManagedEntity(this);
     }
 
+    // UTILITIES
+
+    /**
+     * Schedules a task for this managed entity
+     * @param runnable runnable to schedule
+     * @param initialDelay initial delay
+     * @param interval interval
+     * @param name task name
+     */
+    protected void scheduleTask(Runnable runnable, int initialDelay, int interval, String name) {
+        this.game.getTaskScheduler().scheduleRepeatingTask(runnable, initialDelay, interval, this::toBeRemoved, "managed_entity_" + name);
+    }
+
     // GETTER
 
     public final Game getGame() {

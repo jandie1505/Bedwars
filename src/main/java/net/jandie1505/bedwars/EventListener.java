@@ -1577,24 +1577,9 @@ public class EventListener implements GameListener {
                 return;
             }
 
-            Vector tpVector = event.getEntity().getVelocity().clone();
-            tpVector.divide(new Vector(tpVector.length(), tpVector.length(), tpVector.length()));
-
             Location location = event.getEntity().getLocation();
-            location.add(tpVector);
-            location.add(0, -1, 0);
 
-            event.getEntity().teleport(location);
-
-            Vector vector = event.getEntity().getVelocity();
-
-            vector.setX(vector.getX() / 2.0);
-            vector.setY(vector.getY() / 2.0);
-            vector.setZ(vector.getZ() / 2.0);
-
-            event.getEntity().setVelocity(vector);
-
-            ((Game) this.plugin.getGame()).addBridgeEgg(new BridgeEgg((Game) this.plugin.getGame(), (Egg) event.getEntity(), material));
+            new BridgeEgg((Game) this.plugin.getGame(), location, material);
 
         }
 

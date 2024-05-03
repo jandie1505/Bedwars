@@ -7,56 +7,63 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Egg;
 import org.bukkit.util.Vector;
 
-public class BridgeEgg {
-    private final Game game;
-    private final Egg egg;
+public class BridgeEgg extends ExpiringManagedEntity<Egg> {
     private final Material material;
-    private int lifetime;
     private Location lastLocation;
 
-    public BridgeEgg(Game game, Egg egg, Material material) {
-        this.game = game;
-        this.egg = egg;
+    public BridgeEgg(Game game, Location location, Material material) {
+        super(game, game.getWorld().spawn(location.clone(), Egg.class), 15);
         this.material = material;
-        this.lifetime = 5*20;
         this.lastLocation = null;
+
+        // Vector
+
+        Vector tpVector = this.getEntity().getVelocity().clone();
+        tpVector.divide(new Vector(tpVector.length(), tpVector.length(), tpVector.length()));
+
+        location = this.getEntity().getLocation();
+        location.add(tpVector);
+        location.add(0, -1, 0);
+
+        this.getEntity().teleport(location);
+
+        Vector vector = this.getEntity().getVelocity();
+
+        vector.setX(vector.getX() / 2.0);
+        vector.setY(vector.getY() / 2.0);
+        vector.setZ(vector.getZ() / 2.0);
+
+        this.getEntity().setVelocity(vector);
+
+        // Tasks
+
+        this.scheduleTask(this::velocityTask, 1, 1, "bridge_egg_velocity");
+        this.scheduleTask(this::placeBlocksTask, 1, 1, "bridge_egg_place");
     }
 
-    public void tick() {
+    // TASKS
 
-        if (this.egg == null) {
-            return;
-        }
-
-        if (this.lifetime <= 0) {
-            this.egg.remove();
-            return;
-        }
-
-        this.lifetime--;
-
-        Vector vector = this.egg.getVelocity();
+    private void velocityTask() {
+        Vector vector = this.getEntity().getVelocity();
 
         if (vector.getY() < 0.0) {
             vector.setY(vector.getY() / 2);
         }
 
-        this.egg.setVelocity(vector);
+        this.getEntity().setVelocity(vector);
+    }
 
-        if (this.game.getWorld() != this.egg.getWorld()) {
-            return;
-        }
+    public void placeBlocksTask() {
+        if (this.getEntity().getWorld() != this.getGame().getWorld()) return;
 
         if (this.lastLocation == null) {
             this.updateLastLocation();
             return;
         }
 
-        if (this.getBlockLocation(this.egg.getLocation()).equals(this.lastLocation)) {
-            return;
-        }
+        if (this.getBlockLocation(this.getEntity().getLocation()).equals(this.lastLocation)) return;
 
-        Block block = this.egg.getWorld().getBlockAt(this.lastLocation);
+        Block block = this.getEntity().getWorld().getBlockAt(this.lastLocation);
 
         if (block.getType() != Material.AIR) {
             this.updateLastLocation();
@@ -67,21 +74,20 @@ public class BridgeEgg {
             return;
         }
 
-        this.game.getPlayerPlacedBlocks().add(block.getLocation());
+        this.getGame().getPlayerPlacedBlocks().add(block.getLocation());
         block.setType(this.material);
         this.updateLastLocation();
 
     }
 
+    // UTILITIES
+
     private Location getBlockLocation(Location location) {
-        return new Location(this.egg.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        return new Location(this.getEntity().getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 
     private void updateLastLocation() {
-        this.lastLocation = this.getBlockLocation(this.egg.getLocation());
+        this.lastLocation = this.getBlockLocation(this.getEntity().getLocation());
     }
 
-    public boolean canBeRemoved() {
-        return this.game == null || this.egg == null || egg.isDead() || this.game.getWorld() != this.egg.getWorld();
-    }
 }
