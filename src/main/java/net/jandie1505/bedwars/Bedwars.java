@@ -247,7 +247,7 @@ public class Bedwars extends JavaPlugin {
 
             // Do not delete the listener if it is a game listener, is not marked as to be removed and the game of it is the current game
 
-            if (listener instanceof GameListener gameListener && !gameListener.toBeRemoved() && gameListener.getGame() == this.game) {
+            if (listener instanceof ManagedListener managedListener && !managedListener.toBeRemoved() && managedListener.getGame() == this.game) {
                 continue;
             }
 
@@ -264,7 +264,7 @@ public class Bedwars extends JavaPlugin {
      * Register a game listener as event listener.
      * @param listener game listener
      */
-    public void registerListener(GameListener listener) {
+    public void registerListener(ManagedListener listener) {
         this.getServer().getPluginManager().registerEvents(listener, this);
     }
 

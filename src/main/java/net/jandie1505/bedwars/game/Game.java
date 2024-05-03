@@ -3,7 +3,7 @@ package net.jandie1505.bedwars.game;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import net.jandie1505.bedwars.Bedwars;
-import net.jandie1505.bedwars.GameListener;
+import net.jandie1505.bedwars.ManagedListener;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.entities.base.ManagedEntity;
@@ -37,7 +37,7 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-public class Game extends GamePart implements GameListener {
+public class Game extends GamePart implements ManagedListener {
     private final World world;
     private final List<BedwarsTeam> teams;
     private final Map<UUID, PlayerData> players;

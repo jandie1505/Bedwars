@@ -1,6 +1,6 @@
 package net.jandie1505.bedwars.game.listeners;
 
-import net.jandie1505.bedwars.GameListener;
+import net.jandie1505.bedwars.ManagedListener;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.entities.EndgameWither;
@@ -18,7 +18,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeathListener implements GameListener {
+public class DeathListener implements ManagedListener {
     private final Game game;
 
     public DeathListener(Game game) {

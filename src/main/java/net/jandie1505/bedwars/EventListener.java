@@ -42,7 +42,7 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-public class EventListener implements GameListener {
+public class EventListener implements ManagedListener {
     private final Bedwars plugin;
 
     public EventListener(Bedwars plugin) {

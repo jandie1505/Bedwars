@@ -1,10 +1,10 @@
 package net.jandie1505.bedwars.game.entities.base;
 
-import net.jandie1505.bedwars.GameListener;
+import net.jandie1505.bedwars.ManagedListener;
 import net.jandie1505.bedwars.game.Game;
 import org.bukkit.entity.Entity;
 
-public abstract class ManagedEntity<T extends Entity> implements GameListener {
+public abstract class ManagedEntity<T extends Entity> implements ManagedListener {
     private final Game game;
     private final T entity;
 
