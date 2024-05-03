@@ -1703,8 +1703,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    Wither wither = ((Game) this.plugin.getGame()).getWorld().spawn(location, Wither.class);
-                    ((Game) this.plugin.getGame()).addEndgameWither(new EndgameWither((Game) this.plugin.getGame(), wither, team.getId()));
+                    ((Game) this.plugin.getGame()).addEndgameWither(new EndgameWither((Game) this.plugin.getGame(), location, team.getId()));
                     break;
                 }
                 case "BRIDGEEGG":

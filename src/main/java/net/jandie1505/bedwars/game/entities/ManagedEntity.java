@@ -4,11 +4,11 @@ import net.jandie1505.bedwars.GameListener;
 import net.jandie1505.bedwars.game.Game;
 import org.bukkit.entity.Entity;
 
-public abstract class MangedEntity<T extends Entity> implements GameListener {
+public abstract class ManagedEntity<T extends Entity> implements GameListener {
     private final Game game;
     private final T entity;
 
-    protected MangedEntity(Game game, T entity) {
+    protected ManagedEntity(Game game, T entity) {
         this.game = game;
         this.entity = entity;
 

@@ -3,7 +3,7 @@ package net.jandie1505.bedwars.game.entities;
 import net.jandie1505.bedwars.game.Game;
 import org.bukkit.entity.Entity;
 
-public abstract class ExpiringManagedEntity<T extends Entity> extends MangedEntity<T> {
+public abstract class ExpiringManagedEntity<T extends Entity> extends ManagedEntity<T> {
     private final int maxTime;
     private int time;
 

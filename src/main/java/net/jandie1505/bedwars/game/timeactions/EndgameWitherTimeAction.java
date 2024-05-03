@@ -42,7 +42,7 @@ public class EndgameWitherTimeAction extends TimeAction {
                 this.getGame().addEndgameWither(
                         new EndgameWither(
                                 this.getGame(),
-                                this.getGame().getWorld().spawn(this.getGame().getCenterLocation(), Wither.class),
+                                this.getGame().getCenterLocation(),
                                 team.getId()
                         )
                 );

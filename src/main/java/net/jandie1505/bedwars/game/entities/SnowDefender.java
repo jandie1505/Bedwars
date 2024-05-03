@@ -121,7 +121,7 @@ public class SnowDefender extends ExpiringManagedEntity<Snowman> {
         if (entity instanceof Wither wither) {
             EndgameWither endgameWither = this.getGame().getEndgameWitherByEntity(wither);
             if (endgameWither == null) return false;
-            if (endgameWither.canBeRemoved()) return false;
+            if (endgameWither.toBeRemoved()) return false;
             return endgameWither.getTeamId() < 0 || endgameWither.getTeamId() != this.teamId;
         }
 

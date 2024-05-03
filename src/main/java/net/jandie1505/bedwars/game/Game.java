@@ -193,7 +193,6 @@ public class Game extends GamePart implements GameListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::villagers, 1, 1, "villagers");
         this.getTaskScheduler().scheduleRepeatingTask(this::bridgeEggs, 1, 1, "bridge_eggs");
         this.getTaskScheduler().scheduleRepeatingTask(this::traps, 1, 1, "traps");
-        this.getTaskScheduler().scheduleRepeatingTask(this::endgameWithers, 1, 20, "endgame_withers");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndConditions, 1, 1, "game_end_conditions");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndCheck, 1, 1, "game_end_check");
         this.getTaskScheduler().scheduleRepeatingTask(this::timeTask, 1, 20, "time");
@@ -807,26 +806,6 @@ public class Game extends GamePart implements GameListener {
                 }
 
             }
-
-        }
-
-    }
-
-    private void endgameWithers() {
-
-        for (EndgameWither endgameWither : this.getEndgameWithers()) {
-
-            if (endgameWither == null) {
-                this.endgameWithers.remove(null);
-                continue;
-            }
-
-            if (endgameWither.canBeRemoved()) {
-                this.endgameWithers.remove(endgameWither);
-                continue;
-            }
-
-            endgameWither.tick();
 
         }
 
@@ -1807,7 +1786,7 @@ public class Game extends GamePart implements GameListener {
     public EndgameWither getEndgameWitherByEntity(Wither wither) {
         for (EndgameWither endgameWither : this.getEndgameWithers()) {
 
-            if (endgameWither.getWither() == wither) {
+            if (endgameWither.getEntity() == wither) {
                 return endgameWither;
             }
 

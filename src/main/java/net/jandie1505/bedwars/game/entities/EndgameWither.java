@@ -3,178 +3,148 @@ package net.jandie1505.bedwars.game.entities;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
+import org.bukkit.Location;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wither;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
-public class EndgameWither {
-    private final Game game;
-    private final Wither wither;
+public class EndgameWither extends ManagedEntity<Wither> {
     private final int teamId;
     private int targetTimer;
 
-    public EndgameWither(Game game, Wither wither, int teamId) {
-        this.game = game;
-        this.wither = wither;
+    public EndgameWither(Game game, Location location, int teamId) {
+        super(game, game.getWorld().spawn(location.clone(), Wither.class));
         this.teamId = teamId;
         this.targetTimer = 0;
+
+        BedwarsTeam team = this.getGame().getTeam(this.teamId);
+        if (team != null) {
+            this.getEntity().setCustomName(team.getChatColor() + "§lENDGAME WITHER §r§7(" + team.getName() + ")");
+        } else {
+            this.getEntity().setCustomName("§7§lENDGAME WITHER");
+        }
+
+        this.getEntity().addScoreboardTag("bedwars.endgamewither");
+        this.getEntity().setCustomNameVisible(true);
+        this.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600*20, 0, false, false, false));
+
+        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::targetSelectionTask, 1, 20, this::toBeRemoved, "endgame_wither_target_selection");
+        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::targetTimerTask, 1, 20, this::toBeRemoved, "endgame_wither_target_timer");
     }
 
-    public void tick() {
+    // TASKS
 
-        // CHECKS
+    private void targetSelectionTask() {
+        this.selectTarget(Wither.Head.CENTER);
+        this.selectTarget(Wither.Head.LEFT);
+        this.selectTarget(Wither.Head.RIGHT);
+    }
 
-        if (this.wither == null) {
-            return;
-        }
+    private void targetTimerTask() {
 
-        if (this.wither.isDead()) {
-            return;
-        }
-
-        // ENTITY VALUES
-
-        if (!this.wither.getScoreboardTags().contains("endgameWither")) {
-            this.wither.addScoreboardTag("endgameWither");
-        }
-
-        if (!this.wither.hasPotionEffect(PotionEffectType.SPEED)) {
-            this.wither.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600*20, 0, false, false));
-        }
-
-        if (!this.wither.isCustomNameVisible()) {
-            this.wither.setCustomNameVisible(true);
-        }
-
-        // TEAM
-
-        BedwarsTeam team = this.game.getTeam(this.teamId);
-
-        if (team == null) {
-            return;
-        }
-
-        // NAME
-
-        this.wither.setCustomName(team.getChatColor() + "ENDGAME WITHER (Team " + team.getName() + ")");
-
-        // TARGET
-
-        if (this.isValidTarget(this.wither.getTarget()) && this.targetTimer < 10) {
+        if (this.targetTimer > 60) {
+            this.getEntity().setTarget(Wither.Head.CENTER, null);
+            this.getEntity().setTarget(Wither.Head.LEFT, null);
+            this.getEntity().setTarget(Wither.Head.RIGHT, null);
+        } else {
             this.targetTimer++;
+        }
+
+    }
+
+    // EVENTS
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerDeath(PlayerDeathEvent event) {
+
+        if (event.getEntity() == this.getEntity().getTarget(Wither.Head.CENTER)) {
+            this.getEntity().setTarget(Wither.Head.CENTER, null);
             return;
         }
 
-        this.targetTimer = 0;
-        this.wither.setTarget(null);
-
-        int tries = 0;
-        LivingEntity possibleTarget = null;
-
-        while (tries < 3) {
-            tries++;
-
-            if (new Random().nextInt(3) == 2) {
-
-                List<IronGolem> list = List.copyOf(this.game.getWorld().getEntitiesByClass(IronGolem.class));
-
-                if (list.isEmpty()) {
-                    continue;
-                }
-
-                possibleTarget = list.get(new Random().nextInt(list.size()));
-
-            } else {
-
-                List<Player> list = List.copyOf(this.game.getWorld().getEntitiesByClass(Player.class));
-
-                if (list.isEmpty()) {
-                    continue;
-                }
-
-                possibleTarget = list.get(new Random().nextInt(list.size()));
-
-            }
-
-            if (this.isValidTarget(possibleTarget)) {
-                break;
-            }
-
+        if (event.getEntity() == this.getEntity().getTarget(Wither.Head.LEFT)) {
+            this.getEntity().setTarget(Wither.Head.LEFT, null);
+            return;
         }
 
-        if (this.isValidTarget(possibleTarget)) {
-            this.wither.setTarget(possibleTarget);
+        if (event.getEntity() == this.getEntity().getTarget(Wither.Head.RIGHT)) {
+            this.getEntity().setTarget(Wither.Head.RIGHT, null);
+            return;
         }
+
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.isCancelled()) return;
+        if (event.getEntity() != this.getEntity()) return;
+        if (!(event.getDamager() instanceof LivingEntity damager)) return;
+        if (!this.isValidTarget(damager)) return;
+
+        this.getEntity().setTarget(Wither.Head.CENTER, damager);
+    }
+
+    @EventHandler
+    public void onEntityTargetSelect(EntityTargetEvent event) {
+        if (event.getEntity() != this.getEntity()) return;
+        event.setCancelled(true);
+    }
+
+    // UTILITIES
+
+    private void selectTarget(Wither.Head head) {
+        if (this.getEntity().getTarget(head) != null && this.isValidTarget(this.getEntity().getTarget(head))) return;
+
+        this.getEntity().setTarget(null);
+
+        List<LivingEntity> nearbyEntities = this.getEntity().getNearbyEntities(100, 100, 100).stream()
+                .filter(entity -> entity instanceof LivingEntity)
+                .map(entity -> (LivingEntity) entity)
+                .filter(this::isValidTarget)
+                .toList();
+
+        if (nearbyEntities.isEmpty()) return;
+
+        LivingEntity nextTarget = nearbyEntities.get(new Random().nextInt(nearbyEntities.size()));
+        this.getEntity().setTarget(nextTarget);
 
     }
 
     public boolean isValidTarget(LivingEntity entity) {
-
-        if (entity == null) {
-            return false;
-        }
-
-        if (entity.isDead()) {
-            return false;
-        }
+        if (entity == null || entity.isDead()) return false;
 
         if (entity instanceof Player) {
-
-            PlayerData playerData = this.game.getPlayers().get(entity.getUniqueId());
-
-            if (playerData == null) {
-                return false;
-            }
-
-            if (playerData.getTeam() == this.teamId) {
-                return false;
-            }
-
-            return playerData.isAlive();
+            PlayerData playerData = this.getGame().getPlayers().get(entity.getUniqueId());
+            if (playerData == null) return false;
+            if (!playerData.isAlive()) return false;
+            return this.teamId < 0 || playerData.getTeam() != this.teamId;
         }
 
         if (entity instanceof IronGolem) {
-
-            BaseDefender baseDefender = this.game.getBaseDefenderByEntity((IronGolem) entity);
-
-            if (baseDefender == null) {
-                return false;
-            }
-
-            if (baseDefender.toBeRemoved()) {
-                return false;
-            }
-
-            if (baseDefender.getTeamId() == this.teamId) {
-                return false;
-            }
-
-            return true;
+            BaseDefender baseDefender = this.getGame().getBaseDefenderByEntity((IronGolem) entity);
+            if (baseDefender == null) return false;
+            if (baseDefender.toBeRemoved()) return false;
+            return this.teamId < 0 || baseDefender.getTeamId() != this.teamId;
         }
 
         return false;
     }
 
-    public boolean canBeRemoved() {
-        return this.wither == null || this.wither.isDead();
-    }
-
-    public Game getGame() {
-        return this.game;
-    }
-
-    public Wither getWither() {
-        return this.wither;
-    }
+    // GETTER
 
     public int getTeamId() {
         return this.teamId;
     }
+
 }
