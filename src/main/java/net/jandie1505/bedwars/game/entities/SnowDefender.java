@@ -111,16 +111,16 @@ public class SnowDefender extends ExpiringManagedEntity<Snowman> {
 
         // Check if entity is base defender of other team
         if (entity instanceof IronGolem ironGolem) {
-            BaseDefender baseDefender = this.getGame().getBaseDefenderByEntity(ironGolem);
-            if (baseDefender == null) return false;
+            ManagedEntity<?> managedEntity = this.getGame().getManagedEntityByEntity(ironGolem);
+            if (!(managedEntity instanceof BaseDefender baseDefender)) return false;
             if (baseDefender.toBeRemoved()) return false;
             return baseDefender.getTeamId() < 0 || baseDefender.getTeamId() != this.teamId;
         }
 
         // Check if entity is endgame wither of other team
         if (entity instanceof Wither wither) {
-            EndgameWither endgameWither = this.getGame().getEndgameWitherByEntity(wither);
-            if (endgameWither == null) return false;
+            ManagedEntity<?> managedEntity = this.getGame().getManagedEntityByEntity(wither);
+            if (!(managedEntity instanceof EndgameWither endgameWither)) return false;
             if (endgameWither.toBeRemoved()) return false;
             return endgameWither.getTeamId() < 0 || endgameWither.getTeamId() != this.teamId;
         }

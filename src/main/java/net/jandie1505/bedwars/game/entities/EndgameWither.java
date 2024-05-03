@@ -124,16 +124,16 @@ public class EndgameWither extends ManagedEntity<Wither> {
     public boolean isValidTarget(LivingEntity entity) {
         if (entity == null || entity.isDead()) return false;
 
-        if (entity instanceof Player) {
-            PlayerData playerData = this.getGame().getPlayers().get(entity.getUniqueId());
+        if (entity instanceof Player player) {
+            PlayerData playerData = this.getGame().getPlayers().get(player.getUniqueId());
             if (playerData == null) return false;
             if (!playerData.isAlive()) return false;
             return this.teamId < 0 || playerData.getTeam() != this.teamId;
         }
 
-        if (entity instanceof IronGolem) {
-            BaseDefender baseDefender = this.getGame().getBaseDefenderByEntity((IronGolem) entity);
-            if (baseDefender == null) return false;
+        if (entity instanceof IronGolem ironGolem) {
+            ManagedEntity<?> managedEntity = this.getGame().getManagedEntityByEntity(ironGolem);
+            if (!(managedEntity instanceof BaseDefender baseDefender)) return false;
             if (baseDefender.toBeRemoved()) return false;
             return this.teamId < 0 || baseDefender.getTeamId() != this.teamId;
         }

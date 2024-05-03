@@ -1679,7 +1679,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    ((Game) this.plugin.getGame()).addBaseDefender(new BaseDefender((Game) this.plugin.getGame(), location, team.getId()));
+                    new BaseDefender((Game) this.plugin.getGame(), location, team.getId());
                     break;
                 }
                 case "SNOWDEFENDER": {
@@ -1691,7 +1691,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    ((Game) this.plugin.getGame()).addSnowDefender(new SnowDefender((Game) this.plugin.getGame(), location, team.getId()));
+                    new SnowDefender((Game) this.plugin.getGame(), location, team.getId());
                     break;
                 }
                 case "ENDGAMEWITHER": {
@@ -1703,7 +1703,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    ((Game) this.plugin.getGame()).addEndgameWither(new EndgameWither((Game) this.plugin.getGame(), location, team.getId()));
+                    new EndgameWither((Game) this.plugin.getGame(), location, team.getId());
                     break;
                 }
                 case "BRIDGEEGG":

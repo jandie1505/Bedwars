@@ -188,7 +188,7 @@ public class EventListener implements GameListener {
                             Location location = event.getBlockPlaced().getLocation().clone();
                             location.add(0.5, 0, 0.5);
 
-                            ((Game) this.plugin.getGame()).addBaseDefender(new BaseDefender((Game) this.plugin.getGame(), location, team.getId()));
+                            new BaseDefender((Game) this.plugin.getGame(), location, team.getId());
 
                             playerData.setIronGolemCooldown(15*20);
                         }
@@ -238,7 +238,7 @@ public class EventListener implements GameListener {
                             Location location = event.getBlockPlaced().getLocation().clone();
                             location.add(0.5, 0, 0.5);
 
-                            ((Game) this.plugin.getGame()).addSnowDefender(new SnowDefender((Game) this.plugin.getGame(), location, team.getId()));
+                            new SnowDefender((Game) this.plugin.getGame(), location, team.getId());
 
                             playerData.setIronGolemCooldown(15*20);
                         }

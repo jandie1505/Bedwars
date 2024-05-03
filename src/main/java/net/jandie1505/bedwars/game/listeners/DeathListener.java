@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.GameListener;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.EndgameWither;
+import net.jandie1505.bedwars.game.entities.ManagedEntity;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
@@ -277,36 +278,28 @@ public class DeathListener implements GameListener {
     }
 
     private String getIronGolemDeathMessage(IronGolem ironGolem, String deathMessage) {
-        BaseDefender baseDefender = this.game.getBaseDefenderByEntity(ironGolem);
+        ManagedEntity<?> managedEntity = this.game.getManagedEntityByEntity(ironGolem);
+        if (!(managedEntity instanceof BaseDefender baseDefender)) return "died";
 
-        if (baseDefender != null) {
-            BedwarsTeam baseDefenderTeam = this.game.getTeam(baseDefender.getTeamId());
+        BedwarsTeam baseDefenderTeam = this.game.getTeam(baseDefender.getTeamId());
 
-            if (baseDefenderTeam != null) {
-                return "has experienced the BaseDefender of " + baseDefenderTeam.getChatColor() + "Team " + baseDefenderTeam.getName();
-            } else {
-                return  "was killed by a BaseDefender";
-            }
-
+        if (baseDefenderTeam != null) {
+            return "has experienced the BaseDefender of " + baseDefenderTeam.getChatColor() + "Team " + baseDefenderTeam.getName();
         } else {
-            return "died";
+            return  "was killed by a BaseDefender";
         }
     }
 
     private String getEndgameWitherDeathMessage(Wither wither, String deathMessage) {
-        EndgameWither endgameWither = this.game.getEndgameWitherByEntity(wither);
+        ManagedEntity<?> managedEntity = this.game.getManagedEntityByEntity(wither);
+        if (!(managedEntity instanceof EndgameWither endgameWither)) return "died";
 
-        if (endgameWither != null) {
-            BedwarsTeam baseDefenderTeam = this.game.getTeam(endgameWither.getTeamId());
+        BedwarsTeam baseDefenderTeam = this.game.getTeam(endgameWither.getTeamId());
 
-            if (baseDefenderTeam != null) {
-                return "has experienced the Endgame Wither of " + baseDefenderTeam.getChatColor() + "Team " + baseDefenderTeam.getName();
-            } else {
-                return  "was killed by a Endgame Wither";
-            }
-
+        if (baseDefenderTeam != null) {
+            return "has experienced the Endgame Wither of " + baseDefenderTeam.getChatColor() + "Team " + baseDefenderTeam.getName();
         } else {
-            return "died";
+            return  "was killed by a Endgame Wither";
         }
     }
 

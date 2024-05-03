@@ -13,6 +13,8 @@ public abstract class ManagedEntity<T extends Entity> implements GameListener {
         this.entity = entity;
 
         this.game.getPlugin().registerListener(this);
+
+        this.game.addManagedEntity(this);
     }
 
     // GETTER
