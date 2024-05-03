@@ -6,10 +6,7 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GameListener;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.endlobby.Endlobby;
-import net.jandie1505.bedwars.game.entities.BaseDefender;
-import net.jandie1505.bedwars.game.entities.BridgeEgg;
-import net.jandie1505.bedwars.game.entities.EndgameWither;
-import net.jandie1505.bedwars.game.entities.SnowDefender;
+import net.jandie1505.bedwars.game.entities.*;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
@@ -38,6 +35,7 @@ import org.bukkit.scoreboard.*;
 import org.json.JSONObject;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Game extends GamePart implements GameListener {
     private final World world;
@@ -57,9 +55,7 @@ public class Game extends GamePart implements GameListener {
     private final Location centerLocation;
     private final int mapRadius;
     private final List<BridgeEgg> bridgeEggs;
-    private final List<BaseDefender> baseDefenders;
-    private final List<EndgameWither> endgameWithers;
-    private final List<SnowDefender> snowDefenders;
+    private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
@@ -87,9 +83,7 @@ public class Game extends GamePart implements GameListener {
         this.centerLocation = this.buildLocationWithWorld(centerLocation);
         this.mapRadius = mapRadius;
         this.bridgeEggs = Collections.synchronizedList(new ArrayList<>());
-        this.baseDefenders = Collections.synchronizedList(new ArrayList<>());
-        this.endgameWithers = Collections.synchronizedList(new ArrayList<>());
-        this.snowDefenders = Collections.synchronizedList(new ArrayList<>());
+        this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
@@ -192,6 +186,7 @@ public class Game extends GamePart implements GameListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::timeActions, 1, 20, "time_actions");
         this.getTaskScheduler().scheduleRepeatingTask(this::villagers, 1, 1, "villagers");
         this.getTaskScheduler().scheduleRepeatingTask(this::bridgeEggs, 1, 1, "bridge_eggs");
+        this.getTaskScheduler().scheduleRepeatingTask(this::cleanupManagedEntitiesTask, 1, 10*20, "cleanup_managed_entities");
         this.getTaskScheduler().scheduleRepeatingTask(this::traps, 1, 1, "traps");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndConditions, 1, 1, "game_end_conditions");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndCheck, 1, 1, "game_end_check");
@@ -857,6 +852,17 @@ public class Game extends GamePart implements GameListener {
 
         }
 
+    }
+
+    private void cleanupManagedEntitiesTask() {
+        for (ManagedEntity<?> managedEntity : this.getManagedEntities()) {
+
+            if (managedEntity == null || managedEntity.toBeRemoved()) {
+                this.managedEntities.remove(managedEntity);
+                continue;
+            }
+
+        }
     }
 
     private void inventoryTick(Player player, PlayerData playerData, BedwarsTeam team) {
@@ -1759,23 +1765,30 @@ public class Game extends GamePart implements GameListener {
         this.bridgeEggs.remove(bridgeEgg);
     }
 
-    public List<BaseDefender> getBaseDefenders() {
-        return List.copyOf(this.baseDefenders);
+    // MANAGED ENTITIES
+
+    /**
+     * Returns a list of managed entities.
+     * @return list of managed entities
+     */
+    public List<ManagedEntity<?>> getManagedEntities() {
+        return List.copyOf(this.managedEntities).stream()
+                .filter(managedEntity -> !managedEntity.toBeRemoved())
+                .toList();
     }
 
-    public List<EndgameWither> getEndgameWithers() {
-        return List.copyOf(this.endgameWithers);
-    }
+    /**
+     * Returns the managed entity of the specified entity.
+     * Returns null if the entity is not a managed entity.
+     * @param entity entity
+     * @return {@link ManagedEntity} or null
+     */
+    public ManagedEntity<?> getManagedEntityByEntity(Entity entity) {
+        for (ManagedEntity<?> managedEntity : this.getManagedEntities()) {
+            if (managedEntity.toBeRemoved()) continue;
 
-    public List<SnowDefender> getSnowDefenders() {
-        return List.copyOf(this.snowDefenders);
-    }
-
-    public BaseDefender getBaseDefenderByEntity(IronGolem ironGolem) {
-        for (BaseDefender b : this.getBaseDefenders()) {
-
-            if (b.getEntity() == ironGolem) {
-                return b;
+            if (managedEntity.getEntity() == entity) {
+                return managedEntity;
             }
 
         }
@@ -1783,53 +1796,23 @@ public class Game extends GamePart implements GameListener {
         return null;
     }
 
-    public EndgameWither getEndgameWitherByEntity(Wither wither) {
-        for (EndgameWither endgameWither : this.getEndgameWithers()) {
-
-            if (endgameWither.getEntity() == wither) {
-                return endgameWither;
-            }
-
-        }
-
-        return null;
+    /**
+     * Adds a new managed entity.
+     * @param managedEntity {@link ManagedEntity}
+     */
+    public void addManagedEntity(ManagedEntity<?> managedEntity) {
+        this.managedEntities.add(managedEntity);
     }
 
-    public SnowDefender getSnowDefenderByEntity(Golem golem) {
-        for (SnowDefender snowDefender : this.getSnowDefenders()) {
-
-            if (snowDefender.getEntity() == golem) {
-                return snowDefender;
-            }
-
-        }
-
-        return null;
+    /**
+     * Removes a managed entity.
+     * @param managedEntity {@link ManagedEntity}
+     */
+    public void removeManagedEntity(BaseDefender managedEntity) {
+        this.managedEntities.remove(managedEntity);
     }
 
-    public void addBaseDefender(BaseDefender baseDefender) {
-        this.baseDefenders.add(baseDefender);
-    }
-
-    public void removeBaseDefender(BaseDefender baseDefender) {
-        this.baseDefenders.remove(baseDefender);
-    }
-
-    public void addEndgameWither(EndgameWither endgameWither) {
-        this.endgameWithers.add(endgameWither);
-    }
-
-    public void removeEndgameWither(EndgameWither endgameWither) {
-        this.endgameWithers.remove(endgameWither);
-    }
-
-    public void addSnowDefender(SnowDefender snowDefender) {
-        this.snowDefenders.add(snowDefender);
-    }
-
-    public void removeSnowDefender(SnowDefender snowDefender) {
-        this.snowDefenders.remove(snowDefender);
-    }
+    //
 
     public boolean isNoWinnerEnd() {
         return this.noWinnerEnd;
