@@ -48,7 +48,7 @@
         <dependency>
             <groupId>net.chaossquad</groupId>
             <artifactId>mclib</artifactId>
-            <version>master-1b5498ee518563d375307401638ffaf6d50980f0</version>
+            <version>master-508cdf68693573d75b8efb5d75d7cabc512079a9</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.json/json -->
         <dependency>
