@@ -1577,6 +1577,7 @@ public class EventListener implements ManagedListener {
             Location location = event.getEntity().getLocation();
 
             new BridgeEgg((Game) this.plugin.getGame(), location, material);
+            event.setCancelled(true);
 
         }
 
