@@ -1021,13 +1021,13 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§7Players: " + ((Game) this.plugin.getGame()).getPlayers().size() + " (Use players command)");
         sender.sendMessage("§7Generators: " + ((Game) this.plugin.getGame()).getGenerators().size());
         sender.sendMessage("§7Time Actions: " + ((Game) this.plugin.getGame()).getTimeActions().size());
-        sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getRespawnCountdown());
+        sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getGameConfig().respawnCountdown());
         sender.sendMessage("§7Player Placed Blocks: " + ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().size());
-        sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getMaxTime());
-        sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection());
-        sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection());
-        sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getCenterLocation().getX() + " " + ((Game) this.plugin.getGame()).getCenterLocation().getY() + " " + ((Game) this.plugin.getGame()).getCenterLocation().getZ());
-        sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getMapRadius());
+        sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getGameConfig().maxTime());
+        sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection());
+        sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection());
+        sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getX() + " " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getY() + " " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getZ());
+        sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getGameConfig().mapRadius());
         sender.sendMessage("§7Time: " + ((Game) this.plugin.getGame()).getTime());
         sender.sendMessage("§7Emerald Generator Level: " + ((Game) this.plugin.getGame()).getPublicEmeraldGeneratorLevel());
         sender.sendMessage("§7Diamond Generator Level: " + ((Game) this.plugin.getGame()).getPublicDiamondGeneratorLevel());
@@ -1115,7 +1115,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
                 break;
             case "respawncooldown":
-                sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getRespawnCountdown());
+                sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getGameConfig().respawnCountdown());
                 break;
             case "playerblocks":
                 sender.sendMessage("§7Player Placed Blocks:");
@@ -1135,19 +1135,19 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
                 break;
             case "maxtime":
-                sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getMaxTime());
+                sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getGameConfig().maxTime());
                 break;
             case "spawnprotection":
-                sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection());
+                sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection());
                 break;
             case "villagerprotection":
-                sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection());
+                sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection());
                 break;
             case "center":
-                sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getCenterLocation().getX() + " " + ((Game) this.plugin.getGame()).getCenterLocation().getY() + " " + ((Game) this.plugin.getGame()).getCenterLocation().getZ());
+                sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getX() + " " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getY() + " " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getZ());
                 break;
             case "radius":
-                sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getMapRadius());
+                sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getGameConfig().mapRadius());
                 break;
             case "time":
                 sender.sendMessage("§7Time: " + ((Game) this.plugin.getGame()).getTime());

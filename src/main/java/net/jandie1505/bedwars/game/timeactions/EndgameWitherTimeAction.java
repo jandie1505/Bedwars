@@ -40,7 +40,7 @@ public class EndgameWitherTimeAction extends TimeAction {
             for (int i = 0; i < amount; i++) {
                 new EndgameWither(
                         this.getGame(),
-                        this.getGame().getCenterLocation(),
+                        this.getGame().getGameConfig().centerLocation(),
                         team.getId()
                 );
             }

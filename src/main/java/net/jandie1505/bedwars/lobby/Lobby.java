@@ -10,6 +10,7 @@ import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.game.GameConfig;
 import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
@@ -1040,6 +1041,14 @@ public class Lobby extends GamePart {
         Game game = new Game(
                 this.getPlugin(),
                 world,
+                new GameConfig(
+                        selectedMap.getRespawnCooldown(),
+                        selectedMap.getMaxTime(),
+                        selectedMap.getSpawnBlockPlaceProtection(),
+                        selectedMap.getVillagerBlockPlaceProtection(),
+                        selectedMap.getCenterLocation(),
+                        selectedMap.getMapRadius()
+                ),
                 selectedMap.getTeams(),
                 selectedMap.getGlobalGenerators(),
                 selectedMap.getGeneratorUpgradeTimeActions(),
@@ -1048,13 +1057,7 @@ public class Lobby extends GamePart {
                 selectedMap.getEndgameWitherTimeActions(),
                 new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
                 armorConfig,
-                teamUpgradesConfig,
-                selectedMap.getRespawnCooldown(),
-                selectedMap.getMaxTime(),
-                selectedMap.getSpawnBlockPlaceProtection(),
-                selectedMap.getVillagerBlockPlaceProtection(),
-                selectedMap.getCenterLocation(),
-                selectedMap.getMapRadius()
+                teamUpgradesConfig
         );
 
         for (UUID playerId : this.getPlayers().keySet()) {

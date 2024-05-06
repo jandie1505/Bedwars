@@ -39,21 +39,16 @@ import java.util.*;
 
 public class Game extends GamePart implements ManagedListener {
     private final World world;
+    private final GameConfig gameConfig;
     private final List<BedwarsTeam> teams;
     private final Map<UUID, PlayerData> players;
     private final List<Generator> generators;
     private final List<TimeAction> timeActions;
-    private final int respawnCountdown;
     private final List<Location> playerPlacedBlocks;
     private final Map<UUID, Scoreboard> playerScoreboards;
     private final ItemShop itemShop;
     private final ArmorConfig armorConfig;
     private final TeamUpgradesConfig teamUpgradesConfig;
-    private final int maxTime;
-    private final int spawnBlockPlaceProtection;
-    private final int villagerBlockPlaceProtection;
-    private final Location centerLocation;
-    private final int mapRadius;
     private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
     private int time;
@@ -63,26 +58,21 @@ public class Game extends GamePart implements ManagedListener {
     private BedwarsTeam winner;
     private boolean noWinnerEnd;
 
-    public Game(Bedwars plugin, World world, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions, List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
+    public Game(Bedwars plugin, World world, GameConfig gameConfig, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions, List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig) {
         super(plugin);
         this.world = world;
+        this.gameConfig = gameConfig;
         this.teams = Collections.synchronizedList(new ArrayList<>());
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.generators = Collections.synchronizedList(new ArrayList<>());
         this.timeActions = Collections.synchronizedList(new ArrayList<>());
-        this.respawnCountdown = respawnCountdown;
         this.playerPlacedBlocks = Collections.synchronizedList(new ArrayList<>());
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
         this.armorConfig = armorConfig;
         this.teamUpgradesConfig = teamUpgradesConfig;
-        this.maxTime = maxTime;
-        this.spawnBlockPlaceProtection = spawnBlockPlaceProtection;
-        this.villagerBlockPlaceProtection = villagerBlockPlaceProtection;
-        this.centerLocation = this.buildLocationWithWorld(centerLocation);
-        this.mapRadius = mapRadius;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
-        this.time = this.maxTime;
+        this.time = this.gameConfig.maxTime();
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
         this.prepared = false;
@@ -152,8 +142,8 @@ public class Game extends GamePart implements ManagedListener {
 
         this.itemShop.initEntries(shopConfig);
 
-        this.world.getWorldBorder().setCenter(centerLocation);
-        this.world.getWorldBorder().setSize(mapRadius * 2);
+        this.world.getWorldBorder().setCenter(this.gameConfig.centerLocation());
+        this.world.getWorldBorder().setSize(this.gameConfig.mapRadius() * 2);
 
         this.world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         this.world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
@@ -294,12 +284,12 @@ public class Game extends GamePart implements ManagedListener {
     private void teleportSpectatorsTask() {
 
         for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
-            if (player.getWorld() == this.centerLocation.getWorld()) continue;
+            if (player.getWorld() == this.gameConfig.centerLocation().getWorld()) continue;
 
             PlayerData playerData = this.getPlayers().get(player.getUniqueId());
             if (playerData != null) continue;
 
-            player.teleport(this.centerLocation);
+            player.teleport(this.gameConfig.centerLocation());
         }
 
     }
@@ -361,8 +351,8 @@ public class Game extends GamePart implements ManagedListener {
 
             if (playerData.isAlive()) {
 
-                if (playerData.getRespawnCountdown() != this.respawnCountdown) {
-                    playerData.setRespawnCountdown(this.respawnCountdown);
+                if (playerData.getRespawnCountdown() != this.gameConfig.respawnCountdown()) {
+                    playerData.setRespawnCountdown(this.gameConfig.respawnCountdown());
                 }
 
                 if (!this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
@@ -1615,6 +1605,10 @@ public class Game extends GamePart implements ManagedListener {
         return this.world;
     }
 
+    public GameConfig getGameConfig() {
+        return this.gameConfig;
+    }
+
     public List<BedwarsTeam> getTeams() {
         return List.copyOf(this.teams);
     }
@@ -1635,10 +1629,6 @@ public class Game extends GamePart implements ManagedListener {
 
     public int getTime() {
         return this.time;
-    }
-
-    public int getMaxTime() {
-        return this.maxTime;
     }
 
     public int getPublicEmeraldGeneratorLevel() {
@@ -1702,32 +1692,12 @@ public class Game extends GamePart implements ManagedListener {
         return this.teamUpgradesConfig;
     }
 
-    public int getSpawnBlockPlaceProtection() {
-        return this.spawnBlockPlaceProtection;
-    }
-
-    public int getVillagerBlockPlaceProtection() {
-        return this.villagerBlockPlaceProtection;
-    }
-
-    public int getRespawnCountdown() {
-        return this.respawnCountdown;
-    }
-
     public ArmorConfig getArmorConfig() {
         return this.armorConfig;
     }
 
     public void setTime(int time) {
         this.time = time;
-    }
-
-    public Location getCenterLocation() {
-        return this.centerLocation;
-    }
-
-    public int getMapRadius() {
-        return this.mapRadius;
     }
 
     // MANAGED ENTITIES

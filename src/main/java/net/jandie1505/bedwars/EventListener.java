@@ -87,15 +87,15 @@ public class EventListener implements ManagedListener {
 
             // BLOCK PLACE PROTECTION
 
-            if (((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection() > 0 || ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection() > 0) {
+            if (((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection() > 0 || ((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection() > 0) {
 
                 for (BedwarsTeam team : ((Game) this.plugin.getGame()).getTeams()) {
 
-                    if (((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection() > 0) {
+                    if (((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection() > 0) {
 
                         for (Location location : team.getSpawnpoints()) {
 
-                            if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getSpawnBlockPlaceProtection()) {
+                            if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection()) {
                                 event.setCancelled(true);
                                 event.getPlayer().sendMessage("§cYou cannot place blocks here");
                                 return;
@@ -105,7 +105,7 @@ public class EventListener implements ManagedListener {
 
                     }
 
-                    if (((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection() > 0) {
+                    if (((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection() > 0) {
 
                         List<Location> villagerLocations = new ArrayList<>();
                         villagerLocations.addAll(team.getShopVillagerLocations());
@@ -113,7 +113,7 @@ public class EventListener implements ManagedListener {
 
                         for (Location location : villagerLocations) {
 
-                            if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getVillagerBlockPlaceProtection()) {
+                            if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection()) {
                                 event.setCancelled(true);
                                 event.getPlayer().sendMessage("§cYou cannot place blocks here");
                                 return;
