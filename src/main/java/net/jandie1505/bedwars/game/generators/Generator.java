@@ -1,29 +1,24 @@
 package net.jandie1505.bedwars.game.generators;
 
+import net.chaossquad.mclib.WorldUtils;
 import net.jandie1505.bedwars.game.Game;
-import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Generator {
     private final Game game;
-    private final ItemStack item;
-    private final Location location;
+    private final GeneratorData data;
     private final int maxNearbyItems;
-    private final List<Double> upgradeSteps;
     private int generatorTimer;
 
-    public Generator(Game game, ItemStack item, Location location, int maxNearbyItems, List<Double> upgradeSteps) {
+    public Generator(Game game, GeneratorData data) {
         this.game = game;
-        this.item = item;
-        this.location = location;
-        this.maxNearbyItems = maxNearbyItems;
-        this.upgradeSteps = new ArrayList<>(upgradeSteps);
+        this.data = data;
+        this.maxNearbyItems = 5;
         this.generatorTimer = 0;
     }
 
@@ -34,19 +29,23 @@ public abstract class Generator {
     public double getSpeed() {
         int level = this.getLevel();
 
-        if (this.upgradeSteps.size() == 0) {
+        if (this.data.upgradeSteps().isEmpty()) {
             return 0;
         }
 
-        if (level >= this.upgradeSteps.size()) {
-            level = (this.upgradeSteps.size() - 1);
+        if (level >= this.data.upgradeSteps().size()) {
+            level = (this.data.upgradeSteps().size() - 1);
         }
 
-        return this.upgradeSteps.get(level);
+        return this.data.upgradeSteps().get(level);
     }
 
     public Game getGame() {
         return this.game;
+    }
+
+    public GeneratorData getData() {
+        return data;
     }
 
     public void tick() {
@@ -83,7 +82,7 @@ public abstract class Generator {
 
         boolean dropItem = true;
 
-        for (Entity entity : List.copyOf(this.game.getWorld().getNearbyEntities(this.location, 1, 1, 1))) {
+        for (Entity entity : List.copyOf(this.game.getWorld().getNearbyEntities(WorldUtils.locationWithWorld(this.data.location(), this.game.getWorld()), 1, 1, 1))) {
 
             if (!(entity instanceof Player)) {
                 continue;
@@ -93,16 +92,16 @@ public abstract class Generator {
 
             Player player = (Player) entity;
 
-            item.setAmount(amount);
-            player.getInventory().addItem(this.item);
+            this.data.item().setAmount(amount);
+            player.getInventory().addItem(this.data.item());
 
         }
 
         if (dropItem) {
 
             int nearbyItemAmount = 0;
-            for (Entity entity : List.copyOf(this.game.getWorld().getNearbyEntities(this.location, 5, 5, 5))) {
-                if (entity instanceof Item && ((Item) entity).getItemStack().getType() == this.item.getType()) {
+            for (Entity entity : List.copyOf(this.game.getWorld().getNearbyEntities(WorldUtils.locationWithWorld(this.data.location(), this.game.getWorld()), 5, 5, 5))) {
+                if (entity instanceof Item && ((Item) entity).getItemStack().getType() == this.data.item().getType()) {
                     nearbyItemAmount++;
                 }
             }
@@ -111,22 +110,14 @@ public abstract class Generator {
                 return;
             }
 
-            ItemStack item = this.item;
+            ItemStack item = this.data.item();
 
             item.setAmount(amount);
 
-            this.game.getWorld().dropItem(this.location, item);
+            this.game.getWorld().dropItem(WorldUtils.locationWithWorld(this.data.location(), this.game.getWorld()), item);
 
         }
 
-    }
-
-    public ItemStack getItem() {
-        return item;
-    }
-
-    public Location getLocation() {
-        return location;
     }
 
     public int getGeneratorTimer() {

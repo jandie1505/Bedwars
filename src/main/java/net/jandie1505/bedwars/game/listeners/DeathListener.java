@@ -49,7 +49,7 @@ public class DeathListener implements ManagedListener {
             boolean canItemDrop = false;
             for (Generator generator : this.game.getGenerators()) {
 
-                if (generator.getItem().isSimilar(item)) {
+                if (generator.getData().item().isSimilar(item)) {
                     canItemDrop = true;
                     break;
                 }
@@ -123,7 +123,7 @@ public class DeathListener implements ManagedListener {
             return "";
         }
 
-        String deathMessage = team.getChatColor() + event.getEntity().getDisplayName() + "§7 ";
+        String deathMessage = team.getData().chatColor() + event.getEntity().getDisplayName() + "§7 ";
 
         if (event.getEntity().getLastDamageCause() == null) {
             return deathMessage + "died";
@@ -216,7 +216,7 @@ public class DeathListener implements ManagedListener {
                 return deathMessage;
             }
 
-            deathMessage = deathMessage + " " + killerTeam.getChatColor() + event.getEntity().getKiller().getDisplayName();
+            deathMessage = deathMessage + " " + killerTeam.getData().chatColor() + event.getEntity().getKiller().getDisplayName();
 
             return deathMessage;
         } else {
@@ -284,7 +284,7 @@ public class DeathListener implements ManagedListener {
         BedwarsTeam baseDefenderTeam = this.game.getTeam(baseDefender.getTeamId());
 
         if (baseDefenderTeam != null) {
-            return "has experienced the BaseDefender of " + baseDefenderTeam.getChatColor() + "Team " + baseDefenderTeam.getName();
+            return "has experienced the BaseDefender of " + baseDefenderTeam.getData().chatColor() + "Team " + baseDefenderTeam.getData().chatColor();
         } else {
             return  "was killed by a BaseDefender";
         }
@@ -297,7 +297,7 @@ public class DeathListener implements ManagedListener {
         BedwarsTeam baseDefenderTeam = this.game.getTeam(endgameWither.getTeamId());
 
         if (baseDefenderTeam != null) {
-            return "has experienced the Endgame Wither of " + baseDefenderTeam.getChatColor() + "Team " + baseDefenderTeam.getName();
+            return "has experienced the Endgame Wither of " + baseDefenderTeam.getData().chatColor() + "Team " + baseDefenderTeam.getData().name();
         } else {
             return  "was killed by a Endgame Wither";
         }

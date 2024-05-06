@@ -38,7 +38,7 @@ public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
         BedwarsTeam team = this.getGame().getTeam(teamId);
 
         if (team != null) {
-            this.getEntity().setCustomName(team.getChatColor() + "§lBASE DEFENDER §7--> " + this.getTargetName() + " §7§l(" + this.getTime() + ")");
+            this.getEntity().setCustomName(team.getData().chatColor() + "§lBASE DEFENDER §7--> " + this.getTargetName() + " §7§l(" + this.getTime() + ")");
         } else {
             this.getEntity().setCustomName("§lBASE DEFENDER §7--> " + this.getTargetName() + " §7§l(" + this.getTime() + ")");
         }
@@ -46,7 +46,6 @@ public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
 
     private void targetSelectionTask() {
         if (this.getEntity().getTarget() != null && this.getEntity().getTarget() instanceof Player player && this.isValidTarget(player)) return;
-        System.out.println("switching target from " + this.getEntity().getTarget());
 
         this.getEntity().setTarget(null);
 
@@ -100,7 +99,7 @@ public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
         BedwarsTeam team = this.getGame().getTeam(playerData.getTeam());
         if (team == null) return "§7" + player.getDisplayName();
 
-        return team.getChatColor() + player.getDisplayName();
+        return team.getData().chatColor() + player.getDisplayName();
     }
 
     /**

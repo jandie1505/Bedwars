@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
+import net.chaossquad.mclib.WorldUtils;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.ManagedListener;
 import net.jandie1505.bedwars.GamePart;
@@ -9,6 +10,7 @@ import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.generators.Generator;
+import net.jandie1505.bedwars.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.listeners.DeathListener;
@@ -16,6 +18,7 @@ import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.game.menu.shop.ItemShop;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.team.TeamData;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.team.traps.BedwarsTrap;
 import net.jandie1505.bedwars.game.timeactions.*;
@@ -58,7 +61,7 @@ public class Game extends GamePart implements ManagedListener {
     private BedwarsTeam winner;
     private boolean noWinnerEnd;
 
-    public Game(Bedwars plugin, World world, GameConfig gameConfig, List<LobbyTeamData> teams, List<LobbyGeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions, List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig) {
+    public Game(Bedwars plugin, World world, GameConfig gameConfig, List<TeamData> teams, List<GeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions, List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig) {
         super(plugin);
         this.world = world;
         this.gameConfig = gameConfig;
@@ -79,28 +82,24 @@ public class Game extends GamePart implements ManagedListener {
         this.winner = null;
         this.noWinnerEnd = false;
 
-        for (LobbyTeamData teamData : List.copyOf(teams)) {
+        for (TeamData teamData : List.copyOf(teams)) {
             BedwarsTeam team = new BedwarsTeam(this, teamData);
 
             this.teams.add(team);
 
-            for (LobbyGeneratorData generatorData : teamData.getGenerators()) {
+            for (GeneratorData generatorData : teamData.generators()) {
                 this.generators.add(new TeamGenerator(
                         this,
-                        generatorData.getItem(),
-                        this.buildLocationWithWorld(generatorData.getLocation()),
-                        team,
-                        generatorData.getUpgradeSteps()
+                        generatorData,
+                        team
                 ));
             }
         }
 
-        for (LobbyGeneratorData generatorData : generators) {
+        for (GeneratorData generatorData : generators) {
             this.generators.add(new PublicGenerator(
                     this,
-                    generatorData.getItem(),
-                    this.buildLocationWithWorld(generatorData.getLocation()),
-                    generatorData.getUpgradeSteps()
+                    generatorData
             ));
         }
 
@@ -130,12 +129,12 @@ public class Game extends GamePart implements ManagedListener {
 
         for (BedwarsTeam team : this.getTeams()) {
 
-            for (Location location : team.getShopVillagerLocations()) {
-                this.spawnItemShopVillager(team, this.buildLocationWithWorld(location));
+            for (Location location : team.getData().shopVillagerLocations()) {
+                this.spawnItemShopVillager(team, WorldUtils.locationWithWorld(location, this.getWorld()));
             }
 
-            for (Location location : team.getUpgradesVillagerLocations()) {
-                this.spawnUpgradesVillager(team, this.buildLocationWithWorld(location));
+            for (Location location : team.getData().upgradeVillagerLocations()) {
+                this.spawnUpgradesVillager(team, WorldUtils.locationWithWorld(location, this.getWorld()));
             }
 
         }
@@ -418,7 +417,7 @@ public class Game extends GamePart implements ManagedListener {
 
             int healPoolUpgrade = this.getUpgradeLevel(team.getHealPoolUpgrade(), this.teamUpgradesConfig.getHealPoolUpgrade().getUpgradeLevels());
 
-            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(team.getBaseCenter(), player.getLocation()) <= team.getBaseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
+            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(WorldUtils.locationWithWorld(team.getData().baseCenter(), this.getWorld()), player.getLocation()) <= team.getData().baseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15 * 20, healPoolUpgrade - 1));
             }
 
@@ -700,12 +699,12 @@ public class Game extends GamePart implements ManagedListener {
 
             }
 
-            if (!shopVillagerExists && !team.getShopVillagerLocations().isEmpty()) {
-                this.spawnItemShopVillager(team, team.getShopVillagerLocations().get(0));
+            if (!shopVillagerExists && !team.getData().shopVillagerLocations().isEmpty()) {
+                this.spawnItemShopVillager(team, WorldUtils.locationWithWorld(team.getData().shopVillagerLocations().get(0), this.getWorld()));
             }
 
-            if (!upgradesVillagerExists && !team.getUpgradesVillagerLocations().isEmpty()) {
-                this.spawnUpgradesVillager(team, team.getUpgradesVillagerLocations().get(0));
+            if (!upgradesVillagerExists && !team.getData().upgradeVillagerLocations().isEmpty()) {
+                this.spawnUpgradesVillager(team, WorldUtils.locationWithWorld(team.getData().upgradeVillagerLocations().get(0), this.getWorld()));
             }
 
         }
@@ -720,7 +719,7 @@ public class Game extends GamePart implements ManagedListener {
 
             if (team.hasPrimaryTraps()) {
 
-                List<Entity> entitiesInRadius = List.copyOf(this.world.getNearbyEntities(team.getBaseCenter(), team.getBaseRadius(), team.getBaseRadius(), team.getBaseRadius()));
+                List<Entity> entitiesInRadius = List.copyOf(this.world.getNearbyEntities(team.getData().baseCenter(), team.getData().baseRadius(), team.getData().baseRadius(), team.getData().baseRadius()));
 
                 for (Entity entity : entitiesInRadius) {
 
@@ -790,7 +789,7 @@ public class Game extends GamePart implements ManagedListener {
             if (aliveTeams.size() == 1) {
 
                 for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b§lGAME END CONDITION TRIGGERED: §r" + aliveTeams.get(0).getChatColor() + "Team " + aliveTeams.get(0).getName() + " §bhas won"));
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b§lGAME END CONDITION TRIGGERED: §r" + aliveTeams.get(0).getData().chatColor() + "Team " + aliveTeams.get(0).getData().name() + " §bhas won"));
                 }
 
                 return;
@@ -1118,7 +1117,7 @@ public class Game extends GamePart implements ManagedListener {
                     if (item != null) {
 
                         if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getColor());
+                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
                         }
 
                         player.getInventory().setBoots(item);
@@ -1147,7 +1146,7 @@ public class Game extends GamePart implements ManagedListener {
                         }
 
                         if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getColor());
+                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
                         }
 
                         player.getInventory().setLeggings(item);
@@ -1176,7 +1175,7 @@ public class Game extends GamePart implements ManagedListener {
                         }
 
                         if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getColor());
+                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
                         }
 
                         player.getInventory().setChestplate(item);
@@ -1205,7 +1204,7 @@ public class Game extends GamePart implements ManagedListener {
                         }
 
                         if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getColor());
+                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
                         }
 
                         player.getInventory().setHelmet(item);
@@ -1274,8 +1273,8 @@ public class Game extends GamePart implements ManagedListener {
             if (team == null) {
 
                 team = scoreboard.registerNewTeam(String.valueOf(bedwarsTeam.getId()));
-                team.setDisplayName(bedwarsTeam.getName());
-                team.setColor(bedwarsTeam.getChatColor());
+                team.setDisplayName(bedwarsTeam.getData().name());
+                team.setColor(bedwarsTeam.getData().chatColor());
                 team.setAllowFriendlyFire(false);
                 team.setCanSeeFriendlyInvisibles(true);
                 team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
@@ -1399,7 +1398,7 @@ public class Game extends GamePart implements ManagedListener {
                 teamStatusIndicator = teamStatusIndicator + " §7(you)";
             }
 
-            sidebarDisplayStrings.add(iTeam.getChatColor() + iTeam.getName() + "§r: " + teamStatusIndicator);
+            sidebarDisplayStrings.add(iTeam.getData().chatColor() + iTeam.getData().name() + "§r: " + teamStatusIndicator);
 
         }
 
@@ -1438,7 +1437,7 @@ public class Game extends GamePart implements ManagedListener {
                 continue;
             }
 
-            player.sendMessage("§7You are in " + team.getChatColor() + "Team " + team.getChatColor().name() + "§7.");
+            player.sendMessage("§7You are in " + team.getData().chatColor() + "Team " + team.getData().chatColor().name() + "§7.");
 
             player.setHealth(20);
             player.setFoodLevel(20);
@@ -1539,7 +1538,7 @@ public class Game extends GamePart implements ManagedListener {
         PlayerData playerData = this.players.get(player.getUniqueId());
 
         playerData.setAlive(true);
-        player.teleport(this.teams.get(playerData.getTeam()).getRandomSpawnpoint());
+        player.teleport(WorldUtils.locationWithWorld(this.teams.get(playerData.getTeam()).getRandomSpawnpoint(), this.getWorld()));
         player.setGameMode(GameMode.SURVIVAL);
         player.resetTitle();
 
@@ -1786,7 +1785,7 @@ public class Game extends GamePart implements ManagedListener {
             typeSuffix = "STAINED_GLASS";
         }
 
-        String blockColor = Bedwars.getBlockColorString(team.getChatColor());
+        String blockColor = Bedwars.getBlockColorString(team.getData().chatColor());
 
         if (blockColor == null) {
             return;

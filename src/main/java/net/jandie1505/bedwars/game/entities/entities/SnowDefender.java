@@ -43,7 +43,7 @@ public class SnowDefender extends ExpiringManagedEntity<Snowman> {
 
     private void nameTask() {
         BedwarsTeam team = this.getGame().getTeam(this.teamId);
-        this.getEntity().setCustomName((team != null ? team.getChatColor() : "") + "SNOW DEFENDER §r§7(" + this.getTime() + ")");
+        this.getEntity().setCustomName((team != null ? team.getData().chatColor().name() : "") + "SNOW DEFENDER §r§7(" + this.getTime() + ")");
     }
 
     private void entityTargetUpdateTask() {

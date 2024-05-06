@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars;
 
+import net.chaossquad.mclib.WorldUtils;
 import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.entities.BaseDefender;
@@ -93,9 +94,9 @@ public class EventListener implements ManagedListener {
 
                     if (((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection() > 0) {
 
-                        for (Location location : team.getSpawnpoints()) {
+                        for (Location location : team.getData().spawnpoints()) {
 
-                            if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection()) {
+                            if (Bedwars.getBlockDistance(WorldUtils.locationWithWorld(location, ((Game) this.plugin.getGame()).getWorld()), event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection()) {
                                 event.setCancelled(true);
                                 event.getPlayer().sendMessage("§cYou cannot place blocks here");
                                 return;
@@ -108,8 +109,8 @@ public class EventListener implements ManagedListener {
                     if (((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection() > 0) {
 
                         List<Location> villagerLocations = new ArrayList<>();
-                        villagerLocations.addAll(team.getShopVillagerLocations());
-                        villagerLocations.addAll(team.getUpgradesVillagerLocations());
+                        villagerLocations.addAll(team.getData().shopVillagerLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, ((Game) this.getGame()).getWorld())).toList());
+                        villagerLocations.addAll(team.getData().upgradeVillagerLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, ((Game) this.getGame()).getWorld())).toList());
 
                         for (Location location : villagerLocations) {
 
@@ -395,7 +396,7 @@ public class EventListener implements ManagedListener {
                         otherHalf = event.getBlock().getRelative(((Bed) event.getBlock().getBlockData()).getFacing());
                     }
 
-                    for (Location location : ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam()).getBedLocations()) {
+                    for (Location location : ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam()).getData().bedLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, ((Game) this.plugin.getGame()).getWorld())).toList()) {
 
                         if (location.equals(event.getBlock().getLocation()) || location.equals(otherHalf.getLocation())) {
 
@@ -408,7 +409,7 @@ public class EventListener implements ManagedListener {
 
                     for (BedwarsTeam team : ((Game) this.plugin.getGame()).getTeams()) {
 
-                        for (Location location : team.getBedLocations()) {
+                        for (Location location : team.getData().bedLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, ((Game) this.plugin.getGame()).getWorld())).toList()) {
 
                             if (location.equals(event.getBlock().getLocation()) || location.equals(otherHalf.getLocation())) {
 
@@ -422,11 +423,11 @@ public class EventListener implements ManagedListener {
                                     BedwarsTeam destroyerTeam = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
 
                                     if (pData != null && pData.getTeam() == team.getId()) {
-                                        player.sendMessage("§7Your Bed was destroyed by " + destroyerTeam.getChatColor() + event.getPlayer().getName() + "§7!");
+                                        player.sendMessage("§7Your Bed was destroyed by " + destroyerTeam.getData().chatColor() + event.getPlayer().getName() + "§7!");
                                         player.sendTitle("§cBED DESTROYED", "§7You will no longer respawn!", 5, 3*20, 5);
                                         player.playSound(player, Sound.ENTITY_WITHER_DEATH, 1, 1);
                                     } else {
-                                        player.sendMessage("§7The Bed of " + team.getChatColor() + "Team " + team.getChatColor().name() + " §7was destroyed by " + destroyerTeam.getChatColor() + event.getPlayer().getName() + "§7!");
+                                        player.sendMessage("§7The Bed of " + team.getData().chatColor() + "Team " + team.getData().chatColor().name() + " §7was destroyed by " + destroyerTeam.getData().chatColor() + event.getPlayer().getName() + "§7!");
                                         player.playSound(player, Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1, 1);
                                     }
 
@@ -717,11 +718,11 @@ public class EventListener implements ManagedListener {
 
         BedwarsTeam team = ((Game) this.plugin.getGame()).getTeams().get(playerData.getTeam());
 
-        if (team == null || team.getChatColor() == null) {
+        if (team == null || team.getData().chatColor() == null) {
             return;
         }
 
-        Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getChatColor()) + "_STAINED_GLASS");
+        Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getData().chatColor()) + "_STAINED_GLASS");
 
         if (material == null) {
             return;
@@ -1568,7 +1569,7 @@ public class EventListener implements ManagedListener {
                 return;
             }
 
-            Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getChatColor()) + "_WOOL");
+            Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getData().chatColor()) + "_WOOL");
 
             if (material == null) {
                 return;
@@ -1743,9 +1744,9 @@ public class EventListener implements ManagedListener {
                         event.setMessage(event.getMessage().substring(5));
                     }
 
-                    event.setFormat("§7[§6GLOBAL§7] " + team.getChatColor() + "%1$s§7: §7%2$s");
+                    event.setFormat("§7[§6GLOBAL§7] " + team.getData().chatColor() + "%1$s§7: §7%2$s");
                 } else {
-                    event.setFormat("§7[" + team.getChatColor() + team.getName() + "§7] " + team.getChatColor() + "%1$s§7: §7%2$s");
+                    event.setFormat("§7[" + team.getData().chatColor() + team.getData().name() + "§7] " + team.getData().chatColor() + "%1$s§7: §7%2$s");
 
                     event.getRecipients().clear();
 
@@ -1818,7 +1819,7 @@ public class EventListener implements ManagedListener {
                 return;
             }
 
-            event.setJoinMessage(team.getChatColor() + event.getPlayer().getDisplayName() + " §7reconnected");
+            event.setJoinMessage(team.getData().chatColor() + event.getPlayer().getDisplayName() + " §7reconnected");
 
         } else {
             event.setJoinMessage("§e" + event.getPlayer().getDisplayName() + " §7joined the game");
@@ -1844,7 +1845,7 @@ public class EventListener implements ManagedListener {
                 return;
             }
 
-            event.setQuitMessage(team.getChatColor() + event.getPlayer().getDisplayName() + " §7disconnected");
+            event.setQuitMessage(team.getData().chatColor() + event.getPlayer().getDisplayName() + " §7disconnected");
 
         } else {
             event.setQuitMessage("§e" + event.getPlayer().getDisplayName() + " §7left the game");

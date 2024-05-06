@@ -1,5 +1,7 @@
 package net.jandie1505.bedwars.lobby;
 
+import net.jandie1505.bedwars.game.generators.GeneratorData;
+import net.jandie1505.bedwars.game.team.TeamData;
 import net.jandie1505.bedwars.lobby.setup.*;
 import org.bukkit.Location;
 
@@ -12,8 +14,8 @@ public class MapData {
     private final int maxTime;
     private final int spawnBlockPlaceProtection;
     private final int villagerBlockPlaceProtection;
-    private final List<LobbyTeamData> teams;
-    private final List<LobbyGeneratorData> globalGenerators;
+    private final List<TeamData> teams;
+    private final List<GeneratorData> globalGenerators;
     private final List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions;
     private final List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions;
     private final List<LobbyWorldborderChangeTimeActionData> worldBorderChangeTimeActions;
@@ -21,7 +23,7 @@ public class MapData {
     private final Location centerLocation;
     private final int mapRadius;
 
-    public MapData(String name, String world, int respawnCooldown, int maxTime, List<LobbyTeamData> teams, List<LobbyGeneratorData> globalGenerators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions, List<LobbyWorldborderChangeTimeActionData> worldBorderChangeTimeActions, List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
+    public MapData(String name, String world, int respawnCooldown, int maxTime, List<TeamData> teams, List<GeneratorData> globalGenerators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions, List<LobbyWorldborderChangeTimeActionData> worldBorderChangeTimeActions, List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, Location centerLocation, int mapRadius) {
         this.name = name;
         this.world = world;
         this.respawnCooldown = respawnCooldown;
@@ -62,11 +64,11 @@ public class MapData {
         return villagerBlockPlaceProtection;
     }
 
-    public List<LobbyTeamData> getTeams() {
+    public List<TeamData> getTeams() {
         return teams;
     }
 
-    public List<LobbyGeneratorData> getGlobalGenerators() {
+    public List<GeneratorData> getGlobalGenerators() {
         return globalGenerators;
     }
 

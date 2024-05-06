@@ -1,11 +1,9 @@
 package net.jandie1505.bedwars.game.team;
 
+import net.chaossquad.mclib.immutables.ImmutableLocation;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.traps.BedwarsTrap;
-import net.jandie1505.bedwars.lobby.setup.LobbyTeamData;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.type.Bed;
@@ -14,15 +12,7 @@ import java.util.*;
 
 public class BedwarsTeam {
     private final Game game;
-    private final String name;
-    private final ChatColor chatColor;
-    private final Color color;
-    private final Location baseCenter;
-    private final int baseRadius;
-    private final List<Location> spawnpoints;
-    private final List<Location> bedLocations;
-    private final List<Location> shopVillagerLocations;
-    private final List<Location> upgradesVillagerLocations;
+    private final TeamData data;
     private final BedwarsTrap[] primaryTraps;
     private final BedwarsTrap[] secondaryTraps;
     private int attackDamageUpgrade;
@@ -33,33 +23,9 @@ public class BedwarsTeam {
     private int endgameBuffUpgrade;
     private boolean disableBed;
 
-    public BedwarsTeam(Game game, LobbyTeamData teamData) {
+    public BedwarsTeam(Game game, TeamData data) {
         this.game = game;
-        this.name = teamData.getName();
-        this.chatColor = teamData.getChatColor();
-        this.color = teamData.getColor();
-        this.baseCenter = this.game.buildLocationWithWorld(teamData.getBaseCenter());
-        this.baseRadius = teamData.getBaseRadius();
-
-        this.spawnpoints = Collections.synchronizedList(new ArrayList<>());
-        for (Location location : List.copyOf(teamData.getSpawnpoints())) {
-            this.spawnpoints.add(this.game.buildLocationWithWorld(location));
-        }
-
-        this.bedLocations = Collections.synchronizedList(new ArrayList<>());
-        for (Location location : List.copyOf(teamData.getBedLocations())) {
-            this.bedLocations.add(this.game.buildLocationWithWorld(location));
-        }
-
-        this.shopVillagerLocations = Collections.synchronizedList(new ArrayList<>());
-        for (Location location : List.copyOf(teamData.getShopVillagerLocations())) {
-            this.shopVillagerLocations.add(this.game.buildLocationWithWorld(location));
-        }
-
-        this.upgradesVillagerLocations = Collections.synchronizedList(new ArrayList<>());
-        for (Location location : List.copyOf(teamData.getUpgradesVillagerLocations())) {
-            this.upgradesVillagerLocations.add(this.game.buildLocationWithWorld(location));
-        }
+        this.data = data;
 
         this.primaryTraps = new BedwarsTrap[2];
         this.secondaryTraps = new BedwarsTrap[2];
@@ -74,49 +40,14 @@ public class BedwarsTeam {
         this.disableBed = false;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public ChatColor getChatColor() {
-        return chatColor;
-    }
-
-    public Color getColor() {
-        return color;
-    }
-
-    public Location getBaseCenter() {
-        return baseCenter;
-    }
-
-    public int getBaseRadius() {
-        return baseRadius;
-    }
-
-    public List<Location> getSpawnpoints() {
-        return List.copyOf(this.spawnpoints);
-    }
-
     public Location getRandomSpawnpoint() {
+        List<ImmutableLocation> spawnpoints = this.data.spawnpoints();
 
-        if (this.spawnpoints.isEmpty()) {
+        if (spawnpoints.isEmpty()) {
             return null;
         }
 
-        return this.spawnpoints.get(new Random().nextInt(this.spawnpoints.size()));
-    }
-
-    public List<Location> getBedLocations() {
-        return List.copyOf(this.bedLocations);
-    }
-
-    public List<Location> getShopVillagerLocations() {
-        return List.copyOf(this.shopVillagerLocations);
-    }
-
-    public List<Location> getUpgradesVillagerLocations() {
-        return List.copyOf(this.upgradesVillagerLocations);
+        return spawnpoints.get(new Random().nextInt(spawnpoints.size()));
     }
 
     public int getId() {
@@ -146,9 +77,9 @@ public class BedwarsTeam {
 
         int beds = 0;
 
-        for (Location bedLocation : this.getBedLocations()) {
+        for (Location bedLocation : this.data.bedLocations()) {
 
-            if (bedLocation.getBlock().getBlockData() instanceof Bed) {
+            if (this.game.getWorld().getBlockAt(bedLocation).getBlockData() instanceof Bed) {
                 beds++;
             }
 
@@ -163,6 +94,10 @@ public class BedwarsTeam {
 
     public Game getGame() {
         return game;
+    }
+
+    public TeamData getData() {
+        return data;
     }
 
     public int getAttackDamageUpgrade() {
@@ -292,7 +227,7 @@ public class BedwarsTeam {
     }
 
     public void destroyBeds() {
-        for (Location location : this.getBedLocations()) {
+        for (Location location : this.data.bedLocations()) {
             this.game.getWorld().getBlockAt(location).setType(Material.AIR);
         }
     }

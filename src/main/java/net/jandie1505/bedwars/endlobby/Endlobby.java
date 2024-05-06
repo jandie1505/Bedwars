@@ -62,7 +62,7 @@ public class Endlobby extends GamePart {
             // winning team message
 
             if (this.game.getWinner() != null) {
-                player.sendMessage("§7Winner: " + this.game.getWinner().getChatColor() + this.game.getWinner().getName());
+                player.sendMessage("§7Winner: " + this.game.getWinner().getData().chatColor() + this.game.getWinner().getData().name());
             } else {
                 player.sendMessage("§7No team has won the game");
             }
@@ -82,7 +82,7 @@ public class Endlobby extends GamePart {
             BedwarsTeam team = this.game.getTeam(playerData.getTeam());
 
             if (team != null) {
-                player.sendMessage("§7 Your team: §9" + team.getChatColor() + team.getName());
+                player.sendMessage("§7 Your team: §9" + team.getData().chatColor() + team.getData().name());
             }
 
             if (this.game.getWinner() != null && this.game.getWinner().getId() == playerData.getTeam()) {
@@ -215,7 +215,7 @@ public class Endlobby extends GamePart {
                 if (this.game.getWinner().getPlayers().contains(player.getUniqueId())) {
                     player.sendTitle("§6§lVICTORY", "§7§lYour team has won the game", 0, 25, 0);
                 } else {
-                    player.sendTitle(this.game.getWinner().getChatColor() + "Team " + this.game.getWinner().getName(), "§7has won", 0, 25, 0);
+                    player.sendTitle(this.game.getWinner().getData().chatColor() + "Team " + this.game.getWinner().getData().name(), "§7has won", 0, 25, 0);
                 }
 
             } else {

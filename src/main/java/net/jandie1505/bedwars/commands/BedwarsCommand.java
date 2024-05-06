@@ -1067,7 +1067,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 int generatorIndex = 0;
                 for (Generator generator : ((Game) this.plugin.getGame()).getGenerators()) {
 
-                    String out = "[" + generatorIndex + "] " + generator.getItem() + " " + generator.getLevel() + " " + generator.getSpeed() + " " + generator.isEnabled() + " " + generator.getGeneratorTimer() + " " + generator.getLocation().getX() + " " + generator.getLocation().getY() + " " + generator.getLocation().getZ();
+                    String out = "[" + generatorIndex + "] " + generator.getData().item() + " " + generator.getLevel() + " " + generator.getSpeed() + " " + generator.isEnabled() + " " + generator.getGeneratorTimer() + " " + generator.getData().location().getX() + " " + generator.getData().location().getY() + " " + generator.getData().location().getZ();
 
                     if (generator instanceof PublicGenerator) {
                         out = out + " PUBLIC";

@@ -11,8 +11,10 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.GameConfig;
+import net.jandie1505.bedwars.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.team.TeamData;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.lobby.setup.*;
@@ -154,7 +156,9 @@ public class Lobby extends GamePart {
                 continue;
             }
 
-            List<LobbyTeamData> teams = new ArrayList<>();
+            // TEAMS
+
+            List<TeamData> teams = new ArrayList<>();
             JSONArray teamsArray = map.optJSONArray("teams");
 
             if (teamsArray == null) {
@@ -164,103 +168,19 @@ public class Lobby extends GamePart {
 
             for (Object object2 : teamsArray) {
 
-                if (!(object2 instanceof JSONObject)) {
+                if (!(object2 instanceof JSONObject json)) {
                     this.getPlugin().getLogger().warning("Map Config: A team of map " + name + " (" + index + ") is not a json object");
                     continue;
                 }
 
-                JSONObject team = (JSONObject) object2;
+                TeamData teamData = TeamData.deserializeFromJSON(json);
 
-                String teamName = team.optString("name");
-
-                if (teamName == null) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing name of a team of " + name + " (" + index + ")");
+                if (teamData == null) {
+                    this.getPlugin().getLogger().warning("Map Config: A team of map " + name + " (" + index + ") has invalid configuration");
                     continue;
                 }
 
-                Color teamColor;
-
-                try {
-                    teamColor = Color.fromRGB(team.optInt("color", -1));
-                } catch (IllegalArgumentException e) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing/Wrong color of team " + teamName + " of map " + name + " (" + index + ")");
-                    continue;
-                }
-
-                String teamChatColorString = team.optString("chatColor");
-
-                if (teamChatColorString == null) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing chatColor of team " + teamName + " of map " + name + " (" + index + ")");
-                    continue;
-                }
-
-                ChatColor teamChatColor = ChatColor.valueOf(teamChatColorString);
-
-                if (teamChatColor == null) {
-                    this.getPlugin().getLogger().warning("Map Config: Wrong chatColor of team " + teamName + " of map " + name + " (" + index + ")");
-                    continue;
-                }
-
-                Location baseCenter = buildLocationFromJSONObject(team.optJSONObject("baseCenter", new JSONObject()), false);
-
-                if (baseCenter == null) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing baseCenter of team " + teamName + " of map " + name + " (" + index + ")");
-                    continue;
-                }
-
-                int baseRadius = team.optInt("baseRadius", -1);
-
-                if (baseRadius < 0) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing baseRadius of team " + teamName + " of map " + name + " (" + index + ")");
-                    continue;
-                }
-
-                JSONArray teamSpawnpointArray = team.optJSONArray("spawnpoints");
-
-                if (teamSpawnpointArray == null) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing spawnpoints of team " + teamName + " of map " + name + " (" + index + ")");
-                    continue;
-                }
-
-                List<Location> teamSpawnpoints = this.buildLocationList(teamSpawnpointArray, true);
-
-                JSONArray bedLocationsArray = team.optJSONArray("bedLocations");
-
-                if (bedLocationsArray == null) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing spawnpoints of team " + teamName + " of map " + name + " (" + index + ")");
-                    continue;
-                }
-
-                List<Location> teamBedLocations = this.buildLocationList(bedLocationsArray, false);
-
-                JSONArray teamGeneratorsArray = team.optJSONArray("generators");
-
-                if (teamGeneratorsArray == null) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing teamGenerators of team " + teamName + " of map " + name + " (" + index + ")");
-                    continue;
-                }
-
-                List<LobbyGeneratorData> teamGenerators = this.buildGeneratorList(teamGeneratorsArray);
-
-                JSONArray shopVillagerLocationArray = team.optJSONArray("shopVillagers");
-
-                if (shopVillagerLocationArray == null) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing shopVillagers of team " + teamName + " of map " + name + " (" + index + ")");
-                    continue;
-                }
-
-                List<Location> shopVillagerLocations = this.buildLocationList(shopVillagerLocationArray, true);
-
-                JSONArray upgradeVillagerLocationArray = team.optJSONArray("upgradeVillagers");
-
-                if (upgradeVillagerLocationArray == null) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing upgradeVillagers of team " + teamName + " of map " + name + " (" + index + ")");
-                    continue;
-                }
-
-                List<Location> upgradeVillagerLocations = this.buildLocationList(upgradeVillagerLocationArray, true);
-
-                teams.add(new LobbyTeamData(teamName, teamChatColor, teamColor, teamSpawnpoints, baseCenter, baseRadius, teamBedLocations, teamGenerators, shopVillagerLocations, upgradeVillagerLocations));
+                teams.add(teamData);
             }
 
             JSONArray globalGeneratorArray = map.optJSONArray("globalGenerators");
@@ -270,7 +190,26 @@ public class Lobby extends GamePart {
                 continue;
             }
 
-            List<LobbyGeneratorData> globalGenerators = this.buildGeneratorList(globalGeneratorArray);
+            // GLOBAL GENERATORS
+
+            List<GeneratorData> globalGenerators = new ArrayList<>();
+
+            for (Object generatorObject : globalGeneratorArray) {
+
+                if (!(generatorObject instanceof JSONObject json)) {
+                    this.getPlugin().getLogger().warning("Map Config: Wrong generator");
+                    continue;
+                }
+
+                GeneratorData generatorData = GeneratorData.deserializeFromJSON(json);
+                if (generatorData == null) {
+                    this.getPlugin().getLogger().warning("Map Config: A generator of map " + name + " (" + index + ") has invalid configuration");
+                    continue;
+                }
+
+                globalGenerators.add(generatorData);
+
+            }
 
             List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions = new ArrayList<>();
             List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions = new ArrayList<>();
@@ -469,85 +408,6 @@ public class Lobby extends GamePart {
         return returnList;
     }
 
-    private List<LobbyGeneratorData> buildGeneratorList(JSONArray generators) {
-
-        List<LobbyGeneratorData> returnList = new ArrayList<>();
-
-        for (Object generatorObject : generators) {
-
-            if (!(generatorObject instanceof JSONObject)) {
-                this.getPlugin().getLogger().warning("Map Config: Wrong generator");
-                continue;
-            }
-
-            JSONObject generator = (JSONObject) generatorObject;
-
-            JSONObject locationData = generator.optJSONObject("location");
-
-            if (locationData == null) {
-                this.getPlugin().getLogger().warning("Map Config: Location missing in a generator");
-                continue;
-            }
-
-            double x = locationData.optDouble("x", Double.MIN_VALUE);
-
-            if (x == Double.MIN_VALUE) {
-                this.getPlugin().getLogger().warning("Map Config: Wrong x in a generator");
-                continue;
-            }
-
-            double y = locationData.optDouble("y", Double.MIN_VALUE);
-
-            if (y == Double.MIN_VALUE) {
-                this.getPlugin().getLogger().warning("Map Config: Wrong y in a generator");
-                continue;
-            }
-
-            double z = locationData.optDouble("z", Double.MIN_VALUE);
-
-            if (z == Double.MIN_VALUE) {
-                this.getPlugin().getLogger().warning("Map Config: Wrong z in a generator");
-                continue;
-            }
-
-            Location generatorLocation = new Location(null, x, y, z);
-
-            Material generatorMaterial = Material.getMaterial(generator.optString("material", ""));
-
-            if (generatorMaterial == null) {
-                this.getPlugin().getLogger().warning("Map Config: Wrong material in a generator");
-                continue;
-            }
-
-            List<Double> generatorUpgradeSteps = new ArrayList<>();
-            JSONArray generatorUpgradeStepArray = generator.optJSONArray("speed");
-
-            if (generatorUpgradeStepArray == null) {
-                this.getPlugin().getLogger().warning("Map Config: Missing speed in a generator");
-                continue;
-            }
-
-            for (int i = 0; i < generatorUpgradeStepArray.length(); i++) {
-
-                double speed = generatorUpgradeStepArray.optDouble(i, Double.MIN_VALUE);
-
-                if (speed == Double.MIN_VALUE) {
-                    this.getPlugin().getLogger().warning("Map Config: Wrong speed in a generator");
-                    continue;
-                }
-
-                generatorUpgradeSteps.add(speed);
-
-            }
-
-            returnList.add(new LobbyGeneratorData(generatorLocation, new ItemStack(generatorMaterial), generatorUpgradeSteps));
-
-        }
-
-        return returnList;
-
-    }
-
     private void logMissingMapConfigItem(String missingItem, int index, String mapName) {
         this.getPlugin().getLogger().warning("Map Config: Missing " + missingItem + " of map " + mapName + " (" + index + ")");
     }
@@ -651,10 +511,10 @@ public class Lobby extends GamePart {
 
                 if (this.selectedMap != null) {
                     if (playerData.getTeam() > 0) {
-                        LobbyTeamData team = this.selectedMap.getTeams().get(playerData.getTeam());
+                        TeamData team = this.selectedMap.getTeams().get(playerData.getTeam());
 
                         if (team != null) {
-                            objective.getScore("§7Team: " + team.getChatColor() + team.getName()).setScore(1);
+                            objective.getScore("§7Team: " + team.chatColor() + team.name()).setScore(1);
                         } else {
                             objective.getScore("§7Team: §c?").setScore(1);
                         }
@@ -907,7 +767,7 @@ public class Lobby extends GamePart {
 
                     // iterate through all teams to find the right team for the party
 
-                    for (LobbyTeamData team : this.selectedMap.getTeams()) {
+                    for (TeamData team : this.selectedMap.getTeams()) {
                         int teamId = this.selectedMap.getTeams().indexOf(team);
 
                         if (teamId < 0) {
@@ -931,7 +791,7 @@ public class Lobby extends GamePart {
 
                             boolean otherTeamAvailable = false;
 
-                            for (LobbyTeamData anotherTeam : this.selectedMap.getTeams()) {
+                            for (TeamData anotherTeam : this.selectedMap.getTeams()) {
                                 int otherTeamId = this.selectedMap.getTeams().indexOf(anotherTeam);
 
                                 if (otherTeamId < 0) {

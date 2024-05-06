@@ -31,7 +31,7 @@ public class EndgameWither extends ManagedEntity<Wither> {
 
         BedwarsTeam team = this.getGame().getTeam(this.teamId);
         if (team != null) {
-            this.getEntity().setCustomName(team.getChatColor() + "§lENDGAME WITHER §r§7(" + team.getName() + ")");
+            this.getEntity().setCustomName(team.getData().chatColor() + "§lENDGAME WITHER §r§7(" + team.getData().name() + ")");
         } else {
             this.getEntity().setCustomName("§7§lENDGAME WITHER");
         }
