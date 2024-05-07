@@ -7,6 +7,7 @@ import de.simonsator.partyandfriends.spigot.api.party.PlayerParty;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import net.chaossquad.mclib.immutables.ImmutableLocation;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.Game;
@@ -17,7 +18,7 @@ import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamData;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
-import net.jandie1505.bedwars.lobby.setup.*;
+import net.jandie1505.bedwars.game.timeactions.base.TimeActionData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -211,10 +212,7 @@ public class Lobby extends GamePart {
 
             }
 
-            List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions = new ArrayList<>();
-            List<LobbyDestroyBedsTimeActionData> destroyBedsTimeActions = new ArrayList<>();
-            List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions = new ArrayList<>();
-            List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions = new ArrayList<>();
+            List<TimeActionData> timeActions = new ArrayList<>();
             JSONArray timeActionArray = map.optJSONArray("timeActions");
 
             if (timeActionArray == null) {
@@ -224,87 +222,18 @@ public class Lobby extends GamePart {
 
             for (Object object2 : timeActionArray) {
 
-                if (!(object2 instanceof JSONObject)) {
+                if (!(object2 instanceof JSONObject json)) {
                     this.getPlugin().getLogger().warning("Map Config: A timeAction of map " + name + " (" + index + ") is not a json object");
                     continue;
                 }
 
-                JSONObject timeActionData = (JSONObject) object2;
-
-                String type = timeActionData.optString("type");
-
-                if (type == null) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing type of a timeAction of " + name + " (" + index + ")");
+                TimeActionData timeActionData = TimeActionData.deserializeFromJSON(json);
+                if (timeActionData == null) {
+                    this.getPlugin().getLogger().warning("Map Config: A timeAction of map " + name + " (" + index + ") has invalid configuration");
                     continue;
                 }
 
-                int time = timeActionData.optInt("time", -1);
-
-                if (time < 0) {
-                    this.getPlugin().getLogger().warning("Map Config: Missing time of a timeAction of " + name + " (" + index + ")");
-                    continue;
-                }
-
-                switch (type) {
-                    case "GENERATOR_UPGRADE":
-
-                        int generatorLevel = timeActionData.optInt("generatorLevel", -1);
-
-                        if (generatorLevel < 0) {
-                            this.getPlugin().getLogger().warning("Map Config: Wrong generatorLevel of a timeAction of " + name + " (" + index + ")");
-                            continue;
-                        }
-
-                        int generatorType = timeActionData.optInt("generatorType", -1);
-
-                        switch (generatorType) {
-                            case 1:
-                                generatorUpgradeTimeActions.add(new LobbyGeneratorUpgradeTimeActionData(1, generatorLevel, time));
-                                continue;
-                            case 2:
-                                generatorUpgradeTimeActions.add(new LobbyGeneratorUpgradeTimeActionData(2, generatorLevel, time));
-                                continue;
-                            default:
-                                this.getPlugin().getLogger().warning("Map Config: Wrong generatorType of a timeAction of " + name + " (" + index + ")");
-                                break;
-                        }
-
-                        break;
-                    case "DESTROY_BEDS":
-                        destroyBedsTimeActions.add(new LobbyDestroyBedsTimeActionData(time, timeActionData.optBoolean("disableBeds", false)));
-                        break;
-                    case "WORLDBORDER_CHANGE":
-
-                        int radius = timeActionData.optInt("radius", -1);
-
-                        if (radius < 0) {
-                            this.getPlugin().getLogger().warning("Map Config: Wrong radius of a timeAction of " + name + " (" + index + ")");
-                            continue;
-                        }
-
-                        String chatMessage = timeActionData.optString("chatMessage");
-
-                        if (chatMessage == null) {
-                            this.getPlugin().getLogger().warning("Map Config: Wrong chatMessage of a timeAction of " + name + " (" + index + ")");
-                            continue;
-                        }
-
-                        String scoreboardText = timeActionData.optString("scoreboardText");
-
-                        if (scoreboardText == null) {
-                            this.getPlugin().getLogger().warning("Map Config: Wrong scoreboardText of a timeAction of " + name + " (" + index + ")");
-                            continue;
-                        }
-
-                        worldborderChangeTimeActions.add(new LobbyWorldborderChangeTimeActionData(time, radius, chatMessage, scoreboardText));
-                        break;
-                    case "ENDGAME_WITHER":
-                        endgameWitherTimeActions.add(new LobbyEndgameWitherTimeActionData(time));
-                        break;
-                    default:
-                        this.getPlugin().getLogger().warning("Map Config: Wrong type of a timeAction of " + name + " (" + index + ")");
-                        continue;
-                }
+                timeActions.add(timeActionData);
 
             }
 
@@ -313,15 +242,12 @@ public class Lobby extends GamePart {
                     world,
                     respawnCooldown,
                     maxTime,
-                    teams,
-                    globalGenerators,
-                    generatorUpgradeTimeActions,
-                    destroyBedsTimeActions,
-                    worldborderChangeTimeActions,
-                    endgameWitherTimeActions,
                     spawnBlockPlaceProtectionRadius,
                     villagerBlockPlaceProtectionRadius,
-                    centerLocation,
+                    teams,
+                    globalGenerators,
+                    timeActions,
+                    new ImmutableLocation(centerLocation),
                     mapRadius
             ));
         }
@@ -480,7 +406,7 @@ public class Lobby extends GamePart {
                 String mapName = "---";
 
                 if (this.selectedMap != null) {
-                    mapName = this.selectedMap.getName();
+                    mapName = this.selectedMap.name();
                 }
 
                 Scoreboard scoreboard = this.getPlugin().getServer().getScoreboardManager().getNewScoreboard();
@@ -511,7 +437,7 @@ public class Lobby extends GamePart {
 
                 if (this.selectedMap != null) {
                     if (playerData.getTeam() > 0) {
-                        TeamData team = this.selectedMap.getTeams().get(playerData.getTeam());
+                        TeamData team = this.selectedMap.teams().get(playerData.getTeam());
 
                         if (team != null) {
                             objective.getScore("§7Team: " + team.chatColor() + team.name()).setScore(1);
@@ -702,7 +628,7 @@ public class Lobby extends GamePart {
                 return;
             }
 
-            player.sendMessage("§bThe map has been set to " + this.selectedMap.getName());
+            player.sendMessage("§bThe map has been set to " + this.selectedMap.name());
 
         }
 
@@ -767,8 +693,8 @@ public class Lobby extends GamePart {
 
                     // iterate through all teams to find the right team for the party
 
-                    for (TeamData team : this.selectedMap.getTeams()) {
-                        int teamId = this.selectedMap.getTeams().indexOf(team);
+                    for (TeamData team : this.selectedMap.teams()) {
+                        int teamId = this.selectedMap.teams().indexOf(team);
 
                         if (teamId < 0) {
                             continue;
@@ -791,8 +717,8 @@ public class Lobby extends GamePart {
 
                             boolean otherTeamAvailable = false;
 
-                            for (TeamData anotherTeam : this.selectedMap.getTeams()) {
-                                int otherTeamId = this.selectedMap.getTeams().indexOf(anotherTeam);
+                            for (TeamData anotherTeam : this.selectedMap.teams()) {
+                                int otherTeamId = this.selectedMap.teams().indexOf(anotherTeam);
 
                                 if (otherTeamId < 0) {
                                     continue;
@@ -865,7 +791,7 @@ public class Lobby extends GamePart {
 
         MapData selectedMap = this.selectedMap;
 
-        World world = this.getPlugin().loadWorld(selectedMap.getWorld());
+        World world = this.getPlugin().loadWorld(selectedMap.world());
 
         if (world == null) {
             return null;
@@ -901,20 +827,7 @@ public class Lobby extends GamePart {
         Game game = new Game(
                 this.getPlugin(),
                 world,
-                new GameConfig(
-                        selectedMap.getRespawnCooldown(),
-                        selectedMap.getMaxTime(),
-                        selectedMap.getSpawnBlockPlaceProtection(),
-                        selectedMap.getVillagerBlockPlaceProtection(),
-                        selectedMap.getCenterLocation(),
-                        selectedMap.getMapRadius()
-                ),
-                selectedMap.getTeams(),
-                selectedMap.getGlobalGenerators(),
-                selectedMap.getGeneratorUpgradeTimeActions(),
-                selectedMap.getDestroyBedsTimeActions(),
-                selectedMap.getWorldBorderChangeTimeActions(),
-                selectedMap.getEndgameWitherTimeActions(),
+                selectedMap,
                 new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
                 armorConfig,
                 teamUpgradesConfig
@@ -925,7 +838,7 @@ public class Lobby extends GamePart {
             Player player = this.getPlugin().getServer().getPlayer(playerId);
 
             if (player != null) {
-                player.sendMessage("§bMap: " + this.selectedMap.getName());
+                player.sendMessage("§bMap: " + this.selectedMap.name());
             }
 
             if (playerData.getTeam() < 0) {
@@ -951,7 +864,7 @@ public class Lobby extends GamePart {
             this.players.remove(playerId);
         }
 
-        this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.getName());
+        this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.name());
 
         return game;
     }
@@ -1141,7 +1054,7 @@ public class Lobby extends GamePart {
         this.createPartyTeams();
 
         if (this.selectedMap != null) {
-            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.getName());
+            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.name());
         } else {
 
             if (this.mapVoting) {

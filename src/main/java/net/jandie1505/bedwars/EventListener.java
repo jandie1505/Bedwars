@@ -88,15 +88,15 @@ public class EventListener implements ManagedListener {
 
             // BLOCK PLACE PROTECTION
 
-            if (((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection() > 0 || ((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection() > 0) {
+            if (((Game) this.plugin.getGame()).getData().spawnBlockPlaceProtection() > 0 || ((Game) this.plugin.getGame()).getData().villagerBlockPlaceProtection() > 0) {
 
                 for (BedwarsTeam team : ((Game) this.plugin.getGame()).getTeams()) {
 
-                    if (((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection() > 0) {
+                    if (((Game) this.plugin.getGame()).getData().spawnBlockPlaceProtection() > 0) {
 
                         for (Location location : team.getData().spawnpoints()) {
 
-                            if (Bedwars.getBlockDistance(WorldUtils.locationWithWorld(location, ((Game) this.plugin.getGame()).getWorld()), event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection()) {
+                            if (Bedwars.getBlockDistance(WorldUtils.locationWithWorld(location, ((Game) this.plugin.getGame()).getWorld()), event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getData().spawnBlockPlaceProtection()) {
                                 event.setCancelled(true);
                                 event.getPlayer().sendMessage("§cYou cannot place blocks here");
                                 return;
@@ -106,7 +106,7 @@ public class EventListener implements ManagedListener {
 
                     }
 
-                    if (((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection() > 0) {
+                    if (((Game) this.plugin.getGame()).getData().villagerBlockPlaceProtection() > 0) {
 
                         List<Location> villagerLocations = new ArrayList<>();
                         villagerLocations.addAll(team.getData().shopVillagerLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, ((Game) this.getGame()).getWorld())).toList());
@@ -114,7 +114,7 @@ public class EventListener implements ManagedListener {
 
                         for (Location location : villagerLocations) {
 
-                            if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection()) {
+                            if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getData().villagerBlockPlaceProtection()) {
                                 event.setCancelled(true);
                                 event.getPlayer().sendMessage("§cYou cannot place blocks here");
                                 return;
@@ -1214,7 +1214,7 @@ public class EventListener implements ManagedListener {
 
             for (MapData map : ((Lobby) this.plugin.getGame()).getMaps()) {
 
-                if (map.getWorld().equals(lore.get(1))) {
+                if (map.world().equals(lore.get(1))) {
 
                     event.getWhoClicked().closeInventory();
 
@@ -1226,7 +1226,7 @@ public class EventListener implements ManagedListener {
                     } else {
 
                         playerData.setVote(map);
-                        event.getWhoClicked().sendMessage("§aYou changed your vote to " + map.getName());
+                        event.getWhoClicked().sendMessage("§aYou changed your vote to " + map.world());
 
                     }
 
@@ -1995,7 +1995,7 @@ public class EventListener implements ManagedListener {
             }
 
             if (((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
-                event.setMotd(((Lobby) this.plugin.getGame()).getSelectedMap().getName());
+                event.setMotd(((Lobby) this.plugin.getGame()).getSelectedMap().world());
             } else {
                 event.setMotd("MAP VOTING");
             }

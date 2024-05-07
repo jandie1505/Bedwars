@@ -54,7 +54,7 @@ public class VotingMenu implements InventoryHolder {
                 break;
             }
 
-            inventory.setItem(slot, getLobbyVoteMapButton(map.getName(), map.getWorld(), playerData.getVote() == map));
+            inventory.setItem(slot, getLobbyVoteMapButton(map.name(), map.world(), playerData.getVote() == map));
 
             slot++;
         }

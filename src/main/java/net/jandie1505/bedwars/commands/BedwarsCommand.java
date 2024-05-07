@@ -13,7 +13,11 @@ import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
-import net.jandie1505.bedwars.game.timeactions.*;
+import net.jandie1505.bedwars.game.timeactions.actions.DestroyBedsAction;
+import net.jandie1505.bedwars.game.timeactions.actions.GeneratorUpgradeAction;
+import net.jandie1505.bedwars.game.timeactions.actions.EndgameWitherTimeAction;
+import net.jandie1505.bedwars.game.timeactions.actions.WorldborderChangeTimeAction;
+import net.jandie1505.bedwars.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.lobby.Lobby;
 import net.jandie1505.bedwars.lobby.LobbyPlayerData;
 import net.jandie1505.bedwars.lobby.MapData;
@@ -376,13 +380,13 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
                                         if (mapName.startsWith("w:")) {
 
-                                            if (map.getWorld().equals(mapName.substring(2))) {
+                                            if (map.world().equals(mapName.substring(2))) {
                                                 mapData = map;
                                             }
 
                                         } else {
 
-                                            if (map.getName().equals(mapName)) {
+                                            if (map.world().equals(mapName)) {
                                                 mapData = map;
                                             }
 
@@ -1021,13 +1025,13 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§7Players: " + ((Game) this.plugin.getGame()).getPlayers().size() + " (Use players command)");
         sender.sendMessage("§7Generators: " + ((Game) this.plugin.getGame()).getGenerators().size());
         sender.sendMessage("§7Time Actions: " + ((Game) this.plugin.getGame()).getTimeActions().size());
-        sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getGameConfig().respawnCountdown());
+        sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getData().respawnCountdown());
         sender.sendMessage("§7Player Placed Blocks: " + ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().size());
-        sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getGameConfig().maxTime());
-        sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection());
-        sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection());
-        sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getX() + " " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getY() + " " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getZ());
-        sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getGameConfig().mapRadius());
+        sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getData().maxTime());
+        sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getData().spawnBlockPlaceProtection());
+        sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getData().villagerBlockPlaceProtection());
+        sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getData().centerLocation().getX() + " " + ((Game) this.plugin.getGame()).getData().centerLocation().getY() + " " + ((Game) this.plugin.getGame()).getData().centerLocation().getZ());
+        sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getData().mapRadius());
         sender.sendMessage("§7Time: " + ((Game) this.plugin.getGame()).getTime());
         sender.sendMessage("§7Emerald Generator Level: " + ((Game) this.plugin.getGame()).getPublicEmeraldGeneratorLevel());
         sender.sendMessage("§7Diamond Generator Level: " + ((Game) this.plugin.getGame()).getPublicDiamondGeneratorLevel());
@@ -1091,12 +1095,12 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 int timeActionIndex = 0;
                 for (TimeAction timeAction : ((Game) this.plugin.getGame()).getTimeActions()) {
 
-                    String out = "[" + timeActionIndex + "] " + timeAction.getTime() + " " + timeAction.isCompleted();
+                    String out = "[" + timeActionIndex + "] " + timeAction.getData().time() + " " + timeAction.isCompleted();
 
-                    if (timeAction instanceof EmeraldGeneratorUpgradeAction) {
-                        out = out + " EMERALD_UPGRADE (GENERATOR_UPGRADE TYPE 2) " + ((EmeraldGeneratorUpgradeAction) timeAction).getUpgradeLevel();
-                    } else if (timeAction instanceof DiamondGeneratorUpgradeAction) {
-                        out = out + " DIAMOND_UPGRADE (GENERATOR_UPGRADE TYPE 1) " + ((DiamondGeneratorUpgradeAction) timeAction).getUpgradeLevel();
+                    if (timeAction instanceof GeneratorUpgradeAction) {
+                        out = out + " EMERALD_UPGRADE (GENERATOR_UPGRADE TYPE 2) " + ((GeneratorUpgradeAction) timeAction).getUpgradeLevel();
+                    } else if (timeAction instanceof GeneratorUpgradeAction) {
+                        out = out + " DIAMOND_UPGRADE (GENERATOR_UPGRADE TYPE 1) " + ((GeneratorUpgradeAction) timeAction).getUpgradeLevel();
                     } else if (timeAction instanceof DestroyBedsAction) {
                         out = out + " DESTROY_BEDS " + ((DestroyBedsAction) timeAction).isDisableBeds();
                     } else if (timeAction instanceof WorldborderChangeTimeAction) {
@@ -1115,7 +1119,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
                 break;
             case "respawncooldown":
-                sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getGameConfig().respawnCountdown());
+                sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getData().respawnCountdown());
                 break;
             case "playerblocks":
                 sender.sendMessage("§7Player Placed Blocks:");
@@ -1135,19 +1139,19 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
                 break;
             case "maxtime":
-                sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getGameConfig().maxTime());
+                sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getData().maxTime());
                 break;
             case "spawnprotection":
-                sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getGameConfig().spawnBlockPlaceProtection());
+                sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getData().spawnBlockPlaceProtection());
                 break;
             case "villagerprotection":
-                sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getGameConfig().villagerBlockPlaceProtection());
+                sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getData().villagerBlockPlaceProtection());
                 break;
             case "center":
-                sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getX() + " " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getY() + " " + ((Game) this.plugin.getGame()).getGameConfig().centerLocation().getZ());
+                sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getData().centerLocation().getX() + " " + ((Game) this.plugin.getGame()).getData().centerLocation().getY() + " " + ((Game) this.plugin.getGame()).getData().centerLocation().getZ());
                 break;
             case "radius":
-                sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getGameConfig().mapRadius());
+                sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getData().mapRadius());
                 break;
             case "time":
                 sender.sendMessage("§7Time: " + ((Game) this.plugin.getGame()).getTime());
@@ -1264,13 +1268,13 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         if (mapData == null) {
             sender.sendMessage("§7No map selected");
         } else {
-            sender.sendMessage("§7Selected map: " + mapData.getName() + " (" + mapData.getWorld() + ")");
+            sender.sendMessage("§7Selected map: " + mapData.name() + " (" + mapData.name() + ")");
         }
 
         sender.sendMessage("§7Available Maps:");
 
         for (MapData map : List.copyOf(((Lobby) this.plugin.getGame()).getMaps())) {
-            sender.sendMessage("§7" + map.getName() + " (" + map.getWorld() + ")");
+            sender.sendMessage("§7" + map.name() + " (" + map.name() + ")");
         }
 
     }
@@ -1312,13 +1316,13 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
             if (mapName.startsWith("w:")) {
 
-                if (map.getWorld().equals(mapName.substring(2))) {
+                if (map.world().equals(mapName.substring(2))) {
                     mapData = map;
                 }
 
             } else {
 
-                if (map.getName().equals(mapName)) {
+                if (map.name().equals(mapName)) {
                     mapData = map;
                 }
 
@@ -1378,7 +1382,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
 
         for (MapData map : ((Lobby) this.plugin.getGame()).getMaps()) {
 
-            if (map.getName().equals(mapName)) {
+            if (map.name().equals(mapName)) {
                 mapData = map;
                 break;
             }
@@ -1391,7 +1395,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
         }
 
         playerData.setVote(mapData);
-        sender.sendMessage("§aYou voted for " + mapData.getName());
+        sender.sendMessage("§aYou voted for " + mapData.name());
 
     }
 
@@ -1418,7 +1422,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                 break;
             case "map":
                 if (((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
-                    sender.sendMessage("§7Selected Map:" + ((Lobby) this.plugin.getGame()).getSelectedMap().getName() + " (" + ((Lobby) this.plugin.getGame()).getSelectedMap().getWorld() + ")");
+                    sender.sendMessage("§7Selected Map:" + ((Lobby) this.plugin.getGame()).getSelectedMap().name() + " (" + ((Lobby) this.plugin.getGame()).getSelectedMap().world() + ")");
                 } else {
                     sender.sendMessage("§7Selected Map: ---");
                 }
@@ -1884,7 +1888,7 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         }
 
                         for (MapData map : ((Lobby) this.plugin.getGame()).getMaps()) {
-                            tabComplete.add(map.getName());
+                            tabComplete.add(map.name());
                         }
 
                         break;

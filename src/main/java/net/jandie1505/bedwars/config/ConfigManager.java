@@ -65,7 +65,7 @@ public class ConfigManager {
 
             }
         } catch (IOException | JSONException e) {
-            this.plugin.getLogger().log(Level.WARNING, "Error loading config, using defaults");
+            this.plugin.getLogger().log(Level.WARNING, "Error loading " + this.configFile.getName() + ", using defaults: " + e.getMessage());
         }
     }
 

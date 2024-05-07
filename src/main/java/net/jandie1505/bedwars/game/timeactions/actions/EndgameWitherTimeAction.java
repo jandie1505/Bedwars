@@ -1,18 +1,23 @@
-package net.jandie1505.bedwars.game.timeactions;
+package net.jandie1505.bedwars.game.timeactions.actions;
 
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.entities.EndgameWither;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
+import net.jandie1505.bedwars.game.timeactions.base.TimeAction;
+import net.jandie1505.bedwars.game.timeactions.base.TimeActionData;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.jetbrains.annotations.Nullable;
 
 public class EndgameWitherTimeAction extends TimeAction {
 
-    public EndgameWitherTimeAction(Game game, int time) {
-        super(game, time, "§cEndgame withers spawned", "Withers");
+    public EndgameWitherTimeAction(Game game, TimeActionData data) {
+        super(game, data);
     }
 
     @Override
-    protected void run() {
+    protected void onRun() {
 
         for (BedwarsTeam team : this.getGame().getTeams()) {
 
@@ -40,7 +45,7 @@ public class EndgameWitherTimeAction extends TimeAction {
             for (int i = 0; i < amount; i++) {
                 new EndgameWither(
                         this.getGame(),
-                        this.getGame().getGameConfig().centerLocation(),
+                        this.getGame().getData().centerLocation(),
                         team.getId()
                 );
             }
@@ -48,4 +53,15 @@ public class EndgameWitherTimeAction extends TimeAction {
         }
 
     }
+
+    @Override
+    public @Nullable BaseComponent[] getMessage() {
+        return new BaseComponent[]{TextComponent.fromLegacy("§bThe endgame withers spawned!")};
+    }
+
+    @Override
+    public @Nullable String getScoreboardText() {
+        return "Withers";
+    }
+
 }

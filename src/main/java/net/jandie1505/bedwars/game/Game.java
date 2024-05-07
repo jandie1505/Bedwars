@@ -21,8 +21,10 @@ import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamData;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.team.traps.BedwarsTrap;
-import net.jandie1505.bedwars.game.timeactions.*;
-import net.jandie1505.bedwars.lobby.setup.*;
+import net.jandie1505.bedwars.game.timeactions.base.TimeAction;
+import net.jandie1505.bedwars.game.timeactions.base.TimeActionData;
+import net.jandie1505.bedwars.game.timeactions.provider.TimeActionCreator;
+import net.jandie1505.bedwars.lobby.MapData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -42,11 +44,12 @@ import java.util.*;
 
 public class Game extends GamePart implements ManagedListener {
     private final World world;
-    private final GameConfig gameConfig;
+    private final MapData data;
     private final List<BedwarsTeam> teams;
     private final Map<UUID, PlayerData> players;
     private final List<Generator> generators;
     private final List<TimeAction> timeActions;
+    private final TimeActionCreator timeActionCreator;
     private final List<Location> playerPlacedBlocks;
     private final Map<UUID, Scoreboard> playerScoreboards;
     private final ItemShop itemShop;
@@ -61,28 +64,29 @@ public class Game extends GamePart implements ManagedListener {
     private BedwarsTeam winner;
     private boolean noWinnerEnd;
 
-    public Game(Bedwars plugin, World world, GameConfig gameConfig, List<TeamData> teams, List<GeneratorData> generators, List<LobbyGeneratorUpgradeTimeActionData> generatorUpgradeTimeActions, List<LobbyDestroyBedsTimeActionData> bedDestroyTimeActions, List<LobbyWorldborderChangeTimeActionData> worldborderChangeTimeActions, List<LobbyEndgameWitherTimeActionData> endgameWitherTimeActions, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig) {
+    public Game(Bedwars plugin, World world, MapData data, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig) {
         super(plugin);
         this.world = world;
-        this.gameConfig = gameConfig;
+        this.data = data;
         this.teams = Collections.synchronizedList(new ArrayList<>());
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.generators = Collections.synchronizedList(new ArrayList<>());
         this.timeActions = Collections.synchronizedList(new ArrayList<>());
+        this.timeActionCreator = new TimeActionCreator(this);
         this.playerPlacedBlocks = Collections.synchronizedList(new ArrayList<>());
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
         this.armorConfig = armorConfig;
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
-        this.time = this.gameConfig.maxTime();
+        this.time = this.data.maxTime();
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
         this.prepared = false;
         this.winner = null;
         this.noWinnerEnd = false;
 
-        for (TeamData teamData : List.copyOf(teams)) {
+        for (TeamData teamData : List.copyOf(this.data.teams())) {
             BedwarsTeam team = new BedwarsTeam(this, teamData);
 
             this.teams.add(team);
@@ -96,33 +100,25 @@ public class Game extends GamePart implements ManagedListener {
             }
         }
 
-        for (GeneratorData generatorData : generators) {
+        for (GeneratorData generatorData : this.data.globalGenerators()) {
             this.generators.add(new PublicGenerator(
                     this,
                     generatorData
             ));
         }
 
-        for (LobbyGeneratorUpgradeTimeActionData generatorUpgradeData : generatorUpgradeTimeActions) {
-
-            if (generatorUpgradeData.getGeneratorType() == 1) {
-                this.timeActions.add(new DiamondGeneratorUpgradeAction(this, generatorUpgradeData.getTime(), "§aDiamond Generators §ehave beed upgraded to §aLevel " + (generatorUpgradeData.getLevel() + 1), "Diamond " + (generatorUpgradeData.getLevel() + 1), generatorUpgradeData.getLevel()));
-            } else if (generatorUpgradeData.getGeneratorType() == 2) {
-                this.timeActions.add(new EmeraldGeneratorUpgradeAction(this, generatorUpgradeData.getTime(), "§aEmerald Generators §ehave beed upgraded to §aLevel " + (generatorUpgradeData.getLevel() + 1), "Emerald " + (generatorUpgradeData.getLevel() + 1), generatorUpgradeData.getLevel()));
+        for (TimeActionData timeActionData : this.data.timeActions()) {
+            try {
+                TimeAction timeAction = this.timeActionCreator.createTimeAction(timeActionData);
+                if (timeAction == null) {
+                    this.getPlugin().getLogger().warning("Couldn't create time action: Invalid type");
+                    continue;
+                }
+                this.timeActions.add(timeAction);
+            } catch (Exception e) {
+                this.getPlugin().getLogger().warning("Couldn't create time action: " + e.getMessage());
+                continue;
             }
-
-        }
-
-        for (LobbyDestroyBedsTimeActionData destroyBedsData : bedDestroyTimeActions) {
-            this.timeActions.add(new DestroyBedsAction(this, destroyBedsData.getTime(), destroyBedsData.isDisableBeds()));
-        }
-
-        for (LobbyWorldborderChangeTimeActionData worldborderChangeData : worldborderChangeTimeActions) {
-            this.timeActions.add(new WorldborderChangeTimeAction(this, worldborderChangeData.getTime(), worldborderChangeData.getChatMessage(), worldborderChangeData.getScoreboardText(), worldborderChangeData.getRadius()));
-        }
-
-        for (LobbyEndgameWitherTimeActionData endgameWitherSpawnData : endgameWitherTimeActions) {
-            this.timeActions.add(new EndgameWitherTimeAction(this, endgameWitherSpawnData.getTime()));
         }
 
         Collections.sort(this.timeActions);
@@ -141,8 +137,8 @@ public class Game extends GamePart implements ManagedListener {
 
         this.itemShop.initEntries(shopConfig);
 
-        this.world.getWorldBorder().setCenter(this.gameConfig.centerLocation());
-        this.world.getWorldBorder().setSize(this.gameConfig.mapRadius() * 2);
+        this.world.getWorldBorder().setCenter(this.data.centerLocation());
+        this.world.getWorldBorder().setSize(this.data.mapRadius() * 2);
 
         this.world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         this.world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
@@ -283,12 +279,12 @@ public class Game extends GamePart implements ManagedListener {
     private void teleportSpectatorsTask() {
 
         for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
-            if (player.getWorld() == this.gameConfig.centerLocation().getWorld()) continue;
+            if (player.getWorld() == this.data.centerLocation().getWorld()) continue;
 
             PlayerData playerData = this.getPlayers().get(player.getUniqueId());
             if (playerData != null) continue;
 
-            player.teleport(this.gameConfig.centerLocation());
+            player.teleport(this.data.centerLocation());
         }
 
     }
@@ -350,8 +346,8 @@ public class Game extends GamePart implements ManagedListener {
 
             if (playerData.isAlive()) {
 
-                if (playerData.getRespawnCountdown() != this.gameConfig.respawnCountdown()) {
-                    playerData.setRespawnCountdown(this.gameConfig.respawnCountdown());
+                if (playerData.getRespawnCountdown() != this.data.respawnCountdown()) {
+                    playerData.setRespawnCountdown(this.data.respawnCountdown());
                 }
 
                 if (!this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
@@ -665,8 +661,8 @@ public class Game extends GamePart implements ManagedListener {
 
         for (TimeAction timeAction : this.getTimeActions()) {
 
-            if (this.time <= timeAction.getTime() && !timeAction.isCompleted()) {
-                timeAction.execute();
+            if (this.time <= timeAction.getData().time() && !timeAction.isCompleted()) {
+                timeAction.run();
             }
 
         }
@@ -1365,7 +1361,7 @@ public class Game extends GamePart implements ManagedListener {
                 continue;
             }
 
-            int inTime = this.time - timeAction.getTime();
+            int inTime = this.time - timeAction.getData().time();
 
             sidebarDisplayStrings.add(timeAction.getScoreboardText() + " §rin §a" + Bedwars.getDurationFormat(inTime));
 
@@ -1604,8 +1600,8 @@ public class Game extends GamePart implements ManagedListener {
         return this.world;
     }
 
-    public GameConfig getGameConfig() {
-        return this.gameConfig;
+    public MapData getData() {
+        return this.data;
     }
 
     public List<BedwarsTeam> getTeams() {
