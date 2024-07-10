@@ -23,7 +23,7 @@ public class CountermeasuresTrap extends BedwarsTrap {
                 continue;
             }
 
-            p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 30*20, 1, true, true));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 30*20, 1, true, true));
             p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 30*20, 1, true, true));
             p.sendTitle("", "§acountermeasures enabled", 0, 3*20, 0);
             p.playSound(player, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1, 0);

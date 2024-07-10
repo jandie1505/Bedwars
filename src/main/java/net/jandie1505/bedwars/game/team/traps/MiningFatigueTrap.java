@@ -13,7 +13,7 @@ public class MiningFatigueTrap extends BedwarsTrap {
     @Override
     protected void run(Player player) {
 
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 20*20, 1, true, true));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, 20*20, 1, true, true));
 
     }
 

@@ -423,15 +423,15 @@ public class Game extends GamePart implements ManagedListener {
 
             if (hasteUpgradeLevel > 0) {
 
-                if (player.getPotionEffect(PotionEffectType.FAST_DIGGING) == null || player.getPotionEffect(PotionEffectType.FAST_DIGGING).getAmplifier() != hasteUpgradeLevel - 1) {
-                    player.removePotionEffect(PotionEffectType.FAST_DIGGING);
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 3600 * 20, hasteUpgradeLevel - 1));
+                if (player.getPotionEffect(PotionEffectType.HASTE) == null || player.getPotionEffect(PotionEffectType.HASTE).getAmplifier() != hasteUpgradeLevel - 1) {
+                    player.removePotionEffect(PotionEffectType.HASTE);
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 3600 * 20, hasteUpgradeLevel - 1));
                 }
 
             } else {
 
-                if (player.hasPotionEffect(PotionEffectType.FAST_DIGGING)) {
-                    player.removePotionEffect(PotionEffectType.FAST_DIGGING);
+                if (player.hasPotionEffect(PotionEffectType.HASTE)) {
+                    player.removePotionEffect(PotionEffectType.HASTE);
                 }
 
             }
@@ -581,7 +581,7 @@ public class Game extends GamePart implements ManagedListener {
             if (player == null) continue;
 
             if (this.getPlugin().getConfigManager().getConfig().optBoolean("tntParticles", false) && player.getInventory().contains(Material.TNT) && playerData.getMilkTimer() <= 0) {
-                player.getWorld().spawnParticle(Particle.REDSTONE, player.getLocation().clone().add(0, 2.5, 0), 20, 0, 0, 0, 1, new Particle.DustOptions(Color.RED, 1.0F));
+                player.getWorld().spawnParticle(Particle.DUST, player.getLocation().clone().add(0, 2.5, 0), 20, 0, 0, 0, 1, new Particle.DustOptions(Color.RED, 1.0F));
             }
 
         }
@@ -938,19 +938,19 @@ public class Game extends GamePart implements ManagedListener {
 
                 if (enchantmentLevel > 0) {
 
-                    Integer level = item.getItemMeta().getEnchants().get(Enchantment.DAMAGE_ALL);
+                    Integer level = item.getItemMeta().getEnchants().get(Enchantment.SHARPNESS);
 
                     if (level == null || level != enchantmentLevel) {
                         ItemMeta meta = item.getItemMeta();
-                        meta.addEnchant(Enchantment.DAMAGE_ALL, enchantmentLevel, true);
+                        meta.addEnchant(Enchantment.SHARPNESS, enchantmentLevel, true);
                         item.setItemMeta(meta);
                     }
 
                 } else {
 
-                    if (item.getItemMeta().getEnchants().containsKey(Enchantment.DAMAGE_ALL)) {
+                    if (item.getItemMeta().getEnchants().containsKey(Enchantment.SHARPNESS)) {
                         ItemMeta meta = item.getItemMeta();
-                        meta.removeEnchant(Enchantment.DAMAGE_ALL);
+                        meta.removeEnchant(Enchantment.SHARPNESS);
                         item.setItemMeta(meta);
                     }
 
@@ -974,19 +974,19 @@ public class Game extends GamePart implements ManagedListener {
 
                 if (enchantmentLevel > 0) {
 
-                    Integer level = item.getItemMeta().getEnchants().get(Enchantment.PROTECTION_ENVIRONMENTAL);
+                    Integer level = item.getItemMeta().getEnchants().get(Enchantment.PROTECTION);
 
                     if (level == null || level != enchantmentLevel) {
                         ItemMeta meta = item.getItemMeta();
-                        meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, enchantmentLevel, true);
+                        meta.addEnchant(Enchantment.PROTECTION, enchantmentLevel, true);
                         item.setItemMeta(meta);
                     }
 
                 } else {
 
-                    if (item.getItemMeta().getEnchants().containsKey(Enchantment.PROTECTION_ENVIRONMENTAL)) {
+                    if (item.getItemMeta().getEnchants().containsKey(Enchantment.PROTECTION)) {
                         ItemMeta meta = item.getItemMeta();
-                        meta.removeEnchant(Enchantment.PROTECTION_ENVIRONMENTAL);
+                        meta.removeEnchant(Enchantment.PROTECTION);
                         item.setItemMeta(meta);
                     }
 

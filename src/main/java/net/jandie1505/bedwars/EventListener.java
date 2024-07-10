@@ -140,7 +140,7 @@ public class EventListener implements ManagedListener {
                     Location location = event.getBlockPlaced().getLocation().clone();
                     location.add(0.5, 0, 0.5);
 
-                    TNTPrimed tnt = (TNTPrimed) event.getBlockPlaced().getLocation().getWorld().spawnEntity(location, EntityType.PRIMED_TNT);
+                    TNTPrimed tnt = (TNTPrimed) event.getBlockPlaced().getLocation().getWorld().spawnEntity(location, EntityType.TNT);
                     tnt.setSource(event.getPlayer());
                     tnt.setFuseTicks(80);
                 }
@@ -295,7 +295,7 @@ public class EventListener implements ManagedListener {
 
                             Location zappLocation = Bukkit.getPlayer(playerToZapp).getLocation().clone();
 
-                            event.getPlayer().getWorld().spawnEntity(zappLocation, EntityType.LIGHTNING);
+                            event.getPlayer().getWorld().spawnEntity(zappLocation, EntityType.LIGHTNING_BOLT);
                         }
                     }
                 }

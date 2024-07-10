@@ -14,7 +14,7 @@ public class ItsATrap extends BedwarsTrap {
     protected void run(Player player) {
 
         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 8*20, 1, true, true));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 8*20, 1, true, true));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 8*20, 1, true, true));
 
     }
 

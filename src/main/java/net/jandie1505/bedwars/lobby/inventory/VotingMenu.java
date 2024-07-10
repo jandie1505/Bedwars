@@ -86,7 +86,7 @@ public class VotingMenu implements InventoryHolder {
         meta.setLore(lore);
 
         if (selected) {
-            meta.addEnchant(Enchantment.LUCK, 1, true);
+            meta.addEnchant(Enchantment.FORTUNE, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
 
