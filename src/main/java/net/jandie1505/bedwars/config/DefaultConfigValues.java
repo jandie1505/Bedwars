@@ -1,14 +1,26 @@
 package net.jandie1505.bedwars.config;
 
+import net.chaossquad.mclib.immutables.ImmutableLocation;
+import net.jandie1505.bedwars.game.generators.GeneratorData;
+import net.jandie1505.bedwars.game.team.TeamData;
+import net.jandie1505.bedwars.lobby.MapData;
+import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class DefaultConfigValues {
     private DefaultConfigValues() {}
@@ -100,6 +112,162 @@ public final class DefaultConfigValues {
         return config;
     }
 
+    public static YamlConfiguration getDefaultMapConfig() {
+        YamlConfiguration config = new YamlConfiguration();
+
+        config.set(
+                "minimalist",
+                new MapData(
+                "Minimalist",
+                "minimalist",
+                5,
+                3600,
+                1,
+                1,
+                List.of(
+                        new TeamData(
+                                "Green",
+                                ChatColor.GREEN,
+                                Color.LIME,
+                                new ImmutableLocation(null, 54.5, 1.0, 0.5),
+                                15,
+                                List.of(new ImmutableLocation(null, 54.5, 1.0, 0.5)),
+                                List.of(new ImmutableLocation(null, 44, 1, 0)),
+                                List.of(
+                                        new GeneratorData(
+                                                new ImmutableLocation(null, 54.5, 1, -6.5),
+                                                new ItemStack(Material.IRON_INGOT),
+                                                List.of(15.0, 10.0, 5.0, 2.0, 1.0)
+                                        ),
+                                        new GeneratorData(
+                                                new ImmutableLocation(null, 54.5, 1, 7.5),
+                                                new ItemStack(Material.GOLD_INGOT),
+                                                List.of(10.0*20.0, 5.0*20.0, 2.5*20.0, 20.0, 10.0)
+                                        ),
+                                        new GeneratorData(
+                                                new ImmutableLocation(null, 54.5, 1, 7.5),
+                                                new ItemStack(Material.EMERALD),
+                                                List.of(0.0, 0.0, 0.0, 45.0*20.0, 30.0*20.0)
+                                        )
+                                ),
+                                List.of(new ImmutableLocation(null, 60.5, 1, -2.5, 90.0f, 0f)),
+                                List.of(new ImmutableLocation(null, 60.5, 1, 3.5, 90.0f, 0f))
+                        )
+                ),
+                List.of(
+                        new GeneratorData(
+                                new ImmutableLocation(null, 8.5, 1, 8.5),
+                                new ItemStack(Material.EMERALD),
+                                List.of(40.0*20.0, 35.0*20.0, 30.0*20.0, 20.0*20.0, 10.0*20.0, 5.0*20.0)
+                        ),
+                        new GeneratorData(
+                                new ImmutableLocation(null, -7.5, 1, 8.5),
+                                new ItemStack(Material.EMERALD),
+                                List.of(40.0*20.0, 35.0*20.0, 30.0*20.0, 20.0*20.0, 10.0*20.0, 5.0*20.0)
+                        ),
+                        new GeneratorData(
+                                new ImmutableLocation(null, 8.5, 1, -7.5),
+                                new ItemStack(Material.EMERALD),
+                                List.of(40.0*20.0, 35.0*20.0, 30.0*20.0, 20.0*20.0, 10.0*20.0, 5.0*20.0)
+                        ),
+                        new GeneratorData(
+                                new ImmutableLocation(null, -7.5, 1, -7.5),
+                                new ItemStack(Material.EMERALD),
+                                List.of(40.0*20.0, 35.0*20.0, 30.0*20.0, 20.0*20.0, 10.0*20.0, 5.0*20.0)
+                        ),
+                        new GeneratorData(
+                                new ImmutableLocation(null, 0.5, 1.0, -43.5),
+                                new ItemStack(Material.DIAMOND),
+                                List.of(30.0*20.0, 25.0*20.0, 20.0*20.0, 10.0*20.0, 5.0*20.0, 3.0*20.0)
+                        ),
+                        new GeneratorData(
+                                new ImmutableLocation(null, 0.5, 1, 44.5),
+                                new ItemStack(Material.DIAMOND),
+                                List.of(30.0*20.0, 25.0*20.0, 20.0*20.0, 10.0*20.0, 5.0*20.0, 3.0*20.0)
+                        )
+                ),
+                List.of(
+
+                ),
+                new ImmutableLocation(null, 0.5, 0.0, 0.5),
+                82
+        ).serialize());
+
+        // STANDARD VALUES
+
+        /*
+        config.setComments("name", List.of("The name of the map that should be displayed to the players."));
+
+        config.setComments("world", List.of("The name of the world directory.", "Cannot be the default world."));
+
+        config.setComments("respawn_cooldown", List.of("When a player is dead, that player will respawn after the specified amount of seconds."));
+
+        config.setComments("max_time", List.of("The maximum game time in seconds.", "When it expires, the game is over."));
+
+        config.setComments("spawn_block_place_protection_radius", List.of(
+                "The radius around the team spawns where players should not be able to place blocks.",
+                "Set to 0 to disable.",
+                "Default is 1"
+        ));
+
+        config.setComments("villager_block_place_protection_radius", List.of(
+                "The radius around the team spawns where players should not be able to place blocks.",
+                "Set to 0 to disable.",
+                "Default is 1"
+        ));
+
+        config.setComments("map_radius", List.of("The radius (size) of the map.", "The world border will be set to this radius."));
+
+        // CENTER LOCATION
+
+        config.setComments("center_location", List.of("The center of the map.", "The map radius (and the border) has its center here."));
+
+         */
+
+        return config;
+    }
+
+    public static ConfigurationSection createTeamConfig() {
+        ConfigurationSection teamGreen = new YamlConfiguration();
+
+        teamGreen.setComments("name", List.of("The team name that should be displayed to the players."));
+
+        teamGreen.setComments("color", List.of("The RGB color of the team used for armor parts."));
+
+        teamGreen.setComments("chat_color", List.of("The chat color that is displayed in chat.", "The chat color also sets the block color."));
+
+        teamGreen.setComments("base_center_location", List.of("The location of the base center location"));
+
+        teamGreen.setComments("base_radius", List.of(
+                "The base_center_location is the center of this radius.",
+                "The base radius sets the area of the team's base.",
+                "This is used for various features, for example, traps are triggered when an enemy enters this location."
+        ));
+
+        teamGreen.setComments("spawnpoints", List.of("The spawnpoints of the team.", "If there are multiple spawnpoints, a random spawnpoint is selected each time a player respawns."));
+
+        teamGreen.setComments("bed_locations", List.of("The bed locations of the team.", "If there are multiple bed locations, all beds of that team must be destroyed that it no longer can respawn."));
+
+        teamGreen.setComments("generators", List.of(
+                "The generators of the team.",
+                "You need to specify the location, the material it should drop and a list of speeds.",
+                "The list of speeds starts at upgrade level 0, with the next elements are one level higher.",
+                "Setting the level to 0 will disable the generator."
+        ));
+
+        teamGreen.setComments("shop_villager_locations", List.of("The locations of the shop villagers.", "A shop villager will be spawned at all specified locations."));
+
+        teamGreen.setComments("upgrade_villager_locations", List.of("The locations of the upgrade villagers.", "An upgrade villager will be spawned at all specified locations."));
+
+        return teamGreen;
+    }
+
+    public YamlConfiguration getDefaultMapConfig() {
+
+        
+
+    }
+
     public static JSONObject getMapConfig() {
         JSONObject config = new JSONObject();
 
@@ -115,7 +283,7 @@ public final class DefaultConfigValues {
         minimalistMap.put("villagerBlockPlaceProtectionRadius", 1);
         minimalistMap.put("mapRadius", 82);
 
-        // Center location
+        // Center location (done)
 
         JSONObject centerLocation = new JSONObject();
 
@@ -129,7 +297,7 @@ public final class DefaultConfigValues {
 
         JSONArray minimalistMapTeams = new JSONArray();
 
-        // Team Generator Speed
+        // Team Generator Speed (done)
 
         JSONArray ironGeneratorSpeed = new JSONArray();
         ironGeneratorSpeed.put(15);
@@ -152,7 +320,7 @@ public final class DefaultConfigValues {
         teamEmeraldGeneratorSpeed.put(45*20);
         teamEmeraldGeneratorSpeed.put(30*20);
 
-        // Green Team Create
+        // Green Team Create (done)
 
         JSONObject greenTeamData = new JSONObject();
 
@@ -161,7 +329,7 @@ public final class DefaultConfigValues {
         greenTeamData.put("chatColor", "GREEN");
         greenTeamData.put("baseRadius", 15);
 
-        // Green Base Center
+        // Green Base Center (done)
 
         JSONObject greenTeamBaseCenter = new JSONObject();
         greenTeamBaseCenter.put("x", 54.5);
@@ -169,7 +337,7 @@ public final class DefaultConfigValues {
         greenTeamBaseCenter.put("z", 0.5);
         greenTeamData.put("baseCenter", greenTeamBaseCenter);
 
-        // Green Spawnpoints
+        // Green Spawnpoints (done)
 
         JSONArray greenTeamSpawnpoints = new JSONArray();
 
@@ -183,7 +351,7 @@ public final class DefaultConfigValues {
 
         greenTeamData.put("spawnpoints", greenTeamSpawnpoints);
 
-        // Green Bed Locations
+        // Green Bed Locations (done)
 
         JSONArray greenTeamBedLocations = new JSONArray();
 
@@ -195,7 +363,7 @@ public final class DefaultConfigValues {
 
         greenTeamData.put("bedLocations", greenTeamBedLocations);
 
-        // Green Generators
+        // Green Generators (done)
 
         JSONArray greenTeamGenerators = new JSONArray();
 
@@ -235,7 +403,7 @@ public final class DefaultConfigValues {
 
         greenTeamData.put("generators", greenTeamGenerators);
 
-        // Green Shop Villager Locations
+        // Green Shop Villager Locations (done)
 
         JSONArray greenTeamShopVillagerLocations = new JSONArray();
 
@@ -249,7 +417,7 @@ public final class DefaultConfigValues {
 
         greenTeamData.put("shopVillagers", greenTeamShopVillagerLocations);
 
-        // Green Upgrade Villager Locations
+        // Green Upgrade Villager Locations (done)
 
         JSONArray greenTeamUpgradeVillagerLocations = new JSONArray();
 

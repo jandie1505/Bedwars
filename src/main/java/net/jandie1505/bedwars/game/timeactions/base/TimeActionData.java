@@ -1,5 +1,7 @@
 package net.jandie1505.bedwars.game.timeactions.base;
 
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.util.Map;
@@ -11,7 +13,7 @@ import java.util.Objects;
  * @param time time action time
  * @param dataFields data fields
  */
-public record TimeActionData(String type, int time, Map<String, Object> dataFields) {
+public record TimeActionData(String type, int time, Map<String, Object> dataFields) implements ConfigurationSerializable {
 
     public record DataAccessor<T>(String key) {}
 
@@ -35,6 +37,41 @@ public record TimeActionData(String type, int time, Map<String, Object> dataFiel
             return null;
         }
     }
+
+    // SERIALIZATION
+
+    /**
+     * Serializes the TimeActionData to a map of strings and objects.
+     * @return map of strings and objects
+     */
+    @NotNull
+    @Override
+    public Map<String, Object> serialize() {
+        return Map.of(
+                "type", this.type,
+                "time", this.time,
+                "data", this.dataFields
+        );
+    }
+
+    /**
+     * Deserializes a map of strings and objects to a new TimeActionData.
+     * @param map map of strings and objects
+     * @return TimeActionData
+     */
+    public static TimeActionData deserialize(Map<String, Object> map) {
+        try {
+            String type = (String) Objects.requireNonNull(map.get("type"));
+            int time = (int) Objects.requireNonNull(map.get("time"));
+            Map<String, Object> dataFields = (Map<String, Object>) Objects.requireNonNull(map.get("dataFields"));
+
+            return new TimeActionData(type, time, dataFields);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // JSON
 
     public JSONObject serializeToJSON() {
         JSONObject jsonObject = new JSONObject();
