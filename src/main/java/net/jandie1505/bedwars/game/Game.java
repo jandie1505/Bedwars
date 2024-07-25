@@ -24,7 +24,6 @@ import net.jandie1505.bedwars.game.team.traps.BedwarsTrap;
 import net.jandie1505.bedwars.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.timeactions.provider.TimeActionCreator;
-import net.jandie1505.bedwars.lobby.MapData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;

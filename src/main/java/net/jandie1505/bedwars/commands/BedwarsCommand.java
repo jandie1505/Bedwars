@@ -20,7 +20,7 @@ import net.jandie1505.bedwars.game.timeactions.actions.WorldborderChangeTimeActi
 import net.jandie1505.bedwars.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.lobby.Lobby;
 import net.jandie1505.bedwars.lobby.LobbyPlayerData;
-import net.jandie1505.bedwars.lobby.MapData;
+import net.jandie1505.bedwars.game.MapData;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

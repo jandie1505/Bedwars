@@ -2,7 +2,7 @@ package net.jandie1505.bedwars.lobby.inventory;
 
 import net.jandie1505.bedwars.lobby.Lobby;
 import net.jandie1505.bedwars.lobby.LobbyPlayerData;
-import net.jandie1505.bedwars.lobby.MapData;
+import net.jandie1505.bedwars.game.MapData;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.Inventory;

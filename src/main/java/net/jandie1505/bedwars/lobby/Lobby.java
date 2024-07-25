@@ -7,18 +7,15 @@ import de.simonsator.partyandfriends.spigot.api.party.PlayerParty;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
-import net.chaossquad.mclib.immutables.ImmutableLocation;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.game.GameConfig;
-import net.jandie1505.bedwars.game.generators.GeneratorData;
+import net.jandie1505.bedwars.game.MapData;
 import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamData;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.team.TeamUpgradesConfig;
-import net.jandie1505.bedwars.game.timeactions.base.TimeActionData;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -84,6 +81,8 @@ public class Lobby extends GamePart {
                 this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
         );
 
+        // Create map data from config
+
         JSONArray mapArray = this.getPlugin().getMapConfig().getConfig().optJSONArray("maps");
 
         if (mapArray == null) {
@@ -94,169 +93,28 @@ public class Lobby extends GamePart {
         for (Object object : mapArray) {
             index++;
 
-            if (!(object instanceof JSONObject)) {
+            if (!(object instanceof JSONObject map)) {
                 this.getPlugin().getLogger().warning("Map Config: Index " + index + " is not a json object");
                 continue;
             }
-
-            JSONObject map = (JSONObject) object;
-
-            String name = map.optString("name");
-
-            if (name == null) {
-                this.getPlugin().getLogger().warning("Map Config: Missing name of map with index " + index);
-                continue;
+            
+            try {
+                this.maps.add(MapData.deserializeFromJSON(map));
+            } catch (IllegalArgumentException e) {
+                this.getPlugin().getLogger().warning("Map Config (at map index + " + index + "): " + e.getMessage());
             }
-
-            String world = map.optString("world");
-
-            if (world == null) {
-                this.logMissingMapConfigItem("world", index, name);
-                continue;
-            }
-
-            int respawnCooldown = map.optInt("respawnCooldown", -1);
-
-            if (respawnCooldown < 0) {
-                this.logMissingMapConfigItem("respawnCooldown", index, name);
-                continue;
-            }
-
-            int maxTime = map.optInt("maxTime", -1);
-
-            if (maxTime < 0) {
-                this.logMissingMapConfigItem("maxTime", index, name);
-                continue;
-            }
-
-            int spawnBlockPlaceProtectionRadius = map.optInt("spawnBlockPlaceProtectionRadius", -1);
-
-            if (spawnBlockPlaceProtectionRadius < 0) {
-                this.logMissingMapConfigItem("spawnBlockPlaceProtectionRadius", index, name);
-                continue;
-            }
-
-            int villagerBlockPlaceProtectionRadius = map.optInt("villagerBlockPlaceProtectionRadius", -1);
-
-            if (villagerBlockPlaceProtectionRadius < 0) {
-                this.logMissingMapConfigItem("villagerBlockPlaceProtectionRadius", index, name);
-                continue;
-            }
-
-            int mapRadius = map.optInt("mapRadius", -1);
-
-            if (mapRadius < 0) {
-                this.logMissingMapConfigItem("mapRadius", index, name);
-                continue;
-            }
-
-            Location centerLocation = this.buildLocationFromJSONObject(map.optJSONObject("center", new JSONObject()), false);
-
-            if (centerLocation == null) {
-                this.logMissingMapConfigItem("center", index, name);
-                continue;
-            }
-
-            // TEAMS
-
-            List<TeamData> teams = new ArrayList<>();
-            JSONArray teamsArray = map.optJSONArray("teams");
-
-            if (teamsArray == null) {
-                this.logMissingMapConfigItem("teams", index, name);
-                continue;
-            }
-
-            for (Object object2 : teamsArray) {
-
-                if (!(object2 instanceof JSONObject json)) {
-                    this.getPlugin().getLogger().warning("Map Config: A team of map " + name + " (" + index + ") is not a json object");
-                    continue;
-                }
-
-                TeamData teamData = TeamData.deserializeFromJSON(json);
-
-                if (teamData == null) {
-                    this.getPlugin().getLogger().warning("Map Config: A team of map " + name + " (" + index + ") has invalid configuration");
-                    continue;
-                }
-
-                teams.add(teamData);
-            }
-
-            JSONArray globalGeneratorArray = map.optJSONArray("globalGenerators");
-
-            if (globalGeneratorArray == null) {
-                this.logMissingMapConfigItem("teams", index, name);
-                continue;
-            }
-
-            // GLOBAL GENERATORS
-
-            List<GeneratorData> globalGenerators = new ArrayList<>();
-
-            for (Object generatorObject : globalGeneratorArray) {
-
-                if (!(generatorObject instanceof JSONObject json)) {
-                    this.getPlugin().getLogger().warning("Map Config: Wrong generator");
-                    continue;
-                }
-
-                GeneratorData generatorData = GeneratorData.deserializeFromJSON(json);
-                if (generatorData == null) {
-                    this.getPlugin().getLogger().warning("Map Config: A generator of map " + name + " (" + index + ") has invalid configuration");
-                    continue;
-                }
-
-                globalGenerators.add(generatorData);
-
-            }
-
-            List<TimeActionData> timeActions = new ArrayList<>();
-            JSONArray timeActionArray = map.optJSONArray("timeActions");
-
-            if (timeActionArray == null) {
-                this.logMissingMapConfigItem("timeActions", index, name);
-                continue;
-            }
-
-            for (Object object2 : timeActionArray) {
-
-                if (!(object2 instanceof JSONObject json)) {
-                    this.getPlugin().getLogger().warning("Map Config: A timeAction of map " + name + " (" + index + ") is not a json object");
-                    continue;
-                }
-
-                TimeActionData timeActionData = TimeActionData.deserializeFromJSON(json);
-                if (timeActionData == null) {
-                    this.getPlugin().getLogger().warning("Map Config: A timeAction of map " + name + " (" + index + ") has invalid configuration");
-                    continue;
-                }
-
-                timeActions.add(timeActionData);
-
-            }
-
-            this.maps.add(new MapData(
-                    name,
-                    world,
-                    respawnCooldown,
-                    maxTime,
-                    spawnBlockPlaceProtectionRadius,
-                    villagerBlockPlaceProtectionRadius,
-                    teams,
-                    globalGenerators,
-                    timeActions,
-                    new ImmutableLocation(centerLocation),
-                    mapRadius
-            ));
+            
         }
+        
+        // Cloud system mode
 
         if (this.mapVoting) {
             this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Map Voting");
         } else {
             this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Random Map");
         }
+        
+        // Tasks
 
         this.getTaskScheduler().scheduleRepeatingTask(this::lobbyTask, 1, 1, "lobby");
     }
@@ -264,79 +122,8 @@ public class Lobby extends GamePart {
     public boolean shouldRun() {
         return true;
     }
-
-    private Location buildLocationFromJSONObject(JSONObject spawnpoint, boolean enableDirections) {
-
-        double x = spawnpoint.optDouble("x", Double.MIN_VALUE);
-
-        if (x == Double.MIN_VALUE) {
-            this.getPlugin().getLogger().warning("Map Config: Wrong x in a spawnpoint in team");
-            return null;
-        }
-
-        double y = spawnpoint.optDouble("y", Double.MIN_VALUE);
-
-        if (y == Double.MIN_VALUE) {
-            this.getPlugin().getLogger().warning("Map Config: Wrong y in a spawnpoint in team");
-            return null;
-        }
-
-        double z = spawnpoint.optDouble("z", Double.MIN_VALUE);
-
-        if (z == Double.MIN_VALUE) {
-            this.getPlugin().getLogger().warning("Map Config: Wrong z in a spawnpoint in team");
-            return null;
-        }
-
-        if (!enableDirections) {
-            return new Location(null, x, y, z);
-        }
-
-        float yaw = spawnpoint.optFloat("yaw", Float.MIN_VALUE);
-
-        if (yaw == Float.MIN_VALUE) {
-            this.getPlugin().getLogger().warning("Map Config: Wrong yaw in a spawnpoint in team");
-            return new Location(null, x, y, z);
-        }
-
-        float pitch = spawnpoint.optFloat("pitch", Float.MIN_VALUE);
-
-        if (pitch == Float.MIN_VALUE) {
-            this.getPlugin().getLogger().warning("Map Config: Wrong pitch in a spawnpoint in team");
-            return new Location(null, x, y, z);
-        }
-
-        return new Location(null, x, y, z, yaw, pitch);
-    }
-
-    private List<Location> buildLocationList(JSONArray locations, boolean enableDirections) {
-
-        List<Location> returnList = new ArrayList<>();
-
-        for (Object locationObject : locations) {
-
-            if (!(locationObject instanceof JSONObject)) {
-                this.getPlugin().getLogger().warning("Map Config: Wrong location");
-                continue;
-            }
-
-            Location location = this.buildLocationFromJSONObject((JSONObject) locationObject, enableDirections);
-
-            if (location == null) {
-                this.getPlugin().getLogger().warning("Map Config: Wrong location");
-                continue;
-            }
-
-            returnList.add(location);
-
-        }
-
-        return returnList;
-    }
-
-    private void logMissingMapConfigItem(String missingItem, int index, String mapName) {
-        this.getPlugin().getLogger().warning("Map Config: Missing " + missingItem + " of map " + mapName + " (" + index + ")");
-    }
+    
+    // TASKS
 
     public boolean lobbyTask() {
 
@@ -543,6 +330,8 @@ public class Lobby extends GamePart {
 
         return true;
     }
+    
+    // UTILITIES
 
     private List<MapData> getHighestVotedMaps() {
 
@@ -975,6 +764,8 @@ public class Lobby extends GamePart {
         }
 
     }
+    
+    // OTHER
 
     public int getMaxPlayers() {
 

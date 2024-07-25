@@ -23,7 +23,7 @@ public class TimeActionCreator {
 
         this.providers.put("GENERATOR_UPGRADE", data -> new GeneratorUpgradeAction(this.game, data));
         this.providers.put("DESTROY_BEDS", data -> new DestroyBedsAction(this.game, data));
-        this.providers.put("ENDGAME_WITHERS", data -> new EndgameWitherTimeAction(this.game, data));
+        this.providers.put("ENDGAME_WITHER", data -> new EndgameWitherTimeAction(this.game, data));
         this.providers.put("WORLDBORDER_CHANGE", data -> new WorldborderChangeTimeAction(this.game, data));
     }
 

@@ -16,7 +16,7 @@ import net.jandie1505.bedwars.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.team.traps.*;
 import net.jandie1505.bedwars.lobby.Lobby;
 import net.jandie1505.bedwars.lobby.LobbyPlayerData;
-import net.jandie1505.bedwars.lobby.MapData;
+import net.jandie1505.bedwars.game.MapData;
 import net.jandie1505.bedwars.lobby.inventory.VotingMenu;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
