@@ -89,103 +89,106 @@ public class Bedwars extends JavaPlugin {
 
         }.runTaskTimer(this, 1, 200);
 
-        // Task
+        // Game Task
 
-        this.getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
+        new BukkitRunnable() {
 
-            try {
+            @Override
+            public void run() {
 
-                // Manage game
-
-                if (this.game != null && !this.isPaused()) {
+                if (Bedwars.this.game != null && !Bedwars.this.isPaused()) {
 
                     try {
 
-                        if (this.game.tick()) {
+                        if (Bedwars.this.game.tick()) {
 
-                            if (this.nextStatus) {
+                            if (Bedwars.this.nextStatus) {
 
-                                this.nextStatus = false;
-                                this.game = this.game.getNextStatus();
-                                this.getLogger().info("Updated game part");
+                                Bedwars.this.nextStatus = false;
+                                Bedwars.this.game = Bedwars.this.game.getNextStatus();
+                                Bedwars.this.getLogger().info("Updated game part");
 
                             }
 
                         } else {
 
-                            this.stopGame();
-                            this.getLogger().warning("Game stopped because it was aborted by tick");
+                            Bedwars.this.stopGame();
+                            Bedwars.this.getLogger().warning("Game stopped because it was aborted by tick");
 
                         }
 
                     } catch (Exception e) {
-                        this.getLogger().warning("Exception in game: " + e + "\nMessage: " + e.getMessage() + "\nStacktrace: " + Arrays.toString(e.getStackTrace()) + "--- END ---");
-                        this.game = null;
+                        Bedwars.this.getLogger().warning("Exception in game: " + e + "\nMessage: " + e.getMessage() + "\nStacktrace: " + Arrays.toString(e.getStackTrace()) + "--- END ---");
+                        Bedwars.this.game = null;
                     }
 
                 }
 
-                // Manage worlds
+            }
 
-                for (World world : List.copyOf(this.managedWorlds)) {
+        }.runTaskTimer(this, 1, 1);
 
-                    if (world == null || !this.getServer().getWorlds().contains(world) || this.getServer().getWorlds().get(0) == world) {
-                        this.managedWorlds.remove(world);
+        // Manage worlds task
+
+        new BukkitRunnable() {
+
+            @Override
+            public void run() {
+
+                for (World world : List.copyOf(Bedwars.this.managedWorlds)) {
+
+                    if (world == null || !Bedwars.this.getServer().getWorlds().contains(world) || Bedwars.this.getServer().getWorlds().get(0) == world) {
+                        Bedwars.this.managedWorlds.remove(world);
                         continue;
                     }
 
-                    if (!(this.game instanceof Lobby || (this.game instanceof Game && ((Game) this.game).getWorld() == world))) {
-                        this.unloadWorld(world);
+                    if (!(Bedwars.this.game instanceof Lobby || (Bedwars.this.game instanceof Game && ((Game) Bedwars.this.game).getWorld() == world))) {
+                        Bedwars.this.unloadWorld(world);
                     }
 
                 }
 
-                // Manage player visibility when not ingame
+            }
 
+        }.runTaskTimer(this, 1, 20);
 
-                for (Player player : List.copyOf(this.getServer().getOnlinePlayers())) {
+        // No game running task
 
-                    if (!(this.game instanceof Game)) {
+        new BukkitRunnable() {
 
-                        for (Player otherPlayer : List.copyOf(this.getServer().getOnlinePlayers())) {
+            @Override
+            public void run() {
+
+                for (Player player : List.copyOf(Bedwars.this.getServer().getOnlinePlayers())) {
+
+                    if (!(Bedwars.this.game instanceof Game)) {
+
+                        for (Player otherPlayer : List.copyOf(Bedwars.this.getServer().getOnlinePlayers())) {
 
                             if (!player.canSee(otherPlayer)) {
-                                player.showPlayer(this, otherPlayer);
+                                player.showPlayer(Bedwars.this, otherPlayer);
                             }
 
                         }
 
                     }
 
-                    if (this.game == null) {
-                        if (player.getScoreboard() != this.getServer().getScoreboardManager().getMainScoreboard()) {
-                            player.setScoreboard(this.getServer().getScoreboardManager().getMainScoreboard());
+                    if (Bedwars.this.game == null) {
+                        if (player.getScoreboard() != Bedwars.this.getServer().getScoreboardManager().getMainScoreboard()) {
+                            player.setScoreboard(Bedwars.this.getServer().getScoreboardManager().getMainScoreboard());
                         }
                     }
 
-                    if (this.game != null && this.isPaused()) {
+                    if (Bedwars.this.game != null && Bedwars.this.isPaused()) {
                         player.sendTitle("§b\u23F8", "§7§lGAME PAUSED", 0, 20, 0);
                         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b\u23F8 GAME PAUSED"));
                     }
 
                 }
 
-                // Exception Count
-
-                if (this.exceptionCount > 0) {
-                    this.exceptionCount--;
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                this.exceptionCount++;
             }
 
-            if (this.exceptionCount >= 3) {
-                this.getServer().getPluginManager().disablePlugin(this);
-            }
-
-        }, 0, 1);
+        }.runTaskTimer(this, 1, 20);
 
         if (this.isCloudSystemMode()) {
             this.getLogger().info("Cloud System Mode enabled (autostart game + switch to ingame + shutdown on end)");
