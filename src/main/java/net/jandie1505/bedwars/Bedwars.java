@@ -32,7 +32,6 @@ public class Bedwars extends JavaPlugin {
     private ConfigManager shopConfig;
     private List<UUID> bypassingPlayers;
     private GamePart game;
-    private int exceptionCount;
     private List<World> managedWorlds;
     private ItemStorage itemStorage;
     private EventListener eventListener;
@@ -48,7 +47,6 @@ public class Bedwars extends JavaPlugin {
         this.itemConfig = new ConfigManager(this, DefaultConfigValues.getItemConfig(), true, "items.json");
         this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop.json");
         this.bypassingPlayers = Collections.synchronizedList(new ArrayList<>());
-        this.exceptionCount = 0;
         this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
         this.itemStorage = new ItemStorage(this);
         this.nextStatus = false;
