@@ -349,9 +349,6 @@ public class EventListener implements ManagedListener {
                 }
             }
 
-
-            ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().add(event.getBlockPlaced().getLocation());
-
         } else {
             event.setCancelled(true);
         }
@@ -361,14 +358,7 @@ public class EventListener implements ManagedListener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
 
-        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
-
-            if (this.plugin.getGame() instanceof Game) {
-                ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().remove(event.getBlock().getLocation());
-            }
-
-            return;
-        }
+        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
 
         if (this.plugin.getGame() != null && this.plugin.isPaused()) {
             event.setCancelled(true);
@@ -440,8 +430,6 @@ public class EventListener implements ManagedListener {
                     }
 
                 }
-
-                ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().remove(event.getBlock().getLocation());
 
             } else {
 

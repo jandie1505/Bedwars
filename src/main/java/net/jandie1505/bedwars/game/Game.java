@@ -13,6 +13,7 @@ import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
+import net.jandie1505.bedwars.game.listeners.BlockTrackingListener;
 import net.jandie1505.bedwars.game.listeners.DeathListener;
 import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.game.menu.shop.ItemShop;
@@ -49,7 +50,7 @@ public class Game extends GamePart implements ManagedListener {
     private final List<Generator> generators;
     private final List<TimeAction> timeActions;
     private final TimeActionCreator timeActionCreator;
-    private final List<Location> playerPlacedBlocks;
+    private final Set<Location> playerPlacedBlocks;
     private final Map<UUID, Scoreboard> playerScoreboards;
     private final ItemShop itemShop;
     private final ArmorConfig armorConfig;
@@ -72,7 +73,7 @@ public class Game extends GamePart implements ManagedListener {
         this.generators = Collections.synchronizedList(new ArrayList<>());
         this.timeActions = Collections.synchronizedList(new ArrayList<>());
         this.timeActionCreator = new TimeActionCreator(this);
-        this.playerPlacedBlocks = Collections.synchronizedList(new ArrayList<>());
+        this.playerPlacedBlocks = Collections.synchronizedSet(new HashSet<>());
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
         this.armorConfig = armorConfig;
@@ -178,6 +179,7 @@ public class Game extends GamePart implements ManagedListener {
 
         this.getPlugin().registerListener(this);
         this.getPlugin().registerListener(new DeathListener(this));
+        this.getPlugin().registerListener(new BlockTrackingListener(this));
     }
 
     @Override
@@ -1667,7 +1669,7 @@ public class Game extends GamePart implements ManagedListener {
         return List.copyOf(this.timeActions);
     }
 
-    public List<Location> getPlayerPlacedBlocks() {
+    public Set<Location> getPlayerPlacedBlocks() {
         return this.playerPlacedBlocks;
     }
 
