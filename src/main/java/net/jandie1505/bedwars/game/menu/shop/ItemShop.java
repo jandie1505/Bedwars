@@ -14,7 +14,7 @@ import java.util.List;
 public class ItemShop {
     private final Game game;
     private final Integer[] menuItems;
-    private final List<ShopEntry> shopEntries;
+    private final List<ShopEntryOld> shopEntries;
     private Integer defaultWeapon;
     private UpgradeEntry armorUpgrade;
     private UpgradeEntry pickaxeUpgrade;
@@ -56,7 +56,7 @@ public class ItemShop {
         return Arrays.copyOf(this.menuItems, this.menuItems.length);
     }
 
-    public List<ShopEntry> getShopEntries() {
+    public List<ShopEntryOld> getShopEntries() {
         return List.copyOf(this.shopEntries);
     }
 
@@ -81,10 +81,10 @@ public class ItemShop {
         );
     }
 
-    public List<ShopEntry> getShopEntryPage(int page) {
-        List<ShopEntry> returnList = new ArrayList<>();
+    public List<ShopEntryOld> getShopEntryPage(int page) {
+        List<ShopEntryOld> returnList = new ArrayList<>();
 
-        for (ShopEntry shopEntry : this.getShopEntries()) {
+        for (ShopEntryOld shopEntry : this.getShopEntries()) {
 
             if (shopEntry.getPage() == page) {
                 returnList.add(shopEntry);
@@ -125,9 +125,9 @@ public class ItemShop {
         return returnList;
     }
 
-    public ShopEntry getShopEntry(int id) {
+    public ShopEntryOld getShopEntry(int id) {
 
-        for (ShopEntry shopEntry : this.getShopEntries()) {
+        for (ShopEntryOld shopEntry : this.getShopEntries()) {
 
             if (shopEntry.getItemId() == id) {
                 return shopEntry;
@@ -268,7 +268,7 @@ public class ItemShop {
                     continue;
                 }
 
-                this.shopEntries.add(new ShopEntry(this, itemId, price, currency, page, slot));
+                this.shopEntries.add(new ShopEntryOld(this, itemId, price, currency, page, slot));
 
             }
 

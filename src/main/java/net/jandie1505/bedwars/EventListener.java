@@ -6,7 +6,7 @@ import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.entities.entities.SnowDefender;
-import net.jandie1505.bedwars.game.menu.shop.ShopEntry;
+import net.jandie1505.bedwars.game.menu.shop.ShopEntryOld;
 import net.jandie1505.bedwars.game.menu.shop.ShopMenu;
 import net.jandie1505.bedwars.game.menu.shop.UpgradeEntry;
 import net.jandie1505.bedwars.game.menu.upgrades.UpgradesMenu;
@@ -792,6 +792,7 @@ public class EventListener implements ManagedListener {
             for (String tag : List.copyOf(event.getRightClicked().getScoreboardTags())) {
 
                 if (tag.startsWith("shop")) {
+                    //((Game) this.plugin.getGame()).getItemShopNew().openInventory(event.getPlayer());
                     event.getPlayer().openInventory(new ShopMenu((Game) this.plugin.getGame(), event.getPlayer().getUniqueId()).getPage(0));
                     return;
                 }
@@ -931,7 +932,7 @@ public class EventListener implements ManagedListener {
 
             }
 
-            ShopEntry shopEntry = ((Game) this.plugin.getGame()).getItemShop().getShopEntry(itemId);
+            ShopEntryOld shopEntry = ((Game) this.plugin.getGame()).getItemShop().getShopEntry(itemId);
 
             if (shopEntry != null) {
 

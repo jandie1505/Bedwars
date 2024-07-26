@@ -63,7 +63,7 @@ public class ShopMenu implements InventoryHolder {
 
         Inventory inventory = this.getInventoryBase(page);
 
-        for (ShopEntry shopEntry : this.game.getItemShop().getShopEntryPage(page)) {
+        for (ShopEntryOld shopEntry : this.game.getItemShop().getShopEntryPage(page)) {
 
             if (shopEntry.getItem() == null || shopEntry.getSlot() < 9 || shopEntry.getSlot() > 52) {
                 continue;

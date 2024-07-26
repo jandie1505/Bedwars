@@ -17,6 +17,7 @@ import net.jandie1505.bedwars.game.listeners.BlockTrackingListener;
 import net.jandie1505.bedwars.game.listeners.DeathListener;
 import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
 import net.jandie1505.bedwars.game.menu.shop.ItemShop;
+import net.jandie1505.bedwars.game.menu.shop.ItemShopNew;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamData;
@@ -56,6 +57,7 @@ public class Game extends GamePart implements ManagedListener {
     private final ArmorConfig armorConfig;
     private final TeamUpgradesConfig teamUpgradesConfig;
     private final List<ManagedEntity<?>> managedEntities;
+    private final ItemShopNew itemShopNew;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
@@ -79,6 +81,7 @@ public class Game extends GamePart implements ManagedListener {
         this.armorConfig = armorConfig;
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
+        this.itemShopNew = new ItemShopNew(this);
         this.time = this.data.maxTime();
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
@@ -1763,6 +1766,10 @@ public class Game extends GamePart implements ManagedListener {
      */
     public void removeManagedEntity(BaseDefender managedEntity) {
         this.managedEntities.remove(managedEntity);
+    }
+
+    public ItemShopNew getItemShopNew() {
+        return itemShopNew;
     }
 
     //
