@@ -83,16 +83,6 @@ public class DeathListener implements ManagedListener {
 
         }
 
-        // Remove player if team has no bed
-
-        BedwarsTeam team = this.game.getTeams().get(playerData.getTeam());
-
-        if (team == null || team.hasBed() <= 0) {
-            this.game.removePlayer(event.getEntity().getUniqueId());
-            this.game.getPlugin().givePointsToPlayer(event.getEntity(), playerData.getRewardPoints(), "§6Reward for this game: + {points} points");
-            return;
-        }
-
         // Make player respawn
 
         playerData.setAlive(false);

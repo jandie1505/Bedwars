@@ -313,18 +313,10 @@ public class Game extends GamePart implements ManagedListener {
                 continue;
             }
 
-            if (player == null) {
-                playerData.setAlive(false);
-            }
+            // Set alive to false when player is offline
 
             if (player == null) {
                 playerData.setAlive(false);
-
-                if (team.hasBed() <= 0) {
-                    this.players.remove(playerId);
-                    continue;
-                }
-
                 continue;
             }
 
@@ -342,12 +334,22 @@ public class Game extends GamePart implements ManagedListener {
             if (playerData == null) continue;
             Player player = this.getPlugin().getServer().getPlayer(playerId);
             if (player == null) continue;
+            BedwarsTeam team = this.getTeam(playerData.getTeam());
+            if (team == null) continue;
+
+            // Check if alive or not
 
             if (playerData.isAlive()) {
+
+                // PLAYER IS ALIVE
+
+                // Set respawn countdown to default
 
                 if (playerData.getRespawnCountdown() != this.data.respawnCountdown()) {
                     playerData.setRespawnCountdown(this.data.respawnCountdown());
                 }
+
+                // Set gamemode to survival
 
                 if (!this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
                     player.setGameMode(GameMode.SURVIVAL);
@@ -355,20 +357,40 @@ public class Game extends GamePart implements ManagedListener {
 
             } else {
 
+                // PLAYER IS NOT ALIVE
+
+                // Set spectator
+
                 if (!this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
                     player.setGameMode(GameMode.SPECTATOR);
                 }
 
-                if (playerData.getRespawnCountdown() > 0) {
+                // Respawn process
 
-                    player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 25, 0);
-                    player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
+                if (team.hasBed() > 0) {
 
-                    playerData.setRespawnCountdown(playerData.getRespawnCountdown() - 1);
+                    // TEAM STILL HAS BED
+
+                    // Count down or respawn if countdown is 0
+                    if (playerData.getRespawnCountdown() > 0) {
+
+                        player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 25, 0);
+                        player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
+
+                        playerData.setRespawnCountdown(playerData.getRespawnCountdown() - 1);
+
+                    } else {
+
+                        this.respawnPlayer(player);
+
+                    }
 
                 } else {
 
-                    this.respawnPlayer(player);
+                    // TEAM HAS NO BED
+
+                    // Display you are dead message, no respawn
+                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "You are dead"));
 
                 }
 

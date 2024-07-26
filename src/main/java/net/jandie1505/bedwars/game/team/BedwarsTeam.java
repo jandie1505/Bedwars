@@ -88,8 +88,28 @@ public class BedwarsTeam {
         return beds;
     }
 
+    /**
+     * Returns if the team is alive.
+     * A team is alive, when it has one or more players, has a bed or at minimum one player that is still alive when the team has no bed anymore.
+     * @return
+     */
     public boolean isAlive() {
-        return this.getPlayers().size() > 0;
+        List<UUID> players = this.getPlayers();
+        if (players.isEmpty()) return false;
+
+        if (this.hasBed() > 0) {
+            return true;
+        } else {
+
+            for (UUID playerId : players) {
+                PlayerData playerData = this.game.getPlayer(playerId);
+                if (playerData == null) continue;
+                if (playerData.isAlive()) return true;
+            }
+
+            return false;
+        }
+
     }
 
     public Game getGame() {
