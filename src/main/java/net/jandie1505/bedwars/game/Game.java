@@ -281,14 +281,16 @@ public class Game extends GamePart implements ManagedListener {
      * This task teleports spectators to the game map.
      */
     private void teleportSpectatorsTask() {
+        Location loc = this.data.centerLocation().mutableCopy();
+        loc.setWorld(this.world);
 
         for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
-            if (player.getWorld() == this.data.centerLocation().getWorld()) continue;
+            if (player.getWorld() == loc.getWorld()) continue;
 
             PlayerData playerData = this.getPlayers().get(player.getUniqueId());
             if (playerData != null) continue;
 
-            player.teleport(this.data.centerLocation());
+            player.teleport(loc);
         }
 
     }
