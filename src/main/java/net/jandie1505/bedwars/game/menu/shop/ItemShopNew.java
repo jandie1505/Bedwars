@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.game.menu.shop;
 
+import net.chaossquad.mclib.JSONConfigUtils;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.ManagedListener;
@@ -18,11 +19,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ItemShopNew implements ManagedListener, InventoryHolder {
     private final Game game;
@@ -310,8 +310,105 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
             return this.item.clone();
         }
 
-        public record GUIPosition(int page, int slot) {}
+        public static ShopEntry createFromJSON(JSONObject data) {
 
+            JSONObject itemData = data.optJSONObject("item");
+            //if (itemData == null) return null;
+            ItemStack item;
+            try {
+                item = JSONConfigUtils.deserializeItem(itemData);
+                //if (item == null) return null;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+
+            Material currency = Material.getMaterial(data.getString("currency"));
+            //if (currency == null) return null;
+
+            List<GUIPosition> positions = new ArrayList<>();
+            JSONArray guiPositions = data.optJSONArray("positions");
+            //if (guiPositions == null) return null;
+            for (int i = 0; i < guiPositions.length(); i++) {
+                JSONObject guiPosition = guiPositions.getJSONObject(i);
+                //if (guiPosition == null) continue;
+                GUIPosition position = GUIPosition.createFromJSON(guiPosition);
+                //if (position == null) continue;
+                positions.add(position);
+            }
+
+            return new ShopEntry(
+                    item,
+                    currency,
+                    data.optInt("price", 1),
+                    positions
+            );
+        }
+
+        public static JSONObject convertToJSON(ShopEntry shopEntry) {
+            JSONObject data = new JSONObject();
+
+            data.put("item", JSONConfigUtils.serializeItem(shopEntry.item()));
+            data.put("currency", shopEntry.currency().name());
+            data.put("price", shopEntry.price());
+
+            JSONArray positions = new JSONArray();
+            for (GUIPosition guiPosition : shopEntry.positions) {
+                positions.put(GUIPosition.convertToJSON(guiPosition));
+            }
+            data.put("positions", positions);
+
+            return data;
+        }
+
+        public record GUIPosition(int page, int slot) {
+
+            public static GUIPosition createFromJSON(JSONObject data) {
+                int page = data.optInt("page", -1);
+                int slot = data.optInt("slot", -1);
+                //if (page < 0 || slot < 0) return null;
+                return new GUIPosition(page, slot);
+            }
+
+            public static JSONObject convertToJSON(GUIPosition guiPosition) {
+                JSONObject data = new JSONObject();
+                data.put("page", guiPosition.page());
+                data.put("slot", guiPosition.slot());
+                return data;
+            }
+
+        }
+
+    }
+
+    // STATIC
+
+    public static JSONObject serializeShopEntries(Map<String, ShopEntry> shopEntries) {
+        JSONObject data = new JSONObject();
+
+        for (Map.Entry<String, ShopEntry> shopEntry : shopEntries.entrySet()) {
+            data.put(shopEntry.getKey(), ShopEntry.convertToJSON(shopEntry.getValue()));
+        }
+
+        return data;
+    }
+
+    public static Map<String, ShopEntry> deserializeShopEntries(JSONObject data) {
+        Map<String, ShopEntry> shopEntries = new HashMap<>();
+
+        for (String key : data.keySet()) {
+
+            try {
+                ShopEntry shopEntry = ShopEntry.createFromJSON(data.getJSONObject(key));
+                //if (shopEntry == null) continue;
+                shopEntries.put(key, shopEntry);
+            } catch (Exception e) {
+                continue;
+            }
+
+        }
+
+        return shopEntries;
     }
 
 }
