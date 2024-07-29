@@ -1,14 +1,26 @@
 package net.jandie1505.bedwars.config;
 
+import net.jandie1505.bedwars.game.menu.shop.ItemShopNew;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public final class DefaultConfigValues {
     private DefaultConfigValues() {}
@@ -1856,6 +1868,667 @@ public final class DefaultConfigValues {
         entry.put("slots", slots);
 
         return entry;
+    }
+
+    public static ItemStack rocketBuilder(String name, int fireworkStars) {
+
+        ItemStack item = new ItemStack(Material.FIREWORK_ROCKET);
+        FireworkMeta meta = (FireworkMeta) item.getItemMeta();
+
+        meta.setDisplayName(name);
+        meta.addItemFlags(ItemFlag.values());
+
+        meta.setPower(fireworkStars * 2);
+
+        for (int i = 0; i < fireworkStars; i++) {
+            meta.addEffect(FireworkEffect.builder().withColor(Color.BLACK).with(FireworkEffect.Type.BALL).build());
+        }
+
+        meta.setLore(List.of("§r§7Firework Stars: " + meta.getEffects().size(), "§r§7Power: " + meta.getPower()));
+
+        item.setItemMeta(meta);
+
+        return item;
+
+    }
+
+    public static Map<String, ItemShopNew.ShopEntry> getDefaultShopEntries() {
+        Map<String, ItemShopNew.ShopEntry> entries = new HashMap<>();
+
+        // ----- BLOCKS (1) -----
+
+        // Wool
+
+        entries.put(
+                "wool",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.WHITE_WOOL, 16),
+                        Material.IRON_INGOT,
+                        4,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 19))
+                )
+        );
+
+        // Terracotta
+
+        entries.put(
+                "terracotta",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.TERRACOTTA, 24),
+                        Material.IRON_INGOT,
+                        16,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 20))
+                )
+        );
+
+        // Glass
+
+        entries.put(
+                "glass",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.GLASS, 4),
+                        Material.IRON_INGOT,
+                        12,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 21))
+                )
+        );
+
+        // End stone
+
+        entries.put(
+                "endstone",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.END_STONE, 12),
+                        Material.IRON_INGOT,
+                        24,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 22))
+                )
+        );
+
+        // Ladder
+
+        entries.put(
+                "ladder",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.LADDER, 8),
+                        Material.IRON_INGOT,
+                        4,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 23))
+                )
+        );
+
+        // Oak planks
+
+        entries.put(
+                "wood",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.OAK_PLANKS, 16),
+                        Material.GOLD_INGOT,
+                        4,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 24))
+                )
+        );
+
+        // Ancient Debris
+
+        ItemStack ancientDebrisItem = new ItemStack(Material.ANCIENT_DEBRIS, 4);
+        ItemMeta ancientDebrisMeta = ancientDebrisItem.getItemMeta();
+        ancientDebrisMeta.setLore(List.of("§r§7The first serious bed defence."));
+        ancientDebrisItem.setItemMeta(ancientDebrisMeta);
+
+        entries.put(
+                "ancient_debris",
+                new ItemShopNew.ShopEntry(
+                        ancientDebrisItem,
+                        Material.EMERALD,
+                        4,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 25))
+                )
+        );
+
+        // Obsidian
+
+        ItemStack obsidianItem = new ItemStack(Material.OBSIDIAN, 4);
+        ItemMeta obsidianMeta = obsidianItem.getItemMeta();
+        obsidianMeta.setLore(List.of("§r§7The best affordable defence", "§r§7for your bed!"));
+        obsidianItem.setItemMeta(obsidianMeta);
+
+        entries.put(
+                "obsidian",
+                new ItemShopNew.ShopEntry(
+                        obsidianItem,
+                        Material.EMERALD,
+                        6,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 28))
+                )
+        );
+
+        // Bedrock
+
+        ItemStack bedrockItem = new ItemStack(Material.BEDROCK, 4);
+        ItemMeta bedrockMeta = bedrockItem.getItemMeta();
+        bedrockMeta.setLore(List.of(
+                "§r§7If you want to take it serious.",
+                "§r§7Indestructible protection for your bed!",
+                "§r§7Will be replaced with glass after beds gone.",
+                "§r§7Cannot be placed anymore after beds gone."
+        ));
+        bedrockItem.setItemMeta(bedrockMeta);
+
+        entries.put(
+                "bedrock",
+                new ItemShopNew.ShopEntry(
+                        bedrockItem,
+                        Material.EMERALD,
+                        64,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 29))
+                )
+        );
+
+        // ----- WEAPONS (2) -----
+
+        // Stone Sword
+
+        ItemStack stoneSwordItem = new ItemStack(Material.STONE_SWORD);
+        ItemMeta stoneSwordMeta = stoneSwordItem.getItemMeta();
+        stoneSwordMeta.setLore(List.of("§r§7At least better than fighting with your fists."));
+        stoneSwordMeta.setUnbreakable(true);
+        stoneSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        stoneSwordItem.setItemMeta(stoneSwordMeta);
+
+        entries.put(
+                "stone_sword",
+                new ItemShopNew.ShopEntry(
+                        stoneSwordItem,
+                        Material.IRON_INGOT,
+                        10,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 19))
+                )
+        );
+
+        // Iron Sword
+
+        ItemStack ironSwordItem = new ItemStack(Material.IRON_SWORD);
+        ItemMeta ironSwordMeta = ironSwordItem.getItemMeta();
+        ironSwordMeta.setLore(List.of("§r§7A mediocre fighting experience."));
+        ironSwordMeta.setUnbreakable(true);
+        ironSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        ironSwordItem.setItemMeta(ironSwordMeta);
+
+        entries.put(
+                "iron_sword",
+                new ItemShopNew.ShopEntry(
+                        ironSwordItem,
+                        Material.GOLD_INGOT,
+                        7,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 20))
+                )
+        );
+
+        // Diamond Sword
+
+        ItemStack diamondSwordItem = new ItemStack(Material.DIAMOND_SWORD);
+        ItemMeta diamondSwordMeta = diamondSwordItem.getItemMeta();
+        diamondSwordMeta.setLore(List.of("§r§7Full fighting power."));
+        diamondSwordMeta.setUnbreakable(true);
+        diamondSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        diamondSwordItem.setItemMeta(diamondSwordMeta);
+
+        entries.put(
+                "diamond_sword",
+                new ItemShopNew.ShopEntry(
+                        diamondSwordItem,
+                        Material.EMERALD,
+                        3,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 21))
+                )
+        );
+
+        // Netherite Sword
+
+        ItemStack netheriteSwordItem = new ItemStack(Material.NETHERITE_SWORD);
+        ItemMeta netheriteSwordMeta = netheriteSwordItem.getItemMeta();
+        netheriteSwordMeta.setLore(List.of("§r§7To destroy everything."));
+        netheriteSwordMeta.setUnbreakable(true);
+        netheriteSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        netheriteSwordItem.setItemMeta(netheriteSwordMeta);
+
+        entries.put(
+                "netherite_sword",
+                new ItemShopNew.ShopEntry(
+                        netheriteSwordItem,
+                        Material.EMERALD,
+                        9,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 22))
+                )
+        );
+
+        // Stone Axe
+
+        ItemStack stoneAxeItem = new ItemStack(Material.STONE_AXE);
+        ItemMeta stoneAxeMeta = stoneAxeItem.getItemMeta();
+        stoneAxeMeta.setLore(List.of("§r§7At least better than fighting with your fists."));
+        stoneAxeMeta.setUnbreakable(true);
+        stoneAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        stoneAxeItem.setItemMeta(stoneAxeMeta);
+
+        entries.put(
+                "stone_axe",
+                new ItemShopNew.ShopEntry(
+                        stoneAxeItem,
+                        Material.IRON_INGOT,
+                        12,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 28))
+                )
+        );
+
+        // Iron Axe
+
+        ItemStack ironAxeItem = new ItemStack(Material.IRON_AXE);
+        ItemMeta ironAxeMeta = ironAxeItem.getItemMeta();
+        ironAxeMeta.setLore(List.of("§r§7A mediocre fighting experience."));
+        ironAxeMeta.setUnbreakable(true);
+        ironAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        ironAxeItem.setItemMeta(ironAxeMeta);
+
+        entries.put(
+                "iron_axe",
+                new ItemShopNew.ShopEntry(
+                        ironAxeItem,
+                        Material.GOLD_INGOT,
+                        9,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 29))
+                )
+        );
+
+        // Diamond Axe
+
+        ItemStack diamondAxeItem = new ItemStack(Material.DIAMOND_AXE);
+        ItemMeta diamondAxeMeta = diamondAxeItem.getItemMeta();
+        diamondAxeMeta.setLore(List.of("§r§7Full fighting power."));
+        diamondAxeMeta.setUnbreakable(true);
+        diamondAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        diamondAxeItem.setItemMeta(diamondAxeMeta);
+
+        entries.put(
+                "diamond_axe",
+                new ItemShopNew.ShopEntry(
+                        diamondAxeItem,
+                        Material.EMERALD,
+                        4,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 30))
+                )
+        );
+
+        // Netherite Axe
+
+        ItemStack netheriteAxeItem = new ItemStack(Material.NETHERITE_AXE);
+        ItemMeta netheriteAxeMeta = netheriteAxeItem.getItemMeta();
+        netheriteAxeMeta.setLore(List.of("§r§7To destroy everything."));
+        netheriteAxeMeta.setUnbreakable(true);
+        netheriteAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        netheriteAxeItem.setItemMeta(netheriteAxeMeta);
+
+        entries.put(
+                "netherite_axe",
+                new ItemShopNew.ShopEntry(
+                        netheriteAxeItem,
+                        Material.EMERALD,
+                        11,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 31))
+                )
+        );
+
+        // Knockback Stick
+
+        ItemStack knockbackStickItem = new ItemStack(Material.STICK);
+        ItemMeta knockbackStickMeta = knockbackStickItem.getItemMeta();
+        knockbackStickMeta.setDisplayName("§rKnockback Stick");
+        knockbackStickMeta.setLore(List.of("§r§7Knock your enemies into the void."));
+        knockbackStickMeta.addEnchant(Enchantment.KNOCKBACK, 1, true);
+        knockbackStickItem.setItemMeta(knockbackStickMeta);
+
+        entries.put(
+                "knockback_stick",
+                new ItemShopNew.ShopEntry(
+                        knockbackStickItem,
+                        Material.GOLD_INGOT,
+                        5,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 25))
+                )
+        );
+
+        // Knockback Stick MkII
+
+        ItemStack knockbackStickMk2Item = new ItemStack(Material.STICK);
+        ItemMeta knockbackStickMk2Meta = knockbackStickMk2Item.getItemMeta();
+        knockbackStickMk2Meta.setDisplayName("§rKnockback Stick MkII");
+        knockbackStickMk2Meta.setLore(List.of("§r§7Even more knockback..."));
+        knockbackStickMk2Meta.addEnchant(Enchantment.KNOCKBACK, 2, true);
+        knockbackStickMk2Item.setItemMeta(knockbackStickMk2Meta);
+
+        entries.put(
+                "knockback_stick_mk2",
+                new ItemShopNew.ShopEntry(
+                        knockbackStickMk2Item,
+                        Material.EMERALD,
+                        5,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 34))
+                )
+        );
+
+        // Knockback Stick MkII
+
+        ItemStack knockbackStickMk3Item = new ItemStack(Material.STICK);
+        ItemMeta knockbackStickMk3Meta = knockbackStickMk3Item.getItemMeta();
+        knockbackStickMk3Meta.setDisplayName("§rKnockback Stick MkIII");
+        knockbackStickMk3Meta.setLore(List.of(
+                "§r§7Ensures that your opponent is no longer",
+                "§r§7on the platform after the hit."
+        ));
+        knockbackStickMk3Meta.addEnchant(Enchantment.KNOCKBACK, 3, true);
+        knockbackStickMk3Item.setItemMeta(knockbackStickMk3Meta);
+
+        entries.put(
+                "knockback_stick_mk3",
+                new ItemShopNew.ShopEntry(
+                        knockbackStickMk3Item,
+                        Material.EMERALD,
+                        15,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 43))
+                )
+        );
+
+        // ----- RANGED WEAPONS (5) -----
+
+        // Standard Bow
+
+        ItemStack standardBowItem = new ItemStack(Material.BOW);
+        ItemMeta standardBowMeta = standardBowItem.getItemMeta();
+        standardBowMeta.setLore(List.of("§r§7Just a normal bow.", "§r§7Without any special features."));
+        standardBowMeta.setUnbreakable(true);
+        standardBowMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        standardBowItem.setItemMeta(standardBowMeta);
+
+        entries.put(
+                "standard_bow",
+                new ItemShopNew.ShopEntry(
+                        standardBowItem,
+                        Material.GOLD_INGOT,
+                        12,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 19))
+                )
+        );
+
+        // Powerful Bow
+
+        ItemStack powerfulBowItem = new ItemStack(Material.BOW);
+        ItemMeta powerfulBowMeta = powerfulBowItem.getItemMeta();
+        powerfulBowMeta.setDisplayName("§rEnhanced Bow");
+        powerfulBowMeta.setLore(List.of("§r§7A bow with the power enchantment."));
+        powerfulBowMeta.addEnchant(Enchantment.POWER, 1, true);
+        powerfulBowMeta.setUnbreakable(true);
+        powerfulBowMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        powerfulBowItem.setItemMeta(powerfulBowMeta);
+
+        entries.put(
+                "powerful_bow",
+                new ItemShopNew.ShopEntry(
+                        powerfulBowItem,
+                        Material.GOLD_INGOT,
+                        24,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 20))
+                )
+        );
+
+        // Power and Punch Bow
+
+        ItemStack powerPunchBowItem = new ItemStack(Material.BOW);
+        ItemMeta powerPunchBowMeta = powerPunchBowItem.getItemMeta();
+        powerPunchBowMeta.setDisplayName("§rPower & Punch Bow");
+        powerPunchBowMeta.setLore(List.of("§r§7Power + Punch."));
+        powerPunchBowMeta.addEnchant(Enchantment.POWER, 1, true);
+        powerPunchBowMeta.addEnchant(Enchantment.PUNCH, 1, true);
+        powerPunchBowMeta.setUnbreakable(true);
+        powerPunchBowMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        powerPunchBowItem.setItemMeta(powerPunchBowMeta);
+
+        entries.put(
+                "power_punch_bow",
+                new ItemShopNew.ShopEntry(
+                        powerPunchBowItem,
+                        Material.EMERALD,
+                        6,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 21))
+                )
+        );
+
+        // Most powerful bow
+
+        ItemStack mostPowerfulBowItem = new ItemStack(Material.BOW);
+        ItemMeta mostPowerfulBowMeta = mostPowerfulBowItem.getItemMeta();
+        mostPowerfulBowMeta.setDisplayName("§rMost Powerful Bow");
+        mostPowerfulBowMeta.setLore(List.of("§r§7More power, but no punch."));
+        mostPowerfulBowMeta.addEnchant(Enchantment.POWER, 2, true);
+        mostPowerfulBowMeta.setUnbreakable(true);
+        mostPowerfulBowMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        mostPowerfulBowItem.setItemMeta(mostPowerfulBowMeta);
+
+        entries.put(
+                "most_powerful_bow",
+                new ItemShopNew.ShopEntry(
+                        mostPowerfulBowItem,
+                        Material.EMERALD,
+                        8,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 28))
+                )
+        );
+
+        // Get on their nerves bow
+
+        ItemStack getOnTheirNervesBowItem = new ItemStack(Material.BOW);
+        ItemMeta getOnTheirNervesBowMeta = getOnTheirNervesBowItem.getItemMeta();
+        getOnTheirNervesBowMeta.setDisplayName("§rGet-on-their-nerves-Bow");
+        getOnTheirNervesBowMeta.setLore(List.of("§r§7The enemies will like you for using this!"));
+        getOnTheirNervesBowMeta.addEnchant(Enchantment.PUNCH, 2, true);
+        getOnTheirNervesBowMeta.setUnbreakable(true);
+        getOnTheirNervesBowMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        getOnTheirNervesBowItem.setItemMeta(getOnTheirNervesBowMeta);
+
+        entries.put(
+                "get_on_their_nerves_bow",
+                new ItemShopNew.ShopEntry(
+                        getOnTheirNervesBowItem,
+                        Material.EMERALD,
+                        8,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 29))
+                )
+        );
+
+        // Get on their nerves bow: Extended Edition
+
+        ItemStack getOnTheirNervesBowExtendedItem = new ItemStack(Material.BOW);
+        ItemMeta getOnTheirNervesBowExtendedMeta = getOnTheirNervesBowExtendedItem.getItemMeta();
+        getOnTheirNervesBowExtendedMeta.setDisplayName("§rGet-on-their-nerves-Bow: Extended Edition");
+        getOnTheirNervesBowExtendedMeta.setLore(List.of("§r§7The other teams will definitely", "§r§7remember you for using this!"));
+        getOnTheirNervesBowExtendedMeta.addEnchant(Enchantment.PUNCH, 3, true);
+        getOnTheirNervesBowExtendedMeta.setUnbreakable(true);
+        getOnTheirNervesBowExtendedMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        getOnTheirNervesBowExtendedItem.setItemMeta(getOnTheirNervesBowExtendedMeta);
+
+        entries.put(
+                "get_on_their_nerves_bow_extended",
+                new ItemShopNew.ShopEntry(
+                        getOnTheirNervesBowExtendedItem,
+                        Material.EMERALD,
+                        12,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 30))
+                )
+        );
+
+        // Crossbow
+
+        ItemStack crossbowItem = new ItemStack(Material.CROSSBOW);
+        ItemMeta crossbowMeta = crossbowItem.getItemMeta();
+        crossbowMeta.setLore(List.of("§r§7Just a normal Crossbow."));
+        crossbowMeta.setUnbreakable(true);
+        crossbowMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        crossbowItem.setItemMeta(crossbowMeta);
+
+        entries.put(
+                "crossbow",
+                new ItemShopNew.ShopEntry(
+                        crossbowItem,
+                        Material.GOLD_INGOT,
+                        15,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 37))
+                )
+        );
+
+        // Enhanced Crossbow
+
+        ItemStack enhancedCrossbowItem = new ItemStack(Material.CROSSBOW);
+        ItemMeta enhancedCrossbowMeta = enhancedCrossbowItem.getItemMeta();
+        enhancedCrossbowMeta.setDisplayName("§rEnhanced Crossbow");
+        enhancedCrossbowMeta.setLore(List.of("§r§7If you want to be quicker."));
+        enhancedCrossbowMeta.addEnchant(Enchantment.QUICK_CHARGE, 1, true);
+        enhancedCrossbowMeta.setUnbreakable(true);
+        enhancedCrossbowMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        enhancedCrossbowItem.setItemMeta(enhancedCrossbowMeta);
+
+        entries.put(
+                "enhanced_crossbow",
+                new ItemShopNew.ShopEntry(
+                        enhancedCrossbowItem,
+                        Material.GOLD_INGOT,
+                        30,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 38))
+                )
+        );
+
+        // Very enhanced Crossbow
+
+        ItemStack veryEnhancedCrossbowItem = new ItemStack(Material.CROSSBOW);
+        ItemMeta veryEnhancedCrossbowMeta = veryEnhancedCrossbowItem.getItemMeta();
+        veryEnhancedCrossbowMeta.setDisplayName("§rVery Enhanced Crossbow");
+        veryEnhancedCrossbowMeta.setLore(List.of(
+                "§r§7The enhanced version of",
+                "§r§7the enhanced crossbow!"
+        ));
+        veryEnhancedCrossbowMeta.addEnchant(Enchantment.QUICK_CHARGE, 2, true);
+        veryEnhancedCrossbowMeta.setUnbreakable(true);
+        veryEnhancedCrossbowMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        veryEnhancedCrossbowItem.setItemMeta(veryEnhancedCrossbowMeta);
+
+        entries.put(
+                "very_enhanced_crossbow",
+                new ItemShopNew.ShopEntry(
+                        veryEnhancedCrossbowItem,
+                        Material.EMERALD,
+                        8,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 39))
+                )
+        );
+
+        // Arrow
+
+        entries.put(
+                "arrow",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.ARROW),
+                        Material.GOLD_INGOT,
+                        2,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 24))
+                )
+        );
+        
+        // Spectral Arrow
+
+        entries.put(
+                "spectral_arrow",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.SPECTRAL_ARROW),
+                        Material.GOLD_INGOT,
+                        3,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 25))
+                )
+        );
+
+        // Creeper Arrow
+
+        ItemStack creeperArrowItem = new ItemStack(Material.TIPPED_ARROW);
+        PotionMeta creeperArrowMeta = (PotionMeta) creeperArrowItem.getItemMeta();
+        creeperArrowMeta.setDisplayName("§rCreeper Arrow");
+        creeperArrowMeta.setLore(List.of("§r§7Spawns a Creeper at the point of impact."));
+        creeperArrowMeta.setColor(Color.GREEN);
+        creeperArrowMeta.addItemFlags(ItemFlag.values());
+        creeperArrowItem.setItemMeta(creeperArrowMeta);
+
+        entries.put(
+                "creeper_arrow",
+                new ItemShopNew.ShopEntry(
+                        creeperArrowItem,
+                        Material.EMERALD,
+                        3,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 33))
+                )
+        );
+
+        // Vodka Arrow
+
+        ItemStack vodkaArrowItem = new ItemStack(Material.TIPPED_ARROW);
+        PotionMeta vodkaArrowMeta = (PotionMeta) vodkaArrowItem.getItemMeta();
+        vodkaArrowMeta.setDisplayName("§rVodka Arrow");
+        vodkaArrowMeta.setLore(List.of(
+                "§r§7We will not show you the effects here,",
+                "§r§7you need to experience them yourself."
+        ));
+        vodkaArrowMeta.setColor(Color.GRAY);
+        vodkaArrowMeta.addCustomEffect(new PotionEffect(PotionEffectType.SLOWNESS, 30*20, 0, true, true, true), true);
+        vodkaArrowMeta.addCustomEffect(new PotionEffect(PotionEffectType.NAUSEA, 30*20, 1, true, true, true), true);
+        vodkaArrowMeta.addCustomEffect(new PotionEffect(PotionEffectType.WEAKNESS, 30*20, 0, true, true, true), true);
+        vodkaArrowMeta.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS, 10*20, 1, true, true, true), true);
+        vodkaArrowMeta.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 10*20, 0, true, true, true), true);
+        vodkaArrowMeta.addItemFlags(ItemFlag.values());
+        vodkaArrowItem.setItemMeta(vodkaArrowMeta);
+
+        entries.put(
+                "vodka_arrow",
+                new ItemShopNew.ShopEntry(
+                        vodkaArrowItem,
+                        Material.EMERALD,
+                        64,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 34))
+                )
+        );
+
+        // Small Crossbow Ammunition
+
+        entries.put(
+                "small_rocket",
+                new ItemShopNew.ShopEntry(
+                        rocketBuilder("§rSmall Rocket", 1),
+                        Material.GOLD_INGOT,
+                        5,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 42))
+                )
+        );
+
+        // Big Crossbow Ammunition
+
+        entries.put(
+                "big_rocket",
+                new ItemShopNew.ShopEntry(
+                        rocketBuilder("§rBig Rocket", 2),
+                        Material.GOLD_INGOT,
+                        10,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 43))
+                )
+        );
+
+        // ----- RETURN -----
+
+        return entries;
     }
 
 }
