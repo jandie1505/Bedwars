@@ -12,6 +12,8 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -1867,6 +1869,26 @@ public final class DefaultConfigValues {
         return entry;
     }
 
+    public static ItemStack buildButton(@NotNull String name, @Nullable List<String> description, @NotNull Material material, boolean enchanted) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+
+        meta.setDisplayName("§r" + name);
+
+        if (description != null) {
+            meta.setLore(description.stream().map(string -> "§r" + string).toList());
+        }
+
+        if (enchanted) {
+            meta.addEnchant(Enchantment.FORTUNE, 0, true);
+        }
+
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
     public static ItemStack rocketBuilder(String name, int fireworkStars) {
 
         ItemStack item = new ItemStack(Material.FIREWORK_ROCKET);
@@ -1887,6 +1909,33 @@ public final class DefaultConfigValues {
 
         return item;
 
+    }
+
+    /*
+
+        // Special Items Button
+
+        JSONObject specialItemsButton = new JSONObject();
+
+        specialItemsButton.put("type", "TNT");
+        specialItemsButton.put("name", "§bSpecial Items");
+
+        config.put("10", specialItemsButton);
+     */
+
+    public static ItemStack[] getShopMenuBar() {
+        ItemStack[] menuBar = new ItemStack[8];
+
+        menuBar[0] = buildButton("§7§lBlocks", null, Material.BRICKS, false);
+        menuBar[1] = buildButton("§7§lMelee Weapons", null, Material.DIAMOND_SWORD, false);
+        menuBar[2] = buildButton("§7§lArmor / Player Upgrades", null, Material.IRON_BOOTS, true);
+        menuBar[3] = buildButton("§7§lTools", null, Material.STONE_PICKAXE, false);
+        menuBar[4] = buildButton("§7§lRanged Weapons", null, Material.BOW, true);
+        menuBar[5] = buildButton("§7§lPotions", null, Material.POTION, false);
+        menuBar[6] = buildButton("§7§lSpecial Items", null, Material.TNT, true);
+        menuBar[7] = buildButton("§7§lRedstone", null, Material.REDSTONE, false);
+
+        return menuBar;
     }
 
     public static Map<String, ItemShopNew.ShopEntry> getDefaultShopEntries(Plugin plugin) {
