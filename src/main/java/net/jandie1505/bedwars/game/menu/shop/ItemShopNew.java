@@ -4,7 +4,6 @@ import net.chaossquad.mclib.JSONConfigUtils;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.ManagedListener;
-import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import org.bukkit.Material;
@@ -36,16 +35,6 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
         this.menuBar = new ItemStack[8];
 
         this.menuBar[0] = new ItemStack(Material.DIAMOND);
-
-        this.shopEntries.put("test", new ShopEntry(
-                new ItemStack(Material.EMERALD),
-                Material.IRON_INGOT,
-                10,
-                List.of(
-                        new ShopEntry.GUIPosition(1, 10),
-                        new ShopEntry.GUIPosition(2, 11)
-                )
-        ));
 
         this.game.getPlugin().registerListener(this);
     }

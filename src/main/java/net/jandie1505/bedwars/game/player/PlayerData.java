@@ -5,11 +5,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scoreboard.Scoreboard;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class PlayerData {
     private final Game game;
     private final Inventory enderchest;
+    private final Map<String, Integer> upgrades;
     private boolean alive;
     private int respawnCountdown;
     private int team;
@@ -17,9 +21,6 @@ public class PlayerData {
     private int kills;
     private int deaths;
     private int bedsBroken;
-    private int armorUpgrade;
-    private int pickaxeUpgrade;
-    private int shearsUpgrade;
     private int fireballCooldown;
     private int trapCooldown;
     private UUID trackingTarget;
@@ -33,6 +34,7 @@ public class PlayerData {
     public PlayerData(Game game, int team) {
         this.game = game;
         this.enderchest = this.game.getPlugin().getServer().createInventory(null, 27, "Enderchest");
+        this.upgrades = new HashMap<>();
         this.alive = false;
         this.respawnCountdown = 0;
         this.team = team;
@@ -40,9 +42,6 @@ public class PlayerData {
         this.kills = 0;
         this.deaths = 0;
         this.bedsBroken = 0;
-        this.armorUpgrade = 0;
-        this.pickaxeUpgrade = 0;
-        this.shearsUpgrade = 0;
         this.fireballCooldown = 0;
         this.trapCooldown = 0;
         this.trackingTarget = null;
@@ -52,6 +51,15 @@ public class PlayerData {
         this.zapperCooldown = 0;
         this.teleportToBaseCooldown = 0;
         this.blackHoleCooldown = 0;
+    }
+
+    public int getUpgrade(String id) {
+        return this.upgrades.getOrDefault(id, 0);
+    }
+
+    public void setUpgrade(String id, int level) {
+        if (level < 0) return;
+        this.upgrades.put(id, level);
     }
 
     public boolean isAlive() {
@@ -115,27 +123,27 @@ public class PlayerData {
     }
 
     public int getArmorUpgrade() {
-        return armorUpgrade;
+        return this.getUpgrade("armor");
     }
 
     public void setArmorUpgrade(int armorUpgrade) {
-        this.armorUpgrade = armorUpgrade;
+        this.setUpgrade("armor", armorUpgrade);
     }
 
     public int getPickaxeUpgrade() {
-        return pickaxeUpgrade;
+        return this.getUpgrade("pickaxe");
     }
 
     public void setPickaxeUpgrade(int pickaxeUpgrade) {
-        this.pickaxeUpgrade = pickaxeUpgrade;
+        this.setUpgrade("pickaxe", pickaxeUpgrade);
     }
 
     public int getShearsUpgrade() {
-        return shearsUpgrade;
+        return this.getUpgrade("shears");
     }
 
     public void setShearsUpgrade(int shearsUpgrade) {
-        this.shearsUpgrade = shearsUpgrade;
+        this.setUpgrade("shears", shearsUpgrade);
     }
 
     public int getFireballCooldown() {
