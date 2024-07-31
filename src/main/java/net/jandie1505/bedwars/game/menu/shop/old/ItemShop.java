@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.menu.shop;
+package net.jandie1505.bedwars.game.menu.shop.old;
 
 import net.jandie1505.bedwars.game.Game;
 import org.bukkit.Material;
@@ -16,9 +16,9 @@ public class ItemShop {
     private final Integer[] menuItems;
     private final List<ShopEntryOld> shopEntries;
     private Integer defaultWeapon;
-    private UpgradeEntry armorUpgrade;
-    private UpgradeEntry pickaxeUpgrade;
-    private UpgradeEntry shearsUpgrade;
+    private UpgradeEntryOld armorUpgrade;
+    private UpgradeEntryOld pickaxeUpgrade;
+    private UpgradeEntryOld shearsUpgrade;
     private Integer fireballItem;
     private Integer enhancedFireballItem;
     private Integer safetyPlatform;
@@ -73,7 +73,7 @@ public class ItemShop {
         return this.game.getPlugin().getItemStorage().getItem(this.defaultWeapon);
     }
 
-    public List<UpgradeEntry> getUpgradeEntries() {
+    public List<UpgradeEntryOld> getUpgradeEntries() {
         return List.of(
                 this.armorUpgrade,
                 this.pickaxeUpgrade,
@@ -95,9 +95,9 @@ public class ItemShop {
         return List.copyOf(returnList);
     }
 
-    public List<UpgradeEntry> getUpgradeEntryPage(int page) {
-        List<UpgradeEntry> returnList = new ArrayList<>();
-        List<UpgradeEntry> iList = new ArrayList<>();
+    public List<UpgradeEntryOld> getUpgradeEntryPage(int page) {
+        List<UpgradeEntryOld> returnList = new ArrayList<>();
+        List<UpgradeEntryOld> iList = new ArrayList<>();
 
         iList.add(this.armorUpgrade);
         iList.add(this.pickaxeUpgrade);
@@ -105,7 +105,7 @@ public class ItemShop {
 
         while (iList.remove(null));
 
-        for (UpgradeEntry upgradeEntry : iList) {
+        for (UpgradeEntryOld upgradeEntry : iList) {
 
             for (int[] slot : upgradeEntry.getSlots()) {
 
@@ -138,21 +138,21 @@ public class ItemShop {
         return null;
     }
 
-    public UpgradeEntry getArmorUpgrade() {
+    public UpgradeEntryOld getArmorUpgrade() {
         return this.armorUpgrade;
     }
 
-    public UpgradeEntry getPickaxeUpgrade() {
+    public UpgradeEntryOld getPickaxeUpgrade() {
         return this.pickaxeUpgrade;
     }
 
-    public UpgradeEntry getShearsUpgrade() {
+    public UpgradeEntryOld getShearsUpgrade() {
         return this.shearsUpgrade;
     }
 
-    public UpgradeEntry getUpgradeEntry(int itemId) {
+    public UpgradeEntryOld getUpgradeEntry(int itemId) {
 
-        for (UpgradeEntry upgradeEntry : this.getUpgradeEntries()) {
+        for (UpgradeEntryOld upgradeEntry : this.getUpgradeEntries()) {
 
             if (upgradeEntry.getUpgradeItemIds().contains(itemId)) {
                 return upgradeEntry;
@@ -305,7 +305,7 @@ public class ItemShop {
 
     }
 
-    private UpgradeEntry buildUpgradeEntry(JSONObject upgradeItems, String key) {
+    private UpgradeEntryOld buildUpgradeEntry(JSONObject upgradeItems, String key) {
 
         JSONObject upgrade = upgradeItems.optJSONObject(key);
 
@@ -404,7 +404,7 @@ public class ItemShop {
 
         }
 
-        return new UpgradeEntry(this, itemIdList, priceList, currencyList, slotList);
+        return new UpgradeEntryOld(this, itemIdList, priceList, currencyList, slotList);
     }
 
     public Game getGame() {

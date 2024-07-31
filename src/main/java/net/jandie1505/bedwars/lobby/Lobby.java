@@ -11,7 +11,7 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.MapData;
-import net.jandie1505.bedwars.game.menu.shop.ArmorConfig;
+import net.jandie1505.bedwars.game.menu.shop.old.ArmorConfig;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.team.TeamData;
 import net.jandie1505.bedwars.game.team.TeamUpgrade;

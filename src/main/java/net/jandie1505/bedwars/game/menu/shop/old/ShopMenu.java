@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.menu.shop;
+package net.jandie1505.bedwars.game.menu.shop.old;
 
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
@@ -73,7 +73,7 @@ public class ShopMenu implements InventoryHolder {
 
         }
 
-        for (UpgradeEntry upgradeEntry : this.game.getItemShop().getUpgradeEntryPage(page)) {
+        for (UpgradeEntryOld upgradeEntry : this.game.getItemShop().getUpgradeEntryPage(page)) {
 
             PlayerData playerData = this.game.getPlayers().get(playerId);
 

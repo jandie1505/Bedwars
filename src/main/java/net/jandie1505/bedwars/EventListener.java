@@ -6,9 +6,9 @@ import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.entities.entities.SnowDefender;
-import net.jandie1505.bedwars.game.menu.shop.ShopEntryOld;
-import net.jandie1505.bedwars.game.menu.shop.ShopMenu;
-import net.jandie1505.bedwars.game.menu.shop.UpgradeEntry;
+import net.jandie1505.bedwars.game.menu.shop.old.ShopEntryOld;
+import net.jandie1505.bedwars.game.menu.shop.old.ShopMenu;
+import net.jandie1505.bedwars.game.menu.shop.old.UpgradeEntryOld;
 import net.jandie1505.bedwars.game.menu.upgrades.UpgradesMenu;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
@@ -882,7 +882,7 @@ public class EventListener implements ManagedListener {
                     return;
                 }
 
-                for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
+                for (UpgradeEntryOld upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
                     for (int itemId : upgradeEntry.getUpgradeItemIds()) {
 
                         if (this.plugin.getItemStorage().getItemId(event.getCurrentItem()) == itemId) {
@@ -962,7 +962,7 @@ public class EventListener implements ManagedListener {
                 return;
             }
 
-            UpgradeEntry upgradeEntry = ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntry(itemId);
+            UpgradeEntryOld upgradeEntry = ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntry(itemId);
 
             if (upgradeEntry != null) {
 
@@ -1239,7 +1239,7 @@ public class EventListener implements ManagedListener {
                 return;
             }
 
-            for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
+            for (UpgradeEntryOld upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
                 for (int itemId : upgradeEntry.getUpgradeItemIds()) {
 
                     if (this.plugin.getItemStorage().getItemId(event.getCurrentItem()) == itemId) {
@@ -1351,7 +1351,7 @@ public class EventListener implements ManagedListener {
                 return;
             }
 
-            for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
+            for (UpgradeEntryOld upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
                 for (int itemId : upgradeEntry.getUpgradeItemIds()) {
 
                     if (this.plugin.getItemStorage().getItemId(event.getOldCursor()) == itemId) {
@@ -1396,7 +1396,7 @@ public class EventListener implements ManagedListener {
             return;
         }
 
-        for (UpgradeEntry upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
+        for (UpgradeEntryOld upgradeEntry : ((Game) this.plugin.getGame()).getItemShop().getUpgradeEntries()) {
             for (int itemId : upgradeEntry.getUpgradeItemIds()) {
 
                 if (this.plugin.getItemStorage().getItemId(event.getItemDrop().getItemStack()) == itemId && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {

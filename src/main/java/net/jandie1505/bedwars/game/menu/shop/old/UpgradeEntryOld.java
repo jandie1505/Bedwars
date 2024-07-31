@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.menu.shop;
+package net.jandie1505.bedwars.game.menu.shop.old;
 
 import net.jandie1505.bedwars.game.player.PlayerData;
 import org.bukkit.Material;
@@ -7,14 +7,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
-public class UpgradeEntry {
+public class UpgradeEntryOld {
     private final ItemShop itemShop;
     private final List<Integer> upgradeItemIds;
     private final List<Integer> upgradePrices;
     private final List<Material> upgradeCurrencies;
     private final List<int[]> slots;
 
-    public UpgradeEntry(ItemShop itemShop, List<Integer> upgradeItemIds, List<Integer> upgradePrices, List<Material> upgradeCurrencies, List<int[]> slots) {
+    public UpgradeEntryOld(ItemShop itemShop, List<Integer> upgradeItemIds, List<Integer> upgradePrices, List<Material> upgradeCurrencies, List<int[]> slots) {
         this.itemShop = itemShop;
         this.upgradeItemIds = List.copyOf(upgradeItemIds);
         this.upgradePrices = List.copyOf(upgradePrices);

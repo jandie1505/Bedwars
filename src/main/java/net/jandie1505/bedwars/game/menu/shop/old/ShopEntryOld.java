@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.menu.shop;
+package net.jandie1505.bedwars.game.menu.shop.old;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
