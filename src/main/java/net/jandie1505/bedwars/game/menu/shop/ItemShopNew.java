@@ -4,6 +4,7 @@ import net.chaossquad.mclib.JSONConfigUtils;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.ManagedListener;
+import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import org.bukkit.Material;
@@ -147,11 +148,11 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
 
             if (item == null || item.getType() == Material.AIR) {
                 ItemStack placeholderItem = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-                ItemMeta meta = this.game.getPlugin().getServer().getItemFactory().getItemMeta(placeholderItem.getType());
+                ItemMeta meta = placeholderItem.getItemMeta();
                 meta.setDisplayName(" ");
                 meta.addItemFlags(ItemFlag.values());
                 placeholderItem.setItemMeta(meta);
-                inventory.setItem(i, item);
+                inventory.setItem(i, placeholderItem);
             }
 
         }

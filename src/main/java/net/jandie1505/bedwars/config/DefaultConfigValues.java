@@ -1,23 +1,20 @@
 package net.jandie1505.bedwars.config;
 
 import net.jandie1505.bedwars.game.menu.shop.ItemShopNew;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -1892,7 +1889,7 @@ public final class DefaultConfigValues {
 
     }
 
-    public static Map<String, ItemShopNew.ShopEntry> getDefaultShopEntries() {
+    public static Map<String, ItemShopNew.ShopEntry> getDefaultShopEntries(Plugin plugin) {
         Map<String, ItemShopNew.ShopEntry> entries = new HashMap<>();
 
         // ----- BLOCKS (1) -----
@@ -2523,6 +2520,731 @@ public final class DefaultConfigValues {
                         Material.GOLD_INGOT,
                         10,
                         List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 43))
+                )
+        );
+
+        // ----- POTIONS (6) -----
+
+        // Enhanced movement potion
+
+        ItemStack enhancedMovementPotionItem = new ItemStack(Material.POTION);
+        PotionMeta enhancedMovementPotionMeta = (PotionMeta) enhancedMovementPotionItem.getItemMeta();
+        enhancedMovementPotionMeta.setDisplayName("§rEnhanced Movement Potion");
+        enhancedMovementPotionMeta.setColor(Color.AQUA);
+        enhancedMovementPotionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 30*20, 0, true, true, true), true);
+        enhancedMovementPotionItem.setItemMeta(enhancedMovementPotionMeta);
+
+        entries.put(
+                "enhanced_movement_potion",
+                new ItemShopNew.ShopEntry(
+                        enhancedMovementPotionItem,
+                        Material.EMERALD,
+                        1,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 19))
+                )
+        );
+
+        // Jump-boost potion
+
+        ItemStack jumpBoostPotionItem = new ItemStack(Material.POTION);
+        PotionMeta jumpBoostPotionMeta = (PotionMeta) jumpBoostPotionItem.getItemMeta();
+        jumpBoostPotionMeta.setDisplayName("§rJust **** you if you use this shit!");
+        jumpBoostPotionMeta.setLore(List.of(
+                "§r§7Makes you jump around like a",
+                "§r§7stupid a****** for 30 seconds."
+        ));
+        jumpBoostPotionMeta.setColor(Color.YELLOW);
+        jumpBoostPotionMeta.addCustomEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 30*20, 0, true, true, true), true);
+        jumpBoostPotionMeta.addItemFlags(ItemFlag.values());
+        jumpBoostPotionItem.setItemMeta(jumpBoostPotionMeta);
+
+        entries.put(
+                "jump_boost_potion",
+                new ItemShopNew.ShopEntry(
+                        jumpBoostPotionItem,
+                        Material.EMERALD,
+                        1,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 20))
+                )
+        );
+
+        // invisibility Potion
+
+        ItemStack invisibilityPotionItem = new ItemStack(Material.POTION);
+        PotionMeta invisibilityPotionMeta = (PotionMeta) invisibilityPotionItem.getItemMeta();
+        invisibilityPotionMeta.setDisplayName("§rInvisibility Potion");
+        invisibilityPotionMeta.setLore(List.of(
+                "§r§7Makes you invisible for 30 seconds.",
+                "§r§7This will remove your armor while you're invisible!"
+        ));
+        invisibilityPotionMeta.setColor(Color.GRAY);
+        invisibilityPotionMeta.addCustomEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 30*20, 0, true, true, true), true);
+        invisibilityPotionMeta.addItemFlags(ItemFlag.values());
+        invisibilityPotionItem.setItemMeta(invisibilityPotionMeta);
+
+        entries.put(
+                "invisibility_potion",
+                new ItemShopNew.ShopEntry(
+                        invisibilityPotionItem,
+                        Material.EMERALD,
+                        2,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 21))
+                )
+        );
+
+        // Green Bull
+
+        ItemStack greenBullItem = new ItemStack(Material.POTION);
+        PotionMeta greenBullMeta = (PotionMeta) greenBullItem.getItemMeta();
+        greenBullMeta.setDisplayName("§rGreenBull");
+        greenBullMeta.setLore(List.of(
+                "§r§7Gives you Wings.",
+                "§r§7You shouldn't use this unprepared ;)"
+        ));
+        greenBullMeta.setColor(Color.GREEN);
+        greenBullMeta.addCustomEffect(new PotionEffect(PotionEffectType.LEVITATION, -1, 0, true, true, true), true);
+        greenBullMeta.addItemFlags(ItemFlag.values());
+        greenBullItem.setItemMeta(greenBullMeta);
+
+        entries.put(
+                "green_bull",
+                new ItemShopNew.ShopEntry(
+                        greenBullItem,
+                        Material.EMERALD,
+                        5,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 22))
+                )
+        );
+
+        // Suicide Potion
+
+        ItemStack suicidePotionItem = new ItemStack(Material.POTION);
+        PotionMeta suicidePotionMeta = (PotionMeta) suicidePotionItem.getItemMeta();
+        suicidePotionMeta.setDisplayName("§rI-don't-want-to-live-anymore-Potion");
+        suicidePotionMeta.setLore(List.of("§r§7Read the name and guess what it does."));
+        suicidePotionMeta.setColor(Color.BLACK);
+        suicidePotionMeta.addCustomEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 10, true, true, true), true);
+        suicidePotionMeta.addItemFlags(ItemFlag.values());
+        suicidePotionItem.setItemMeta(suicidePotionMeta);
+
+        entries.put(
+                "suicide_potion",
+                new ItemShopNew.ShopEntry(
+                        suicidePotionItem,
+                        Material.IRON_INGOT,
+                        16,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 23))
+                )
+        );
+
+        // Slowness Splash Potion
+
+        ItemStack slownessSplashPotionItem = new ItemStack(Material.SPLASH_POTION);
+        PotionMeta slownessSplashPotionMeta = (PotionMeta) slownessSplashPotionItem.getItemMeta();
+        slownessSplashPotionMeta.setDisplayName("§rSplash Potion of Slowness");
+        slownessSplashPotionMeta.setColor(Color.NAVY);
+        slownessSplashPotionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SLOWNESS, 15*20, 2, true, true, true), true);
+        slownessSplashPotionItem.setItemMeta(slownessSplashPotionMeta);
+
+        entries.put(
+                "slowness_splash_potion",
+                new ItemShopNew.ShopEntry(
+                        slownessSplashPotionItem,
+                        Material.GOLD_INGOT,
+                        16,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 28))
+                )
+        );
+
+        // Extreme Speed Splash Potion
+
+        ItemStack extremeSpeedSplashPotionItem = new ItemStack(Material.SPLASH_POTION);
+        PotionMeta extremeSpeedSplashPotionMeta = (PotionMeta) extremeSpeedSplashPotionItem.getItemMeta();
+        extremeSpeedSplashPotionMeta.setDisplayName("§rSplash Potion of Extreme Speed");
+        extremeSpeedSplashPotionMeta.setLore(List.of(
+                "§r§7Makes your enemies so fast that you",
+                "§r§7probably will never see them again."
+        ));
+        extremeSpeedSplashPotionMeta.setColor(Color.AQUA);
+        extremeSpeedSplashPotionMeta.addCustomEffect(new PotionEffect(PotionEffectType.SPEED, 15*20, 255, false, false, false), true);
+        extremeSpeedSplashPotionMeta.addItemFlags(ItemFlag.values());
+        extremeSpeedSplashPotionItem.setItemMeta(extremeSpeedSplashPotionMeta);
+
+        entries.put(
+                "extreme_speed_splash_potion",
+                new ItemShopNew.ShopEntry(
+                        extremeSpeedSplashPotionItem,
+                        Material.EMERALD,
+                        9,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 29))
+                )
+        );
+
+        // Damage Splash Potion
+
+        ItemStack damageSplashPotionItem = new ItemStack(Material.SPLASH_POTION);
+        PotionMeta damageSplashPotionMeta = (PotionMeta) damageSplashPotionItem.getItemMeta();
+        damageSplashPotionMeta.setDisplayName("§rSplash Potion of Damage");
+        damageSplashPotionMeta.setLore(List.of("§r§7Damage your enemies!"));
+        damageSplashPotionMeta.setColor(Color.RED);
+        damageSplashPotionMeta.addCustomEffect(new PotionEffect(PotionEffectType.INSTANT_DAMAGE, 1, 1, true, true, true), true);
+        damageSplashPotionItem.setItemMeta(damageSplashPotionMeta);
+
+        entries.put(
+                "damage_splash_potion",
+                new ItemShopNew.ShopEntry(
+                        damageSplashPotionItem,
+                        Material.EMERALD,
+                        10,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 30))
+                )
+        );
+
+        // Throwable Vodka
+
+        ItemStack throwableVodkaItem = new ItemStack(Material.SPLASH_POTION);
+        PotionMeta throwableVodkaMeta = (PotionMeta) throwableVodkaItem.getItemMeta();
+        throwableVodkaMeta.setDisplayName("§rThrowable Vodka");
+        throwableVodkaMeta.setLore(List.of(
+                "§r§7For lots of fun for your enemies.",
+                "§r§7We will not show you the effects here,",
+                "§r§7you need to experience them yourself."
+        ));
+        throwableVodkaMeta.setColor(Color.GRAY);
+        throwableVodkaMeta.addCustomEffect(new PotionEffect(PotionEffectType.SLOWNESS, 30*20, 0, true, true, true), true);
+        throwableVodkaMeta.addCustomEffect(new PotionEffect(PotionEffectType.NAUSEA, 30*20, 1, true, true, true), true);
+        throwableVodkaMeta.addCustomEffect(new PotionEffect(PotionEffectType.WEAKNESS, 30*20, 0, true, true, true), true);
+        throwableVodkaMeta.addCustomEffect(new PotionEffect(PotionEffectType.BLINDNESS, 15*20, 1, true, true, true), true);
+        throwableVodkaMeta.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 15*20, 0, true, true, true), true);
+        throwableVodkaMeta.addItemFlags(ItemFlag.values());
+        throwableVodkaItem.setItemMeta(throwableVodkaMeta);
+
+        entries.put(
+                "throwable_vodka",
+                new ItemShopNew.ShopEntry(
+                        throwableVodkaItem,
+                        Material.EMERALD,
+                        32,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 31))
+                )
+        );
+
+        // Milk
+
+        entries.put(
+                "milk",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.MILK_BUCKET),
+                        Material.GOLD_INGOT,
+                        25,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 25))
+                )
+        );
+
+        // Effect Immunity Potion
+
+        ItemStack effectImmunityDrinkItem = new ItemStack(Material.POTION);
+        PotionMeta effectImmunityDringMeta = (PotionMeta) effectImmunityDrinkItem.getItemMeta();
+        effectImmunityDringMeta.setDisplayName("§rPotion of Effect Immunity");
+        effectImmunityDringMeta.setLore(List.of(
+                "§r§7This will make you immune to all",
+                "§r§7potion effects for 30 seconds.",
+                "§r§7Please note that positive effects",
+                "§r§7are also affected!"
+        ));
+        effectImmunityDringMeta.addItemFlags(ItemFlag.values());
+        effectImmunityDringMeta.setColor(Color.RED);
+        if (plugin != null) effectImmunityDringMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.EFFECT_IMMUNITY_POTION);
+        effectImmunityDrinkItem.setItemMeta(effectImmunityDringMeta);
+
+        entries.put(
+                "effect_immunity_potion",
+                new ItemShopNew.ShopEntry(
+                        effectImmunityDrinkItem,
+                        Material.EMERALD,
+                        10,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 34))
+                )
+        );
+
+        // Stealth Potion
+
+        ItemStack stealthPotionItem = new ItemStack(Material.POTION);
+        PotionMeta stealthPotionMeta = (PotionMeta) stealthPotionItem.getItemMeta();
+        stealthPotionMeta.setDisplayName("§rStealth potion");
+        stealthPotionMeta.setLore(List.of(
+                "§r§7Makes you undetectable from",
+                "§r§7enemy traps for 30 seconds."
+        ));
+        stealthPotionMeta.addItemFlags(ItemFlag.values());
+        stealthPotionMeta.setColor(Color.GRAY);
+        if (plugin != null) stealthPotionMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.STEALTH_POTION);
+        stealthPotionItem.setItemMeta(stealthPotionMeta);
+
+        entries.put(
+                "stealth_potion",
+                new ItemShopNew.ShopEntry(
+                        stealthPotionItem,
+                        Material.EMERALD,
+                        6,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 43))
+                )
+        );
+
+        // ----- SPECIAL ITEMS (7) -----
+
+        // Golden Apple
+
+        entries.put(
+                "golden_apple",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.GOLDEN_APPLE),
+                        Material.GOLD_INGOT,
+                        3,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 19))
+                )
+        );
+
+        // Enchanted Golden Apple
+
+        ItemStack enchantedGoldenAppleItem = new ItemStack(Material.ENCHANTED_GOLDEN_APPLE);
+        ItemMeta enchantedGoldenAppleMeta = enchantedGoldenAppleItem.getItemMeta();
+        enchantedGoldenAppleMeta.setLore(List.of("§r§7Your enemies will have fun :)"));
+        enchantedGoldenAppleItem.setItemMeta(enchantedGoldenAppleMeta);
+
+        entries.put(
+                "enchanted_golden_apple",
+                new ItemShopNew.ShopEntry(
+                        enchantedGoldenAppleItem,
+                        Material.EMERALD,
+                        32,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 20))
+                )
+        );
+
+        // Snowball
+
+        ItemStack snowballItem = new ItemStack(Material.SNOWBALL);
+        ItemMeta snowballMeta = snowballItem.getItemMeta();
+        snowballMeta.setLore(List.of(
+                "§r§7For your next snowball fight!",
+                "§r§7Causes knockback to entities."
+        ));
+        snowballItem.setItemMeta(snowballMeta);
+
+        entries.put(
+                "snowball",
+                new ItemShopNew.ShopEntry(
+                        snowballItem,
+                        Material.IRON_INGOT,
+                        15,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 21))
+                )
+        );
+
+        // Base Defender Spawn Egg
+
+        ItemStack ironGolemSpawnEggItem = new ItemStack(Material.IRON_GOLEM_SPAWN_EGG);
+        ItemMeta ironGolemSpawnEggMeta = ironGolemSpawnEggItem.getItemMeta();
+        ironGolemSpawnEggMeta.setDisplayName("§rBase Defender Spawn Egg");
+        ironGolemSpawnEggMeta.setLore(List.of("§r§7Spawns a base defender."));
+        ironGolemSpawnEggItem.setItemMeta(ironGolemSpawnEggMeta);
+
+        entries.put(
+                "base_defender_spawn_egg",
+                new ItemShopNew.ShopEntry(
+                        ironGolemSpawnEggItem,
+                        Material.IRON_INGOT,
+                        256,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 22))
+                )
+        );
+
+        // Fireball
+
+        ItemStack fireballItem = new ItemStack(Material.FIRE_CHARGE);
+        ItemMeta fireballMeta = fireballItem.getItemMeta();
+        fireballMeta.setDisplayName("§rFireball");
+        fireballMeta.setLore(List.of("§r§7For a small explosion!"));
+        if (plugin != null) fireballMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.FIREBALL);
+        fireballItem.setItemMeta(fireballMeta);
+
+        entries.put(
+                "fireball",
+                new ItemShopNew.ShopEntry(
+                        fireballItem,
+                        Material.IRON_INGOT,
+                        25,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 23))
+                )
+        );
+
+        // Enhanced Fireball
+
+        ItemStack enhancedFireballItem = new ItemStack(Material.FIRE_CHARGE);
+        ItemMeta enhancedFireballMeta = enhancedFireballItem.getItemMeta();
+        enhancedFireballMeta.setDisplayName("§rEnhanced Fireball");
+        enhancedFireballMeta.setLore(List.of("§r§7For a big explosion!"));
+        enhancedFireballMeta.addEnchant(Enchantment.FORTUNE, 0, true);
+        enhancedFireballMeta.addItemFlags(ItemFlag.values());
+        if (plugin != null) enhancedFireballMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.ENHANCED_FIREBALL);
+        enhancedFireballItem.setItemMeta(enhancedFireballMeta);
+
+        entries.put(
+                "enhanced_fireball",
+                new ItemShopNew.ShopEntry(
+                        enhancedFireballItem,
+                        Material.EMERALD,
+                        1,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 24))
+                )
+        );
+
+        // Automatically igniting TNT
+
+        ItemStack automaticallyIgnitingTNTItem = new ItemStack(Material.TNT);
+        ItemMeta automaticallyIgnitingTNTMeta = automaticallyIgnitingTNTItem.getItemMeta();
+        automaticallyIgnitingTNTMeta.setDisplayName("§rAuto-igniting TNT");
+        automaticallyIgnitingTNTMeta.setLore(List.of("§r§7TNT that ignites when placed."));
+        automaticallyIgnitingTNTMeta.addEnchant(Enchantment.FORTUNE, 0, true);
+        automaticallyIgnitingTNTMeta.addItemFlags(ItemFlag.values());
+        if (plugin != null) automaticallyIgnitingTNTMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.AUTOMATICALLY_IGNITING_TNT);
+        automaticallyIgnitingTNTItem.setItemMeta(automaticallyIgnitingTNTMeta);
+
+        entries.put(
+                "automatically_igniting_tnt",
+                new ItemShopNew.ShopEntry(
+                        automaticallyIgnitingTNTItem,
+                        Material.GOLD_INGOT,
+                        8,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 25))
+                )
+        );
+
+        // Ender Pearl
+
+        entries.put(
+                "ender_pearl",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.ENDER_PEARL),
+                        Material.EMERALD,
+                        2,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 28))
+                )
+        );
+
+        // Water Bucket
+
+        entries.put(
+                "water_bucket",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.WATER_BUCKET),
+                        Material.GOLD_INGOT,
+                        3,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 29))
+                )
+        );
+
+        // Lava Bucket
+
+        entries.put(
+                "lava_bucket",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.LAVA_BUCKET),
+                        Material.GOLD_INGOT,
+                        6,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 30))
+                )
+        );
+
+        // Replacement Bed
+
+        ItemStack replacementBedItem = new ItemStack(Material.BLACK_BED);
+        ItemMeta replacementBedMeta = replacementBedItem.getItemMeta();
+        replacementBedMeta.setDisplayName("§rReplacement Bed");
+        replacementBedMeta.setLore(List.of(
+                "§r§7In case you lost your bed.",
+                "§r§7Has to be placed on the original",
+                "§r§7location of your team's bed.",
+                "§r§7Has no effect after irreplaceable",
+                "§r§7beds gone time event."
+        ));
+        replacementBedItem.setItemMeta(replacementBedMeta);
+
+        entries.put(
+                "replacement_bed",
+                new ItemShopNew.ShopEntry(
+                        replacementBedItem,
+                        Material.EMERALD,
+                        128,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 31))
+                )
+        );
+
+        // Sponge
+
+        entries.put(
+                "sponge",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.SPONGE),
+                        Material.GOLD_INGOT,
+                        3,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 32))
+                )
+        );
+
+        // Cobweb
+
+        entries.put(
+                "cobweb",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.COBWEB),
+                        Material.IRON_INGOT,
+                        32,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 33))
+                )
+        );
+
+        // Chest
+
+        entries.put(
+                "chest",
+                new ItemShopNew.ShopEntry(
+                        new ItemStack(Material.CHEST),
+                        Material.IRON_INGOT,
+                        32,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 34))
+                )
+        );
+
+        // Safety Plattform
+
+        ItemStack safetyPlattformItem = new ItemStack(Material.BLAZE_ROD);
+        ItemMeta safetyPlattformMeta = safetyPlattformItem.getItemMeta();
+        safetyPlattformMeta.setDisplayName("§rSafety Plattform");
+        safetyPlattformMeta.setLore(List.of(
+                "§r§7- Spawns a 3x3 glass plattform under your feet",
+                "§r§7- Place in main hand and right-click to deploy",
+                "§r§7- Place in off-hand and press swapping key (F) to deploy",
+                "§r§7- Is not placeable when an enemy is in the spawning radius"
+        ));
+        safetyPlattformMeta.addEnchant(Enchantment.FORTUNE, 0, true);
+        safetyPlattformMeta.addItemFlags(ItemFlag.values());
+        if (plugin != null) safetyPlattformMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.SAFETY_PLATTFORM);
+        safetyPlattformItem.setItemMeta(safetyPlattformMeta);
+
+        entries.put(
+                "safety_plattform",
+                new ItemShopNew.ShopEntry(
+                        safetyPlattformItem,
+                        Material.GOLD_INGOT,
+                        32,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 37))
+                )
+        );
+
+        // Unlimited Plattform
+
+        ItemStack unlimitedPlatformItem = new ItemStack(Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE);
+        ItemMeta unlimitedPlatformMeta = unlimitedPlatformItem.getItemMeta();
+        unlimitedPlatformMeta.setDisplayName("§rSafety Plattform");
+        unlimitedPlatformMeta.setLore(List.of(
+                "§r§7- Spawns a 3x3 wool plattform under your feet",
+                "§r§7- Place in main hand and right-click to deploy",
+                "§r§7- Place in off-hand and press swapping key (F) to deploy",
+                "§r§7- Is not placeable when an enemy is in the spawning radius",
+                "§r§7- Item is not consumed when used",
+                "§r§7- Has a §r§ccooldown§r§7 of 3 seconds to prevent spamming"
+        ));
+        unlimitedPlatformMeta.addEnchant(Enchantment.FORTUNE, 0, true);
+        unlimitedPlatformMeta.addItemFlags(ItemFlag.values());
+        if (plugin != null) unlimitedPlatformMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.UNLIMITED_PLATTFORM);
+        unlimitedPlatformItem.setItemMeta(unlimitedPlatformMeta);
+
+        entries.put(
+                "unlimited_platform",
+                new ItemShopNew.ShopEntry(
+                        unlimitedPlatformItem,
+                        Material.EMERALD,
+                        48,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 38))
+                )
+        );
+
+        // Battle Plattform
+
+        ItemStack battlePlattformItem = new ItemStack(Material.END_ROD);
+        ItemMeta battlePlattformMeta = battlePlattformItem.getItemMeta();
+        battlePlattformMeta.setDisplayName("§rBattleground Plattform");
+        battlePlattformMeta.setLore(List.of(
+                "§r§7- Spawns a 20x20 stone brick plattform under your feet",
+                "§r§7- Right-click to deploy",
+                "§r§7- Blocks where an enemy player is will not be placed",
+                "§r§7- Cover options are placed on the platform",
+                "§r§7- Has a cooldown of 60 seconds to prevent spamming"
+        ));
+        battlePlattformMeta.addEnchant(Enchantment.FORTUNE, 0, true);
+        battlePlattformMeta.addItemFlags(ItemFlag.values());
+        if (plugin != null) battlePlattformMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.BATTLEGROUND_PLATTFORM);
+        battlePlattformItem.setItemMeta(battlePlattformMeta);
+
+        entries.put(
+                "battleground_plattform",
+                new ItemShopNew.ShopEntry(
+                        battlePlattformItem,
+                        Material.GOLD_INGOT,
+                        512,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 39))
+                )
+        );
+
+        // Auto Bridge
+
+        ItemStack autoBridgeItem = new ItemStack(Material.EGG);
+        ItemMeta autoBridgeMeta = autoBridgeItem.getItemMeta();
+        autoBridgeMeta.setDisplayName("§rAuto-Bridge");
+        autoBridgeMeta.setLore(List.of("§r§7Spawns a bridge in front of you."));
+        autoBridgeMeta.addEnchant(Enchantment.FORTUNE, 0, true);
+        autoBridgeMeta.addItemFlags(ItemFlag.values());
+        if (plugin != null) autoBridgeMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.AUTO_BRIDGE);
+        autoBridgeItem.setItemMeta(autoBridgeMeta);
+
+        entries.put(
+                "auto_bridge",
+                new ItemShopNew.ShopEntry(
+                        autoBridgeItem,
+                        Material.GOLD_INGOT,
+                        32,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 40))
+                )
+        );
+
+        // Mobile Castle
+
+        ItemStack mobileCastleItem = new ItemStack(Material.STONE_BRICKS);
+        ItemMeta mobileCastleMeta = mobileCastleItem.getItemMeta();
+        mobileCastleMeta.setDisplayName("§rMobile Castle");
+        mobileCastleMeta.setLore(List.of(
+                "§r§7- Spawns a small castle",
+                "§r§7- Right-click to use",
+                "§r§7- Is not placeable when an enemy is in the spawning radius",
+                "§r§7- Has a cooldown of 30 seconds to prevent spamming"
+        ));
+        mobileCastleMeta.addEnchant(Enchantment.FORTUNE, 0, true);
+        mobileCastleMeta.addItemFlags(ItemFlag.values());
+        if (plugin != null) mobileCastleMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.MOBILE_CASTLE);
+        mobileCastleItem.setItemMeta(mobileCastleMeta);
+
+        entries.put(
+                "mobile_castle",
+                new ItemShopNew.ShopEntry(
+                        mobileCastleItem,
+                        Material.IRON_INGOT,
+                        32,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 41))
+                )
+        );
+
+        // Single-use Jetpack
+
+        ItemStack singleUseJetpackItem = new ItemStack(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
+        ItemMeta singleUseJetpackMeta = singleUseJetpackItem.getItemMeta();
+        singleUseJetpackMeta.setDisplayName("§rSingle-use Jetpack");
+        singleUseJetpackMeta.setLore(List.of("§r§7Will boost you up a few blocks."));
+        singleUseJetpackMeta.addEnchant(Enchantment.FORTUNE, 0, true);
+        singleUseJetpackMeta.addItemFlags(ItemFlag.values());
+        if (plugin != null) singleUseJetpackMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.SINGLE_USE_JETPACK);
+        singleUseJetpackItem.setItemMeta(singleUseJetpackMeta);
+
+        entries.put(
+                "single_use_jetpack",
+                new ItemShopNew.ShopEntry(
+                        singleUseJetpackItem,
+                        Material.EMERALD,
+                        4,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 42))
+                )
+        );
+
+        // Snow Defender Spawn Egg
+
+        ItemStack snowDefenderSpawnEggItem = new ItemStack(Material.SNOW_GOLEM_SPAWN_EGG);
+        ItemMeta snowDefenderSpawnEggMeta = snowDefenderSpawnEggItem.getItemMeta();
+        snowDefenderSpawnEggMeta.setDisplayName("§rSnow Defender Spawn Egg");
+        snowDefenderSpawnEggMeta.setLore(List.of("§r§7Spawns a Snow Defender."));
+        snowDefenderSpawnEggItem.setItemMeta(snowDefenderSpawnEggMeta);
+
+        entries.put(
+                "snow_defender_spawn_egg",
+                new ItemShopNew.ShopEntry(
+                        snowDefenderSpawnEggItem,
+                        Material.GOLD_INGOT,
+                        32,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 43))
+                )
+        );
+
+        // Dog Spawn Egg
+
+        ItemStack dogSpawnEggItem = new ItemStack(Material.SNOW_GOLEM_SPAWN_EGG);
+        ItemMeta dogSpawnEggMeta = dogSpawnEggItem.getItemMeta();
+        dogSpawnEggMeta.setDisplayName("§rDog Spawn Egg");
+        dogSpawnEggMeta.setLore(List.of("§r§7Spawns your new best friend."));
+        dogSpawnEggItem.setItemMeta(dogSpawnEggMeta);
+
+        entries.put(
+                "dog_spawn_egg",
+                new ItemShopNew.ShopEntry(
+                        dogSpawnEggItem,
+                        Material.EMERALD,
+                        16,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 46))
+                )
+        );
+
+        // Team Chest Access Point
+
+        ItemStack teamChestAccessPointItem = new ItemStack(Material.ENDER_CHEST);
+        ItemMeta teamChestAccessPointMeta = teamChestAccessPointItem.getItemMeta();
+        teamChestAccessPointMeta.setDisplayName("§rTeam Chest Access Point");
+        teamChestAccessPointMeta.setLore(List.of(
+                "§r§7Place where you want to access",
+                "§r§7your team chest.",
+                "§r§7Please note that other teams can",
+                "§r§7also use it for their team chest."
+        ));
+        teamChestAccessPointItem.setItemMeta(teamChestAccessPointMeta);
+
+        entries.put(
+                "team_chest",
+                new ItemShopNew.ShopEntry(
+                        teamChestAccessPointItem,
+                        Material.GOLD_INGOT,
+                        32,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 49))
+                )
+        );
+
+        // Environment Scanner
+
+        ItemStack environmentScannerItem = new ItemStack(Material.NETHER_STAR);
+        ItemMeta environmentScannerMeta = environmentScannerItem.getItemMeta();
+        environmentScannerMeta.setDisplayName("§rEnvironment Scanner");
+        environmentScannerMeta.setLore(List.of(
+                "§r§7- Give the nearest enemy glow.",
+                "§r§7- The glowing is shown to all players.",
+                "§r§7- 30 seconds cooldown to prevent spamming."
+        ));
+        if (plugin != null) environmentScannerMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.ENVIRONMENT_SCANNER);
+        environmentScannerItem.setItemMeta(environmentScannerMeta);
+
+        entries.put(
+                "environment_scanner",
+                new ItemShopNew.ShopEntry(
+                        environmentScannerItem,
+                        Material.EMERALD,
+                        3,
+                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 52))
                 )
         );
 
