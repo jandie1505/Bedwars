@@ -3047,7 +3047,7 @@ public final class DefaultConfigValues {
 
         ItemStack unlimitedPlatformItem = new ItemStack(Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE);
         ItemMeta unlimitedPlatformMeta = unlimitedPlatformItem.getItemMeta();
-        unlimitedPlatformMeta.setDisplayName("§rSafety Plattform");
+        unlimitedPlatformMeta.setDisplayName("§rUnlimited Plattform");
         unlimitedPlatformMeta.setLore(List.of(
                 "§r§7- Spawns a 3x3 wool plattform under your feet",
                 "§r§7- Place in main hand and right-click to deploy",
