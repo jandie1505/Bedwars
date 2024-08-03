@@ -1,6 +1,7 @@
 package net.jandie1505.bedwars.config;
 
-import net.jandie1505.bedwars.game.menu.shop.ItemShopNew;
+import net.jandie1505.bedwars.game.menu.shop.ShopGUIPosition;
+import net.jandie1505.bedwars.game.menu.shop.ShopEntry;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -1938,8 +1939,8 @@ public final class DefaultConfigValues {
         return menuBar;
     }
 
-    public static Map<String, ItemShopNew.ShopEntry> getDefaultShopEntries(Plugin plugin) {
-        Map<String, ItemShopNew.ShopEntry> entries = new HashMap<>();
+    public static Map<String, ShopEntry> getDefaultShopEntries(Plugin plugin) {
+        Map<String, ShopEntry> entries = new HashMap<>();
 
         // ----- BLOCKS (1) -----
 
@@ -1947,11 +1948,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "wool",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.WHITE_WOOL, 16),
                         Material.IRON_INGOT,
                         4,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 19))
+                        List.of(new ShopGUIPosition(1, 19))
                 )
         );
 
@@ -1959,11 +1960,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "terracotta",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.TERRACOTTA, 24),
                         Material.IRON_INGOT,
                         16,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 20))
+                        List.of(new ShopGUIPosition(1, 20))
                 )
         );
 
@@ -1971,11 +1972,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "glass",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.GLASS, 4),
                         Material.IRON_INGOT,
                         12,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 21))
+                        List.of(new ShopGUIPosition(1, 21))
                 )
         );
 
@@ -1983,11 +1984,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "endstone",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.END_STONE, 12),
                         Material.IRON_INGOT,
                         24,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 22))
+                        List.of(new ShopGUIPosition(1, 22))
                 )
         );
 
@@ -1995,11 +1996,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "ladder",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.LADDER, 8),
                         Material.IRON_INGOT,
                         4,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 23))
+                        List.of(new ShopGUIPosition(1, 23))
                 )
         );
 
@@ -2007,11 +2008,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "wood",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.OAK_PLANKS, 16),
                         Material.GOLD_INGOT,
                         4,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 24))
+                        List.of(new ShopGUIPosition(1, 24))
                 )
         );
 
@@ -2024,11 +2025,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "ancient_debris",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         ancientDebrisItem,
                         Material.EMERALD,
                         4,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 25))
+                        List.of(new ShopGUIPosition(1, 25))
                 )
         );
 
@@ -2041,11 +2042,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "obsidian",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         obsidianItem,
                         Material.EMERALD,
                         6,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 28))
+                        List.of(new ShopGUIPosition(1, 28))
                 )
         );
 
@@ -2063,11 +2064,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "bedrock",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         bedrockItem,
                         Material.EMERALD,
                         64,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(1, 29))
+                        List.of(new ShopGUIPosition(1, 29))
                 )
         );
 
@@ -2084,11 +2085,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "stone_sword",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         stoneSwordItem,
                         Material.IRON_INGOT,
                         10,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 19))
+                        List.of(new ShopGUIPosition(2, 19))
                 )
         );
 
@@ -2103,11 +2104,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "iron_sword",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         ironSwordItem,
                         Material.GOLD_INGOT,
                         7,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 20))
+                        List.of(new ShopGUIPosition(2, 20))
                 )
         );
 
@@ -2122,11 +2123,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "diamond_sword",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         diamondSwordItem,
                         Material.EMERALD,
                         3,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 21))
+                        List.of(new ShopGUIPosition(2, 21))
                 )
         );
 
@@ -2141,11 +2142,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "netherite_sword",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         netheriteSwordItem,
                         Material.EMERALD,
                         9,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 22))
+                        List.of(new ShopGUIPosition(2, 22))
                 )
         );
 
@@ -2160,11 +2161,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "stone_axe",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         stoneAxeItem,
                         Material.IRON_INGOT,
                         12,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 28))
+                        List.of(new ShopGUIPosition(2, 28))
                 )
         );
 
@@ -2179,11 +2180,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "iron_axe",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         ironAxeItem,
                         Material.GOLD_INGOT,
                         9,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 29))
+                        List.of(new ShopGUIPosition(2, 29))
                 )
         );
 
@@ -2198,11 +2199,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "diamond_axe",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         diamondAxeItem,
                         Material.EMERALD,
                         4,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 30))
+                        List.of(new ShopGUIPosition(2, 30))
                 )
         );
 
@@ -2217,11 +2218,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "netherite_axe",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         netheriteAxeItem,
                         Material.EMERALD,
                         11,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 31))
+                        List.of(new ShopGUIPosition(2, 31))
                 )
         );
 
@@ -2236,11 +2237,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "knockback_stick",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         knockbackStickItem,
                         Material.GOLD_INGOT,
                         5,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 25))
+                        List.of(new ShopGUIPosition(2, 25))
                 )
         );
 
@@ -2255,11 +2256,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "knockback_stick_mk2",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         knockbackStickMk2Item,
                         Material.EMERALD,
                         5,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 34))
+                        List.of(new ShopGUIPosition(2, 34))
                 )
         );
 
@@ -2277,11 +2278,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "knockback_stick_mk3",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         knockbackStickMk3Item,
                         Material.EMERALD,
                         15,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(2, 43))
+                        List.of(new ShopGUIPosition(2, 43))
                 )
         );
 
@@ -2298,11 +2299,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "standard_bow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         standardBowItem,
                         Material.GOLD_INGOT,
                         12,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 19))
+                        List.of(new ShopGUIPosition(5, 19))
                 )
         );
 
@@ -2319,11 +2320,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "powerful_bow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         powerfulBowItem,
                         Material.GOLD_INGOT,
                         24,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 20))
+                        List.of(new ShopGUIPosition(5, 20))
                 )
         );
 
@@ -2341,11 +2342,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "power_punch_bow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         powerPunchBowItem,
                         Material.EMERALD,
                         6,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 21))
+                        List.of(new ShopGUIPosition(5, 21))
                 )
         );
 
@@ -2362,11 +2363,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "most_powerful_bow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         mostPowerfulBowItem,
                         Material.EMERALD,
                         8,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 28))
+                        List.of(new ShopGUIPosition(5, 28))
                 )
         );
 
@@ -2383,11 +2384,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "get_on_their_nerves_bow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         getOnTheirNervesBowItem,
                         Material.EMERALD,
                         8,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 29))
+                        List.of(new ShopGUIPosition(5, 29))
                 )
         );
 
@@ -2404,11 +2405,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "get_on_their_nerves_bow_extended",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         getOnTheirNervesBowExtendedItem,
                         Material.EMERALD,
                         12,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 30))
+                        List.of(new ShopGUIPosition(5, 30))
                 )
         );
 
@@ -2423,11 +2424,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "crossbow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         crossbowItem,
                         Material.GOLD_INGOT,
                         15,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 37))
+                        List.of(new ShopGUIPosition(5, 37))
                 )
         );
 
@@ -2444,11 +2445,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "enhanced_crossbow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         enhancedCrossbowItem,
                         Material.GOLD_INGOT,
                         30,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 38))
+                        List.of(new ShopGUIPosition(5, 38))
                 )
         );
 
@@ -2468,11 +2469,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "very_enhanced_crossbow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         veryEnhancedCrossbowItem,
                         Material.EMERALD,
                         8,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 39))
+                        List.of(new ShopGUIPosition(5, 39))
                 )
         );
 
@@ -2480,11 +2481,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "arrow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.ARROW),
                         Material.GOLD_INGOT,
                         2,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 24))
+                        List.of(new ShopGUIPosition(5, 24))
                 )
         );
         
@@ -2492,11 +2493,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "spectral_arrow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.SPECTRAL_ARROW),
                         Material.GOLD_INGOT,
                         3,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 25))
+                        List.of(new ShopGUIPosition(5, 25))
                 )
         );
 
@@ -2512,11 +2513,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "creeper_arrow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         creeperArrowItem,
                         Material.EMERALD,
                         3,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 33))
+                        List.of(new ShopGUIPosition(5, 33))
                 )
         );
 
@@ -2540,11 +2541,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "vodka_arrow",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         vodkaArrowItem,
                         Material.EMERALD,
                         64,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 34))
+                        List.of(new ShopGUIPosition(5, 34))
                 )
         );
 
@@ -2552,11 +2553,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "small_rocket",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         rocketBuilder("§rSmall Rocket", 1),
                         Material.GOLD_INGOT,
                         5,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 42))
+                        List.of(new ShopGUIPosition(5, 42))
                 )
         );
 
@@ -2564,11 +2565,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "big_rocket",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         rocketBuilder("§rBig Rocket", 2),
                         Material.GOLD_INGOT,
                         10,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(5, 43))
+                        List.of(new ShopGUIPosition(5, 43))
                 )
         );
 
@@ -2585,11 +2586,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "enhanced_movement_potion",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         enhancedMovementPotionItem,
                         Material.EMERALD,
                         1,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 19))
+                        List.of(new ShopGUIPosition(6, 19))
                 )
         );
 
@@ -2609,11 +2610,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "jump_boost_potion",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         jumpBoostPotionItem,
                         Material.EMERALD,
                         1,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 20))
+                        List.of(new ShopGUIPosition(6, 20))
                 )
         );
 
@@ -2633,11 +2634,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "invisibility_potion",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         invisibilityPotionItem,
                         Material.EMERALD,
                         2,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 21))
+                        List.of(new ShopGUIPosition(6, 21))
                 )
         );
 
@@ -2657,11 +2658,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "green_bull",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         greenBullItem,
                         Material.EMERALD,
                         5,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 22))
+                        List.of(new ShopGUIPosition(6, 22))
                 )
         );
 
@@ -2678,11 +2679,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "suicide_potion",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         suicidePotionItem,
                         Material.IRON_INGOT,
                         16,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 23))
+                        List.of(new ShopGUIPosition(6, 23))
                 )
         );
 
@@ -2697,11 +2698,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "slowness_splash_potion",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         slownessSplashPotionItem,
                         Material.GOLD_INGOT,
                         16,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 28))
+                        List.of(new ShopGUIPosition(6, 28))
                 )
         );
 
@@ -2721,11 +2722,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "extreme_speed_splash_potion",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         extremeSpeedSplashPotionItem,
                         Material.EMERALD,
                         9,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 29))
+                        List.of(new ShopGUIPosition(6, 29))
                 )
         );
 
@@ -2741,11 +2742,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "damage_splash_potion",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         damageSplashPotionItem,
                         Material.EMERALD,
                         10,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 30))
+                        List.of(new ShopGUIPosition(6, 30))
                 )
         );
 
@@ -2770,11 +2771,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "throwable_vodka",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         throwableVodkaItem,
                         Material.EMERALD,
                         32,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 31))
+                        List.of(new ShopGUIPosition(6, 31))
                 )
         );
 
@@ -2782,11 +2783,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "milk",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.MILK_BUCKET),
                         Material.GOLD_INGOT,
                         25,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 25))
+                        List.of(new ShopGUIPosition(6, 25))
                 )
         );
 
@@ -2808,11 +2809,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "effect_immunity_potion",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         effectImmunityDrinkItem,
                         Material.EMERALD,
                         10,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 34))
+                        List.of(new ShopGUIPosition(6, 34))
                 )
         );
 
@@ -2832,11 +2833,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "stealth_potion",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         stealthPotionItem,
                         Material.EMERALD,
                         6,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(6, 43))
+                        List.of(new ShopGUIPosition(6, 43))
                 )
         );
 
@@ -2846,11 +2847,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "golden_apple",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.GOLDEN_APPLE),
                         Material.GOLD_INGOT,
                         3,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 19))
+                        List.of(new ShopGUIPosition(7, 19))
                 )
         );
 
@@ -2863,11 +2864,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "enchanted_golden_apple",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         enchantedGoldenAppleItem,
                         Material.EMERALD,
                         32,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 20))
+                        List.of(new ShopGUIPosition(7, 20))
                 )
         );
 
@@ -2883,11 +2884,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "snowball",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         snowballItem,
                         Material.IRON_INGOT,
                         15,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 21))
+                        List.of(new ShopGUIPosition(7, 21))
                 )
         );
 
@@ -2901,11 +2902,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "base_defender_spawn_egg",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         ironGolemSpawnEggItem,
                         Material.IRON_INGOT,
                         256,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 22))
+                        List.of(new ShopGUIPosition(7, 22))
                 )
         );
 
@@ -2920,11 +2921,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "fireball",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         fireballItem,
                         Material.IRON_INGOT,
                         25,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 23))
+                        List.of(new ShopGUIPosition(7, 23))
                 )
         );
 
@@ -2941,11 +2942,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "enhanced_fireball",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         enhancedFireballItem,
                         Material.EMERALD,
                         1,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 24))
+                        List.of(new ShopGUIPosition(7, 24))
                 )
         );
 
@@ -2962,11 +2963,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "automatically_igniting_tnt",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         automaticallyIgnitingTNTItem,
                         Material.GOLD_INGOT,
                         8,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 25))
+                        List.of(new ShopGUIPosition(7, 25))
                 )
         );
 
@@ -2974,11 +2975,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "ender_pearl",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.ENDER_PEARL),
                         Material.EMERALD,
                         2,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 28))
+                        List.of(new ShopGUIPosition(7, 28))
                 )
         );
 
@@ -2986,11 +2987,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "water_bucket",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.WATER_BUCKET),
                         Material.GOLD_INGOT,
                         3,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 29))
+                        List.of(new ShopGUIPosition(7, 29))
                 )
         );
 
@@ -2998,11 +2999,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "lava_bucket",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.LAVA_BUCKET),
                         Material.GOLD_INGOT,
                         6,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 30))
+                        List.of(new ShopGUIPosition(7, 30))
                 )
         );
 
@@ -3022,11 +3023,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "replacement_bed",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         replacementBedItem,
                         Material.EMERALD,
                         128,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 31))
+                        List.of(new ShopGUIPosition(7, 31))
                 )
         );
 
@@ -3034,11 +3035,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "sponge",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.SPONGE),
                         Material.GOLD_INGOT,
                         3,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 32))
+                        List.of(new ShopGUIPosition(7, 32))
                 )
         );
 
@@ -3046,11 +3047,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "cobweb",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.COBWEB),
                         Material.IRON_INGOT,
                         32,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 33))
+                        List.of(new ShopGUIPosition(7, 33))
                 )
         );
 
@@ -3058,11 +3059,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "chest",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         new ItemStack(Material.CHEST),
                         Material.IRON_INGOT,
                         32,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 34))
+                        List.of(new ShopGUIPosition(7, 34))
                 )
         );
 
@@ -3084,11 +3085,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "safety_plattform",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         safetyPlattformItem,
                         Material.GOLD_INGOT,
                         32,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 37))
+                        List.of(new ShopGUIPosition(7, 37))
                 )
         );
 
@@ -3112,11 +3113,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "unlimited_platform",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         unlimitedPlatformItem,
                         Material.EMERALD,
                         48,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 38))
+                        List.of(new ShopGUIPosition(7, 38))
                 )
         );
 
@@ -3139,11 +3140,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "battleground_plattform",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         battlePlattformItem,
                         Material.GOLD_INGOT,
                         512,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 39))
+                        List.of(new ShopGUIPosition(7, 39))
                 )
         );
 
@@ -3160,11 +3161,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "auto_bridge",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         autoBridgeItem,
                         Material.GOLD_INGOT,
                         32,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 40))
+                        List.of(new ShopGUIPosition(7, 40))
                 )
         );
 
@@ -3186,11 +3187,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "mobile_castle",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         mobileCastleItem,
                         Material.IRON_INGOT,
                         32,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 41))
+                        List.of(new ShopGUIPosition(7, 41))
                 )
         );
 
@@ -3207,11 +3208,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "single_use_jetpack",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         singleUseJetpackItem,
                         Material.EMERALD,
                         4,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 42))
+                        List.of(new ShopGUIPosition(7, 42))
                 )
         );
 
@@ -3225,11 +3226,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "snow_defender_spawn_egg",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         snowDefenderSpawnEggItem,
                         Material.GOLD_INGOT,
                         32,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 43))
+                        List.of(new ShopGUIPosition(7, 43))
                 )
         );
 
@@ -3243,11 +3244,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "dog_spawn_egg",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         dogSpawnEggItem,
                         Material.EMERALD,
                         16,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 46))
+                        List.of(new ShopGUIPosition(7, 46))
                 )
         );
 
@@ -3266,11 +3267,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "team_chest",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         teamChestAccessPointItem,
                         Material.GOLD_INGOT,
                         32,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 49))
+                        List.of(new ShopGUIPosition(7, 49))
                 )
         );
 
@@ -3289,11 +3290,11 @@ public final class DefaultConfigValues {
 
         entries.put(
                 "environment_scanner",
-                new ItemShopNew.ShopEntry(
+                new ShopEntry(
                         environmentScannerItem,
                         Material.EMERALD,
                         3,
-                        List.of(new ItemShopNew.ShopEntry.GUIPosition(7, 52))
+                        List.of(new ShopGUIPosition(7, 52))
                 )
         );
 

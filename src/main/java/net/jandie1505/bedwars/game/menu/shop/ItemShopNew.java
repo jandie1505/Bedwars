@@ -1,6 +1,5 @@
 package net.jandie1505.bedwars.game.menu.shop;
 
-import net.chaossquad.mclib.JSONConfigUtils;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.ManagedListener;
@@ -19,19 +18,23 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.*;
 
 public class ItemShopNew implements ManagedListener, InventoryHolder {
+    private static final String DATA_INVENTORY_PAGE_CURRENT = "current_page";
+
     private final Game game;
     private final Map<String, ShopEntry> shopEntries;
+    private final Map<String, UpgradeEntry> upgradeEntries;
     private final ItemStack[] menuBar;
 
     public ItemShopNew(Game game) {
         this.game = game;
         this.shopEntries = new HashMap<>();
+        this.upgradeEntries = new HashMap<>();
         this.menuBar = new ItemStack[8];
 
         this.menuBar[0] = new ItemStack(Material.DIAMOND);
@@ -49,14 +52,22 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
         return this.shopEntries.get(shopName);
     }
 
+    public Map<String, UpgradeEntry> getUpgradeEntries() {
+        return Map.copyOf(this.upgradeEntries);
+    }
+
+    public UpgradeEntry getUpgradeEntry(String upgradeName) {
+        return this.upgradeEntries.get(upgradeName);
+    }
+
     // GUI
 
     /**
      * Creates a new gui inventory and returns it.
      * @return gui inventory
      */
-    public Inventory createGUIInventory() {
-        return this.createInventoryPage(0);
+    public Inventory createGUIInventory(Player player) {
+        return this.createInventoryPage(0, player);
     }
 
     /**
@@ -64,17 +75,19 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
      * @param player player
      */
     public void openInventory(@NotNull Player player) {
-        player.openInventory(this.createGUIInventory());
+        player.openInventory(this.createGUIInventory(player));
     }
 
-    // PRIVATE GUI
+    // ----- PRIVATE GUI -----
+
+    // Inventory Base
 
     private ItemStack getQuickBuyItem(int page) {
         ItemStack quickBuyItem = new ItemStack(Material.NETHER_STAR);
         ItemMeta meta = this.game.getPlugin().getServer().getItemFactory().getItemMeta(quickBuyItem.getType());
         meta.setDisplayName("§b§lQuick Buy");
         meta.addItemFlags(ItemFlag.values());
-        meta.getPersistentDataContainer().set(new NamespacedKey(this.game.getPlugin(), "current_page"), PersistentDataType.INTEGER, 0);
+        meta.getPersistentDataContainer().set(new NamespacedKey(this.game.getPlugin(), DATA_INVENTORY_PAGE_CURRENT), PersistentDataType.INTEGER, page);
         quickBuyItem.setItemMeta(meta);
         return quickBuyItem;
     }
@@ -85,6 +98,7 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
      * @param page page
      * @return inventory
      */
+    @NotNull
     private Inventory createInventoryBase(int page) {
         Inventory inventory = this.game.getPlugin().getServer().createInventory(this, 54, "Item Shop");
 
@@ -109,28 +123,134 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
     }
 
     /**
+     * Returns the current shop page the given inventory is on.
+     * Returns {@value -1} if the given inventory is not a shop page.
+     * @param inventory inventory
+     * @return current inventory page
+     */
+    private int getCurrentShopPage(@NotNull Inventory inventory) {
+        ItemStack quickBuyItem = inventory.getItem(0);
+        if (quickBuyItem == null) return -1;
+        ItemMeta meta = quickBuyItem.getItemMeta();
+        if (meta == null) return -1;
+        return meta.getPersistentDataContainer().getOrDefault(new NamespacedKey(this.game.getPlugin(), DATA_INVENTORY_PAGE_CURRENT), PersistentDataType.INTEGER, -1);
+    }
+
+    // Inventory page
+
+    /**
      * Creates the specified inventory page.
      * @param page inventory page (1 < page < 9)
      * @return
      */
-    private Inventory createInventoryPage(int page) {
+    @NotNull
+    private Inventory createInventoryPage(int page, @Nullable Player player) {
         Inventory inventory = this.createInventoryBase(page);
         if (page < 1 || page >= 9) return inventory;
 
+        // Add items
+
+        this.addItems(inventory, page);
+        if (player != null) this.addUpgrades(inventory, page, player);
+        this.addPlaceholders(inventory);
+
+        // Return
+
+        return inventory;
+    }
+
+    /**
+     * Adds the shop items to the item shop.
+     * @param inventory inventory
+     * @param page shop page
+     */
+    private void addItems(@NotNull Inventory inventory, int page) {
+
         for (Map.Entry<String, ShopEntry> entry : Map.copyOf(this.shopEntries).entrySet()) {
-            for (ShopEntry.GUIPosition position : entry.getValue().positions()) {
+            for (ShopGUIPosition position : entry.getValue().positions()) {
                 if (position.slot() <= 9 || position.slot() >= 54) continue;
                 if (position.page() != page) continue;
 
                 ItemStack item = entry.getValue().item();
                 ItemMeta meta = item.getItemMeta() != null ? item.getItemMeta() : this.game.getPlugin().getServer().getItemFactory().getItemMeta(item.getType());
-                meta.getPersistentDataContainer().set(new NamespacedKey(this.game.getPlugin(), "shop_id"), PersistentDataType.STRING, entry.getKey());
+                meta.getPersistentDataContainer().set(new NamespacedKey(this.game.getPlugin(), "shop_entry_id"), PersistentDataType.STRING, entry.getKey());
                 item.setItemMeta(meta);
 
                 inventory.setItem(position.slot(), item);
 
             }
         }
+
+    }
+
+    /**
+     * Adds the upgrades to the item shop.
+     * @param inventory inventory
+     * @param page page
+     * @param player player
+     */
+    private void addUpgrades(@NotNull Inventory inventory, int page, @NotNull Player player) {
+
+        PlayerData playerData = this.game.getPlayer(player.getUniqueId());
+        if (playerData != null) {
+            for (Map.Entry<String, UpgradeEntry> entry : Map.copyOf(this.upgradeEntries).entrySet()) {
+
+                // Get current upgrade step of the entry
+
+                List<UpgradeEntry.UpgradeStep> upgradeSteps = entry.getValue().upgradeSteps();
+                if (upgradeSteps.isEmpty()) continue;
+
+                int upgradeLevel = playerData.getUpgrade(entry.getKey());
+                if (upgradeLevel < 0) continue;
+
+                // Create and modify item
+
+                ItemStack item;
+
+                if (upgradeLevel < upgradeSteps.size()) {
+
+                    // UPGRADE STEP FOUND
+
+                    UpgradeEntry.UpgradeStep upgradeStep = upgradeSteps.get(upgradeLevel);
+
+                    item = upgradeStep.displayItem();
+                    ItemMeta meta = item.getItemMeta();
+
+                    meta.getPersistentDataContainer().set(new NamespacedKey(this.game.getPlugin(), "shop_upgrade_id"), PersistentDataType.STRING, entry.getKey());
+
+                    List<String> lore = new ArrayList<>();
+                    lore.add("§r§7Price: §a" + upgradeStep.price() + " " + upgradeStep.currency().name() + (upgradeStep.price() != 1 ? "s" : ""));
+                    lore.addAll(Objects.requireNonNullElse(meta.getLore(), List.of()));
+                    meta.setLore(lore);
+
+                    item.setItemMeta(meta);
+
+                } else {
+
+                    // UPGRADE STEP NOT FOUND
+
+                    item = entry.getValue().maxLevelItem();
+
+                }
+
+                // Set item
+
+                for (ShopGUIPosition position : entry.getValue().guiPositions()) {
+                    if (position.slot() <= 9 || position.slot() >= 54) continue;
+                    if (position.page() != page) continue;
+                    inventory.setItem(position.slot(), item.clone());
+                }
+
+            }
+        }
+
+    }
+
+    /**
+     * Adds the placeholder glass panes to the item shop.
+     * @param inventory inventory
+     */
+    private void addPlaceholders(@NotNull Inventory inventory) {
 
         for (int i = 0; i < inventory.getSize(); i++) {
             ItemStack item = inventory.getItem(i);
@@ -146,10 +266,9 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
 
         }
 
-        return inventory;
     }
 
-    // EVENTS
+    // ----- EVENTS -----
 
     /**
      * Checks if there is enough space in the player's inventory to add the specified item.
@@ -208,6 +327,9 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
 
         event.setCancelled(true);
 
+        // This will prevent the players from interacting with the shop inventory through clicking in their own inventories
+        if (event.getClickedInventory() == null || event.getClickedInventory().getHolder() != this) return;
+
         PlayerData playerData = this.game.getPlayer(player.getUniqueId());
         if (playerData == null) {
             player.closeInventory();
@@ -220,29 +342,65 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
 
         if (event.getSlot() < 9) {
 
-            player.openInventory(this.createInventoryPage(event.getSlot()));
+            // ITEM IS IN MENU BAR
+
+            player.openInventory(this.createInventoryPage(event.getSlot(), player));
 
         } else {
 
+            // ITEM IS NOT IN MENU BAR
+
             ItemMeta meta = clickedItem.getItemMeta();
             if (meta == null) meta = this.game.getPlugin().getServer().getItemFactory().getItemMeta(clickedItem.getType());
-            String id = meta.getPersistentDataContainer().get(new NamespacedKey(this.game.getPlugin(), "shop_id"), PersistentDataType.STRING);
+            String shopId = meta.getPersistentDataContainer().get(new NamespacedKey(this.game.getPlugin(), "shop_entry_id"), PersistentDataType.STRING);
+            String upgradeId = meta.getPersistentDataContainer().get(new NamespacedKey(this.game.getPlugin(), "shop_upgrade_id"), PersistentDataType.STRING);
 
-            ShopEntry shopEntry = this.shopEntries.get(id);
-            if (shopEntry == null) return;
+            if (shopId != null) {
 
-            if (!this.checkSpace(player.getInventory(), shopEntry.item())) {
-                player.sendMessage("§cYou don't have enough space in your inventory to purchase this item!");
-                return;
-            }
+                // ITEM IS A SHOP ITEM
 
-            boolean success = this.purchaseItem(player.getInventory(), shopEntry.price(), shopEntry.currency());
+                ShopEntry shopEntry = this.shopEntries.get(shopId);
+                if (shopEntry == null) return;
 
-            if (success) {
-                player.getInventory().addItem(shopEntry.item());
-                player.sendMessage("§aItem successfully purchased!");
-            } else {
-                player.sendMessage("§cYou don't have enough " + shopEntry.currency().name() + "S to purchase this item!");
+                if (!this.checkSpace(player.getInventory(), shopEntry.item())) {
+                    player.sendMessage("§cYou don't have enough space in your inventory to purchase this item!");
+                    return;
+                }
+
+                boolean success = this.purchaseItem(player.getInventory(), shopEntry.price(), shopEntry.currency());
+
+                if (success) {
+                    player.getInventory().addItem(shopEntry.item());
+                    player.sendMessage("§aItem successfully purchased!");
+                } else {
+                    player.sendMessage("§cYou don't have enough " + shopEntry.currency().name() + "S to purchase this item!");
+                }
+
+            } else if (upgradeId != null) {
+
+                // ITEM IS AN UPGRADE ITEM
+
+                UpgradeEntry entry = this.upgradeEntries.get(upgradeId);
+                if (entry == null) return;
+
+                int level = playerData.getUpgrade(upgradeId);
+                if (level < 0) return;
+                if (level >= entry.upgradeSteps().size()) return;
+
+                UpgradeEntry.UpgradeStep step = entry.upgradeSteps().get(level);
+                if (step == null) return;
+
+                boolean success = this.purchaseItem(player.getInventory(), step.price(), step.currency());
+
+                if (success) {
+                    playerData.setUpgrade(upgradeId, level + 1);
+                    int page = this.getCurrentShopPage(event.getInventory());
+                    player.openInventory(this.createInventoryPage(page, player));
+                    player.sendMessage("§aUpgrade successfully purchased!");
+                } else {
+                    player.sendMessage("§cYou don't have enough " + step.currency().name() + "S to purchase this upgrade!");
+                }
+
             }
 
             return;
@@ -280,96 +438,6 @@ public class ItemShopNew implements ManagedListener, InventoryHolder {
     }
 
     // INNER CLASSES
-
-    public record ShopEntry(
-            @NotNull ItemStack item,
-            @NotNull Material currency,
-            int price,
-            @NotNull List<GUIPosition> positions
-    ) {
-
-        public ShopEntry(@NotNull ItemStack item, @NotNull Material currency, int price, @NotNull List<GUIPosition> positions) {
-            this.item = item.clone();
-            this.currency = currency;
-            this.price = price;
-            this.positions = List.copyOf(positions);
-        }
-
-        @Override
-        public ItemStack item() {
-            return this.item.clone();
-        }
-
-        public static ShopEntry createFromJSON(JSONObject data) {
-
-            JSONObject itemData = data.optJSONObject("item");
-            //if (itemData == null) return null;
-            ItemStack item;
-            try {
-                item = JSONConfigUtils.deserializeItem(itemData);
-                //if (item == null) return null;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-
-            Material currency = Material.getMaterial(data.getString("currency"));
-            //if (currency == null) return null;
-
-            List<GUIPosition> positions = new ArrayList<>();
-            JSONArray guiPositions = data.optJSONArray("positions");
-            //if (guiPositions == null) return null;
-            for (int i = 0; i < guiPositions.length(); i++) {
-                JSONObject guiPosition = guiPositions.getJSONObject(i);
-                //if (guiPosition == null) continue;
-                GUIPosition position = GUIPosition.createFromJSON(guiPosition);
-                //if (position == null) continue;
-                positions.add(position);
-            }
-
-            return new ShopEntry(
-                    item,
-                    currency,
-                    data.optInt("price", 1),
-                    positions
-            );
-        }
-
-        public static JSONObject convertToJSON(ShopEntry shopEntry) {
-            JSONObject data = new JSONObject();
-
-            data.put("item", JSONConfigUtils.serializeItem(shopEntry.item()));
-            data.put("currency", shopEntry.currency().name());
-            data.put("price", shopEntry.price());
-
-            JSONArray positions = new JSONArray();
-            for (GUIPosition guiPosition : shopEntry.positions) {
-                positions.put(GUIPosition.convertToJSON(guiPosition));
-            }
-            data.put("positions", positions);
-
-            return data;
-        }
-
-        public record GUIPosition(int page, int slot) {
-
-            public static GUIPosition createFromJSON(JSONObject data) {
-                int page = data.optInt("page", -1);
-                int slot = data.optInt("slot", -1);
-                //if (page < 0 || slot < 0) return null;
-                return new GUIPosition(page, slot);
-            }
-
-            public static JSONObject convertToJSON(GUIPosition guiPosition) {
-                JSONObject data = new JSONObject();
-                data.put("page", guiPosition.page());
-                data.put("slot", guiPosition.slot());
-                return data;
-            }
-
-        }
-
-    }
 
     // STATIC
 
