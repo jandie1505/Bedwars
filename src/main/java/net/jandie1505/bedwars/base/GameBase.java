@@ -5,15 +5,15 @@ import net.chaossquad.mclib.scheduler.TaskScheduler;
 import net.jandie1505.bedwars.Bedwars;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public abstract class GameBase implements ListenerOwner {
     @NotNull private final GameInstance instance;
@@ -185,6 +185,20 @@ public abstract class GameBase implements ListenerOwner {
     public final boolean isPlayerIngame(@Nullable OfflinePlayer player) {
         if (player == null) return false;
         return this.isPlayerIngame(player.getUniqueId());
+    }
+
+    /**
+     * Returns all registered players in the gamemode.
+     * @return set of registered players
+     */
+    public abstract @NotNull Set<@NotNull UUID> getRegisteredPlayers();
+
+    /**
+     * Returns all registered online players in the gamemode.
+     * @return list of registered online players
+     */
+    public final List<Player> getOnlinePlayers() {
+        return this.getRegisteredPlayers().stream().map(uuid -> this.getPlugin().getServer().getPlayer(uuid)).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     // ----- HASH AND EQUALS -----

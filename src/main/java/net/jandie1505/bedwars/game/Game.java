@@ -8,19 +8,32 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class Game extends GameBase {
-    private final HashMap<UUID, PlayerData> players;
+    @NotNull private final HashMap<UUID, PlayerData> players;
 
     public Game(@NotNull GameInstance instance, @NotNull World world) {
         super(instance, world);
         this.players = new HashMap<>();
     }
 
+    // ----- PLAYERS -----
+
     @Override
-    public boolean isPlayerIngame(@Nullable UUID playerId) {
-        return false;
+    public final boolean isPlayerIngame(@Nullable UUID playerId) {
+        return this.players.containsKey(playerId);
+    }
+
+    @Override
+    public final @NotNull Set<UUID> getRegisteredPlayers() {
+        return Set.copyOf(this.players.keySet());
+    }
+
+    public final @NotNull Map<UUID, PlayerData> getPlayerDataMap() {
+        return Map.copyOf(this.players);
     }
 
 }
