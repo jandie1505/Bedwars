@@ -1,12 +1,18 @@
 package net.jandie1505.bedwars;
 
+import net.chaossquad.mclib.command.SubcommandCommand;
+import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.dynamicevents.EventListenerManager;
 import net.chaossquad.mclib.dynamicevents.ListenerOwner;
 import net.chaossquad.mclib.storage.DataStorage;
 import net.jandie1505.bedwars.base.GameBase;
 import net.jandie1505.bedwars.base.GameInstance;
+import net.jandie1505.bedwars.commands.StopSubcommand;
+import net.jandie1505.bedwars.constants.Permissions;
+import net.jandie1505.bedwars.game.Game;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -24,21 +30,39 @@ public final class Bedwars {
     @NotNull private final BWPlugin plugin;
     @NotNull private final DataStorage config;
     @NotNull private final EventListenerManager listenerManager;
-    @NotNull private final Set<GameInstance> gameInstances;
+    @NotNull private final HashMap<Integer, GameInstance> gameInstances;
     @NotNull private final Set<UUID> bypassingPlayers;
+    @NotNull private final SubcommandCommand command;
 
+    private int nextGameId;
     private boolean paused;
 
     private Bedwars(@NotNull BWPlugin plugin) {
         this.plugin = plugin;
         this.config = new DataStorage();
         this.listenerManager = new EventListenerManager(this.plugin);
-        this.gameInstances = new HashSet<>();
+        this.gameInstances = new HashMap<>();
         this.bypassingPlayers = new HashSet<>();
+        this.command = new SubcommandCommand(this.plugin, Permissions::admin);
 
+        this.nextGameId = 0;
         this.paused = false;
 
-        this.listenerManager.addSource(() -> this.gameInstances.stream()
+        // COMMAND
+
+        PluginCommand cmd = this.plugin.getCommand("bedwars");
+        if (cmd != null) {
+            cmd.setExecutor(this.command);
+            cmd.setTabCompleter(this.command);
+        } else {
+            throw new NullPointerException("Plugin command not found");
+        }
+
+        this.command.addSubcommand("stop", SubcommandEntry.of(new StopSubcommand(this)));
+
+        // LISTENER
+
+        this.listenerManager.addSource(() ->this.gameInstances.values().stream()
                 .filter(instance -> !instance.data().paused())
                 .map(GameInstance::game)
                 .filter(Objects::nonNull)
@@ -56,7 +80,7 @@ public final class Bedwars {
     private void gameTick(int id) {
         if (this.paused) return;
 
-        for (GameBase game : this.gameInstances.stream()
+        for (GameBase game : this.gameInstances.values().stream()
                 .filter(instance -> !instance.data().paused())
                 .map(GameInstance::game)
                 .filter(Objects::nonNull)
@@ -118,19 +142,48 @@ public final class Bedwars {
 
     // ----- GAME MANAGEMENT -----
 
-    public @NotNull Set<GameInstance> getRunningGameInstances() {
+    public @NotNull Map<Integer, GameInstance> getRunningGameInstances() {
         return this.gameInstances;
     }
 
     public @NotNull Set<GameBase> getRunningGames() {
-        return this.gameInstances.stream().map(GameInstance::game).filter(Objects::nonNull).collect(Collectors.toSet());
+        return this.gameInstances.values().stream().map(GameInstance::game).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    public @Nullable GameInstance getGameInstance(int id) {
+        return this.gameInstances.get(id);
+    }
+
+    public @Nullable GameBase getGame(int id) {
+        GameInstance gameInstance = this.getGameInstance(id);
+        if (gameInstance == null) return null;
+        return gameInstance.game();
+    }
+
+    public void stopAllGames() {
+        this.gameInstances.clear();
+        this.listenerManager.manageListeners();
+        this.getLogger().info("Stopped all games");
+    }
+
+    public void stopGame(int id) {
+        this.gameInstances.remove(id);
+        this.listenerManager.manageListeners();
+        this.getLogger().info("Stopped game " + id);
+    }
+
+    public void startNewGame() {
+        GameInstance instance = new GameInstance(this, ++nextGameId);
+        Game game = new Game(instance, this.getServer().getWorlds().getFirst());
+        instance.setGame(game);
+        this.gameInstances.put(instance.gameId(), instance);
     }
 
     // ----- GAME PLAYERS -----
 
     public @Nullable GameInstance getGameByPlayer(@NotNull UUID player) {
 
-        for (GameInstance instance : this.gameInstances) {
+        for (GameInstance instance : this.gameInstances.values()) {
             if (instance.game() == null) continue;
             if (instance.game().isPlayerIngame(player)) return instance;
         }

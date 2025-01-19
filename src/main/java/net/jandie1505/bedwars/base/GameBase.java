@@ -4,6 +4,7 @@ import net.chaossquad.mclib.dynamicevents.ListenerOwner;
 import net.chaossquad.mclib.scheduler.TaskScheduler;
 import net.jandie1505.bedwars.Bedwars;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -15,14 +16,18 @@ import java.util.UUID;
 import java.util.logging.Level;
 
 public abstract class GameBase implements ListenerOwner {
-    @NotNull private final Bedwars plugin;
+    @NotNull private final GameInstance instance;
     @NotNull private final TaskScheduler taskScheduler;
     @NotNull private final List<ManagedListener> listeners;
+    @NotNull private final World world;
 
-    public GameBase(@NotNull Bedwars plugin) {
-        this.plugin = plugin;
-        this.taskScheduler = new TaskScheduler(this.plugin.getLogger());
+    public GameBase(@NotNull GameInstance instance, @NotNull World world) {
+        this.instance = instance;
+        this.taskScheduler = new TaskScheduler(this.getPlugin().getLogger());
         this.listeners = new ArrayList<>();
+        this.world = world;
+
+        if (!this.getPlugin().getServer().getWorlds().contains(world)) throw new IllegalArgumentException("Provided world is not loaded");
 
         this.taskScheduler.scheduleRepeatingTask(this::cleanupListeners, 1, 100);
     }
@@ -35,7 +40,7 @@ public abstract class GameBase implements ListenerOwner {
      */
     @NotNull
     public final Bedwars getPlugin() {
-        return this.plugin;
+        return this.instance.plugin();
     }
 
     // ----- TASKS -----
@@ -65,7 +70,7 @@ public abstract class GameBase implements ListenerOwner {
             return true;
 
         } catch (Exception e) {
-            this.plugin.getLogger().log(Level.WARNING, "Exception in executable " + this + ": ", e);
+            this.getPlugin().getLogger().log(Level.WARNING, "Exception in executable " + this + ": ", e);
         }
 
         return false;
@@ -110,7 +115,7 @@ public abstract class GameBase implements ListenerOwner {
     public final void registerListener(@NotNull ManagedListener listener, boolean instant) {
         for (ManagedListener l : this.listeners) if (l == listener) return;
         this.listeners.add(listener);
-        if (instant) this.plugin.listenerManager().manageListeners();
+        if (instant) this.getPlugin().listenerManager().manageListeners();
     }
 
     /**
@@ -128,7 +133,7 @@ public abstract class GameBase implements ListenerOwner {
      */
     public final void unregisterListener(@NotNull ManagedListener listener, boolean instant) {
         this.listeners.remove(listener);
-        if (instant) this.plugin.listenerManager().manageListeners();
+        if (instant) this.getPlugin().listenerManager().manageListeners();
     }
 
     /**
