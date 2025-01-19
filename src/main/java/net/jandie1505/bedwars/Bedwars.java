@@ -1,24 +1,33 @@
 package net.jandie1505.bedwars;
 
+import net.chaossquad.mclib.WorldUtils;
 import net.chaossquad.mclib.command.SubcommandCommand;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.dynamicevents.EventListenerManager;
 import net.chaossquad.mclib.dynamicevents.ListenerOwner;
+import net.chaossquad.mclib.storage.DSSerializer;
 import net.chaossquad.mclib.storage.DataStorage;
+import net.chaossquad.mclib.world.DynamicWorldLoadingSystem;
 import net.jandie1505.bedwars.base.GameBase;
 import net.jandie1505.bedwars.base.GameInstance;
+import net.jandie1505.bedwars.commands.ConfigSubcommand;
 import net.jandie1505.bedwars.commands.StopSubcommand;
+import net.jandie1505.bedwars.commands.TestSubcommand;
+import net.jandie1505.bedwars.commands.WorldsSubcommand;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.Game;
+import net.jandie1505.bedwars.utilities.ConfigurationUtilities;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,17 +42,19 @@ public final class Bedwars {
     @NotNull private final HashMap<Integer, GameInstance> gameInstances;
     @NotNull private final Set<UUID> bypassingPlayers;
     @NotNull private final SubcommandCommand command;
+    @NotNull private final DynamicWorldLoadingSystem worldManager;
 
     private int nextGameId;
     private boolean paused;
 
-    private Bedwars(@NotNull BWPlugin plugin) {
+    Bedwars(@NotNull BWPlugin plugin) {
         this.plugin = plugin;
         this.config = new DataStorage();
         this.listenerManager = new EventListenerManager(this.plugin);
         this.gameInstances = new HashMap<>();
         this.bypassingPlayers = new HashSet<>();
         this.command = new SubcommandCommand(this.plugin, Permissions::admin);
+        this.worldManager = new DynamicWorldLoadingSystem(this.plugin);
 
         this.nextGameId = 0;
         this.paused = false;
@@ -59,6 +70,9 @@ public final class Bedwars {
         }
 
         this.command.addSubcommand("stop", SubcommandEntry.of(new StopSubcommand(this)));
+        this.command.addSubcommand("config", SubcommandEntry.of(new ConfigSubcommand(this)));
+        this.command.addSubcommand("test", SubcommandEntry.of(new TestSubcommand(this)));
+        this.command.addSubcommand("worlds", SubcommandEntry.of(new WorldsSubcommand()));
 
         // LISTENER
 
@@ -72,12 +86,16 @@ public final class Bedwars {
 
         this.createBukkitRunnable(id -> this.listenerManager.manageListeners()).runTaskTimer(this.plugin, 1, 200);
         this.createBukkitRunnable(this::gameTick).runTaskTimer(this.plugin, 1, 1);
+        this.createBukkitRunnable(this::worldUnloadTask).runTaskTimer(this.plugin, 1, 20);
         this.createBukkitRunnable(id -> this.playerVisibilityTask()).runTaskTimer(this.plugin, 1, 30*20);
     }
 
     // ----- TASKS -----
 
-    private void gameTick(int id) {
+    /**
+     * Game tick.
+     */
+    private void gameTick(int taskIk) {
         if (this.paused) return;
 
         for (GameBase game : this.gameInstances.values().stream()
@@ -91,6 +109,35 @@ public final class Bedwars {
 
     }
 
+    /**
+     * Unloads worlds of non-existing games.
+     */
+    private void worldUnloadTask(int taskId) {
+
+        for (World world : this.worldManager.getDynamicWorlds()) {
+
+            if (world == null || !getServer().getWorlds().contains(world) || getServer().getWorlds().getFirst() == world) {
+                continue;
+            }
+
+            boolean worldUsed = false;
+            for (GameBase game : this.getRunningGames()) {
+                if (game.getWorld() == world) {
+                    worldUsed = true;
+                    break;
+                }
+            }
+
+            if (worldUsed) continue;
+
+            WorldUtils.unloadWorld(world, false);
+        }
+
+    }
+
+    /**
+     * Handles player visibility.
+     */
     public void playerVisibilityTask() {
 
         for (Player player : List.copyOf(this.getServer().getOnlinePlayers())) {
@@ -174,7 +221,10 @@ public final class Bedwars {
 
     public void startNewGame() {
         GameInstance instance = new GameInstance(this, ++nextGameId);
-        Game game = new Game(instance, this.getServer().getWorlds().getFirst());
+
+        World world = this.worldManager.createWorldFromTemplate("minimalist");
+
+        Game game = new Game(instance, world);
         instance.setGame(game);
         this.gameInstances.put(instance.gameId(), instance);
     }
@@ -219,18 +269,26 @@ public final class Bedwars {
 
     // ----- ENABLE / DISABLE -----
 
-    private void onDisable() {
+    void onDisable() {
 
     }
+
+    // ----- LOAD CONFIG -----
+
+
 
     // ----- OTHER -----
 
-    public @NotNull DataStorage config() {
+    public @NotNull DataStorage getConfig() {
         return this.config;
     }
 
-    public EventListenerManager listenerManager() {
+    public @NotNull EventListenerManager getListenerManager() {
         return this.listenerManager;
+    }
+
+    public @NotNull DynamicWorldLoadingSystem getWorldManager() {
+        return this.worldManager;
     }
 
     // ----- BUKKIT -----
@@ -256,34 +314,6 @@ public final class Bedwars {
 
     private interface BukkitRunnableTask {
         void run(int taskId);
-    }
-
-    // ----- PLUGIN -----
-
-    public static class BWPlugin extends JavaPlugin {
-        @Nullable private Bedwars plugin;
-
-        public BWPlugin() {
-            this.plugin = null;
-        }
-
-        @Override
-        public void onEnable() {
-            this.plugin = new Bedwars(this);
-        }
-
-        @Override
-        public void onDisable() {
-
-            try {
-                if (this.plugin != null) this.plugin.onDisable();
-            } catch (Exception e) {
-                this.getLogger().log(Level.WARNING, "Failed to call onDisable in Bedwars", e);
-            }
-
-            this.plugin = null;
-        }
-
     }
 
 }

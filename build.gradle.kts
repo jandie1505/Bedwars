@@ -37,7 +37,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    implementation("net.chaossquad:mclib:master-c31e8f69cf34a540b519cd3b45ef6edea69e594a")
+    implementation("net.chaossquad:mclib:master-330c2bfaa1c80df63067710890756632a63f7248")
     compileOnly("de.simonsator:Party-and-Friends-MySQL-Edition-Spigot-API:1.6.2-RELEASE")
     compileOnly("de.simonsator:spigot-party-api-for-party-and-friends:1.0.7-RELEASE")
     compileOnly("eu.cloudnetservice.cloudnet:bridge:4.0.0-RC10")

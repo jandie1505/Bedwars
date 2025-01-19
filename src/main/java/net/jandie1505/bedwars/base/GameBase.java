@@ -43,6 +43,11 @@ public abstract class GameBase implements ListenerOwner {
         return this.instance.plugin();
     }
 
+    @NotNull
+    public final World getWorld() {
+        return this.world;
+    }
+
     // ----- TASKS -----
 
     /**
@@ -115,7 +120,7 @@ public abstract class GameBase implements ListenerOwner {
     public final void registerListener(@NotNull ManagedListener listener, boolean instant) {
         for (ManagedListener l : this.listeners) if (l == listener) return;
         this.listeners.add(listener);
-        if (instant) this.getPlugin().listenerManager().manageListeners();
+        if (instant) this.getPlugin().getListenerManager().manageListeners();
     }
 
     /**
@@ -133,7 +138,7 @@ public abstract class GameBase implements ListenerOwner {
      */
     public final void unregisterListener(@NotNull ManagedListener listener, boolean instant) {
         this.listeners.remove(listener);
-        if (instant) this.getPlugin().listenerManager().manageListeners();
+        if (instant) this.getPlugin().getListenerManager().manageListeners();
     }
 
     /**
