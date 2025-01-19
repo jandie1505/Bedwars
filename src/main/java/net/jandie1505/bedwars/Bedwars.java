@@ -1,587 +1,236 @@
 package net.jandie1505.bedwars;
 
-import de.myzelyam.api.vanish.VanishAPI;
-import net.jandie1505.bedwars.commands.BedwarsCommand;
-import net.jandie1505.bedwars.config.ConfigManager;
-import net.jandie1505.bedwars.config.DefaultConfigValues;
-import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.items.ItemStorage;
-import net.jandie1505.bedwars.lobby.Lobby;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.black_ixx.playerpoints.PlayerPoints;
-import org.black_ixx.playerpoints.PlayerPointsAPI;
-import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
+import net.chaossquad.mclib.dynamicevents.EventListenerManager;
+import net.chaossquad.mclib.dynamicevents.ListenerOwner;
+import net.chaossquad.mclib.storage.DataStorage;
+import net.jandie1505.bedwars.base.GameBase;
+import net.jandie1505.bedwars.base.GameInstance;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.json.JSONObject;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.time.Duration;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-public class Bedwars extends JavaPlugin {
-    private ConfigManager configManager;
-    private ConfigManager mapConfig;
-    private ConfigManager itemConfig;
-    private ConfigManager shopConfig;
-    private List<UUID> bypassingPlayers;
-    private GamePart game;
-    private List<World> managedWorlds;
-    private ItemStorage itemStorage;
-    private EventListener eventListener;
-    private boolean nextStatus;
+public final class Bedwars {
+    public static final String PLUGIN_NAME = "Bedwars";
+
+    @NotNull private final BWPlugin plugin;
+    @NotNull private final DataStorage config;
+    @NotNull private final EventListenerManager listenerManager;
+    @NotNull private final Set<GameInstance> gameInstances;
+    @NotNull private final Set<UUID> bypassingPlayers;
+
     private boolean paused;
-    private boolean cloudSystemMode;
-    private boolean svLoaded;
 
-    @Override
-    public void onEnable() {
-        this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.json");
-        this.mapConfig = new ConfigManager(this, DefaultConfigValues.getMapConfig(), true, "maps.json");
-        this.itemConfig = new ConfigManager(this, DefaultConfigValues.getItemConfig(), true, "items.json");
-        this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop.json");
-        this.bypassingPlayers = Collections.synchronizedList(new ArrayList<>());
-        this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
-        this.itemStorage = new ItemStorage(this);
-        this.nextStatus = false;
+    private Bedwars(@NotNull BWPlugin plugin) {
+        this.plugin = plugin;
+        this.config = new DataStorage();
+        this.listenerManager = new EventListenerManager(this.plugin);
+        this.gameInstances = new HashSet<>();
+        this.bypassingPlayers = new HashSet<>();
+
         this.paused = false;
-        this.cloudSystemMode = false;
 
-        this.configManager.reloadConfig();
-        this.mapConfig.reloadConfig();
-        this.itemConfig.reloadConfig();
-        this.shopConfig.reloadConfig();
+        this.listenerManager.addSource(() -> this.gameInstances.stream()
+                .filter(instance -> !instance.data().paused())
+                .map(GameInstance::game)
+                .filter(Objects::nonNull)
+                .map(gameBase -> (ListenerOwner) gameBase)
+                .toList()
+        );
 
-        this.cloudSystemMode = this.configManager.getConfig().optJSONObject("cloudSystemMode", new JSONObject()).optBoolean("enable", false);
+        this.createBukkitRunnable(id -> this.listenerManager.manageListeners()).runTaskTimer(this.plugin, 1, 200);
+        this.createBukkitRunnable(this::gameTick).runTaskTimer(this.plugin, 1, 1);
+        this.createBukkitRunnable(id -> this.playerVisibilityTask()).runTaskTimer(this.plugin, 1, 30*20);
+    }
 
-        this.itemStorage.initItems();
+    // ----- TASKS -----
 
-        try {
-            Class.forName("de.myzelyam.api.vanish.VanishAPI");
-            this.svLoaded = true;
-            this.getLogger().info("SuperVanish/PremiumVanish integration enabled (auto-bypass when vanished)");
-        } catch (ClassNotFoundException ignored) {
-            this.svLoaded = false;
+    private void gameTick(int id) {
+        if (this.paused) return;
+
+        for (GameBase game : this.gameInstances.stream()
+                .filter(instance -> !instance.data().paused())
+                .map(GameInstance::game)
+                .filter(Objects::nonNull)
+                .toList()
+        ) {
+            game.tick();
         }
 
-        this.getCommand("bedwars").setExecutor(new BedwarsCommand(this));
-        this.getCommand("bedwars").setTabCompleter(new BedwarsCommand(this));
+    }
 
-        this.eventListener = new EventListener(this);
-        this.getServer().getPluginManager().registerEvents(this.eventListener, this);
+    public void playerVisibilityTask() {
 
-        // Cleanup listeners task
+        for (Player player : List.copyOf(this.getServer().getOnlinePlayers())) {
+            for (Player otherPlayer : List.copyOf(getServer().getOnlinePlayers())) {
+                if (player == otherPlayer) continue;
 
-        new BukkitRunnable() {
+                GameInstance playerGameInstance = this.getGameByPlayer(player);
+                GameInstance otherPlayerGameInstance = this.getGameByPlayer(otherPlayer);
 
-            @Override
-            public void run() {
-                cleanupGameListenersTask();
-            }
+                if (player.canSee(otherPlayer)) {
 
-        }.runTaskTimer(this, 1, 200);
+                    // Never hide players from bypassing players
+                    if (this.isPlayerBypassing(player)) continue;
 
-        // Game Task
+                    // Do not hide players from spectators
+                    if (playerGameInstance == null) continue;
 
-        new BukkitRunnable() {
-
-            @Override
-            public void run() {
-
-                if (Bedwars.this.game != null && !Bedwars.this.isPaused()) {
-
-                    try {
-
-                        if (Bedwars.this.game.tick()) {
-
-                            if (Bedwars.this.nextStatus) {
-
-                                Bedwars.this.nextStatus = false;
-                                Bedwars.this.game = Bedwars.this.game.getNextStatus();
-                                Bedwars.this.getLogger().info("Updated game part");
-
-                            }
-
-                        } else {
-
-                            Bedwars.this.stopGame();
-                            Bedwars.this.getLogger().warning("Game stopped because it was aborted by tick");
-
-                        }
-
-                    } catch (Exception e) {
-                        Bedwars.this.getLogger().warning("Exception in game: " + e + "\nMessage: " + e.getMessage() + "\nStacktrace: " + Arrays.toString(e.getStackTrace()) + "--- END ---");
-                        Bedwars.this.game = null;
-                    }
-
-                }
-
-            }
-
-        }.runTaskTimer(this, 1, 1);
-
-        // Manage worlds task
-
-        new BukkitRunnable() {
-
-            @Override
-            public void run() {
-
-                for (World world : List.copyOf(Bedwars.this.managedWorlds)) {
-
-                    if (world == null || !Bedwars.this.getServer().getWorlds().contains(world) || Bedwars.this.getServer().getWorlds().get(0) == world) {
-                        Bedwars.this.managedWorlds.remove(world);
+                    // Hide player if player is in another game instance
+                    if (playerGameInstance != otherPlayerGameInstance) {
+                        player.hidePlayer(this.plugin, player);
                         continue;
                     }
 
-                    if (!(Bedwars.this.game instanceof Lobby || (Bedwars.this.game instanceof Game && ((Game) Bedwars.this.game).getWorld() == world))) {
-                        Bedwars.this.unloadWorld(world);
-                    }
-
-                }
-
-            }
-
-        }.runTaskTimer(this, 1, 20);
-
-        // No game running task
-
-        new BukkitRunnable() {
-
-            @Override
-            public void run() {
-
-                for (Player player : List.copyOf(Bedwars.this.getServer().getOnlinePlayers())) {
-
-                    if (!(Bedwars.this.game instanceof Game)) {
-
-                        for (Player otherPlayer : List.copyOf(Bedwars.this.getServer().getOnlinePlayers())) {
-
-                            if (!player.canSee(otherPlayer)) {
-                                player.showPlayer(Bedwars.this, otherPlayer);
-                            }
-
-                        }
-
-                    }
-
-                    if (Bedwars.this.game == null) {
-                        if (player.getScoreboard() != Bedwars.this.getServer().getScoreboardManager().getMainScoreboard()) {
-                            player.setScoreboard(Bedwars.this.getServer().getScoreboardManager().getMainScoreboard());
-                        }
-                    }
-
-                    if (Bedwars.this.game != null && Bedwars.this.isPaused()) {
-                        player.sendTitle("§b\u23F8", "§7§lGAME PAUSED", 0, 20, 0);
-                        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b\u23F8 GAME PAUSED"));
-                    }
-
-                }
-
-            }
-
-        }.runTaskTimer(this, 1, 20);
-
-        if (this.isCloudSystemMode()) {
-            this.getLogger().info("Cloud System Mode enabled (autostart game + switch to ingame + shutdown on end)");
-            this.startGame();
-        }
-    }
-
-    public void onDisable() {
-        this.getLogger().info("Disabling " + this.getName());
-
-        this.stopGame();
-
-        for (World world : List.copyOf(this.managedWorlds)) {
-            this.unloadWorld(world);
-        }
-
-        this.getLogger().info(this.getName() + " was successfully disabled");
-    }
-
-    /**
-     * Get a list of all listeners (not registered listeners).
-     * This can be used to clear listeners of the game.
-     * @return List of listeners
-     */
-    public List<Listener> getListeners() {
-        List<RegisteredListener> registeredListenerList = List.copyOf(HandlerList.getRegisteredListeners(this));
-        List<Listener> listenerList = new ArrayList<>();
-
-        for (RegisteredListener registeredListener : registeredListenerList) {
-
-            if (!listenerList.contains(registeredListener.getListener())) {
-                listenerList.add(registeredListener.getListener());
-            }
-
-        }
-
-        return List.copyOf(listenerList);
-    }
-
-    /**
-     * This method cleans up all listeners which must not exist.
-     * It is used for removing game and map listeners of games/maps which are not loaded anymore.
-     */
-    public void cleanupGameListenersTask() {
-
-        for (Listener listener : this.getListeners()) {
-
-            // Prevent NullPointerException
-
-            if (listener == null) {
-                continue;
-            }
-
-            // Do not delete the global listener
-
-            if (listener == this.eventListener) {
-                continue;
-            }
-
-            // Do not delete the listener if it is a game listener, is not marked as to be removed and the game of it is the current game
-
-            if (listener instanceof ManagedListener managedListener && !managedListener.toBeRemoved() && managedListener.getGame() == this.game) {
-                continue;
-            }
-
-            // Delete the listener
-
-            HandlerList.unregisterAll(listener);
-            this.getLogger().fine("Unregistered listener " + listener);
-
-        }
-
-    }
-
-    /**
-     * Register a game listener as event listener.
-     * @param listener game listener
-     */
-    public void registerListener(ManagedListener listener) {
-        this.getServer().getPluginManager().registerEvents(listener, this);
-    }
-
-    public World loadWorld(String name) {
-
-        World world = this.getServer().getWorld(name);
-
-        if (world != null) {
-            this.managedWorlds.add(world);
-            world.setAutoSave(false);
-            this.getLogger().info("World [" + this.getServer().getWorlds().indexOf(world) + "] " + world.getUID() + " (" + world.getName() + ") is already loaded and was added to managed worlds");
-            return world;
-        }
-
-        world = this.getServer().createWorld(new WorldCreator(name));
-
-        if (world != null) {
-            this.managedWorlds.add(world);
-            world.setAutoSave(false);
-            this.getLogger().info("Loaded world [" + this.getServer().getWorlds().indexOf(world) + "] " + world.getUID() + " (" + world.getName() + ")");
-        } else {
-            this.getLogger().warning("Error while loading world " + name);
-        }
-
-        return world;
-
-    }
-
-    public boolean unloadWorld(World world) {
-
-        if (world == null || this.getServer().getWorlds().get(0) == world || !this.managedWorlds.contains(world) || !this.getServer().getWorlds().contains(world)) {
-            return false;
-        }
-
-        UUID uid = world.getUID();
-        int index = this.getServer().getWorlds().indexOf(world);
-        String name = world.getName();
-
-        for (Player player : world.getPlayers()) {
-            player.teleport(new Location(this.getServer().getWorlds().get(0), 0, 0, 0));
-        }
-
-        boolean success = this.getServer().unloadWorld(world, false);
-
-        if (success) {
-            this.managedWorlds.remove(world);
-            this.getLogger().info("Unloaded world [" + index + "] " + uid + " (" + name + ")");
-        } else {
-            this.getLogger().warning("Error white unloading world [" + index + "] " + uid + " (" + name + ")");
-        }
-
-        return success;
-
-    }
-
-    public void reloadPlugin() {
-        this.getLogger().info("Reloading plugin...");
-
-        this.configManager.reloadConfig();
-        this.mapConfig.reloadConfig();
-        this.itemConfig.reloadConfig();
-        this.shopConfig.reloadConfig();
-
-        this.itemStorage.clearItems();
-        this.itemStorage.initItems();
-
-        this.getLogger().info("Plugin successfully reloaded");
-    }
-
-    public ConfigManager getConfigManager() {
-        return this.configManager;
-    }
-
-    public ConfigManager getMapConfig() {
-        return this.mapConfig;
-    }
-
-    public ConfigManager getItemConfig() {
-        return this.itemConfig;
-    }
-
-    public ConfigManager getShopConfig() {
-        return this.shopConfig;
-    }
-
-    public boolean addBypassingPlayer(UUID playerId) {
-        return this.bypassingPlayers.add(playerId);
-    }
-
-    public boolean removeBypassingPlayer(UUID playerId) {
-        return this.bypassingPlayers.remove(playerId);
-    }
-
-    public List<UUID> getBypassingPlayers() {
-        return List.copyOf(this.bypassingPlayers);
-    }
-
-    public void clearBypassingPlayers() {
-        this.bypassingPlayers.clear();
-    }
-
-    public boolean isPlayerBypassing(UUID playerId) {
-
-        if (this.getBypassingPlayers().contains(playerId)) {
-            return true;
-        }
-
-        if (this.getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("supervanish-premiumvanish", false) && this.svLoaded) {
-
-            Player player = this.getServer().getPlayer(playerId);
-
-            if (player == null) {
-                return false;
-            }
-
-            return VanishAPI.isInvisible(player);
-
-        }
-
-        return false;
-    }
-
-    public void stopGame() {
-        this.game = null;
-        this.getLogger().info("Stopped game");
-    }
-
-    public void startGame() {
-        if (this.game == null) {
-            this.game = new Lobby(this);
-            this.getLogger().info("Started game");
-        }
-    }
-
-    public void setPaused(boolean paused) {
-        this.paused = paused;
-    }
-
-    public void nextStatus() {
-        this.nextStatus = true;
-    }
-
-    public GamePart getGame() {
-        return this.game;
-    }
-
-    public boolean isPaused() {
-        return this.paused;
-    }
-
-    public ItemStorage getItemStorage() {
-        return this.itemStorage;
-    }
-
-    public boolean isCloudSystemMode() {
-        return this.cloudSystemMode;
-    }
-
-    public void setCloudSystemMode(boolean cloudSystemMode) {
-        this.cloudSystemMode = cloudSystemMode;
-    }
-
-    public void givePointsToPlayer(Player player, int amount, String message) {
-
-        if (this.configManager.getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("playerpoints", false)) {
-
-            try {
-                Class.forName("org.black_ixx.playerpoints.PlayerPoints");
-                Class.forName("org.black_ixx.playerpoints.PlayerPointsAPI");
-
-                PlayerPointsAPI pointsAPI = PlayerPoints.getInstance().getAPI();
-
-                if (amount <= 0) {
-                    return;
-                }
-
-                if (amount > this.configManager.getConfig().optJSONObject("rewards", new JSONObject()).optInt("maxRewardsAmount", 5000)) {
-                    amount = this.configManager.getConfig().optJSONObject("rewards", new JSONObject()).optInt("maxRewardsAmount", 5000);
-                }
-
-                pointsAPI.give(player.getUniqueId(), amount);
-
-                if (message != null) {
-                    player.sendMessage(message.replace("{points}", String.valueOf(amount)));
-                }
-
-            } catch (ClassNotFoundException e) {
-
-            }
-
-        }
-
-    }
-
-    public Bedwars getSelf() {
-        return this;
-    }
-
-    public static String getDurationFormat(long seconds) {
-        Duration duration = Duration.ofSeconds(seconds);
-        String formattedTime;
-
-        if (duration.toHours() > 0) {
-            formattedTime = String.format("%d:%02d:%02d", duration.toHours(), duration.toMinutesPart(), duration.toSecondsPart());
-        } else {
-            formattedTime = String.format("%d:%02d", duration.toMinutesPart(), duration.toSecondsPart());
-        }
-
-        return formattedTime;
-    }
-
-    public static void removeSpecificAmountOfItems(Inventory inventory, Material type, int amount) {
-
-        if (amount <= 0) {
-            return;
-        }
-
-        int size = inventory.getSize();
-
-        for (int slot = 0; slot < size; slot++) {
-
-            ItemStack is = inventory.getItem(slot);
-
-            if (is == null) {
-                continue;
-            }
-
-            if (type == is.getType()) {
-
-                int newAmount = is.getAmount() - amount;
-
-                if (newAmount > 0) {
-
-                    is.setAmount(newAmount);
-                    break;
-
                 } else {
 
-                    inventory.clear(slot);
-                    amount = -newAmount;
+                    // Show players for bypassing players
+                    if (this.isPlayerBypassing(player)) {
+                        player.showPlayer(this.plugin, otherPlayer);
+                        continue;
+                    }
 
-                    if (amount == 0) {
-                        break;
+                    // Show players to spectators
+                    if (playerGameInstance == null) {
+                        player.showPlayer(this.plugin, otherPlayer);
+                        continue;
+                    }
+
+                    // Show players when they are in the same game instance
+                    if (playerGameInstance == otherPlayerGameInstance) {
+                        player.showPlayer(this.plugin, otherPlayer);
+                        continue;
                     }
 
                 }
             }
         }
+
     }
 
-    public static void removeItemCompletely(Inventory inventory, ItemStack item) {
+    // ----- GAME MANAGEMENT -----
 
-        for (int slot = 0; slot < inventory.getSize(); slot++) {
-            ItemStack slotItem = inventory.getItem(slot);
+    public @NotNull Set<GameInstance> getRunningGameInstances() {
+        return this.gameInstances;
+    }
 
-            if (item.isSimilar(slotItem)) {
-                inventory.clear(slot);
+    public @NotNull Set<GameBase> getRunningGames() {
+        return this.gameInstances.stream().map(GameInstance::game).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    // ----- GAME PLAYERS -----
+
+    public @Nullable GameInstance getGameByPlayer(@NotNull UUID player) {
+
+        for (GameInstance instance : this.gameInstances) {
+            if (instance.game() == null) continue;
+            if (instance.game().isPlayerIngame(player)) return instance;
+        }
+
+        return null;
+    }
+
+    public @Nullable GameInstance getGameByPlayer(@NotNull OfflinePlayer player) {
+        return this.getGameByPlayer(player.getUniqueId());
+    }
+
+    // ----- PLAYER BYPASS -----
+
+    public void addBypassingPlayer(@NotNull UUID player) {
+        this.bypassingPlayers.add(player);
+    }
+
+    public void removeBypassingPlayer(@NotNull UUID player) {
+        this.bypassingPlayers.remove(player);
+    }
+
+    public boolean isBypassingPlayer(@NotNull UUID player) {
+        return this.bypassingPlayers.contains(player);
+    }
+
+    public boolean isPlayerBypassing(@NotNull OfflinePlayer player) {
+        return this.isBypassingPlayer(player.getUniqueId());
+    }
+
+    public Set<UUID> getLocallyBypassingPlayers() {
+        return Set.copyOf(this.bypassingPlayers);
+    }
+
+    // ----- ENABLE / DISABLE -----
+
+    private void onDisable() {
+
+    }
+
+    // ----- OTHER -----
+
+    public @NotNull DataStorage config() {
+        return this.config;
+    }
+
+    public EventListenerManager listenerManager() {
+        return this.listenerManager;
+    }
+
+    // ----- BUKKIT -----
+
+    public Server getServer() {
+        return this.plugin.getServer();
+    }
+
+    public Logger getLogger() {
+        return this.plugin.getLogger();
+    }
+
+    // ----- UTILITIES -----
+
+    private BukkitRunnable createBukkitRunnable(final @NotNull BukkitRunnableTask task) {
+        return new BukkitRunnable() {
+            @Override
+            public void run() {
+                task.run(this.getTaskId());
+            }
+        };
+    }
+
+    private interface BukkitRunnableTask {
+        void run(int taskId);
+    }
+
+    // ----- PLUGIN -----
+
+    public static class BWPlugin extends JavaPlugin {
+        @Nullable private Bedwars plugin;
+
+        public BWPlugin() {
+            this.plugin = null;
+        }
+
+        @Override
+        public void onEnable() {
+            this.plugin = new Bedwars(this);
+        }
+
+        @Override
+        public void onDisable() {
+
+            try {
+                if (this.plugin != null) this.plugin.onDisable();
+            } catch (Exception e) {
+                this.getLogger().log(Level.WARNING, "Failed to call onDisable in Bedwars", e);
             }
 
+            this.plugin = null;
         }
 
     }
 
-    public static int getBlockDistance(Location location1, Location location2) {
-        int dx = Math.abs(location1.getBlockX() - location2.getBlockX());
-        int dy = Math.abs(location1.getBlockY() - location2.getBlockY());
-        int dz = Math.abs(location1.getBlockZ() - location2.getBlockZ());
-
-        double distanceSquared = dx * dx + dy * dy + dz * dz;
-        double distance = Math.sqrt(distanceSquared);
-
-        return (int) Math.round(distance);
-    }
-
-    public static String getBlockColorString(ChatColor color) {
-
-        switch (color) {
-            case BLACK:
-                return "BLACK";
-            case DARK_BLUE:
-                return "BLUE";
-            case DARK_GREEN:
-                return "GREEN";
-            case DARK_AQUA:
-                return "CYAN";
-            case DARK_RED:
-                return "RED";
-            case DARK_PURPLE:
-                return "PURPLE";
-            case GOLD:
-                return "ORANGE";
-            case GRAY:
-                return "LIGHT_GRAY";
-            case DARK_GRAY:
-                return "GRAY";
-            case BLUE:
-                return "LIGHT_BLUE";
-            case GREEN:
-                return "LIME";
-            case AQUA:
-                return "CYAN";
-            case RED:
-                return "RED";
-            case LIGHT_PURPLE:
-                return "MAGENTA";
-            case YELLOW:
-                return "YELLOW";
-            case WHITE:
-                return "WHITE";
-            default:
-                return null;
-        }
-
-    }
 }

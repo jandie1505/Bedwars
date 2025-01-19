@@ -1,4 +1,4 @@
-main: net.jandie1505.bedwars.Bedwars
+main: net.jandie1505.bedwars.old.Bedwars
 name: Bedwars
 version: 1.0
 api-version: 1.21

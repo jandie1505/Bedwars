@@ -29,11 +29,15 @@ repositories {
         name = "simonsators-repo"
         url = uri("https://simonsator.de/repo/")
     }
+    maven {
+        name = "rosewood-repo"
+        url = uri("https://repo.rosewooddev.io/repository/public/")
+    }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
-    implementation("net.chaossquad:mclib:master-78ef03be50bc762c199c562148ae17344da013be")
+    implementation("net.chaossquad:mclib:master-c31e8f69cf34a540b519cd3b45ef6edea69e594a")
     compileOnly("de.simonsator:Party-and-Friends-MySQL-Edition-Spigot-API:1.6.2-RELEASE")
     compileOnly("de.simonsator:spigot-party-api-for-party-and-friends:1.0.7-RELEASE")
     compileOnly("eu.cloudnetservice.cloudnet:bridge:4.0.0-RC10")
@@ -48,5 +52,15 @@ tasks {
     }
     build {
         dependsOn(shadowJar)
+    }
+}
+
+java {
+    sourceSets {
+        main {
+            java {
+                exclude ("net/jandie1505/bedwars/old/**")
+            }
+        }
     }
 }
