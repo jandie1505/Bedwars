@@ -11,30 +11,45 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public class GeneratorUpgradeAction extends TimeAction {
-    private static final TimeActionData.DataAccessor<String> DATA_GENERATOR_MATERIAL = new TimeActionData.DataAccessor<>("material");
-    private static final TimeActionData.DataAccessor<Integer> DATA_UPGRADE_LEVEL = new TimeActionData.DataAccessor<>("upgrade_level");
-    private final Material material;
+    private static final TimeActionData.DataAccessor<Integer> DATA_GENERATOR_MATERIAL = new TimeActionData.DataAccessor<>("generatorType");
+    private static final TimeActionData.DataAccessor<Integer> DATA_UPGRADE_LEVEL = new TimeActionData.DataAccessor<>("generatorLevel");
+    private final int generatorType;
     private final int upgradeLevel;
 
     public GeneratorUpgradeAction(Game game, TimeActionData data) {
         super(game, data);
-        this.material = Objects.requireNonNull(Material.getMaterial(Objects.requireNonNull(this.getData().getDataField(DATA_GENERATOR_MATERIAL))));
+        this.generatorType = Objects.requireNonNull(this.getData().getDataField(DATA_GENERATOR_MATERIAL));
         this.upgradeLevel = Objects.requireNonNull(this.getData().getDataField(DATA_UPGRADE_LEVEL));
     }
 
     @Override
     protected void onRun() {
-        this.getGame().setPublicDiamondGeneratorLevel(upgradeLevel);
+
+        switch (this.generatorType) {
+            case 1 -> this.getGame().setPublicDiamondGeneratorLevel(upgradeLevel);
+            case 2 -> this.getGame().setPublicEmeraldGeneratorLevel(upgradeLevel);
+        }
+
+    }
+
+    private String getMaterialName() {
+
+        return switch (this.generatorType) {
+            case 1 -> "Diamond";
+            case 2 -> "Emerald";
+            default -> "unknown";
+        };
+
     }
 
     @Override
     public @Nullable BaseComponent[] getMessage() {
-        return new BaseComponent[]{TextComponent.fromLegacy("§b" + this.material.name() + " generators have been successfully upgraded to level " + this.upgradeLevel)};
+        return new BaseComponent[]{TextComponent.fromLegacy("§b" + this.getMaterialName() + " generators have been successfully upgraded to level " + this.upgradeLevel)};
     }
 
     @Override
     public @Nullable String getScoreboardText() {
-        return this.material.name() + "S Level " + this.upgradeLevel;
+        return this.getMaterialName() + "s Level " + this.upgradeLevel;
     }
 
     public int getUpgradeLevel() {

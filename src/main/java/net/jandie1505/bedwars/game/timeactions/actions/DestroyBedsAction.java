@@ -64,7 +64,7 @@ public class DestroyBedsAction extends TimeAction {
 
     @Override
     public String getScoreboardText() {
-        return "";
+        return "Beds gone";
     }
 
     public boolean isDisableBeds() {

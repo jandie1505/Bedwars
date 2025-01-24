@@ -42,6 +42,7 @@ import org.bukkit.scoreboard.*;
 import org.json.JSONObject;
 
 import java.util.*;
+import java.util.logging.Level;
 
 public class Game extends GamePart implements ManagedListener {
     private final World world;
@@ -119,7 +120,7 @@ public class Game extends GamePart implements ManagedListener {
                 }
                 this.timeActions.add(timeAction);
             } catch (Exception e) {
-                this.getPlugin().getLogger().warning("Couldn't create time action: " + e.getMessage());
+                this.getPlugin().getLogger().log(Level.WARNING, "Couldn't create time action", e);
                 continue;
             }
         }

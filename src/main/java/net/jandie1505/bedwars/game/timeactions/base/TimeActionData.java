@@ -47,14 +47,10 @@ public record TimeActionData(String type, int time, Map<String, Object> dataFiel
     public static TimeActionData deserializeFromJSON(JSONObject json) {
 
         try {
-            String type = json.getString("type");
-            int time = json.getInt("time");
+            String type = (String) json.remove("type");
+            int time = (Integer) json.remove("time");
 
-            Map<String, Object> dataFields = Map.of();
-            JSONObject dataObject = json.optJSONObject("data");
-            if (dataObject != null) {
-                dataFields = Objects.requireNonNull(Objects.requireNonNull(dataObject).toMap());
-            }
+            Map<String, Object> dataFields = json.toMap();
 
             return new TimeActionData(type, time, dataFields);
         } catch (Exception e) {
