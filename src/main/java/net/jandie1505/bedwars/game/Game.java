@@ -724,11 +724,11 @@ public class Game extends GamePart implements ManagedListener {
 
             }
 
-            if (!shopVillagerExists && !team.getData().shopVillagerLocations().isEmpty()) {
+            if (!shopVillagerExists && !team.getData().shopVillagerLocations().isEmpty() && Bedwars.isChunkLoaded(WorldUtils.locationWithWorld(team.getData().shopVillagerLocations().get(0), this.getWorld()))) {
                 this.spawnItemShopVillager(team, WorldUtils.locationWithWorld(team.getData().shopVillagerLocations().get(0), this.getWorld()));
             }
 
-            if (!upgradesVillagerExists && !team.getData().upgradeVillagerLocations().isEmpty()) {
+            if (!upgradesVillagerExists && !team.getData().upgradeVillagerLocations().isEmpty() && Bedwars.isChunkLoaded(WorldUtils.locationWithWorld(team.getData().upgradeVillagerLocations().get(0), this.getWorld()))) {
                 this.spawnUpgradesVillager(team, WorldUtils.locationWithWorld(team.getData().upgradeVillagerLocations().get(0), this.getWorld()));
             }
 

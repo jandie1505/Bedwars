@@ -2008,6 +2008,13 @@ public class EventListener implements ManagedListener {
 
     }
 
+    @EventHandler
+    public void onEntitySpawn(EntitySpawnEvent event) {
+        if (!(this.plugin.getGame() instanceof Game game)) return;
+        if (event.getEntity().getWorld() != game.getWorld()) return;
+        event.getEntity().setPersistent(false);
+    }
+
     @Override
     public GamePart getGame() {
         return this.plugin.getGame();
