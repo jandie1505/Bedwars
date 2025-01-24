@@ -2352,4 +2352,11 @@ public class EventListener implements Listener {
 
     }
 
+    @EventHandler
+    public void onEntitySpawn(EntitySpawnEvent event) {
+        if (!(this.plugin.getGame() instanceof Game game)) return;
+        if (event.getEntity().getWorld() != game.getWorld()) return;
+        event.getEntity().setPersistent(false);
+    }
+
 }

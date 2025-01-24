@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
 import java.time.Duration;
@@ -493,4 +494,25 @@ public class Bedwars extends JavaPlugin {
         }
 
     }
+
+    /**
+     * Returns the chunk coordinates of the specified world coordinates.
+     * @param locationX world X
+     * @param locationZ world Z
+     * @return int[]{chunkX,chunkY}
+     */
+    public static int[] getChunkCoordinates(int locationX, int locationZ) {
+        return new int[]{locationX >> 4, locationZ >> 4};
+    }
+
+    /**
+     * Returns if the chunk at the specified location is loaded without loading it.
+     * @param location location of the chunk
+     * @return result
+     */
+    public static boolean isChunkLoaded(@NotNull Location location) {
+        int[] chunkCoordinates = getChunkCoordinates(location.getBlockX(), location.getBlockZ());
+        return Objects.requireNonNull(location.getWorld()).isChunkLoaded(chunkCoordinates[0], chunkCoordinates[1]);
+    }
+
 }

@@ -589,11 +589,11 @@ public class Game extends GamePart {
 
             }
 
-            if (!shopVillagerExists && !team.getShopVillagerLocations().isEmpty()) {
+            if (!shopVillagerExists && !team.getShopVillagerLocations().isEmpty() && Bedwars.isChunkLoaded(team.getShopVillagerLocations().get(0))) {
                 this.spawnItemShopVillager(team, team.getShopVillagerLocations().get(0));
             }
 
-            if (!upgradesVillagerExists && !team.getUpgradesVillagerLocations().isEmpty()) {
+            if (!upgradesVillagerExists && !team.getUpgradesVillagerLocations().isEmpty() && Bedwars.isChunkLoaded(team.getUpgradesVillagerLocations().get(0))) {
                 this.spawnUpgradesVillager(team, team.getUpgradesVillagerLocations().get(0));
             }
 
