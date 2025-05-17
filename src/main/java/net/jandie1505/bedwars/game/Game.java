@@ -13,8 +13,8 @@ import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
-import net.jandie1505.bedwars.game.listeners.BlockTrackingListener;
 import net.jandie1505.bedwars.game.listeners.DeathListener;
+import net.jandie1505.bedwars.game.listeners.GameMiscListener;
 import net.jandie1505.bedwars.game.listeners.SpecialItemListeners;
 import net.jandie1505.bedwars.game.menu.shop.old.ArmorConfig;
 import net.jandie1505.bedwars.game.menu.shop.old.ItemShop;
@@ -27,6 +27,7 @@ import net.jandie1505.bedwars.game.team.traps.BedwarsTrap;
 import net.jandie1505.bedwars.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.timeactions.provider.TimeActionCreator;
+import net.jandie1505.bedwars.game.world.BlockProtectionSystem;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -40,10 +41,13 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class Game extends GamePart implements ManagedListener {
     private final World world;
@@ -53,7 +57,7 @@ public class Game extends GamePart implements ManagedListener {
     private final List<Generator> generators;
     private final List<TimeAction> timeActions;
     private final TimeActionCreator timeActionCreator;
-    private final Set<Location> playerPlacedBlocks;
+    private final BlockProtectionSystem blockProtectionSystem;
     private final Map<UUID, Scoreboard> playerScoreboards;
     private final ItemShop itemShop;
     private final ArmorConfig armorConfig;
@@ -77,7 +81,7 @@ public class Game extends GamePart implements ManagedListener {
         this.generators = Collections.synchronizedList(new ArrayList<>());
         this.timeActions = Collections.synchronizedList(new ArrayList<>());
         this.timeActionCreator = new TimeActionCreator(this);
-        this.playerPlacedBlocks = Collections.synchronizedSet(new HashSet<>());
+        this.blockProtectionSystem = new BlockProtectionSystem(this);
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
         this.armorConfig = armorConfig;
@@ -184,8 +188,8 @@ public class Game extends GamePart implements ManagedListener {
 
         this.getPlugin().registerListener(this);
         this.getPlugin().registerListener(new DeathListener(this));
-        this.getPlugin().registerListener(new BlockTrackingListener(this));
         this.getPlugin().registerListener(new SpecialItemListeners(this));
+        this.getPlugin().registerListener(new GameMiscListener(this));
     }
 
     @Override
@@ -1619,12 +1623,34 @@ public class Game extends GamePart implements ManagedListener {
         return this.players.remove(playerId) != null;
     }
 
+    @Deprecated
     public Map<UUID, PlayerData> getPlayers() {
         return Map.copyOf(this.players);
     }
 
+    @Deprecated
     public PlayerData getPlayer(UUID playerId) {
         return this.players.get(playerId);
+    }
+
+    /**
+     * Returns if the player with the specified uuid is ingame.
+     * @param playerId player uuid
+     * @return ingame
+     */
+    public boolean isPlayerIngame(@Nullable UUID playerId) {
+        if (playerId == null) return false;
+        return this.players.containsKey(playerId);
+    }
+
+    /**
+     * Returns true if the specified player is ingame
+     * @param player player
+     * @return ingame
+     */
+    public boolean isPlayerIngame(@Nullable OfflinePlayer player) {
+        if (player == null) return false;
+        return this.players.containsKey(player.getUniqueId());
     }
 
     public World getWorld() {
@@ -1677,8 +1703,13 @@ public class Game extends GamePart implements ManagedListener {
         return List.copyOf(this.timeActions);
     }
 
+    public BlockProtectionSystem getBlockProtectionSystem() {
+        return this.blockProtectionSystem;
+    }
+
+    @Deprecated(forRemoval = true)
     public Set<Location> getPlayerPlacedBlocks() {
-        return this.playerPlacedBlocks;
+        return this.blockProtectionSystem.getPlayerPlacedBlocks().stream().map(vector -> vector.toLocation(this.world)).collect(Collectors.toSet());
     }
 
     public Map<UUID, Scoreboard> getPlayerScoreboards() {
