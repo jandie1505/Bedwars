@@ -1,36 +1,21 @@
 package net.jandie1505.bedwars;
 
-import net.chaossquad.mclib.scheduler.TaskScheduler;
+import net.chaossquad.mclib.executable.CoreExecutable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public abstract class GamePart {
-    private final Bedwars plugin;
-    private final TaskScheduler taskScheduler;
+public abstract class GamePart extends CoreExecutable {
+    @NotNull private final Bedwars plugin;
 
     public GamePart(Bedwars plugin) {
+        super(plugin.getListenerManager(), plugin.getLogger());
         this.plugin = plugin;
-        this.taskScheduler = new TaskScheduler(this.plugin.getLogger());
     }
 
-    public abstract boolean shouldRun();
-    public abstract GamePart getNextStatus();
-
-    public final boolean tick() {
-
-        if (!this.shouldRun()) {
-            this.plugin.getLogger().warning("§cRun condition failed");
-            return false;
-        }
-
-        this.taskScheduler.tick();
-        return true;
-    }
-
-    public Bedwars getPlugin() {
+    public final @NotNull Bedwars getPlugin() {
         return this.plugin;
     }
 
-    public TaskScheduler getTaskScheduler() {
-        return this.taskScheduler;
-    }
+    public abstract @Nullable GamePart getNextStatus();
 
 }

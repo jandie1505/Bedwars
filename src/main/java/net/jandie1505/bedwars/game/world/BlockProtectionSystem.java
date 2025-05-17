@@ -1,6 +1,6 @@
 package net.jandie1505.bedwars.game.world;
 
-import net.jandie1505.bedwars.ManagedListener;
+import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.game.Game;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,7 +24,7 @@ public class BlockProtectionSystem implements ManagedListener {
         this.game = game;
         this.playerPlacedBlocks = new HashSet<>();
 
-        this.game.getPlugin().registerListener(this);
+        this.game.registerListener(this);
     }
 
     // ----- OBSERVERS -----
@@ -34,7 +34,7 @@ public class BlockProtectionSystem implements ManagedListener {
         if (event.isCancelled()) return;
         if (this.game.getPlugin().isPlayerBypassing(event.getPlayer().getUniqueId())) return;
         if (this.game.getPlugin().isPaused()) return;
-        if (this.game.getPlayer(event.getPlayer().getUniqueId()) == null) return;
+        if (!this.game.isPlayerIngame(event.getPlayer())) return;
 
         // Log block place
         this.playerPlacedBlocks.add(event.getBlockPlaced().getLocation().toVector());
@@ -84,7 +84,6 @@ public class BlockProtectionSystem implements ManagedListener {
 
     // ----- OTHER -----
 
-    @Override
     public @NotNull Game getGame() {
         return this.game;
     }

@@ -1,8 +1,8 @@
 package net.jandie1505.bedwars.game.listeners;
 
+import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
-import net.jandie1505.bedwars.ManagedListener;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.entities.SnowDefender;
@@ -45,7 +45,7 @@ public class SpecialItemListeners implements ManagedListener {
 
         event.setCancelled(true);
 
-        PlayerData playerData = this.game.getPlayers().get(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if (playerData == null) return;
 
         if (playerData.getIronGolemCooldown() > 0) {
@@ -75,7 +75,7 @@ public class SpecialItemListeners implements ManagedListener {
 
         event.setCancelled(true);
 
-        PlayerData playerData = this.game.getPlayers().get(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
 
         if (playerData == null) {
             return;
@@ -111,7 +111,7 @@ public class SpecialItemListeners implements ManagedListener {
 
         event.setCancelled(true);
 
-        PlayerData playerData = this.game.getPlayers().get(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
 
         if(playerData == null) {
             return;
@@ -150,7 +150,7 @@ public class SpecialItemListeners implements ManagedListener {
 
         event.setCancelled(true);
 
-        PlayerData playerData = this.game.getPlayers().get(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if(playerData == null) return;
 
         if(playerData.getBlackHoleCooldown() > 0) {
@@ -172,11 +172,11 @@ public class SpecialItemListeners implements ManagedListener {
                     Block block = center.getWorld().getBlockAt(new Location(center.getWorld(), x, y, z));
 
                     if(block.getType() != Material.AIR) {
-                        if(this.game.getPlayerPlacedBlocks().contains(block.getLocation())) {
+                        if(this.game.getBlockProtectionSystem().canBreak(block.getLocation())) {
                             String name = block.getType().name();
                             if(name.contains("WOOL") || name.contains("GLASS")) {
                                 block.setType(Material.AIR);
-                                this.game.getPlayerPlacedBlocks().remove(block.getLocation());
+                                this.game.getBlockProtectionSystem().getPlayerPlacedBlocks().remove(block.getLocation().toVector());
                             }
                         }
                     }
@@ -193,7 +193,7 @@ public class SpecialItemListeners implements ManagedListener {
 
         event.setCancelled(true);
 
-        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if(playerData == null) return;
 
         if (playerData.getFireballCooldown() <= 0) {
@@ -226,7 +226,7 @@ public class SpecialItemListeners implements ManagedListener {
 
         event.setCancelled(true);
 
-        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if(playerData == null) return;
 
         if (playerData.getFireballCooldown() <= 0) {
@@ -259,7 +259,7 @@ public class SpecialItemListeners implements ManagedListener {
 
         event.setCancelled(true);
 
-        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if(playerData == null) return;
 
         this.createSafetyPlatform(event.getPlayer(), playerData, false);
@@ -273,7 +273,7 @@ public class SpecialItemListeners implements ManagedListener {
 
         event.setCancelled(true);
 
-        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if(playerData == null) return;
 
         this.createSafetyPlatform(event.getPlayer(), playerData, true);
@@ -287,10 +287,10 @@ public class SpecialItemListeners implements ManagedListener {
 
         event.setCancelled(true);
 
-        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if(playerData == null) return;
 
-        List<UUID> randomPlayerList = new ArrayList<>(this.game.getPlayers().keySet());
+        List<UUID> randomPlayerList = new ArrayList<>(this.game.getRegisteredPlayers());
         Collections.shuffle(randomPlayerList);
 
         for (UUID trackingPlayerId : randomPlayerList) {
@@ -305,7 +305,7 @@ public class SpecialItemListeners implements ManagedListener {
                 continue;
             }
 
-            PlayerData trackingPlayerData = this.game.getPlayers().get(trackingPlayerId);
+            PlayerData trackingPlayerData = this.game.getPlayerData(trackingPlayer);
 
             if (trackingPlayerData == null) {
                 continue;
@@ -330,7 +330,7 @@ public class SpecialItemListeners implements ManagedListener {
 
         event.setCancelled(true);
 
-        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if(playerData == null) return;
 
         if(playerData.getTeleportToBaseCooldown() > 0) {
@@ -352,7 +352,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
         if (event.isCancelled()) return;
 
-        PlayerData playerData = this.game.getPlayers().get(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if (playerData == null) return;
 
         int itemId = this.game.getPlugin().getItemStorage().getItemId(event.getMainHandItem());
@@ -432,7 +432,7 @@ public class SpecialItemListeners implements ManagedListener {
 
                 if (block.getType() == Material.AIR) {
                     block.setType(material);
-                    this.game.getPlayerPlacedBlocks().add(block.getLocation());
+                    this.game.getBlockProtectionSystem().getPlayerPlacedBlocks().add(block.getLocation().toVector());
                 }
 
             }
@@ -455,7 +455,7 @@ public class SpecialItemListeners implements ManagedListener {
 
                 if (block.getType() == Material.AIR) {
                     block.setType(material);
-                    this.game.getPlayerPlacedBlocks().add(block.getLocation());
+                    this.game.getBlockProtectionSystem().getPlayerPlacedBlocks().add(block.getLocation().toVector());
                 }
 
             }
@@ -479,7 +479,6 @@ public class SpecialItemListeners implements ManagedListener {
 
     // ----- OTHER -----
 
-    @Override
     public GamePart getGame() {
         return this.game;
     }

@@ -1,10 +1,9 @@
 package net.jandie1505.bedwars;
 
-import org.bukkit.event.Listener;
-
-public interface ManagedListener extends Listener {
-
-    boolean toBeRemoved();
+/**
+ * @deprecated Use {@link net.chaossquad.mclib.executable.ManagedListener}
+ */
+@Deprecated(forRemoval = true)
+public interface ManagedListener extends net.chaossquad.mclib.executable.ManagedListener {
     GamePart getGame();
-
 }

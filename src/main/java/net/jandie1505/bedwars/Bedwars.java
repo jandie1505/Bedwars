@@ -1,6 +1,7 @@
 package net.jandie1505.bedwars;
 
 import de.myzelyam.api.vanish.VanishAPI;
+import net.chaossquad.mclib.dynamicevents.EventListenerManager;
 import net.jandie1505.bedwars.commands.BedwarsCommand;
 import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
@@ -12,15 +13,11 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.black_ixx.playerpoints.PlayerPoints;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -36,6 +33,7 @@ public class Bedwars extends JavaPlugin {
     private ConfigManager itemConfig;
     private ConfigManager shopConfig;
     private List<UUID> bypassingPlayers;
+    private EventListenerManager listenerManager;
     private GamePart game;
     private List<World> managedWorlds;
     private ItemStorage itemStorage;
@@ -52,6 +50,7 @@ public class Bedwars extends JavaPlugin {
         this.itemConfig = new ConfigManager(this, DefaultConfigValues.getItemConfig(), true, "items.json");
         this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop.json");
         this.bypassingPlayers = Collections.synchronizedList(new ArrayList<>());
+        this.listenerManager = new EventListenerManager(this);
         this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
         this.itemStorage = new ItemStorage(this);
         this.nextStatus = false;
@@ -81,13 +80,22 @@ public class Bedwars extends JavaPlugin {
         this.eventListener = new EventListener(this);
         this.getServer().getPluginManager().registerEvents(this.eventListener, this);
 
+        this.listenerManager.addExceptedListener(this.eventListener);
+        this.listenerManager.addSource(() -> {
+            if (this.game != null) {
+                return this.game;
+            } else {
+                return null;
+            }
+        });
+
         // Cleanup listeners task
 
         new BukkitRunnable() {
 
             @Override
             public void run() {
-                cleanupGameListenersTask();
+                Bedwars.this.listenerManager.manageListeners();
             }
 
         }.runTaskTimer(this, 1, 200);
@@ -232,46 +240,13 @@ public class Bedwars extends JavaPlugin {
     }
 
     /**
-     * This method cleans up all listeners which must not exist.
-     * It is used for removing game and map listeners of games/maps which are not loaded anymore.
-     */
-    public void cleanupGameListenersTask() {
-
-        for (Listener listener : this.getListeners()) {
-
-            // Prevent NullPointerException
-
-            if (listener == null) {
-                continue;
-            }
-
-            // Do not delete the global listener
-
-            if (listener == this.eventListener) {
-                continue;
-            }
-
-            // Do not delete the listener if it is a game listener, is not marked as to be removed and the game of it is the current game
-
-            if (listener instanceof ManagedListener managedListener && !managedListener.toBeRemoved() && managedListener.getGame() == this.game) {
-                continue;
-            }
-
-            // Delete the listener
-
-            HandlerList.unregisterAll(listener);
-            this.getLogger().fine("Unregistered listener " + listener);
-
-        }
-
-    }
-
-    /**
      * Register a game listener as event listener.
      * @param listener game listener
+     * @deprecated Use {@link GamePart#registerListener(net.chaossquad.mclib.executable.ManagedListener)}
      */
+    @Deprecated(forRemoval = true)
     public void registerListener(ManagedListener listener) {
-        this.getServer().getPluginManager().registerEvents(listener, this);
+        listener.getGame().registerListener(listener);
     }
 
     public World loadWorld(String name) {
@@ -393,6 +368,10 @@ public class Bedwars extends JavaPlugin {
         return false;
     }
 
+    public EventListenerManager getListenerManager() {
+        return this.listenerManager;
+    }
+
     public void stopGame() {
         this.game = null;
         this.getLogger().info("Stopped game");
@@ -463,10 +442,6 @@ public class Bedwars extends JavaPlugin {
 
         }
 
-    }
-
-    public Bedwars getSelf() {
-        return this;
     }
 
     public static String getDurationFormat(long seconds) {

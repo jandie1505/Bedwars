@@ -188,12 +188,12 @@ public class Game extends GamePart implements ManagedListener {
 
         this.getPlugin().registerListener(this);
         this.getPlugin().registerListener(new DeathListener(this));
-        this.getPlugin().registerListener(new SpecialItemListeners(this));
+        this.registerListener(new SpecialItemListeners(this));
         this.getPlugin().registerListener(new GameMiscListener(this));
     }
 
     @Override
-    public boolean shouldRun() {
+    public boolean shouldExecute() {
         return this.world != null && this.getPlugin().getServer().getWorlds().contains(world);
     }
 
@@ -1674,7 +1674,7 @@ public class Game extends GamePart implements ManagedListener {
      */
     @Deprecated(forRemoval = true)
     public Map<UUID, PlayerData> getPlayers() {
-        return Map.copyOf(this.players);
+        return this.getPlayerDataMap();
     }
 
     /**
@@ -1685,7 +1685,7 @@ public class Game extends GamePart implements ManagedListener {
      */
     @Deprecated(forRemoval = true)
     public PlayerData getPlayer(UUID playerId) {
-        return this.players.get(playerId);
+        return this.getPlayerData(playerId);
     }
 
     /**
@@ -1705,7 +1705,7 @@ public class Game extends GamePart implements ManagedListener {
      */
     public final boolean isPlayerIngame(@Nullable OfflinePlayer player) {
         if (player == null) return false;
-        return this.players.containsKey(player.getUniqueId());
+        return this.isPlayerIngame(player.getUniqueId());
     }
 
     public World getWorld() {
