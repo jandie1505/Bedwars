@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.game.listeners;
 
+import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.ManagedListener;
 import net.jandie1505.bedwars.game.Game;
@@ -12,18 +13,20 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class SpecialItemListeners implements ManagedListener {
     @NotNull private final Game game;
@@ -178,6 +181,283 @@ public class SpecialItemListeners implements ManagedListener {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteractForFireball(PlayerInteractEvent event) {
+        if (event.useItemInHand() == Event.Result.DENY) return;
+        if (!event.getAction().isRightClick()) return;
+        if (!itemCondition(event, this.game.getItemShop().getFireballItem())) return;
+
+        event.setCancelled(true);
+
+        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        if(playerData == null) return;
+
+        if (playerData.getFireballCooldown() <= 0) {
+
+            ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+            if (itemStack != null && itemStack.getAmount() > 0) {
+                itemStack.setAmount(itemStack.getAmount() - 1);
+            }
+
+            Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
+            fireball.setShooter(event.getPlayer());
+            fireball.setDirection(event.getPlayer().getEyeLocation().getDirection());
+            fireball.setYield(2);
+            fireball.setIsIncendiary(false);
+            fireball.setTicksLived(3*20);
+
+            playerData.setFireballCooldown(2*20);
+
+        } else {
+            event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getFireballCooldown() / 20.0) + " to use the fireball again");
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteractForEnhancedFireball(PlayerInteractEvent event) {
+        if (event.useItemInHand() == Event.Result.DENY) return;
+        if (!event.getAction().isRightClick()) return;
+        if (!itemCondition(event, this.game.getItemShop().getEnhancedFireballItem())) return;
+
+        event.setCancelled(true);
+
+        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        if(playerData == null) return;
+
+        if (playerData.getFireballCooldown() <= 0) {
+
+            ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+            if (itemStack != null && itemStack.getAmount() > 0) {
+                itemStack.setAmount(itemStack.getAmount() - 1);
+            }
+
+            Fireball fireball = event.getPlayer().launchProjectile(Fireball.class);
+            fireball.setShooter(event.getPlayer());
+            fireball.setDirection(event.getPlayer().getEyeLocation().getDirection().multiply(2));
+            fireball.setYield(4);
+            fireball.setIsIncendiary(false);
+            fireball.setTicksLived(10*20);
+
+            playerData.setFireballCooldown(3*20);
+
+        } else {
+            event.getPlayer().sendMessage("§cYou need to wait " + ((double) playerData.getFireballCooldown() / 20.0) + " to use the fireball again");
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteractForSafetyPlatform(PlayerInteractEvent event) {
+        if (event.useItemInHand() == Event.Result.DENY) return;
+        if (!event.getAction().isRightClick()) return;
+        if (!itemCondition(event, this.game.getItemShop().getSafetyPlatform())) return;
+
+        event.setCancelled(true);
+
+        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        if(playerData == null) return;
+
+        this.createSafetyPlatform(event.getPlayer(), playerData, false);
+    }
+
+    @EventHandler
+    public void onPlayerInteractForEnhancedSafetyPlatform(PlayerInteractEvent event) {
+        if (event.useItemInHand() == Event.Result.DENY) return;
+        if (!event.getAction().isRightClick()) return;
+        if (!itemCondition(event, this.game.getItemShop().getEnhancedSafetyPlatform())) return;
+
+        event.setCancelled(true);
+
+        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        if(playerData == null) return;
+
+        this.createSafetyPlatform(event.getPlayer(), playerData, true);
+    }
+
+    @EventHandler
+    public void onPlayerInteractForPlayerTracker(PlayerInteractEvent event) {
+        if (event.useItemInHand() == Event.Result.DENY) return;
+        if (!event.getAction().isRightClick()) return;
+        if (!itemCondition(event, this.game.getItemShop().getPlayerTracker())) return;
+
+        event.setCancelled(true);
+
+        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        if(playerData == null) return;
+
+        List<UUID> randomPlayerList = new ArrayList<>(this.game.getPlayers().keySet());
+        Collections.shuffle(randomPlayerList);
+
+        for (UUID trackingPlayerId : randomPlayerList) {
+
+            if (playerData.getTrackingTarget() != null && trackingPlayerId.equals(playerData.getTrackingTarget())) {
+                continue;
+            }
+
+            Player trackingPlayer = this.game.getPlugin().getServer().getPlayer(trackingPlayerId);
+
+            if (trackingPlayer == null) {
+                continue;
+            }
+
+            PlayerData trackingPlayerData = this.game.getPlayers().get(trackingPlayerId);
+
+            if (trackingPlayerData == null) {
+                continue;
+            }
+
+            if (trackingPlayerData.getTeam() == playerData.getTeam()) {
+                continue;
+            }
+
+            playerData.setTrackingTarget(trackingPlayerId);
+            event.getPlayer().sendMessage("§bTracking target changed to " + trackingPlayer.getName());
+            break;
+
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteractForSpawnDust(PlayerInteractEvent event) {
+        if (event.useItemInHand() == Event.Result.DENY) return;
+        if (!event.getAction().isRightClick()) return;
+        if (!itemCondition(event, this.game.getItemShop().getSpawnDust())) return;
+
+        event.setCancelled(true);
+
+        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        if(playerData == null) return;
+
+        if(playerData.getTeleportToBaseCooldown() > 0) {
+            event.getPlayer().sendMessage("§cYou can not use that again during teleport");
+            return;
+        }
+
+        playerData.setTeleportToBaseCooldown(3*20 + 1);
+        event.getPlayer().sendMessage(("§bTeleporting..."));
+
+        ItemStack itemStack = event.getPlayer().getInventory().getItem(event.getPlayer().getInventory().getHeldItemSlot());
+
+        if (itemStack != null && itemStack.getAmount() > 0) {
+            itemStack.setAmount(itemStack.getAmount() - 1);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+        if (event.isCancelled()) return;
+
+        PlayerData playerData = this.game.getPlayers().get(event.getPlayer().getUniqueId());
+        if (playerData == null) return;
+
+        int itemId = this.game.getPlugin().getItemStorage().getItemId(event.getMainHandItem());
+        if (itemId < 0) return;
+
+        if (this.game.getItemShop().getSafetyPlatform() != null && itemId == this.game.getItemShop().getSafetyPlatform()) {
+            event.setCancelled(true);
+            this.createSafetyPlatform(event.getPlayer(), playerData, false);
+            return;
+        }
+
+        if(this.game.getItemShop().getEnhancedSafetyPlatform() != null && itemId == this.game.getItemShop().getEnhancedSafetyPlatform()) {
+            event.setCancelled(true);
+            this.createSafetyPlatform(event.getPlayer(), playerData, true);
+            return;
+        }
+    }
+
+    // ----- SAFETY PLATTFORM -----
+
+    private void createSafetyPlatform(Player player, PlayerData playerData, boolean enhanced) {
+
+        Integer platformItemId = this.game.getItemShop().getSafetyPlatform();
+        Integer enhancedPlatformItemId = this.game.getItemShop().getEnhancedSafetyPlatform();
+
+        if (platformItemId == null || enhancedPlatformItemId == null) {
+            return;
+        }
+
+        ItemStack itemStack = player.getInventory().getItem(player.getInventory().getHeldItemSlot());
+        int itemId = this.game.getPlugin().getItemStorage().getItemId(itemStack);
+
+        if (itemStack != null && (itemId == platformItemId || itemId == enhancedPlatformItemId) && itemStack.getAmount() > 0) {
+            itemStack.setAmount(itemStack.getAmount() - 1);
+        } else {
+            ItemStack offhandItem = player.getInventory().getItemInOffHand();
+            int offhandItemId = this.game.getPlugin().getItemStorage().getItemId(offhandItem);
+
+            if (offhandItem != null && (offhandItemId == platformItemId || offhandItemId == enhancedPlatformItemId) && offhandItem.getType() != Material.AIR && offhandItem.getAmount() > 0) {
+                offhandItem.setAmount(offhandItem.getAmount() - 1);
+            }
+
+        }
+
+        BedwarsTeam team = this.game.getTeams().get(playerData.getTeam());
+
+        if (team == null || team.getData().chatColor() == null) {
+            return;
+        }
+
+        Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getData().chatColor()) + "_STAINED_GLASS");
+
+        if (material == null) {
+            return;
+        }
+
+        if (enhanced) {
+            this.spawnEnhancedSafetyPlatform(player, material);
+        } else {
+            this.spawnSafetyPlatform(player, material);
+        }
+
+    }
+
+    private void spawnSafetyPlatform(Player player, Material material) {
+
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 3*20, 0, true, true));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 3*20, 1, true, true));
+        player.sendMessage("§bSafety Platform deployed");
+
+        Location center = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+        center.add(0, -1, 0);
+
+        for (int x = center.getBlockX() - 1; x <= center.getBlockX() + 1; x++) {
+            for (int z = center.getBlockZ() - 1; z <= center.getBlockZ() + 1; z++) {
+                Block block = player.getWorld().getBlockAt(new Location(player.getWorld(), x, center.getBlockY(), z));
+
+                if (block.getType() == Material.AIR) {
+                    block.setType(material);
+                    this.game.getPlayerPlacedBlocks().add(block.getLocation());
+                }
+
+            }
+        }
+
+    }
+
+    private void spawnEnhancedSafetyPlatform(Player player, Material material) {
+
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 3*20, 0, true, true));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 3*20, 1, true, true));
+        player.sendMessage("§bSafety Platform deployed");
+
+        Location center = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+        center.add(0, -1, 0);
+
+        for (int x = center.getBlockX() - 15; x <= center.getBlockX() + 15; x++) {
+            for (int z = center.getBlockZ() - 15; z <= center.getBlockZ() + 15; z++) {
+                Block block = player.getWorld().getBlockAt(new Location(player.getWorld(), x, center.getBlockY(), z));
+
+                if (block.getType() == Material.AIR) {
+                    block.setType(material);
+                    this.game.getPlayerPlacedBlocks().add(block.getLocation());
+                }
+
             }
         }
     }
