@@ -1623,12 +1623,67 @@ public class Game extends GamePart implements ManagedListener {
         return this.players.remove(playerId) != null;
     }
 
-    @Deprecated
+    /**
+     * Returns a copy of the internal player data map.
+     * @return player data map
+     */
+    public final @NotNull Map<UUID, PlayerData> getPlayerDataMap() {
+        return Map.copyOf(this.players);
+    }
+
+    /**
+     * Returns an unmodifiable set of the registered players.
+     * @return registered players
+     */
+    public final @NotNull Set<UUID> getRegisteredPlayers() {
+        return Map.copyOf(this.players).keySet();
+    }
+
+    /**
+     * Returns a list of all ingame players which are currently online.
+     * @return ingame online players
+     */
+    public final @NotNull List<@NotNull Player> getOnlinePlayers() {
+        return this.getRegisteredPlayers().stream().map(uuid -> this.getPlugin().getServer().getPlayer(uuid)).filter(Objects::nonNull).toList();
+    }
+
+    /**
+     * Returns the player data of the player with the specified uuid.
+     * @param playerId player uuid
+     * @return player data
+     */
+    public final PlayerData getPlayerData(@Nullable UUID playerId) {
+        if (playerId == null) return null;
+        return this.players.get(playerId);
+    }
+
+    /**
+     * Returns the player data of the specified player.
+     * @param player player
+     * @return player data
+     */
+    public final PlayerData getPlayerData(@Nullable OfflinePlayer player) {
+        if (player == null) return null;
+        return this.getPlayerData(player.getUniqueId());
+    }
+
+    /**
+     * Returns the player data map.
+     * @return player data map
+     * @deprecated Use {@link #getPlayerDataMap()}
+     */
+    @Deprecated(forRemoval = true)
     public Map<UUID, PlayerData> getPlayers() {
         return Map.copyOf(this.players);
     }
 
-    @Deprecated
+    /**
+     * Returns the player data of the specified player uuid.
+     * @param playerId player uuid
+     * @return player data
+     * @deprecated Use {@link #getPlayerData(UUID)}
+     */
+    @Deprecated(forRemoval = true)
     public PlayerData getPlayer(UUID playerId) {
         return this.players.get(playerId);
     }
@@ -1638,7 +1693,7 @@ public class Game extends GamePart implements ManagedListener {
      * @param playerId player uuid
      * @return ingame
      */
-    public boolean isPlayerIngame(@Nullable UUID playerId) {
+    public final boolean isPlayerIngame(@Nullable UUID playerId) {
         if (playerId == null) return false;
         return this.players.containsKey(playerId);
     }
@@ -1648,7 +1703,7 @@ public class Game extends GamePart implements ManagedListener {
      * @param player player
      * @return ingame
      */
-    public boolean isPlayerIngame(@Nullable OfflinePlayer player) {
+    public final boolean isPlayerIngame(@Nullable OfflinePlayer player) {
         if (player == null) return false;
         return this.players.containsKey(player.getUniqueId());
     }
