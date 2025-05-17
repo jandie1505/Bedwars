@@ -6,7 +6,6 @@ import de.simonsator.partyandfriends.spigot.api.party.PartyManager;
 import de.simonsator.partyandfriends.spigot.api.party.PlayerParty;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
-import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.game.Game;
@@ -748,11 +747,6 @@ public class Lobby extends GamePart {
                         }
 
                     }
-
-                    ServiceInfoHolder serviceInfoHolder = InjectionLayer.ext().instance(ServiceInfoHolder.class);
-
-                    serviceInfoHolder.publishServiceInfoUpdate();
-
                 } catch (ClassNotFoundException ignored) {
                     // ignored (cloudnet not installed)
                 }

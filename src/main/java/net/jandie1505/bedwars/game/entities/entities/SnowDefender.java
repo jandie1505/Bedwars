@@ -31,7 +31,7 @@ public class SnowDefender extends ExpiringManagedEntity<Snowman> {
         this.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 3600*20, 0, false, false, false));
         this.getEntity().setCustomNameVisible(true);
 
-        AttributeInstance maxHealth = this.getEntity().getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        AttributeInstance maxHealth = this.getEntity().getAttribute(Attribute.MAX_HEALTH);
         if (maxHealth != null) maxHealth.setBaseValue(20.0);
 
         this.getGame().getTaskScheduler().scheduleRepeatingTask(this::nameTask, 1, 20, this::toBeRemoved, "snow_defender_name");

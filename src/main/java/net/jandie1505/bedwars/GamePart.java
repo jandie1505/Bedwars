@@ -8,7 +8,7 @@ public abstract class GamePart {
 
     public GamePart(Bedwars plugin) {
         this.plugin = plugin;
-        this.taskScheduler = new TaskScheduler(this.plugin);
+        this.taskScheduler = new TaskScheduler(this.plugin.getLogger());
     }
 
     public abstract boolean shouldRun();

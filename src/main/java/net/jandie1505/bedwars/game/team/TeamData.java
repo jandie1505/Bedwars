@@ -1,6 +1,6 @@
 package net.jandie1505.bedwars.game.team;
 
-import net.chaossquad.mclib.JSONConfigUtils;
+import net.chaossquad.mclib.json.JSONConfigUtils;
 import net.chaossquad.mclib.immutables.ImmutableLocation;
 import net.jandie1505.bedwars.game.generators.GeneratorData;
 import org.bukkit.ChatColor;

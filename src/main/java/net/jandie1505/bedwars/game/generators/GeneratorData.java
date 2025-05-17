@@ -1,6 +1,6 @@
 package net.jandie1505.bedwars.game.generators;
 
-import net.chaossquad.mclib.JSONConfigUtils;
+import net.chaossquad.mclib.json.JSONConfigUtils;
 import net.chaossquad.mclib.immutables.ImmutableLocation;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

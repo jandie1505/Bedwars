@@ -1,6 +1,6 @@
 package net.jandie1505.bedwars.game.menu.shop;
 
-import net.chaossquad.mclib.JSONConfigUtils;
+import net.chaossquad.mclib.json.JSONConfigUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
