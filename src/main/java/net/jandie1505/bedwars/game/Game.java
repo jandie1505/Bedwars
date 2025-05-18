@@ -16,6 +16,7 @@ import net.jandie1505.bedwars.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.listeners.DeathListener;
+import net.jandie1505.bedwars.game.listeners.GameInventoryManagementListener;
 import net.jandie1505.bedwars.game.listeners.GameMiscListener;
 import net.jandie1505.bedwars.game.listeners.SpecialItemListeners;
 import net.jandie1505.bedwars.game.menu.shop.old.ArmorConfig;
@@ -188,6 +189,7 @@ public class Game extends GamePart implements ManagedListener {
         // EVENTS
 
         this.registerListener(this);
+        this.registerListener(new GameInventoryManagementListener(this));
         this.getPlugin().registerListener(new DeathListener(this));
         this.registerListener(new SpecialItemListeners(this));
         this.getPlugin().registerListener(new GameMiscListener(this));
