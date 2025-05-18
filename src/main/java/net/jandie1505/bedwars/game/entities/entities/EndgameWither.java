@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.game.entities.entities;
 
+import net.chaossquad.mclib.entity.SingleUseManagedEntity;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.player.PlayerData;
@@ -16,6 +17,7 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Random;
@@ -40,8 +42,8 @@ public class EndgameWither extends ManagedEntity<Wither> {
         this.getEntity().setCustomNameVisible(true);
         this.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600*20, 0, false, false, false));
 
-        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::targetSelectionTask, 1, 20, this::toBeRemoved, "endgame_wither_target_selection");
-        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::targetTimerTask, 1, 20, this::toBeRemoved, "endgame_wither_target_timer");
+        this.scheduleRepeatingTask(this::targetSelectionTask, 1, 20, "endgame_wither_target_selection");
+        this.scheduleRepeatingTask(this::targetTimerTask, 1, 20, "endgame_wither_target_timer");
     }
 
     // TASKS
@@ -126,7 +128,7 @@ public class EndgameWither extends ManagedEntity<Wither> {
         if (entity == null || entity.isDead()) return false;
 
         if (entity instanceof Player player) {
-            PlayerData playerData = this.getGame().getPlayers().get(player.getUniqueId());
+            PlayerData playerData = this.getGame().getPlayerData(player);
             if (playerData == null) return false;
             if (!playerData.isAlive()) return false;
             return this.teamId < 0 || playerData.getTeam() != this.teamId;

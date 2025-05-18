@@ -28,8 +28,8 @@ public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
         this.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600*20, 0, false, false, false));
         this.getEntity().setCustomNameVisible(true);
 
-        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::nameTask, 1, 20, this::toBeRemoved, "base_defender_name");
-        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::targetSelectionTask, 1, 20, this::toBeRemoved, "base_defender_target_selection");
+        this.scheduleRepeatingTask(this::nameTask, 1, 20, "base_defender_name");
+        this.scheduleRepeatingTask(this::targetSelectionTask, 1, 20, "base_defender_target_selection");
     }
 
     // TASKS
@@ -93,7 +93,7 @@ public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
         if (this.getEntity().getTarget() == null) return "§7NONE";
         if (!(this.getEntity().getTarget() instanceof Player player)) return "§7UNKNOWN";
 
-        PlayerData playerData = this.getGame().getPlayers().get(player.getUniqueId());
+        PlayerData playerData = this.getGame().getPlayerData(player);
         if (playerData == null) return "§7" + player.getDisplayName();
 
         BedwarsTeam team = this.getGame().getTeam(playerData.getTeam());
@@ -110,7 +110,7 @@ public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
     private boolean isValidTarget(Player player) {
         if (player == null || !player.isOnline() || player.isDead()) return false;
 
-        PlayerData playerData = this.getGame().getPlayer(player.getUniqueId());
+        PlayerData playerData = this.getGame().getPlayerData(player);
         if (playerData == null) return false;
         if (!playerData.isAlive()) return false;
 

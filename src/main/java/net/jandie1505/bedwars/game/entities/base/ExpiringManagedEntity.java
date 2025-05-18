@@ -2,17 +2,18 @@ package net.jandie1505.bedwars.game.entities.base;
 
 import net.jandie1505.bedwars.game.Game;
 import org.bukkit.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class ExpiringManagedEntity<T extends Entity> extends ManagedEntity<T> {
     private final int maxTime;
     private int time;
 
-    protected ExpiringManagedEntity(Game game, T entity, int maxTime) {
+    protected ExpiringManagedEntity(@NotNull Game game, @NotNull T entity, int maxTime) {
         super(game, entity);
         this.maxTime = maxTime;
         this.time = this.maxTime;
 
-        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::countDownTask, 1, 20, this::toBeRemoved, "managed_entity_expiration");
+        this.scheduleRepeatingTask(this::countDownTask, 1, 20, "managed_entity_expiration");
     }
 
     // TASKS
@@ -21,7 +22,7 @@ public abstract class ExpiringManagedEntity<T extends Entity> extends ManagedEnt
      * Counts down until the timer reaches 0, then removes the entity.
      */
     private void countDownTask() {
-        if (this.getEntity().isDead()) return;
+        if (this.getEntity() == null || this.getEntity().isDead()) return;
 
         if (this.time > 0) {
             this.time--;

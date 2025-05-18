@@ -105,7 +105,7 @@ public class SnowDefender extends ExpiringManagedEntity<Snowman> {
 
         // Check if entity is player of other team
         if (entity instanceof Player player) {
-            PlayerData playerData = this.getGame().getPlayer(player.getUniqueId());
+            PlayerData playerData = this.getGame().getPlayerData(player);
             if (playerData == null) return false;
             if (!playerData.isAlive()) return false;
             return this.teamId < 0 || playerData.getTeam() != this.teamId;

@@ -38,8 +38,8 @@ public class BridgeEgg extends ExpiringManagedEntity<Egg> {
 
         // Tasks
 
-        this.scheduleTask(this::velocityTask, 1, 1, "bridge_egg_velocity");
-        this.scheduleTask(this::placeBlocksTask, 1, 1, "bridge_egg_place");
+        this.scheduleRepeatingTask(this::velocityTask, 1, 1, "bridge_egg_velocity");
+        this.scheduleRepeatingTask(this::placeBlocksTask, 1, 1, "bridge_egg_place");
     }
 
     // TASKS
@@ -75,7 +75,7 @@ public class BridgeEgg extends ExpiringManagedEntity<Egg> {
             return;
         }
 
-        this.getGame().getPlayerPlacedBlocks().add(block.getLocation());
+        this.getGame().getBlockProtectionSystem().getPlayerPlacedBlocks().add(block.getLocation().toVector());
         block.setType(this.material);
         this.updateLastLocation();
 
