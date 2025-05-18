@@ -3,12 +3,14 @@ package net.jandie1505.bedwars.game;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import net.chaossquad.mclib.WorldUtils;
+import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
-import net.jandie1505.bedwars.ManagedListener;
 import net.jandie1505.bedwars.GamePart;
 import net.jandie1505.bedwars.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.entities.entities.BaseDefender;
+import net.jandie1505.bedwars.game.entities.entities.ShopVillager;
+import net.jandie1505.bedwars.game.entities.entities.UpgradeVillager;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.generators.PublicGenerator;
@@ -135,11 +137,11 @@ public class Game extends GamePart implements ManagedListener {
         for (BedwarsTeam team : this.getTeams()) {
 
             for (Location location : team.getData().shopVillagerLocations()) {
-                this.spawnItemShopVillager(team, WorldUtils.locationWithWorld(location, this.getWorld()));
+                new ShopVillager(this, WorldUtils.locationWithWorld(location, this.getWorld()), team.getId());
             }
 
             for (Location location : team.getData().upgradeVillagerLocations()) {
-                this.spawnUpgradesVillager(team, WorldUtils.locationWithWorld(location, this.getWorld()));
+                new UpgradeVillager(this, WorldUtils.locationWithWorld(location, this.getWorld()), team.getId());
             }
 
         }
@@ -176,7 +178,6 @@ public class Game extends GamePart implements ManagedListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::scoreboardCleanup, 1, 1, "scoreboard_cleanup");
         this.getTaskScheduler().scheduleRepeatingTask(this::generatorTick, 1, 1, "generators");
         this.getTaskScheduler().scheduleRepeatingTask(this::timeActions, 1, 20, "time_actions");
-        this.getTaskScheduler().scheduleRepeatingTask(this::villagers, 1, 1, "villagers");
         this.getTaskScheduler().scheduleRepeatingTask(this::cleanupManagedEntitiesTask, 1, 10*20, "cleanup_managed_entities");
         this.getTaskScheduler().scheduleRepeatingTask(this::traps, 1, 1, "traps");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndConditions, 1, 1, "game_end_conditions");
@@ -186,7 +187,7 @@ public class Game extends GamePart implements ManagedListener {
 
         // EVENTS
 
-        this.getPlugin().registerListener(this);
+        this.registerListener(this);
         this.getPlugin().registerListener(new DeathListener(this));
         this.registerListener(new SpecialItemListeners(this));
         this.getPlugin().registerListener(new GameMiscListener(this));
@@ -698,44 +699,6 @@ public class Game extends GamePart implements ManagedListener {
 
             if (this.time <= timeAction.getData().time() && !timeAction.isCompleted()) {
                 timeAction.run();
-            }
-
-        }
-
-    }
-
-    /**
-     * Manage shop/upgrade villagers
-     */
-    private void villagers() {
-
-        for (BedwarsTeam team : this.getTeams()) {
-
-            boolean shopVillagerExists = false;
-            boolean upgradesVillagerExists = false;
-
-            for (Villager villager : List.copyOf(this.world.getEntitiesByClass(Villager.class))) {
-
-                if (villager.getScoreboardTags().contains("shop.team." + team.getId())) {
-                    shopVillagerExists = true;
-                }
-
-                if (villager.getScoreboardTags().contains("upgrades.team." + team.getId())) {
-                    upgradesVillagerExists = true;
-                }
-
-                if (shopVillagerExists && upgradesVillagerExists) {
-                    break;
-                }
-
-            }
-
-            if (!shopVillagerExists && !team.getData().shopVillagerLocations().isEmpty() && Bedwars.isChunkLoaded(WorldUtils.locationWithWorld(team.getData().shopVillagerLocations().get(0), this.getWorld()))) {
-                this.spawnItemShopVillager(team, WorldUtils.locationWithWorld(team.getData().shopVillagerLocations().get(0), this.getWorld()));
-            }
-
-            if (!upgradesVillagerExists && !team.getData().upgradeVillagerLocations().isEmpty() && Bedwars.isChunkLoaded(WorldUtils.locationWithWorld(team.getData().upgradeVillagerLocations().get(0), this.getWorld()))) {
-                this.spawnUpgradesVillager(team, WorldUtils.locationWithWorld(team.getData().upgradeVillagerLocations().get(0), this.getWorld()));
             }
 
         }
@@ -1587,28 +1550,6 @@ public class Game extends GamePart implements ManagedListener {
         return true;
     }
 
-    public void spawnItemShopVillager(BedwarsTeam team, Location location) {
-        Villager villager = (Villager) this.world.spawnEntity(location, EntityType.VILLAGER);
-        villager.teleport(location);
-        villager.setAI(false);
-        villager.setCustomName("§6§lITEM SHOP");
-        villager.setCustomNameVisible(true);
-        villager.setInvulnerable(true);
-        villager.setSilent(true);
-        villager.addScoreboardTag("shop.team." + team.getId());
-    }
-
-    public void spawnUpgradesVillager(BedwarsTeam team, Location location) {
-        Villager villager = (Villager) this.world.spawnEntity(location, EntityType.VILLAGER);
-        villager.teleport(location);
-        villager.setAI(false);
-        villager.setCustomName("§b§lTEAM UPGRADES");
-        villager.setCustomNameVisible(true);
-        villager.setInvulnerable(true);
-        villager.setSilent(true);
-        villager.addScoreboardTag("upgrades.team." + team.getId());
-    }
-
     public boolean addPlayer(UUID playerId, int team) {
         Player player = this.getPlugin().getServer().getPlayer(playerId);
 
@@ -1877,11 +1818,6 @@ public class Game extends GamePart implements ManagedListener {
         this.winner = null;
         this.noWinnerEnd = true;
         this.getPlugin().nextStatus();
-    }
-
-    @Override
-    public Game getGame() {
-        return this;
     }
 
     @Override

@@ -257,33 +257,12 @@ public class EventListener implements ManagedListener {
 
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (event.isCancelled()) return;
 
         if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
             event.setCancelled(true);
-            return;
-        }
-
-        if (this.plugin.getGame() instanceof Game && ((Game) this.plugin.getGame()).getPlayers().containsKey(event.getPlayer().getUniqueId())) {
-
-            event.setCancelled(true);
-
-            for (String tag : List.copyOf(event.getRightClicked().getScoreboardTags())) {
-
-                if (tag.startsWith("shop")) {
-                    //((Game) this.plugin.getGame()).getItemShopNew().openInventory(event.getPlayer());
-                    event.getPlayer().openInventory(new ShopMenu((Game) this.plugin.getGame(), event.getPlayer().getUniqueId()).getPage(0));
-                    return;
-                }
-
-                if (tag.startsWith("upgrades")) {
-                    event.getPlayer().openInventory(new UpgradesMenu((Game) this.plugin.getGame(), event.getPlayer().getUniqueId()).getUpgradesMenu());
-                    return;
-                }
-
-            }
-
             return;
         }
 
