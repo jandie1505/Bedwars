@@ -50,23 +50,6 @@ public class EventListener implements ManagedListener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerDeath(PlayerDeathEvent event) {
-
-        // Send respawn packet
-
-        if (Boolean.FALSE.equals(event.getEntity().getPlayer().getWorld().getGameRuleValue(GameRule.DO_IMMEDIATE_RESPAWN))) {
-            this.plugin.getServer().getScheduler().runTaskLater(this.plugin, () -> {
-                event.getEntity().spigot().respawn();
-            }, 1);
-        }
-
-        // Clear item drops
-
-        event.getDrops().clear();
-
-    }
-
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
 

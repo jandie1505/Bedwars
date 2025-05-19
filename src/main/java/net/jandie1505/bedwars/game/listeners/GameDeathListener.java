@@ -1,6 +1,6 @@
 package net.jandie1505.bedwars.game.listeners;
 
-import net.jandie1505.bedwars.ManagedListener;
+import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.game.Game;
 import net.jandie1505.bedwars.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.entities.entities.EndgameWither;
@@ -8,43 +8,63 @@ import net.jandie1505.bedwars.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.generators.Generator;
 import net.jandie1505.bedwars.game.player.PlayerData;
 import net.jandie1505.bedwars.game.team.BedwarsTeam;
+import org.bukkit.GameRule;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class DeathListener implements ManagedListener {
-    private final Game game;
+public class GameDeathListener implements ManagedListener {
+    @NotNull private final Game game;
 
-    public DeathListener(Game game) {
+    public GameDeathListener(@NotNull Game game) {
         this.game = game;
     }
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        PlayerData playerData = this.game.getPlayer(event.getEntity().getUniqueId());
+
+        PlayerData playerData = this.game.getPlayerData(event.getEntity());
         if (playerData == null) return;
 
-        // Death Message
+        // Set dead
+        playerData.setAlive(false);
 
+        // Death Message
         event.setDeathMessage(this.getDeathMessage(event));
 
         // Increase deaths count
-
         playerData.setDeaths(playerData.getDeaths() + 1);
 
-        // Get items
+        // Get killer
+        @Nullable Player killer = event.getEntity().getKiller();
+        @Nullable PlayerData killerData = killer != null ? this.game.getPlayerData(killer) : null;
 
-        List<ItemStack> items = new ArrayList<>(event.getDrops());
+        // Item drops
+        this.handleItemDrops(event.getDrops(), killer);
 
-        // Cleanup saved item drops
+        // Give items + increase kill count or drop items
+        this.rewardKiller(killerData);
 
-        for (ItemStack item : List.copyOf(items)) {
+        // Decrease upgrades
+        this.decreaseUpgrades(playerData);
+
+        // Immediate respawn
+        this.respawnPlayerImmediately(event.getPlayer());
+    }
+
+    // ----- UTILITIES -----
+
+    private void handleItemDrops(@NotNull List<ItemStack> drops, @Nullable Player killer) {
+
+        // Clears all items that should be not dropped from the item drops
+        for (ItemStack item : List.copyOf(drops)) {
 
             boolean canItemDrop = false;
             for (Generator generator : this.game.getGenerators()) {
@@ -57,37 +77,32 @@ public class DeathListener implements ManagedListener {
             }
 
             if (!canItemDrop) {
-                items.remove(item);
+                drops.remove(item);
             }
 
         }
 
-        // Give items + increase kill count or drop items
+        // Give items to the killer when they exist, else drop the items
+        if (killer != null) {
 
-        if (event.getEntity().getKiller() != null && this.game.getPlayers().get(event.getEntity().getKiller().getUniqueId()) != null) {
-
-            PlayerData killerData = this.game.getPlayers().get(event.getEntity().getKiller().getUniqueId());
-            killerData.setKills(killerData.getKills() + 1);
-            playerData.setRewardPoints(playerData.getRewardPoints() + this.game.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("playerKill", 0));
-
-            for (ItemStack item : items) {
-                event.getEntity().getKiller().getInventory().addItem(item);
-                event.getEntity().getKiller().sendMessage("§7+ " + item.getAmount() + " " + item.getType());
+            for (ItemStack item : drops) {
+                killer.getInventory().addItem(item);
+                killer.sendMessage("§7+ " + item.getAmount() + " " + item.getType());
             }
 
-        } else {
-
-            for (ItemStack item : items) {
-                event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), item);
-            }
+            drops.clear(); // Clear item drops since they are now given to the killer
 
         }
 
-        // Make player respawn
+    }
 
-        playerData.setAlive(false);
+    private void rewardKiller(@Nullable PlayerData killerData) {
+        if (killerData == null) return;
+        killerData.setKills(killerData.getKills() + 1);
+        killerData.setRewardPoints(killerData.getRewardPoints() + this.game.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("playerKill", 0));
+    }
 
-        // Decrease upgrades
+    private void decreaseUpgrades(@NotNull PlayerData playerData) {
 
         if (playerData.getPickaxeUpgrade() > 1) {
             playerData.setPickaxeUpgrade(playerData.getPickaxeUpgrade() - 1);
@@ -98,6 +113,13 @@ public class DeathListener implements ManagedListener {
         }
 
     }
+
+    private void respawnPlayerImmediately(@NotNull Player player) {
+        if (Boolean.TRUE.equals(this.getGame().getWorld().getGameRuleValue(GameRule.DO_IMMEDIATE_RESPAWN))) return;
+        this.getGame().getTaskScheduler().runTaskLater(() -> player.spigot().respawn(), 1);
+    }
+
+    // ----- DEATH MESSAGES -----
 
     private String getDeathMessage(PlayerDeathEvent event) {
 
@@ -293,13 +315,14 @@ public class DeathListener implements ManagedListener {
         }
     }
 
+    // ----- OTHER -----
+
     @Override
     public boolean toBeRemoved() {
         return false;
     }
 
-    @Override
-    public Game getGame() {
+    public @NotNull Game getGame() {
         return this.game;
     }
 
