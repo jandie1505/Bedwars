@@ -15,10 +15,7 @@ import net.jandie1505.bedwars.game.game.generators.Generator;
 import net.jandie1505.bedwars.game.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.game.generators.TeamGenerator;
-import net.jandie1505.bedwars.game.game.listeners.GameDeathListener;
-import net.jandie1505.bedwars.game.game.listeners.GameInventoryManagementListener;
-import net.jandie1505.bedwars.game.game.listeners.GameMiscListener;
-import net.jandie1505.bedwars.game.game.listeners.SpecialItemListeners;
+import net.jandie1505.bedwars.game.game.listeners.*;
 import net.jandie1505.bedwars.game.game.menu.shop.old.ArmorConfig;
 import net.jandie1505.bedwars.game.game.menu.shop.old.ItemShop;
 import net.jandie1505.bedwars.game.game.menu.shop.ItemShopNew;
@@ -193,6 +190,7 @@ public class Game extends GamePart implements ManagedListener {
         this.registerListener(new GameDeathListener(this));
         this.registerListener(new SpecialItemListeners(this));
         this.registerListener(new GameMiscListener(this));
+        this.registerListener(new GameProtectionsForNotIngamePlayersListener(this));
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
     }
 
