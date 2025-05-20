@@ -172,72 +172,25 @@ public class EventListener implements ManagedListener {
 
     }
 
-    // ----- NOT REFACTORED -----
-
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
 
-        if (this.plugin.getGame() != null && this.plugin.isPaused()) {
+        // Protections when no game is running
+        if (this.plugin.getGame() == null) {
             event.setCancelled(true);
             return;
         }
 
-        // TODO: Move to game-specific listeners
-        if (this.plugin.getGame() instanceof Game) {
-
-            if (!((Game) this.plugin.getGame()).getPlayers().containsKey(event.getPlayer().getUniqueId())) {
-                event.setCancelled(true);
-                return;
-            }
-
-            // BLOCK PLACE PROTECTION
-
-            if (((Game) this.plugin.getGame()).getData().spawnBlockPlaceProtection() > 0 || ((Game) this.plugin.getGame()).getData().villagerBlockPlaceProtection() > 0) {
-
-                for (BedwarsTeam team : ((Game) this.plugin.getGame()).getTeams()) {
-
-                    if (((Game) this.plugin.getGame()).getData().spawnBlockPlaceProtection() > 0) {
-
-                        for (Location location : team.getData().spawnpoints()) {
-
-                            if (Bedwars.getBlockDistance(WorldUtils.locationWithWorld(location, ((Game) this.plugin.getGame()).getWorld()), event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getData().spawnBlockPlaceProtection()) {
-                                event.setCancelled(true);
-                                event.getPlayer().sendMessage("§cYou cannot place blocks here");
-                                return;
-                            }
-
-                        }
-
-                    }
-
-                    if (((Game) this.plugin.getGame()).getData().villagerBlockPlaceProtection() > 0) {
-
-                        List<Location> villagerLocations = new ArrayList<>();
-                        villagerLocations.addAll(team.getData().shopVillagerLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, ((Game) this.getGame()).getWorld())).toList());
-                        villagerLocations.addAll(team.getData().upgradeVillagerLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, ((Game) this.getGame()).getWorld())).toList());
-
-                        for (Location location : villagerLocations) {
-
-                            if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= ((Game) this.plugin.getGame()).getData().villagerBlockPlaceProtection()) {
-                                event.setCancelled(true);
-                                event.getPlayer().sendMessage("§cYou cannot place blocks here");
-                                return;
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        } else {
+        // Protections when game is paused
+        if (this.plugin.isPaused()) {
             event.setCancelled(true);
+            return;
         }
 
     }
+
+    // ----- NOT REFACTORED -----
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {

@@ -1,7 +1,8 @@
 package net.jandie1505.bedwars.game.game.listeners;
 
 import net.chaossquad.mclib.WorldUtils;
-import net.jandie1505.bedwars.ManagedListener;
+import net.chaossquad.mclib.executable.ManagedListener;
+import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
@@ -12,8 +13,12 @@ import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GameMiscListener implements ManagedListener {
     @NotNull private final Game game;
@@ -25,7 +30,7 @@ public class GameMiscListener implements ManagedListener {
     @EventHandler
     public void onBlockBreakForBreakingBed(@NotNull BlockBreakEvent event) {
 
-        PlayerData playerData = this.game.getPlayer(event.getPlayer().getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer().getUniqueId());
         if (playerData == null) return;
 
         Block block = event.getBlock();
@@ -63,7 +68,7 @@ public class GameMiscListener implements ManagedListener {
 
                     for (Player player : this.game.getPlugin().getServer().getOnlinePlayers()) {
 
-                        PlayerData pData = this.game.getPlayers().get(player.getUniqueId());
+                        PlayerData pData = this.game.getPlayerData(player.getUniqueId());
 
                         BedwarsTeam destroyerTeam = this.game.getTeams().get(playerData.getTeam());
 
@@ -86,9 +91,51 @@ public class GameMiscListener implements ManagedListener {
 
     }
 
+    @EventHandler
+    public void onBlockPlaceForSpawnProtection(@NotNull BlockPlaceEvent event) {
+        if (event.isCancelled()) return;
+        if (this.game.getData().spawnBlockPlaceProtection() <= 0 && this.game.getData().villagerBlockPlaceProtection() <= 0) return;
+        if (!this.game.isPlayerIngame(event.getPlayer())) return;
+
+        for (BedwarsTeam team : this.game.getTeams()) {
+
+            if (this.game.getData().spawnBlockPlaceProtection() > 0) {
+
+                for (Location location : team.getData().spawnpoints()) {
+
+                    if (Bedwars.getBlockDistance(WorldUtils.locationWithWorld(location, this.game.getWorld()), event.getBlock().getLocation()) <= this.game.getData().spawnBlockPlaceProtection()) {
+                        event.setCancelled(true);
+                        event.getPlayer().sendMessage("§cYou cannot place blocks here");
+                        return;
+                    }
+
+                }
+
+            }
+
+            if (this.game.getData().villagerBlockPlaceProtection() > 0) {
+
+                List<Location> villagerLocations = new ArrayList<>();
+                villagerLocations.addAll(team.getData().shopVillagerLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, this.game.getWorld())).toList());
+                villagerLocations.addAll(team.getData().upgradeVillagerLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, this.game.getWorld())).toList());
+
+                for (Location location : villagerLocations) {
+
+                    if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= this.game.getData().villagerBlockPlaceProtection()) {
+                        event.setCancelled(true);
+                        event.getPlayer().sendMessage("§cYou cannot place blocks here");
+                        return;
+                    }
+
+                }
+
+            }
+
+        }
+    }
+
     // ----- OTHER -----
 
-    @Override
     public @NotNull Game getGame() {
         return this.game;
     }
