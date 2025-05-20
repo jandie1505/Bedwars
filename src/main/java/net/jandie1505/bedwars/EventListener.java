@@ -18,6 +18,7 @@ import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
@@ -29,13 +30,15 @@ import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class EventListener implements ManagedListener {
-    private final Bedwars plugin;
+public class EventListener implements Listener {
+    @NotNull private final Bedwars plugin;
 
-    public EventListener(Bedwars plugin) {
+    public EventListener(@NotNull Bedwars plugin) {
         this.plugin = plugin;
     }
 
@@ -842,14 +845,14 @@ public class EventListener implements ManagedListener {
         event.getEntity().setPersistent(false);
     }
 
-    @Override
-    public GamePart getGame() {
+    /**
+     * Returns the game from the plugin.
+     * @deprecated Use {@link Bedwars#getGame()}.
+     * @return game
+     */
+    @Deprecated(forRemoval = true)
+    public @Nullable GamePart getGame() {
         return this.plugin.getGame();
-    }
-
-    @Override
-    public boolean toBeRemoved() {
-        return false;
     }
 
 }
