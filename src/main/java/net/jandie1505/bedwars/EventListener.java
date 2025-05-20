@@ -1,23 +1,16 @@
 package net.jandie1505.bedwars;
 
 import net.chaossquad.mclib.WorldUtils;
-import net.jandie1505.bedwars.endlobby.Endlobby;
-import net.jandie1505.bedwars.game.Game;
-import net.jandie1505.bedwars.game.entities.entities.BaseDefender;
-import net.jandie1505.bedwars.game.entities.entities.BridgeEgg;
-import net.jandie1505.bedwars.game.entities.entities.SnowDefender;
-import net.jandie1505.bedwars.game.menu.shop.old.ShopEntryOld;
-import net.jandie1505.bedwars.game.menu.shop.old.ShopMenu;
-import net.jandie1505.bedwars.game.menu.shop.old.UpgradeEntryOld;
-import net.jandie1505.bedwars.game.menu.upgrades.UpgradesMenu;
-import net.jandie1505.bedwars.game.player.PlayerData;
-import net.jandie1505.bedwars.game.team.BedwarsTeam;
-import net.jandie1505.bedwars.game.team.TeamUpgrade;
-import net.jandie1505.bedwars.game.team.traps.*;
-import net.jandie1505.bedwars.lobby.Lobby;
-import net.jandie1505.bedwars.lobby.LobbyPlayerData;
-import net.jandie1505.bedwars.game.MapData;
-import net.jandie1505.bedwars.lobby.inventory.VotingMenu;
+import net.jandie1505.bedwars.game.endlobby.Endlobby;
+import net.jandie1505.bedwars.game.base.GamePart;
+import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.entities.entities.BridgeEgg;
+import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.lobby.Lobby;
+import net.jandie1505.bedwars.game.lobby.LobbyPlayerData;
+import net.jandie1505.bedwars.game.game.MapData;
+import net.jandie1505.bedwars.game.lobby.inventory.VotingMenu;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.block.Block;
@@ -33,13 +26,9 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
-import org.json.JSONObject;
 
 import java.util.*;
 

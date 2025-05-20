@@ -1,5 +1,7 @@
 package net.jandie1505.bedwars;
 
+import net.jandie1505.bedwars.game.base.GamePart;
+
 /**
  * @deprecated Use {@link net.chaossquad.mclib.executable.ManagedListener}
  */
