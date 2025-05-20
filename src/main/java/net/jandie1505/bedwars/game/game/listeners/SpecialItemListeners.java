@@ -15,9 +15,11 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
@@ -369,6 +371,27 @@ public class SpecialItemListeners implements ManagedListener {
             this.createSafetyPlatform(event.getPlayer(), playerData, true);
             return;
         }
+    }
+
+    @EventHandler
+    public void onBlockPlaceForTNT(BlockPlaceEvent event) {
+        if (event.isCancelled()) return;
+        if (event.getBlockPlaced().getType() != Material.TNT) return;
+        if (!this.game.isPlayerIngame(event.getPlayer())) return;
+
+        event.setCancelled(true);
+
+        if (event.getItemInHand().getType() != Material.TNT) return;
+        if (event.getItemInHand().getAmount() <= 0) return;
+
+        event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+
+        Location location = event.getBlockPlaced().getLocation().clone();
+        location.add(0.5, 0, 0.5);
+
+        TNTPrimed tnt = event.getBlockPlaced().getLocation().getWorld().spawn(location, TNTPrimed.class);
+        tnt.setSource(event.getPlayer());
+        tnt.setFuseTicks(80);
     }
 
     // ----- SAFETY PLATTFORM -----

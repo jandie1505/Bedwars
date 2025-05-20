@@ -84,6 +84,9 @@ public class EventListener implements ManagedListener {
     }
 
     // ----- PROTECTIONS -----
+    // This section contains event listeners preventing players from doing certain stuff.
+    // They only should do things when the player is bypassing, the game is not running or the game is paused.
+    // If those three things are not the case, these listeners should not do anything because the gamemode has to handle this then.
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
@@ -228,26 +231,6 @@ public class EventListener implements ManagedListener {
 
                 }
 
-            }
-
-            // TNT
-
-            if (event.getBlockPlaced().getType() == Material.TNT) {
-                event.setCancelled(true);
-
-                if (event.getItemInHand().getType() == Material.TNT && event.getItemInHand().getAmount() > 0) {
-                    event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
-                    event.getPlayer().sendMessage("§bTNT activated");
-
-                    Location location = event.getBlockPlaced().getLocation().clone();
-                    location.add(0.5, 0, 0.5);
-
-                    TNTPrimed tnt = (TNTPrimed) event.getBlockPlaced().getLocation().getWorld().spawnEntity(location, EntityType.TNT);
-                    tnt.setSource(event.getPlayer());
-                    tnt.setFuseTicks(80);
-                }
-
-                return;
             }
 
         } else {
