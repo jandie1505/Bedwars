@@ -5,6 +5,7 @@ import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -94,6 +95,13 @@ public class Endlobby extends GamePart {
 
         this.tick = 0;
         this.time = 30;
+
+        // Listeners
+
+        this.registerListener(new LobbyProtectionsListener(this));
+        this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
+
+        // Tasks
 
         this.getTaskScheduler().scheduleRepeatingTask(this::endlobbyTask, 1, 1, "endlobby");
     }

@@ -15,6 +15,8 @@ import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
+import net.jandie1505.bedwars.game.lobby.inventory.VotingMenuListener;
+import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -24,6 +26,8 @@ import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -112,7 +116,13 @@ public class Lobby extends GamePart {
         } else {
             this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Random Map");
         }
-        
+
+        // Listeners
+
+        this.registerListener(new LobbyProtectionsListener(this));
+        this.registerListener(new VotingMenuListener(this));
+        this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
+
         // Tasks
 
         this.getTaskScheduler().scheduleRepeatingTask(this::lobbyTask, 1, 1, "lobby");
@@ -792,8 +802,45 @@ public class Lobby extends GamePart {
         this.forcestart = true;
     }
 
-    public Map<UUID, LobbyPlayerData> getPlayers() {
+    /**
+     * Returns a copy of the internal player data map.
+     * @return player data map
+     */
+    public @NotNull Map<UUID, LobbyPlayerData> getPlayerDataMap() {
         return Map.copyOf(this.players);
+    }
+
+    /**
+     * Returns a set of players currently registered.
+     * @return set of players
+     */
+    public @NotNull Set<UUID> getRegisteredPlayers() {
+        return Map.copyOf(this.players).keySet();
+    }
+
+    /**
+     * Returns the LobbyPlayerData of the player with the specified uuid.
+     * @param playerId player uuid
+     * @return player data
+     */
+    public @Nullable LobbyPlayerData getPlayerData(@Nullable UUID playerId) {
+        if (playerId == null) return null;
+        return this.players.get(playerId);
+    }
+
+    /**
+     * Returns the LobbyPlayerData of the specified player.
+     * @param player player
+     * @return player data
+     */
+    public @Nullable LobbyPlayerData getPlayerData(@Nullable OfflinePlayer player) {
+        if (player == null) return null;
+        return this.getPlayerData(player.getUniqueId());
+    }
+
+    @Deprecated(forRemoval = true)
+    public Map<UUID, LobbyPlayerData> getPlayers() {
+        return this.getPlayerDataMap();
     }
 
     public boolean addPlayer(UUID playerId) {

@@ -39,18 +39,148 @@ public class EventListener implements ManagedListener {
         this.plugin = plugin;
     }
 
-    @EventHandler
-    public void onBlockPlace(BlockPlaceEvent event) {
+    // ----- BYPASSING PLAYERS -----
 
-        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+    /**
+     * Un-cancel BlockPlaceEvents for bypassing players, allowing them to always build.
+     * @param event BlockPlaceEvent
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBlockPlaceForBypassingPlayers(BlockPlaceEvent event) {
+        if (!this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+        event.setCancelled(false);
+    }
+
+    /**
+     * Un-cancel BlockBreakEvent for bypassing players, allowing them to always break blocks.
+     * @param event BlockBreakEvent
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onBlockBreakForBypassingPlayers(BlockBreakEvent event) {
+        if (!this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+        event.setCancelled(false);
+    }
+
+    /**
+     * Un-cancel InventoryClickEvents for the own inventory, allowing them to always use their inventory.
+     * @param event InventoryClickEvent
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryClickForBypassingPlayers(InventoryClickEvent event) {
+        if (!this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) return;
+        if (event.getInventory().getHolder() != event.getWhoClicked()) return;
+        event.setCancelled(false);
+    }
+
+    /**
+     * Un-cancel InventoryDragEvents for the own inventory, allowing them to always use their inventory.
+     * @param event InventoryClickEvent
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryDragForBypassingPlayers(InventoryDragEvent event) {
+        if (!this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) return;
+        if (event.getInventory().getHolder() != event.getWhoClicked()) return;
+        event.setCancelled(false);
+    }
+
+    // ----- PROTECTIONS -----
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (this.plugin.isPlayerBypassing(player.getUniqueId())) return;
+
+        if (this.plugin.getGame() == null) {
+            event.setCancelled(true);
             return;
         }
+
+        if (this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
+        }
+
+    }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (this.plugin.isPlayerBypassing(player.getUniqueId())) return;
+
+        if (this.plugin.getGame() == null) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
+        }
+
+    }
+
+    @EventHandler
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+
+        if (this.plugin.getGame() == null) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
+        }
+
+    }
+
+    @EventHandler
+    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
+        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+
+        if (this.plugin.getGame() == null) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
+        }
+
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+
+        // Protections when no game is running
+        if (this.plugin.getGame() == null) {
+            event.setCancelled(true);
+            return;
+        }
+
+        // Protections when game is paused
+        if (this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
+        }
+
+    }
+
+    // ----- NOT REFACTORED -----
+
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event) {
+        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
 
         if (this.plugin.getGame() != null && this.plugin.isPaused()) {
             event.setCancelled(true);
             return;
         }
 
+        // TODO: Move to game-specific listeners
         if (this.plugin.getGame() instanceof Game) {
 
             if (!((Game) this.plugin.getGame()).getPlayers().containsKey(event.getPlayer().getUniqueId())) {
@@ -121,22 +251,6 @@ public class EventListener implements ManagedListener {
             }
 
         } else {
-            event.setCancelled(true);
-        }
-
-    }
-
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-
-        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
-
-        if (this.plugin.getGame() != null && this.plugin.isPaused()) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (!(this.plugin.getGame() instanceof Game)) {
             event.setCancelled(true);
         }
 
@@ -243,202 +357,6 @@ public class EventListener implements ManagedListener {
         }
 
         event.setCancelled(true);
-
-    }
-
-    @EventHandler
-    public void onInventoryClick(InventoryClickEvent event) {
-
-        if (!(event.getWhoClicked() instanceof Player)) {
-            return;
-        }
-
-        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (event.getInventory() == null) {
-            return;
-        }
-
-        if (event.getInventory().getHolder() == event.getWhoClicked()) {
-            return;
-        }
-
-        if (event.getInventory().getHolder() instanceof VotingMenu) {
-            event.setCancelled(true);
-
-            if (!(this.plugin.getGame() instanceof Lobby)) {
-                return;
-            }
-
-            int itemId = this.plugin.getItemStorage().getItemId(event.getCurrentItem());
-
-            if (itemId < 0) {
-                return;
-            }
-
-            if (itemId != ((Lobby) this.plugin.getGame()).getMapButtonItemId()) {
-                return;
-            }
-
-            if (!((Lobby) this.plugin.getGame()).isMapVoting()) {
-                event.getWhoClicked().sendMessage("§cMap voting is currently disabled");
-                event.getWhoClicked().closeInventory();
-                return;
-            }
-
-            if (((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
-                event.getWhoClicked().sendMessage("§cMap voting is already over");
-                event.getWhoClicked().closeInventory();
-                return;
-            }
-
-            List<String> lore = event.getCurrentItem().getItemMeta().getLore();
-
-            if (lore.size() < 2) {
-                return;
-            }
-
-            LobbyPlayerData playerData = ((Lobby) this.plugin.getGame()).getPlayers().get(event.getWhoClicked().getUniqueId());
-
-            for (MapData map : ((Lobby) this.plugin.getGame()).getMaps()) {
-
-                if (map.world().equals(lore.get(1))) {
-
-                    event.getWhoClicked().closeInventory();
-
-                    if (playerData.getVote() == map) {
-
-                        playerData.setVote(null);
-                        event.getWhoClicked().sendMessage("§aYou removed your vote");
-
-                    } else {
-
-                        playerData.setVote(map);
-                        event.getWhoClicked().sendMessage("§aYou changed your vote to " + map.world());
-
-                    }
-
-                    return;
-                }
-
-            }
-
-            return;
-        }
-
-        if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
-            return;
-        }
-
-        if (!(this.plugin.getGame() instanceof Game)) {
-            event.setCancelled(true);
-            return;
-        }
-
-    }
-
-    private boolean purchaseItem(Inventory inventory, int price, Material currency) {
-
-        if (inventory == null) {
-            return false;
-        }
-
-        int availableCurrency = 0;
-
-        for (ItemStack item : Arrays.copyOf(inventory.getContents(), inventory.getContents().length)) {
-
-            if (item != null && item.getType() == currency) {
-                availableCurrency += item.getAmount();
-            }
-
-        }
-
-        if (availableCurrency < price) {
-            return false;
-        }
-
-        Bedwars.removeSpecificAmountOfItems(inventory, currency, price);
-        return true;
-    }
-
-    @EventHandler
-    public void onInventoryDrag(InventoryDragEvent event) {
-
-        if (!(event.getWhoClicked() instanceof Player)) {
-            return;
-        }
-
-        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (event.getInventory().getHolder() == event.getWhoClicked()) {
-
-            if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
-                return;
-            }
-
-            // Block if not ingame
-            if (!(this.plugin.getGame() instanceof Game)) {
-                event.setCancelled(true);
-                return;
-            }
-
-            return;
-        }
-
-        if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
-            return;
-        }
-
-        if (!(this.plugin.getGame() instanceof Game)) {
-            event.setCancelled(true);
-            return;
-        }
-
-    }
-
-    @EventHandler
-    public void onPlayerDropItem(PlayerDropItemEvent event) {
-
-        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (!(this.plugin.getGame() instanceof Game)) {
-
-            if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
-                return;
-            }
-
-            event.setCancelled(true);
-            return;
-        }
-
-    }
-
-    @EventHandler
-    public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
-
-        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (!(this.plugin.getGame() instanceof Game)) {
-
-            if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
-                return;
-            }
-
-            event.setCancelled(true);
-            return;
-        }
 
     }
 
