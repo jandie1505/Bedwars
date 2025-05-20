@@ -7,13 +7,17 @@ import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -132,6 +136,31 @@ public class GameMiscListener implements ManagedListener {
             }
 
         }
+    }
+
+    @EventHandler
+    public void onPlayerInteractForEnderChest(PlayerInteractEvent event) {
+        if (event.useInteractedBlock() == Event.Result.DENY) return;
+        if (!event.getAction().isRightClick()) return;
+        if (event.getClickedBlock() == null) return;
+        if (event.getClickedBlock().getType() != Material.ENDER_CHEST) return;
+
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
+        if (playerData == null) return;
+
+        event.setCancelled(true);
+        event.getPlayer().openInventory(playerData.getEnderchest());
+    }
+
+    @EventHandler
+    public void onPlayerInteractForBlockingSleep(PlayerInteractEvent event) {
+        if (event.useInteractedBlock() == Event.Result.DENY) return;
+        if (this.game.getPlugin().isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (event.getPlayer().isSneaking()) return;
+        if (event.getClickedBlock() == null || !(event.getClickedBlock().getBlockData() instanceof Bed)) return;
+
+        event.setCancelled(true);
     }
 
     // ----- OTHER -----

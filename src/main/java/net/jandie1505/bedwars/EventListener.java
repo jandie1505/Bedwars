@@ -205,46 +205,6 @@ public class EventListener implements Listener {
 
         if (this.plugin.getGame() instanceof Game) {
 
-            // Prevent armor modification
-
-            if (!this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
-
-                if (this.plugin.getItemStorage().isArmorItem(event.getItem())) {
-                    event.setCancelled(true);
-                    return;
-                }
-
-                if (event.getClickedBlock() != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && !event.getPlayer().isSneaking() && event.getClickedBlock().getBlockData() instanceof Bed) {
-                    event.setCancelled(true);
-                    return;
-                }
-
-            }
-
-            // filter for right clicks
-
-            if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
-                return;
-            }
-
-            // Get playerdata
-
-            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
-
-            if (playerData == null) {
-                return;
-            }
-
-            // ender chest
-
-            if (event.getClickedBlock() != null && event.getClickedBlock().getType() == Material.ENDER_CHEST) {
-                event.setCancelled(true);
-                event.getPlayer().openInventory(playerData.getEnderchest());
-                return;
-            }
-
-            // here were the special items, but they were moved to SpecialItemListeners
-
         } else if (this.plugin.getGame() instanceof Lobby) {
 
             if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {

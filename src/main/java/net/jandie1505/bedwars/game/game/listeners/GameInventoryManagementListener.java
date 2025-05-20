@@ -14,12 +14,14 @@ import net.jandie1505.bedwars.game.game.team.traps.*;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -260,7 +262,17 @@ public class GameInventoryManagementListener implements ManagedListener {
         event.setCancelled(true);
     }
 
+    @EventHandler
+    public void onPlayerInteract(@NotNull PlayerInteractEvent event) {
+        if (event.useItemInHand() == Event.Result.DENY) return;
+        if (this.game.getPlugin().isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+        if (!this.game.getPlugin().getItemStorage().isArmorItem(event.getItem())) return;
+
+        event.setCancelled(true);
+    }
+
     // ----- STUFF THAT HAS TO BE REFACTORED -----
+    // TODO: Refactor
 
     /**
      * @deprecated Should be integrated into the gui class itself, will be done when the gui is rewritten (TODO)
