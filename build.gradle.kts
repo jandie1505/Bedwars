@@ -48,6 +48,7 @@ dependencies {
     implementation("net.chaossquad:mclib-json:main-188b6f2059b1a8bf1bf547c6aeb98a0f89937a74")
     implementation("org.json:json:20250107")
     compileOnly("eu.cloudnetservice.cloudnet:bridge:4.0.0-RC10")
+    compileOnly("eu.cloudnetservice.cloudnet:wrapper-jvm:4.0.0-RC10")
     compileOnly("eu.cloudnetservice.cloudnet:platform-inject-api:4.0.0-RC10")
     compileOnly("com.github.LeonMangler:SuperVanish:6.2.17")
     compileOnly("de.simonsator:Party-and-Friends-MySQL-Edition-Spigot-API:1.5.4-RELEASE")
