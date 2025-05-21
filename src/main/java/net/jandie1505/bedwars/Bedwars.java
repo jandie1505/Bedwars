@@ -23,6 +23,7 @@ import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.time.Duration;
@@ -33,7 +34,7 @@ public class Bedwars extends JavaPlugin {
     private ConfigManager mapConfig;
     private ConfigManager itemConfig;
     private ConfigManager shopConfig;
-    private List<UUID> bypassingPlayers;
+    private Set<UUID> bypassingPlayers;
     private EventListenerManager listenerManager;
     private GamePart game;
     private List<World> managedWorlds;
@@ -44,13 +45,15 @@ public class Bedwars extends JavaPlugin {
     private boolean cloudSystemMode;
     private boolean svLoaded;
 
+    // ----- ENABLE/DISABLE -----
+
     @Override
     public void onEnable() {
         this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.json");
         this.mapConfig = new ConfigManager(this, DefaultConfigValues.getMapConfig(), true, "maps.json");
         this.itemConfig = new ConfigManager(this, DefaultConfigValues.getItemConfig(), true, "items.json");
         this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop.json");
-        this.bypassingPlayers = Collections.synchronizedList(new ArrayList<>());
+        this.bypassingPlayers = Collections.synchronizedSet(new HashSet<>());
         this.listenerManager = new EventListenerManager(this);
         this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
         this.itemStorage = new ItemStorage(this);
@@ -240,6 +243,8 @@ public class Bedwars extends JavaPlugin {
         return List.copyOf(listenerList);
     }
 
+    // ----- LISTENERS -----
+
     /**
      * Register a game listener as event listener.
      * @param listener game listener
@@ -249,6 +254,8 @@ public class Bedwars extends JavaPlugin {
     public void registerListener(ManagedListener listener) {
         listener.getGame().registerListener(listener);
     }
+
+    // ----- WORLD MANAGEMENT -----
 
     public World loadWorld(String name) {
 
@@ -302,6 +309,8 @@ public class Bedwars extends JavaPlugin {
 
     }
 
+    // ----- CONFIGS -----
+
     public void reloadPlugin() {
         this.getLogger().info("Reloading plugin...");
 
@@ -332,6 +341,8 @@ public class Bedwars extends JavaPlugin {
         return this.shopConfig;
     }
 
+    // ----- BYPASSING PLAYERS -----
+
     public boolean addBypassingPlayer(UUID playerId) {
         return this.bypassingPlayers.add(playerId);
     }
@@ -340,17 +351,18 @@ public class Bedwars extends JavaPlugin {
         return this.bypassingPlayers.remove(playerId);
     }
 
-    public List<UUID> getBypassingPlayers() {
-        return List.copyOf(this.bypassingPlayers);
+    public Set<UUID> getBypassingPlayers() {
+        return Set.copyOf(this.bypassingPlayers);
     }
 
     public void clearBypassingPlayers() {
         this.bypassingPlayers.clear();
     }
 
-    public boolean isPlayerBypassing(UUID playerId) {
+    public boolean isPlayerBypassing(@Nullable UUID playerId) {
+        if (playerId == null) return false;
 
-        if (this.getBypassingPlayers().contains(playerId)) {
+        if (this.bypassingPlayers.contains(playerId)) {
             return true;
         }
 
@@ -368,6 +380,13 @@ public class Bedwars extends JavaPlugin {
 
         return false;
     }
+
+    public boolean isPlayerBypassing(@Nullable OfflinePlayer player) {
+        if (player == null) return false;
+        return this.isPlayerBypassing(player.getUniqueId());
+    }
+
+    // ----- OTHER -----
 
     public EventListenerManager getListenerManager() {
         return this.listenerManager;
@@ -412,6 +431,8 @@ public class Bedwars extends JavaPlugin {
     public void setCloudSystemMode(boolean cloudSystemMode) {
         this.cloudSystemMode = cloudSystemMode;
     }
+
+    // ----- UTILITIES -----
 
     public void givePointsToPlayer(Player player, int amount, String message) {
 
