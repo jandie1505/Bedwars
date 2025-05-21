@@ -209,24 +209,24 @@ public class EventListener implements Listener {
 
     }
 
-    // ----- NOT REFACTORED -----
-
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         if (event.isCancelled()) return;
+        if (this.plugin.isPlayerBypassing(event.getPlayer())) return;
 
-        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+        if (this.plugin.getGame() == null) {
             event.setCancelled(true);
             return;
         }
 
-        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+        if (this.plugin.isPaused()) {
+            event.setCancelled(true);
             return;
         }
 
-        event.setCancelled(true);
-
     }
+
+    // ----- NOT REFACTORED -----
 
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {

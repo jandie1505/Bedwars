@@ -17,6 +17,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -160,6 +161,13 @@ public class GameMiscListener implements ManagedListener {
         if (event.getPlayer().isSneaking()) return;
         if (event.getClickedBlock() == null || !(event.getClickedBlock().getBlockData() instanceof Bed)) return;
 
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+        if (this.game.getPlugin().isPlayerBypassing(event.getPlayer())) return;
+        if (!this.game.isPlayerIngame(event.getPlayer())) return;
         event.setCancelled(true);
     }
 
