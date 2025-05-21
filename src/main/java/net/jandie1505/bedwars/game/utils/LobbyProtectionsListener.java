@@ -8,6 +8,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,14 +25,14 @@ public class LobbyProtectionsListener implements ManagedListener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         if (event.isCancelled()) return;
-        if (!this.game.getPlugin().isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+        if (!this.game.getPlugin().isPlayerBypassing(event.getPlayer())) return;
         event.setCancelled(true);
     }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event.isCancelled()) return;
-        if (!this.game.getPlugin().isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+        if (!this.game.getPlugin().isPlayerBypassing(event.getPlayer())) return;
         event.setCancelled(true);
     }
 
@@ -49,13 +50,19 @@ public class LobbyProtectionsListener implements ManagedListener {
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
-        if (this.game.getPlugin().isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+        if (this.game.getPlugin().isPlayerBypassing(event.getPlayer())) return;
         event.setCancelled(true);
     }
 
     @EventHandler
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
-        if (this.game.getPlugin().isPlayerBypassing(event.getPlayer().getUniqueId())) return;
+        if (this.game.getPlugin().isPlayerBypassing(event.getPlayer())) return;
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (this.game.getPlugin().isPlayerBypassing(event.getPlayer())) return;
         event.setCancelled(true);
     }
 

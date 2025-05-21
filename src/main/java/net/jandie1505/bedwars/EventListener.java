@@ -193,54 +193,23 @@ public class EventListener implements Listener {
 
     }
 
-    // ----- NOT REFACTORED -----
-
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        if (this.plugin.isPlayerBypassing(event.getPlayer())) return;
 
-        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
+        if (this.plugin.getGame() == null) {
             event.setCancelled(true);
             return;
         }
 
-        if (this.plugin.getGame() instanceof Game) {
-
-        } else if (this.plugin.getGame() instanceof Lobby) {
-
-            if (!(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)) {
-                return;
-            }
-
-            int itemId = this.plugin.getItemStorage().getItemId(event.getItem());
-
-            if (itemId >= 0 && itemId == ((Lobby) this.plugin.getGame()).getMapVoteButtonItemId()) {
-                event.setCancelled(true);
-
-                if (!((Lobby) this.plugin.getGame()).isMapVoting()) {
-                    event.getPlayer().sendMessage("§cMap voting is currently disabled");
-                    event.getPlayer().closeInventory();
-                    return;
-                }
-
-                if (((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
-                    event.getPlayer().sendMessage("§cMap voting is already over");
-                    event.getPlayer().closeInventory();
-                    return;
-                }
-
-                event.getPlayer().openInventory(new VotingMenu((Lobby) this.plugin.getGame(), event.getPlayer().getUniqueId()).getVotingMenu());
-                return;
-            }
-
-            if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
-                return;
-            }
-
+        if (this.plugin.isPaused()) {
             event.setCancelled(true);
-
+            return;
         }
 
     }
+
+    // ----- NOT REFACTORED -----
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {

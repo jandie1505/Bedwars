@@ -9,6 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -89,6 +90,32 @@ public class VotingMenuListener implements ManagedListener {
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!(event.getInventory().getHolder() instanceof VotingMenu)) return;
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (!this.lobby.isPlayerIngame(event.getPlayer())) return;
+        if (!event.getAction().isRightClick()) return;
+
+        int clickedItemId = this.getGame().getPlugin().getItemStorage().getItemId(event.getItem());
+        if (clickedItemId < 0) return;
+        if (clickedItemId != this.lobby.getMapVoteButtonItemId()) return;
+
+        event.setCancelled(true);
+
+        if (!this.lobby.isMapVoting()) {
+            event.getPlayer().sendRichMessage("<red>Map voting is currently disabled");
+            event.getPlayer().closeInventory();
+            return;
+        }
+
+        if (this.lobby.getSelectedMap() != null) {
+            event.getPlayer().sendRichMessage("<red>Map voting is already over");
+            event.getPlayer().closeInventory();
+            return;
+        }
+
+        event.getPlayer().openInventory(new VotingMenu(this.lobby, event.getPlayer().getUniqueId()).getVotingMenu());
     }
 
     // ----- OTHER -----
