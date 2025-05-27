@@ -260,17 +260,6 @@ public class EventListener implements Listener {
     // ----- NOT REFACTORED -----
 
     @EventHandler
-    public void onCraftItem(CraftItemEvent event) {
-
-        if (this.plugin.isPlayerBypassing(event.getWhoClicked().getUniqueId())) {
-            return;
-        }
-
-        event.setCancelled(true);
-
-    }
-
-    @EventHandler
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
 
         if (event.getEntity() instanceof Egg) {

@@ -20,6 +20,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
@@ -211,6 +212,12 @@ public class GameMiscListener implements ManagedListener {
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent event) {
         if (event.isCancelled()) return;
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onCraftItem(CraftItemEvent event) {
+        if (this.game.getPlugin().isPlayerBypassing(event.getWhoClicked().getUniqueId())) return;
         event.setCancelled(true);
     }
 
