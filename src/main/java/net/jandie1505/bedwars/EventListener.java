@@ -16,6 +16,7 @@ import org.bukkit.advancement.Advancement;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.*;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -127,34 +128,16 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerDropItem(PlayerDropItemEvent event) {
-        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
-
-        if (this.plugin.getGame() == null) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (this.plugin.isPaused()) {
-            event.setCancelled(true);
-            return;
-        }
-
+        if (event.isCancelled()) return;
+        if (this.allowPlayerEvent(event)) return;
+        event.setCancelled(true);
     }
 
     @EventHandler
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
-        if (this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) return;
-
-        if (this.plugin.getGame() == null) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (this.plugin.isPaused()) {
-            event.setCancelled(true);
-            return;
-        }
-
+        if (event.isCancelled()) return;
+        if (this.allowPlayerEvent(event)) return;
+        event.setCancelled(true);
     }
 
     @EventHandler
@@ -195,35 +178,15 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (this.plugin.isPlayerBypassing(event.getPlayer())) return;
-
-        if (this.plugin.getGame() == null) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (this.plugin.isPaused()) {
-            event.setCancelled(true);
-            return;
-        }
-
+        if (this.allowPlayerEvent(event)) return;
+        event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         if (event.isCancelled()) return;
-        if (this.plugin.isPlayerBypassing(event.getPlayer())) return;
-
-        if (this.plugin.getGame() == null) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (this.plugin.isPaused()) {
-            event.setCancelled(true);
-            return;
-        }
-
+        if (this.allowPlayerEvent(event)) return;
+        event.setCancelled(true);
     }
 
     @EventHandler
@@ -260,18 +223,19 @@ public class EventListener implements Listener {
     @EventHandler
     public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
         if (event.isCancelled()) return;
-        if (this.plugin.isPlayerBypassing(event.getPlayer())) return;
+        if (this.allowPlayerEvent(event)) return;
+        event.setCancelled(true);
+    }
 
-        if (this.plugin.getGame() == null) {
-            event.setCancelled(true);
-            return;
+    // ----- CHECKS -----
+
+    public boolean allowPlayerEvent(PlayerEvent event) {
+
+        if (this.plugin.isPlayerBypassing(event.getPlayer())) {
+            return true;
         }
 
-        if (this.plugin.isPaused()) {
-            event.setCancelled(true);
-            return;
-        }
-
+        return this.plugin.getGame() != null && !this.plugin.isPaused();
     }
 
     // ----- NOT REFACTORED -----
