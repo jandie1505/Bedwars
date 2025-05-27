@@ -12,11 +12,14 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
@@ -168,6 +171,46 @@ public class GameMiscListener implements ManagedListener {
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         if (this.game.getPlugin().isPlayerBypassing(event.getPlayer())) return;
         if (!this.game.isPlayerIngame(event.getPlayer())) return;
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+        if (event.isCancelled()) return;
+
+        for (Block block : List.copyOf(event.blockList())) {
+
+            // Prevent non-player-placed blocks from getting destroyed
+            if (!this.game.getBlockProtectionSystem().canBreak(block.getLocation())) {
+                event.blockList().remove(block);
+                continue;
+            }
+
+            // Prevent beds from being destroyed from explosions
+            if (block.getBlockData() instanceof Bed) {
+                event.blockList().remove(block);
+                continue;
+            }
+
+            // Prevent glass from getting destroyed by explosions
+            if (block.getType().toString().endsWith("GLASS")) {
+                event.blockList().remove(block);
+                continue;
+            }
+
+            // Prevent endstone from getting destroyed by TNT
+            if (block.getType() == Material.END_STONE && !(event.getEntity() instanceof TNTPrimed)) {
+                event.blockList().remove(block);
+                continue;
+            }
+
+        }
+
+    }
+
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event) {
+        if (event.isCancelled()) return;
         event.setCancelled(true);
     }
 

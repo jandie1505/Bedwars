@@ -226,46 +226,38 @@ public class EventListener implements Listener {
 
     }
 
-    // ----- NOT REFACTORED -----
-
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {
+        if (event.isCancelled()) return;
 
-        if (!(this.plugin.getGame() instanceof Game)) {
+        if (this.plugin.getGame() == null) {
             event.setCancelled(true);
             return;
         }
 
-        for (Block block : List.copyOf(event.blockList())) {
-
-            if (!((Game) this.plugin.getGame()).getPlayerPlacedBlocks().contains(block.getLocation())) {
-                event.blockList().remove(block);
-                continue;
-            }
-
-            if (block.getBlockData() instanceof Bed) {
-                event.blockList().remove(block);
-                continue;
-            }
-
-            if (block.getType().toString().endsWith("GLASS")) {
-                event.blockList().remove(block);
-                continue;
-            }
-
-            if (block.getType() == Material.END_STONE && !(event.getEntity() instanceof TNTPrimed)) {
-                event.blockList().remove(block);
-                continue;
-            }
-
+        if (this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
         }
 
     }
 
     @EventHandler
     public void onBlockExplode(BlockExplodeEvent event) {
-        event.setCancelled(true);
+        if (event.isCancelled()) return;
+
+        if (this.plugin.getGame() == null) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
+        }
     }
+
+    // ----- NOT REFACTORED -----
 
     @EventHandler
     public void onCraftItem(CraftItemEvent event) {

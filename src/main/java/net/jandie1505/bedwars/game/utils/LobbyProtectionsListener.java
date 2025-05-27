@@ -4,7 +4,9 @@ import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.game.base.GamePart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -70,6 +72,16 @@ public class LobbyProtectionsListener implements ManagedListener {
     @EventHandler
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         if (this.game.getPlugin().isPlayerBypassing(event.getPlayer())) return;
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event) {
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event) {
         event.setCancelled(true);
     }
 
