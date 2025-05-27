@@ -7,6 +7,7 @@ import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.global.listeners.EventListener;
 import net.jandie1505.bedwars.items.ItemStorage;
 import net.jandie1505.bedwars.game.lobby.Lobby;
 import net.md_5.bungee.api.ChatMessageType;
@@ -39,7 +40,7 @@ public class Bedwars extends JavaPlugin {
     private GamePart game;
     private List<World> managedWorlds;
     private ItemStorage itemStorage;
-    private EventListener eventListener;
+    private net.jandie1505.bedwars.global.listeners.EventListener eventListener;
     private boolean nextStatus;
     private boolean paused;
     private boolean cloudSystemMode;
