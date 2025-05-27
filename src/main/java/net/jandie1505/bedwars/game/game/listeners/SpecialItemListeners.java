@@ -21,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -392,6 +393,19 @@ public class SpecialItemListeners implements ManagedListener {
         TNTPrimed tnt = event.getBlockPlaced().getLocation().getWorld().spawn(location, TNTPrimed.class);
         tnt.setSource(event.getPlayer());
         tnt.setFuseTicks(80);
+    }
+
+    @EventHandler
+    public void onItemConsumeForStealthMilk(PlayerItemConsumeEvent event) {
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
+        if (playerData == null) return;
+
+        if (event.getItem().getType() != Material.MILK_BUCKET) return;
+        event.setCancelled(true);
+
+        Bedwars.removeSpecificAmountOfItems(event.getPlayer().getInventory(), Material.MILK_BUCKET, 1);
+        playerData.setMilkTimer(30*20);
+        event.getPlayer().sendMessage("§bMilk activated");
     }
 
     // ----- SAFETY PLATTFORM -----

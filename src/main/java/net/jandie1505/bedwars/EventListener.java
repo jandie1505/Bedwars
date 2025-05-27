@@ -257,6 +257,23 @@ public class EventListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+        if (event.isCancelled()) return;
+        if (this.plugin.isPlayerBypassing(event.getPlayer())) return;
+
+        if (this.plugin.getGame() == null) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
+        }
+
+    }
+
     // ----- NOT REFACTORED -----
 
     @EventHandler
@@ -309,37 +326,6 @@ public class EventListener implements Listener {
             new BridgeEgg((Game) this.plugin.getGame(), location, material);
             event.setCancelled(true);
 
-        }
-
-    }
-
-    @EventHandler
-    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
-
-        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (!(this.plugin.getGame() instanceof Game)) {
-            return;
-        }
-
-        PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
-
-        if (playerData == null) {
-            return;
-        }
-
-        if (event.getItem().getType() == Material.MILK_BUCKET) {
-
-            event.setCancelled(true);
-
-            Bedwars.removeSpecificAmountOfItems(event.getPlayer().getInventory(), Material.MILK_BUCKET, 1);
-            playerData.setMilkTimer(30*20);
-            event.getPlayer().sendMessage("§bMilk activated");
-
-            return;
         }
 
     }
