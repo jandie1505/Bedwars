@@ -4,6 +4,7 @@ import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.game.game.Game;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -65,6 +66,33 @@ public class BlockProtectionSystem implements ManagedListener {
         if (event.getBlock().getType() == Material.SNOW) return;
 
         event.setCancelled(true);
+    }
+
+    // ----- MODIFY -----
+
+    public final void addBlock(@NotNull Vector location) {
+        this.getPlayerPlacedBlocks().add(new Vector(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+    }
+
+    public final void removeBlock(@NotNull Vector location) {
+        this.getPlayerPlacedBlocks().remove(location);
+        this.getPlayerPlacedBlocks().remove(new Vector(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+    }
+
+    public void addBlock(@NotNull Location location) {
+        this.getPlayerPlacedBlocks().add(location.toVector());
+    }
+
+    public void addBlock(@NotNull Block block) {
+        this.getPlayerPlacedBlocks().add(block.getLocation().toVector());
+    }
+
+    public void removeBlock(@NotNull Location location) {
+        this.getPlayerPlacedBlocks().remove(location.toVector());
+    }
+
+    public void removeBlock(@NotNull Block block) {
+        this.getPlayerPlacedBlocks().remove(block.getLocation().toVector());
     }
 
     // ----- INFO -----

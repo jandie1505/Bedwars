@@ -2,93 +2,73 @@ package net.jandie1505.bedwars.game.game.entities.entities;
 
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.base.ExpiringManagedEntity;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Egg;
+import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 public class BridgeEgg extends ExpiringManagedEntity<Egg> {
-    private final Material material;
-    private Location lastLocation;
+    @NotNull private final Material material;
+    @NotNull private final Set<BlockVector> locationCache;
 
-    public BridgeEgg(Game game, Location location, Material material) {
-        super(game, game.getWorld().spawn(location.clone(), Egg.class), 15);
+
+    public BridgeEgg(@NotNull Game game, @NotNull Egg egg, @NotNull Material material, int maxTime) {
+        super(game, egg, maxTime);
+
+        /*
+        if (material.isBlock()) {
+            throw new IllegalArgumentException("Bridge Egg requires a placeable block");
+        }
+
+         */
+
         this.material = material;
-        this.lastLocation = null;
+        this.locationCache = new HashSet<>();
 
-        // Vector
+        Vector velocity = egg.getVelocity().clone();
+        velocity.multiply(0.75);
+        egg.setVelocity(velocity);
+        egg.setGravity(false);
 
-        Vector tpVector = this.getEntity().getVelocity().clone();
-        tpVector.divide(new Vector(tpVector.length(), tpVector.length(), tpVector.length()));
-
-        location = this.getEntity().getLocation();
-        location.add(tpVector);
-        location.add(0, -1, 0);
-
-        this.getEntity().teleport(location);
-
-        Vector vector = this.getEntity().getVelocity();
-
-        vector.setX(vector.getX() / 2.0);
-        vector.setY(vector.getY() / 2.0);
-        vector.setZ(vector.getZ() / 2.0);
-
-        this.getEntity().setVelocity(vector);
-
-        // Tasks
-
-        this.scheduleRepeatingTask(this::velocityTask, 1, 1, "bridge_egg_velocity");
-        this.scheduleRepeatingTask(this::placeBlocksTask, 1, 1, "bridge_egg_place");
+        this.scheduleRepeatingTask(this::task, 1, 1, "bridge_egg");
     }
 
-    // TASKS
+    private void task() {
+        Egg egg = this.getEntity();
+        if (egg == null) return;
+        if(egg.isDead()) return;
 
-    private void velocityTask() {
-        Vector vector = this.getEntity().getVelocity();
+        BlockVector blockLocation = egg.getLocation().toVector().toBlockVector();
 
-        if (vector.getY() < 0.0) {
-            vector.setY(vector.getY() / 2);
+        this.locationCache.add(blockLocation.clone());
+
+        Iterator<BlockVector> i = this.locationCache.iterator();
+        while (i.hasNext()) {
+            BlockVector location = i.next();
+            if (blockLocation.equals(location)) continue;
+
+            i.remove();
+
+            Block block = egg.getWorld().getBlockAt(location.toLocation(egg.getWorld()));
+            if (block.getType() != Material.AIR) return;
+
+            block.setType(this.material);
+            this.getGame().getBlockProtectionSystem().addBlock(block);
         }
-
-        this.getEntity().setVelocity(vector);
-    }
-
-    public void placeBlocksTask() {
-        if (this.getEntity().getWorld() != this.getGame().getWorld()) return;
-
-        if (this.lastLocation == null) {
-            this.updateLastLocation();
-            return;
-        }
-
-        if (this.getBlockLocation(this.getEntity().getLocation()).equals(this.lastLocation)) return;
-
-        Block block = this.getEntity().getWorld().getBlockAt(this.lastLocation);
-
-        if (block.getType() != Material.AIR) {
-            this.updateLastLocation();
-            return;
-        }
-
-        if (this.material == null) {
-            return;
-        }
-
-        this.getGame().getBlockProtectionSystem().getPlayerPlacedBlocks().add(block.getLocation().toVector());
-        block.setType(this.material);
-        this.updateLastLocation();
 
     }
 
-    // UTILITIES
+    // ----- OTHER -----
 
-    private Location getBlockLocation(Location location) {
-        return new Location(this.getEntity().getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
-    }
-
-    private void updateLastLocation() {
-        this.lastLocation = this.getBlockLocation(this.getEntity().getLocation());
+    @NotNull
+    public Set<BlockVector> getLocationCache() {
+        return this.locationCache;
     }
 
 }

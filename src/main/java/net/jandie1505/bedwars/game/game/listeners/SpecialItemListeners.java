@@ -2,9 +2,11 @@ package net.jandie1505.bedwars.game.game.listeners;
 
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
+import net.jandie1505.bedwars.game.game.entities.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.game.entities.entities.SnowDefender;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
@@ -12,18 +14,17 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Fireball;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -406,6 +407,24 @@ public class SpecialItemListeners implements ManagedListener {
         Bedwars.removeSpecificAmountOfItems(event.getPlayer().getInventory(), Material.MILK_BUCKET, 1);
         playerData.setMilkTimer(30*20);
         event.getPlayer().sendMessage("§bMilk activated");
+    }
+
+    @EventHandler
+    public void onProjectileLaunch(ProjectileLaunchEvent event) {
+        if (!(event.getEntity() instanceof Egg egg)) return;
+        if (!egg.getItem().getPersistentDataContainer().getOrDefault(NamespacedKeys.GAME_ITEM_BRIDGE_EGG, PersistentDataType.BOOLEAN, false) && !(this.game.getItemShop().getBridgeEgg() != null && this.game.getItemShop().getBridgeEgg() == this.game.getPlugin().getItemStorage().getItemId(egg.getItem()))) return;
+        if (!(egg.getShooter() instanceof Player shooter)) return;
+
+        PlayerData shooterData = this.game.getPlayerData(shooter);
+        if (shooterData == null) return;
+
+        BedwarsTeam team = this.game.getTeam(shooterData.getTeam());
+        if (team == null) return;
+
+        ItemStack wool = new ItemStack(Material.WHITE_WOOL);
+        Game.replaceBlockWithTeamColor(wool, team);
+
+        new BridgeEgg(this.game, egg, wool.getType(), 15);
     }
 
     // ----- SAFETY PLATTFORM -----

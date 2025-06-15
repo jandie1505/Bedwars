@@ -4,10 +4,7 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
-import net.jandie1505.bedwars.game.game.entities.entities.BridgeEgg;
-import net.jandie1505.bedwars.game.game.entities.entities.EndgameWither;
-import net.jandie1505.bedwars.game.game.entities.entities.SnowDefender;
+import net.jandie1505.bedwars.game.game.entities.entities.*;
 import net.jandie1505.bedwars.game.game.generators.Generator;
 import net.jandie1505.bedwars.game.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.game.generators.TeamGenerator;
@@ -1719,7 +1716,9 @@ public class BedwarsCommand implements CommandExecutor, TabCompleter {
                         return;
                     }
 
-                    new BridgeEgg((Game) this.plugin.getGame(), location, material);
+                    Egg egg = location.getWorld().spawn(location, Egg.class);
+
+                    new BridgeEgg((Game) this.plugin.getGame(), egg, material, 15);
                     break;
                 default:
                     sender.sendMessage("§cUnknown entity");

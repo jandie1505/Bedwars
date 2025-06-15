@@ -4,7 +4,6 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.entities.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.lobby.Lobby;
@@ -230,60 +229,6 @@ public class EventListener implements Listener {
     }
 
     // ----- NOT REFACTORED -----
-
-    @EventHandler
-    public void onProjectileLaunch(ProjectileLaunchEvent event) {
-
-        if (event.getEntity() instanceof Egg) {
-
-            if (!(this.plugin.getGame() instanceof Game)) {
-                return;
-            }
-
-            int itemId = this.plugin.getItemStorage().getItemId(((Egg) event.getEntity()).getItem());
-
-            if (itemId < 0) {
-                return;
-            }
-
-            if (((Game) this.plugin.getGame()).getItemShop().getBridgeEgg() == null || itemId != ((Game) this.plugin.getGame()).getItemShop().getBridgeEgg()) {
-                return;
-            }
-
-            if (event.getEntity().getShooter() == null) {
-                return;
-            }
-
-            if (!(event.getEntity().getShooter() instanceof Player)) {
-                return;
-            }
-
-            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(((Player) event.getEntity().getShooter()).getUniqueId());
-
-            if (playerData == null) {
-                return;
-            }
-
-            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
-
-            if (team == null) {
-                return;
-            }
-
-            Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getData().chatColor()) + "_WOOL");
-
-            if (material == null) {
-                return;
-            }
-
-            Location location = event.getEntity().getLocation();
-
-            new BridgeEgg((Game) this.plugin.getGame(), location, material);
-            event.setCancelled(true);
-
-        }
-
-    }
 
     @EventHandler
     public void onEntityDamage(EntityDamageEvent event) {
