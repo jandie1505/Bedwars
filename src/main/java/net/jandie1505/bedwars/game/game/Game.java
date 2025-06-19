@@ -1582,14 +1582,6 @@ public class Game extends GamePart implements ManagedListener {
     }
 
     /**
-     * Returns a list of all ingame players which are currently online.
-     * @return ingame online players
-     */
-    public final @NotNull List<@NotNull Player> getOnlinePlayers() {
-        return this.getRegisteredPlayers().stream().map(uuid -> this.getPlugin().getServer().getPlayer(uuid)).filter(Objects::nonNull).toList();
-    }
-
-    /**
      * Returns the player data of the player with the specified uuid.
      * @param playerId player uuid
      * @return player data
@@ -1638,16 +1630,6 @@ public class Game extends GamePart implements ManagedListener {
     public final boolean isPlayerIngame(@Nullable UUID playerId) {
         if (playerId == null) return false;
         return this.players.containsKey(playerId);
-    }
-
-    /**
-     * Returns true if the specified player is ingame
-     * @param player player
-     * @return ingame
-     */
-    public final boolean isPlayerIngame(@Nullable OfflinePlayer player) {
-        if (player == null) return false;
-        return this.isPlayerIngame(player.getUniqueId());
     }
 
     public World getWorld() {

@@ -77,6 +77,27 @@ public class EventListener implements Listener {
         event.setCancelled(false);
     }
 
+    /**
+     * Un-cancel EntityDamageEvents if the player is bypassing or the damager is bypassing
+     * @param event
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityDamageForBypassingPlayers(EntityDamageEvent event) {
+
+        // Un-cancel the event if the player is bypassing
+        if (event.getEntity() instanceof Player player && this.plugin.isPlayerBypassing(player)) {
+            event.setCancelled(false);
+            return;
+        }
+
+        // Un-cancel the event if the damager is bypassing
+        if (event instanceof EntityDamageByEntityEvent damageByEntityEvent && damageByEntityEvent.getDamager() instanceof Player player && this.plugin.isPlayerBypassing(player)) {
+            event.setCancelled(false);
+            return;
+        }
+
+    }
+
     // ----- PROTECTIONS -----
     // This section contains event listeners preventing players from doing certain stuff.
     // They only should do things when the player is bypassing, the game is not running or the game is paused.
@@ -217,6 +238,34 @@ public class EventListener implements Listener {
         event.setCancelled(true);
     }
 
+    @EventHandler
+    public void onPlayerDamageForNotIngameProtection(EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.VOID) return;
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        if (this.plugin.getGame() == null) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (this.plugin.isPaused()) {
+            event.setCancelled(true);
+            return;
+        }
+    }
+
+    // ----- SPECIAL -----
+
+    /**
+     * Un-cancels void damage, because void damage MUST NOT be cancelled.
+     * @param event event
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityDamageForUnCancellingVoidDamage(EntityDamageEvent event) {
+        if (event.getCause() != EntityDamageEvent.DamageCause.VOID) return;
+        event.setCancelled(false); // Void damage MUST NOT be cancelled
+    }
+
     // ----- CHECKS -----
 
     public boolean allowPlayerEvent(PlayerEvent event) {
@@ -229,100 +278,6 @@ public class EventListener implements Listener {
     }
 
     // ----- NOT REFACTORED -----
-
-    @EventHandler
-    public void onEntityDamage(EntityDamageEvent event) {
-
-        if (event.getCause() == EntityDamageEvent.DamageCause.VOID) {
-
-            if (event.getDamage() < 100) {
-                event.setDamage(100);
-            }
-
-            return;
-        }
-
-        if (this.plugin.getGame() != null && this.plugin.isPaused() && (!this.plugin.isPlayerBypassing(event.getEntity().getUniqueId()) || !(event instanceof EntityDamageByEntityEvent && ((EntityDamageByEntityEvent) event).getDamager() instanceof Player && !this.plugin.isPlayerBypassing(((EntityDamageByEntityEvent) event).getDamager().getUniqueId())))) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (this.plugin.getGame() instanceof Game) {
-
-            if (!(event.getEntity() instanceof Player)) {
-                return;
-            }
-
-            if (event.getEntity().getWorld() != ((Game) this.plugin.getGame()).getWorld()) {
-                return;
-            }
-
-            if (this.plugin.isPlayerBypassing(event.getEntity().getUniqueId())) {
-                return;
-            }
-
-            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getEntity().getUniqueId());
-
-            if (playerData == null) {
-                event.setCancelled(true);
-                return;
-            }
-
-            if (event instanceof EntityDamageByEntityEvent) {
-
-                Entity customDamager = null;
-
-                if (((EntityDamageByEntityEvent) event).getDamager() instanceof Projectile) {
-
-                    if (((Projectile) ((EntityDamageByEntityEvent) event).getDamager()).getShooter() instanceof Entity) {
-                        customDamager = (Entity) ((Projectile) ((EntityDamageByEntityEvent) event).getDamager()).getShooter();
-                    }
-
-                }
-
-                if (customDamager == null) {
-                    customDamager = ((EntityDamageByEntityEvent) event).getDamager();
-                }
-
-                if (customDamager instanceof Player) {
-
-                    if (this.plugin.isPlayerBypassing(((EntityDamageByEntityEvent) event).getDamager().getUniqueId())) {
-                        return;
-                    }
-
-                    PlayerData damagerData = ((Game) this.plugin.getGame()).getPlayers().get(customDamager.getUniqueId());
-
-                    if (damagerData == null) {
-                        event.setCancelled(true);
-                        return;
-                    }
-
-                    if (playerData.getTeam() == damagerData.getTeam()) {
-                        event.setCancelled(true);
-                        return;
-                    }
-
-                    if(playerData.getTeleportToBaseCooldown() > 0) {
-                        Player player = (Player) event.getEntity();
-                        player.sendMessage("§cTeleport cenceled");
-                        playerData.setTeleportToBaseCooldown(0);
-                    }
-
-                }
-
-            }
-
-        } else {
-
-            if (this.plugin.isPlayerBypassing(event.getEntity().getUniqueId())) {
-                return;
-            }
-
-            event.setCancelled(true);
-
-        }
-
-    }
 
     @EventHandler
     public void onPlayerAdvancementDone(PlayerAdvancementDoneEvent event) {

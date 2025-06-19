@@ -1,11 +1,14 @@
 package net.jandie1505.bedwars.game.game.listeners;
 
 import net.chaossquad.mclib.executable.ManagedListener;
+import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -75,6 +78,13 @@ public class GameProtectionsForNotIngamePlayersListener implements ManagedListen
         if (event.useInteractedBlock() != Event.Result.DENY || event.useItemInHand() != Event.Result.DENY) return;
         if (this.game.getPlugin().isPlayerBypassing(event.getPlayer())) return;
         if (this.game.isPlayerIngame(event.getPlayer())) return;
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (this.game.isPlayerIngame(player)) return;
         event.setCancelled(true);
     }
 

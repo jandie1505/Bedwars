@@ -12,9 +12,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Endlobby extends GamePart {
     private final boolean lobbyBorderEnabled;
@@ -262,6 +268,27 @@ public class Endlobby extends GamePart {
         player.getInventory().clear();
 
     }
+
+    // ----- PLAYERS -----
+
+    /**
+     * Returns a set of players currently registered.
+     * @return set of players
+     */
+    public @NotNull Set<UUID> getRegisteredPlayers() {
+        return Bukkit.getOnlinePlayers().stream().map(Player::getUniqueId).collect(Collectors.toSet());
+    }
+
+    /**
+     * Returns true if the player with the specified uuid is ingame (in the lobby).
+     * @param playerId player uuid
+     * @return ingame
+     */
+    public boolean isPlayerIngame(@Nullable UUID playerId) {
+        return playerId != null;
+    }
+
+    // ----- NEXT STATUS -----
 
     @Override
     public GamePart getNextStatus() {

@@ -10,15 +10,20 @@ import net.jandie1505.bedwars.game.game.entities.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.game.entities.entities.SnowDefender;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -350,6 +355,22 @@ public class SpecialItemListeners implements ManagedListener {
         if (itemStack != null && itemStack.getAmount() > 0) {
             itemStack.setAmount(itemStack.getAmount() - 1);
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onEntityDamageByEntityForCancellingSpawnDustTeleport(EntityDamageByEntityEvent event) {
+        if (event.isCancelled()) return;
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!(event.getDamager() instanceof Player)) return;
+
+        PlayerData playerData = this.game.getPlayerData(player);
+        if (playerData == null) return;
+
+        if (playerData.getTeleportToBaseCooldown() <= 0) return;
+
+        playerData.setTeleportToBaseCooldown(0);
+        player.sendActionBar(Component.text("Spawn dust teleport cancelled", NamedTextColor.RED));
+        player.playSound(player.getLocation().clone(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
     }
 
     @EventHandler

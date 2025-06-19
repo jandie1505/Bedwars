@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.game.game.listeners;
 
+import net.chaossquad.mclib.PlayerUtils;
 import net.chaossquad.mclib.WorldUtils;
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
@@ -11,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Event;
@@ -19,6 +21,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -219,6 +223,38 @@ public class GameMiscListener implements ManagedListener {
     public void onCraftItem(CraftItemEvent event) {
         if (this.game.getPlugin().isPlayerBypassing(event.getWhoClicked().getUniqueId())) return;
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        PlayerData playerData = this.game.getPlayerData(player.getUniqueId());
+        if (playerData == null) return;
+
+        if (event instanceof EntityDamageByEntityEvent byEntityEvent) {
+
+            Entity damager = PlayerUtils.getRealDamager(byEntityEvent.getDamager());
+
+            if (damager instanceof Player damagerPlayer) {
+
+                // Prevent not ingame players from damaging ingame players
+                PlayerData damagerData = this.game.getPlayerData(damagerPlayer);
+                if (damagerData == null) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+                // Prevent players from hitting their teammates
+                if (damagerData.getTeam() == playerData.getTeam()) {
+                    event.setCancelled(true);
+                    return;
+                }
+
+            }
+
+        }
+
     }
 
     // ----- OTHER -----

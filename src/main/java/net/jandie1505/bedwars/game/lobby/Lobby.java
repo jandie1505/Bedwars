@@ -855,16 +855,6 @@ public class Lobby extends GamePart {
         return this.getPlayerData(playerId) != null;
     }
 
-    /**
-     * Returns true if the specified player is ingame (in the lobby).
-     * @param player player
-     * @return ingame
-     */
-    public boolean isPlayerIngame(@Nullable OfflinePlayer player) {
-        if (player == null) return false;
-        return this.isPlayerIngame(player.getUniqueId());
-    }
-
     @Deprecated(forRemoval = true)
     public Map<UUID, LobbyPlayerData> getPlayers() {
         return this.getPlayerDataMap();
