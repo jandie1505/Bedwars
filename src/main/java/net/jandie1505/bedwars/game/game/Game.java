@@ -191,6 +191,7 @@ public class Game extends GamePart implements ManagedListener {
         this.registerListener(new SpecialItemListeners(this));
         this.registerListener(new GameMiscListener(this));
         this.registerListener(new GameProtectionsForNotIngamePlayersListener(this));
+        this.registerListener(new GameChatListener(this));
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
     }
 

@@ -17,6 +17,7 @@ import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.lobby.inventory.VotingMenuListener;
+import net.jandie1505.bedwars.game.utils.LobbyChatListener;
 import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -122,6 +123,7 @@ public class Lobby extends GamePart {
 
         this.registerListener(new LobbyProtectionsListener(this));
         this.registerListener(new VotingMenuListener(this));
+        this.registerListener(new LobbyChatListener(this));
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
 
         // Tasks

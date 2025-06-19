@@ -44,7 +44,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
-    implementation("net.chaossquad:mclib:main-92a169fd549aa8252e7010ada5beb12c781761d7")
+    implementation("net.chaossquad:mclib:main-4130dc249d1f588dcc88853545538900c64c674a")
     implementation("net.chaossquad:mclib-json:main-188b6f2059b1a8bf1bf547c6aeb98a0f89937a74")
     implementation("org.json:json:20250107")
     compileOnly("eu.cloudnetservice.cloudnet:bridge:4.0.0-RC10")
