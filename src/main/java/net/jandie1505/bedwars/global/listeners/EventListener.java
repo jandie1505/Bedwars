@@ -254,6 +254,15 @@ public class EventListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onPlayerMoveForPausedGamesEvent(PlayerMoveEvent event) {
+        if (this.plugin.getGame() == null) return;
+        if (!this.plugin.isPaused()) return;
+        if (this.plugin.isPlayerBypassing(event.getPlayer())) return;
+
+        event.setCancelled(true);
+    }
+
     // ----- SPECIAL -----
 
     /**
@@ -288,16 +297,6 @@ public class EventListener implements Listener {
     }
 
     // ----- NOT REFACTORED -----
-
-    @EventHandler
-    public void PlayerMoveEvent(PlayerMoveEvent event) {
-
-        if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {
-            event.setCancelled(true);
-            return;
-        }
-
-    }
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
