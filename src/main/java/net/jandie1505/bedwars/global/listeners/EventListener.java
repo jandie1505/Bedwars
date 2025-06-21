@@ -406,14 +406,4 @@ public class EventListener implements Listener {
 
     }
 
-    /**
-     * Returns the game from the plugin.
-     * @deprecated Use {@link Bedwars#getGame()}.
-     * @return game
-     */
-    @Deprecated(forRemoval = true)
-    public @Nullable GamePart getGame() {
-        return this.plugin.getGame();
-    }
-
 }
