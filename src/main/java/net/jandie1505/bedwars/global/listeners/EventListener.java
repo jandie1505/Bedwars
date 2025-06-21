@@ -299,50 +299,6 @@ public class EventListener implements Listener {
     // ----- NOT REFACTORED -----
 
     @EventHandler
-    public void onProjectileHit(ProjectileHitEvent event) {
-
-        if (event.getEntity() instanceof Snowball) {
-
-            if (event.getHitEntity() instanceof Player) {
-
-                event.setCancelled(true);
-                event.getHitEntity().setVelocity(event.getEntity().getVelocity().clone().multiply(1.5));
-                event.getEntity().remove();
-
-            } else if (event.getHitEntity() instanceof IronGolem || event.getHitEntity() instanceof TNTPrimed) {
-
-                event.setCancelled(true);
-                event.getHitEntity().setVelocity(event.getEntity().getVelocity().clone().multiply(2));
-                event.getEntity().remove();
-
-            } else if (event.getHitEntity() instanceof Fireball) {
-
-                event.setCancelled(true);
-                ((Fireball) event.getHitEntity()).setDirection(new Vector(0, 0, 0));
-                event.getHitEntity().setVelocity(event.getEntity().getVelocity().clone().multiply(4));
-                event.getEntity().remove();
-
-            }
-
-            return;
-
-        } else if (event.getEntity() instanceof EnderPearl) {
-
-            if (event.getHitEntity() instanceof LivingEntity && event.getEntity().getShooter() instanceof Player) {
-
-                Location firstLocation = event.getHitEntity().getLocation().clone();
-                Location secondLocation = ((Player) event.getEntity().getShooter()).getLocation().clone();
-
-                event.getHitEntity().teleport(secondLocation);
-                ((Player) event.getEntity().getShooter()).teleport(firstLocation);
-
-            }
-
-        }
-
-    }
-
-    @EventHandler
     public void onPlayerLogin(PlayerLoginEvent event) {
 
         // slot of the slot system (+ bypassed join for admins)

@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.game.game.entities.entities;
 
+import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.base.GuiNpc;
 import net.jandie1505.bedwars.game.game.menu.upgrades.UpgradesMenu;
@@ -8,6 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.entity.Villager;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 public class UpgradeVillager extends GuiNpc {
@@ -30,6 +32,7 @@ public class UpgradeVillager extends GuiNpc {
             villager.setSilent(true);
             villager.setProfession(Villager.Profession.LIBRARIAN);
             villager.addScoreboardTag("upgrades.team." + team);
+            villager.getPersistentDataContainer().set(NamespacedKeys.ENTITY_PEARL_SWAP_EXCLUDED, PersistentDataType.BOOLEAN, true);
             return villager;
         }, player -> new UpgradesMenu(game, player.getUniqueId()).getUpgradesMenu());
         this.team = team;

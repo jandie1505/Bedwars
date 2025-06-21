@@ -12,10 +12,7 @@ import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.Event;
@@ -24,6 +21,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
@@ -32,6 +30,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -446,6 +445,50 @@ public class SpecialItemListeners implements ManagedListener {
         Game.replaceBlockWithTeamColor(wool, team);
 
         new BridgeEgg(this.game, egg, wool.getType(), 15);
+    }
+
+    @EventHandler
+    public void onProjectileHitForSnowBall(ProjectileHitEvent event) {
+        if (!(event.getEntity() instanceof Snowball snowball)) return;
+
+        if (event.getHitEntity() instanceof Player player) {
+
+            event.setCancelled(true);
+            player.setVelocity(snowball.getVelocity().clone().multiply(1.5));
+            snowball.remove();
+
+        } else if (event.getHitEntity() instanceof IronGolem || event.getHitEntity() instanceof TNTPrimed) {
+
+            event.setCancelled(true);
+            event.getHitEntity().setVelocity(snowball.getVelocity().clone().multiply(2));
+            snowball.remove();
+
+        } else if (event.getHitEntity() instanceof Fireball fireball) {
+
+            event.setCancelled(true);
+            fireball.setDirection(new Vector(0, 0, 0));
+            fireball.setVelocity(snowball.getVelocity().clone().multiply(4));
+            snowball.remove();
+
+        }
+    }
+
+    @EventHandler
+    public void onProjectileHitForEnderPearlSwap(ProjectileHitEvent event) {
+        if (event.isCancelled()) return;
+        if (!(event.getEntity() instanceof EnderPearl pearl)) return;
+        if (!(event.getHitEntity() instanceof LivingEntity target) || !(pearl.getShooter() instanceof Player shooter)) return;
+
+        event.setCancelled(true);
+        pearl.remove();
+
+        if (target.getPersistentDataContainer().getOrDefault(NamespacedKeys.ENTITY_PEARL_SWAP_EXCLUDED, PersistentDataType.BOOLEAN, false)) return;
+
+        Location firstLocation = target.getLocation().clone();
+        Location secondLocation = shooter.getLocation().clone();
+
+        target.teleport(secondLocation);
+        shooter.teleport(firstLocation);
     }
 
     // ----- SAFETY PLATTFORM -----

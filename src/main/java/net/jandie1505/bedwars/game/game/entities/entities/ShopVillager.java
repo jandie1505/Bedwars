@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.game.game.entities.entities;
 
+import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.base.GuiNpc;
 import net.jandie1505.bedwars.game.game.menu.shop.old.ShopMenu;
@@ -8,6 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.entity.Villager;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 public class ShopVillager extends GuiNpc {
@@ -30,6 +32,7 @@ public class ShopVillager extends GuiNpc {
             villager.setSilent(true);
             villager.setProfession(Villager.Profession.WEAPONSMITH);
             villager.addScoreboardTag("shop.team." + team);
+            villager.getPersistentDataContainer().set(NamespacedKeys.ENTITY_PEARL_SWAP_EXCLUDED, PersistentDataType.BOOLEAN, true);
             return villager;
         }, player -> new ShopMenu(game, player.getUniqueId()).getPage(0));
         this.team = team;
