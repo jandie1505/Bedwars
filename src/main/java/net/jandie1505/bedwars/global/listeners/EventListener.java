@@ -7,6 +7,7 @@ import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.lobby.Lobby;
+import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.*;
@@ -296,6 +297,37 @@ public class EventListener implements Listener {
 
     }
 
+    // ----- MOTD -----
+
+    /**
+     * Sets the motd to the current game status.
+     * @param event ServerListPingEvent
+     */
+    @EventHandler
+    public void onServerListPing(ServerListPingEvent event) {
+
+        if (this.plugin.getGame() instanceof Lobby lobby) {
+
+            int maxPlayers = lobby.getMaxPlayers();
+
+            if (maxPlayers < 0) {
+                event.setMaxPlayers(maxPlayers);
+            }
+
+            if (lobby.getSelectedMap() != null) {
+                event.motd(Component.text(lobby.getSelectedMap().name()));
+            } else {
+                event.motd(Component.text("Map Voting"));
+            }
+
+        } else if (this.plugin.getGame() instanceof Game game) {
+            event.motd(Component.text("INGAME: " + game.getData().name()));
+        } else if (this.plugin.getGame() instanceof Endlobby) {
+            event.motd(Component.text("Endlobby"));
+        }
+
+    }
+
     // ----- NOT REFACTORED -----
 
     @EventHandler
@@ -370,42 +402,6 @@ public class EventListener implements Listener {
             event.allow();
 
             break;
-        }
-
-    }
-
-    @EventHandler
-    public void onServerListPing(ServerListPingEvent event) {
-
-        if (this.plugin.getGame() instanceof Lobby) {
-
-            int maxPlayers = ((Lobby) this.plugin.getGame()).getMaxPlayers();
-
-            if (maxPlayers < 0) {
-                event.setMaxPlayers(maxPlayers);
-            }
-
-            if (((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
-                event.setMotd(((Lobby) this.plugin.getGame()).getSelectedMap().world());
-            } else {
-                event.setMotd("MAP VOTING");
-            }
-
-            return;
-        }
-
-        if (this.plugin.getGame() instanceof Game) {
-
-            event.setMotd("INGAME");
-
-            return;
-        }
-
-        if (this.plugin.getGame() instanceof Endlobby) {
-
-            event.setMotd("ENDLOBBY");
-
-            return;
         }
 
     }
