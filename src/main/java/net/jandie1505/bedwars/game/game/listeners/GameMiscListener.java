@@ -30,6 +30,8 @@ import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -271,6 +273,21 @@ public class GameMiscListener implements ManagedListener {
         if (event.getEntity().getPersistentDataContainer().getOrDefault(NamespacedKeys.ENTITY_TARGETING_ENABLED, PersistentDataType.BOOLEAN, false)) return;
 
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onPlayerQuitForSettingAliveToFalse(PlayerQuitEvent event) {
+
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
+        if (playerData == null) return;
+
+        playerData.setAlive(false);
+    }
+
+    @EventHandler
+    public void onPlayerJoinForTeleportingSpectators(PlayerJoinEvent event) {
+        if (this.game.isPlayerIngame(event.getPlayer())) return;
+        event.getPlayer().teleport(this.game.getWorld().getSpawnLocation().clone());
     }
 
     // ----- OTHER -----

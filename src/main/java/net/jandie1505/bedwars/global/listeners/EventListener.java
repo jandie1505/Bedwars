@@ -290,68 +290,6 @@ public class EventListener implements Listener {
     // ----- NOT REFACTORED -----
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-
-        // teleport
-
-        if (this.plugin.getGame() instanceof Lobby) {
-
-            event.getPlayer().teleport(((Lobby) this.plugin.getGame()).getLobbySpawn());
-
-        }
-
-        // message
-
-        if (this.plugin.getGame() instanceof Game) {
-            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
-
-            if (playerData == null) {
-                event.setJoinMessage("");
-                return;
-            }
-
-            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
-
-            if (team == null) {
-                event.setJoinMessage("");
-                return;
-            }
-
-            event.setJoinMessage(team.getData().chatColor() + event.getPlayer().getDisplayName() + " §7reconnected");
-
-        } else {
-            event.setJoinMessage("§e" + event.getPlayer().getDisplayName() + " §7joined the game");
-        }
-
-    }
-
-    @EventHandler
-    public void onPlayerLeft(PlayerQuitEvent event) {
-
-        if (this.plugin.getGame() instanceof Game) {
-            PlayerData playerData = ((Game) this.plugin.getGame()).getPlayers().get(event.getPlayer().getUniqueId());
-
-            if (playerData == null) {
-                event.setQuitMessage("");
-                return;
-            }
-
-            BedwarsTeam team = ((Game) this.plugin.getGame()).getTeam(playerData.getTeam());
-
-            if (team == null) {
-                event.setQuitMessage("");
-                return;
-            }
-
-            event.setQuitMessage(team.getData().chatColor() + event.getPlayer().getDisplayName() + " §7disconnected");
-
-        } else {
-            event.setQuitMessage("§e" + event.getPlayer().getDisplayName() + " §7left the game");
-        }
-
-    }
-
-    @EventHandler
     public void PlayerMoveEvent(PlayerMoveEvent event) {
 
         if (this.plugin.getGame() != null && this.plugin.isPaused() && !this.plugin.isPlayerBypassing(event.getPlayer().getUniqueId())) {

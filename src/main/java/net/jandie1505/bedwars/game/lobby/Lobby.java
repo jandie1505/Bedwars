@@ -19,10 +19,15 @@ import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.lobby.inventory.VotingMenuListener;
 import net.jandie1505.bedwars.game.utils.LobbyChatListener;
 import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -341,6 +346,40 @@ public class Lobby extends GamePart {
         }
 
         return true;
+    }
+
+    // LISTENERS
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+
+        if (this.getPlugin().isPlayerBypassing(event.getPlayer())) {
+            event.joinMessage(null);
+            return;
+        }
+
+        event.joinMessage(Component.empty()
+                .append(event.getPlayer().displayName())
+                .appendSpace()
+                .append(Component.text("has joined", NamedTextColor.GRAY))
+        );
+
+        event.getPlayer().teleport(this.getLobbySpawn().clone());
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+
+        if (this.getPlugin().isPlayerBypassing(event.getPlayer())) {
+            event.quitMessage(null);
+            return;
+        }
+
+        event.quitMessage(Component.empty()
+                .append(event.getPlayer().displayName())
+                .appendSpace()
+                .append(Component.text("has left", NamedTextColor.GRAY))
+        );
     }
     
     // UTILITIES

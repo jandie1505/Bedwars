@@ -13,6 +13,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
@@ -269,6 +272,18 @@ public class Endlobby extends GamePart {
 
         player.getInventory().clear();
 
+    }
+
+    // ----- LISTENERS -----
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        event.joinMessage(null);
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        event.quitMessage(null);
     }
 
     // ----- PLAYERS -----
