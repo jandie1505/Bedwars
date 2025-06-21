@@ -4,11 +4,13 @@ import net.chaossquad.mclib.PlayerUtils;
 import net.chaossquad.mclib.WorldUtils;
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Bed;
@@ -24,9 +26,11 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
@@ -255,6 +259,18 @@ public class GameMiscListener implements ManagedListener {
 
         }
 
+    }
+
+    /**
+     * Prevents entities from targeting other players naturally
+     */
+    @EventHandler
+    public void onEntityTarget(EntityTargetEvent event) {
+        if (event.getEntity().getWorld() != this.game.getWorld()) return;
+        if (event.getTarget() instanceof Player player && this.game.getPlugin().isPlayerBypassing(player)) return;
+        if (event.getEntity().getPersistentDataContainer().getOrDefault(NamespacedKeys.ENTITY_TARGETING_ENABLED, PersistentDataType.BOOLEAN, false)) return;
+
+        event.setCancelled(true);
     }
 
     // ----- OTHER -----

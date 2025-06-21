@@ -6,4 +6,5 @@ public interface NamespacedKeys {
     String NAMESPACE = "bedwars";
 
     NamespacedKey GAME_ITEM_BRIDGE_EGG = new NamespacedKey(NAMESPACE, "item.game.bridge_egg");
+    NamespacedKey ENTITY_TARGETING_ENABLED = new NamespacedKey(NAMESPACE, "entity.game.targeting_enabled");
 }

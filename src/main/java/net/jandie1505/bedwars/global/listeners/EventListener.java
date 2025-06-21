@@ -290,17 +290,6 @@ public class EventListener implements Listener {
     // ----- NOT REFACTORED -----
 
     @EventHandler
-    public void onEntityTarget(EntityTargetEvent event) {
-
-        if (!(this.plugin.getGame() instanceof Game)) {
-            return;
-        }
-
-        event.setCancelled(true);
-
-    }
-
-    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
 
         // teleport
