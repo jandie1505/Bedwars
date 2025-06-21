@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@Deprecated(forRemoval = true)
 public class ItemShop {
     private final Game game;
     private final Integer[] menuItems;
@@ -19,17 +20,6 @@ public class ItemShop {
     private UpgradeEntryOld armorUpgrade;
     private UpgradeEntryOld pickaxeUpgrade;
     private UpgradeEntryOld shearsUpgrade;
-    private Integer fireballItem;
-    private Integer enhancedFireballItem;
-    private Integer safetyPlatform;
-    private Integer enhancedSafetyPlatform;
-    private Integer bridgeEgg;
-    private Integer playerTracker;
-    private Integer ironGolemSpawnEgg;
-    private Integer snowDefenderSpawnEgg;
-    private Integer zapper;
-    private Integer spawnDust;
-    private Integer blackHole;
 
     public ItemShop(Game game) {
         this.game = game;
@@ -39,17 +29,6 @@ public class ItemShop {
         this.armorUpgrade = null;
         this.pickaxeUpgrade = null;
         this.shearsUpgrade = null;
-        this.fireballItem = null;
-        this.enhancedFireballItem = null;
-        this.safetyPlatform = null;
-        this.enhancedSafetyPlatform = null;
-        this.bridgeEgg = null;
-        this.playerTracker = null;
-        this.ironGolemSpawnEgg = null;
-        this.snowDefenderSpawnEgg = null;
-        this.zapper = null;
-        this.spawnDust = null;
-        this.blackHole = null;
     }
 
     public Integer[] getMenuItems() {
@@ -163,50 +142,6 @@ public class ItemShop {
         return null;
     }
 
-    public Integer getFireballItem() {
-        return fireballItem;
-    }
-
-    public Integer getEnhancedFireballItem() {
-        return enhancedFireballItem;
-    }
-
-    public Integer getSafetyPlatform() {
-        return safetyPlatform;
-    }
-
-    public Integer getEnhancedSafetyPlatform() {
-        return enhancedSafetyPlatform;
-    }
-
-    public Integer getBridgeEgg() {
-        return bridgeEgg;
-    }
-
-    public Integer getPlayerTracker() {
-        return playerTracker;
-    }
-
-    public Integer getIronGolemSpawnEgg() {
-        return ironGolemSpawnEgg;
-    }
-
-    public Integer getSnowDefenderSpawnEgg() {
-        return snowDefenderSpawnEgg;
-    }
-
-    public Integer getZapper() {
-        return zapper;
-    }
-
-    public Integer getSpawnDust() {
-        return spawnDust;
-    }
-
-    public Integer getBlackHole() {
-        return blackHole;
-    }
-
     public void initEntries(JSONObject shopConfig) {
         JSONArray menuItems = shopConfig.optJSONArray("menuItems");
 
@@ -279,17 +214,6 @@ public class ItemShop {
         if (specialItems != null) {
 
             this.defaultWeapon = specialItems.optInt("defaultWeapon", -1);
-            this.fireballItem = specialItems.optInt("fireball", -1);
-            this.enhancedFireballItem = specialItems.optInt("enhancedFireball", -1);
-            this.safetyPlatform = specialItems.optInt("safetyPlatform", -1);
-            this.enhancedSafetyPlatform = specialItems.optInt("enhancedSafetyPlatform", -1);
-            this.bridgeEgg = specialItems.optInt("bridgeEgg", -1);
-            this.playerTracker = specialItems.optInt("playerTracker", -1);
-            this.ironGolemSpawnEgg = specialItems.optInt("ironGolemSpawnEgg", -1);
-            this.snowDefenderSpawnEgg = specialItems.optInt("snowDefenderSpawnEgg", -1);
-            this.zapper = specialItems.optInt("zapper", -1);
-            this.spawnDust = specialItems.optInt("spawnDust", -1);
-            this.blackHole = specialItems.optInt("blackHole", -1);
 
         }
 
