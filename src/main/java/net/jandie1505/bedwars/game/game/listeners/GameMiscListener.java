@@ -23,10 +23,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -288,6 +285,12 @@ public class GameMiscListener implements ManagedListener {
     public void onPlayerJoinForTeleportingSpectators(PlayerJoinEvent event) {
         if (this.game.isPlayerIngame(event.getPlayer())) return;
         event.getPlayer().teleport(this.game.getWorld().getSpawnLocation().clone());
+    }
+
+    @EventHandler
+    public void onEntitySpawnForMakingNotPersistent(EntitySpawnEvent event) {
+        if (event.getEntity().getWorld() != this.game.getWorld()) return;
+        event.getEntity().setPersistent(false);
     }
 
     // ----- OTHER -----
