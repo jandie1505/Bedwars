@@ -18,8 +18,8 @@ import net.jandie1505.bedwars.game.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.game.listeners.*;
 import net.jandie1505.bedwars.game.game.menu.shop.old.ArmorConfig;
 import net.jandie1505.bedwars.game.game.menu.shop.old.ItemShop;
-import net.jandie1505.bedwars.game.game.menu.shop.ItemShopNew;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
@@ -34,12 +34,14 @@ import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -59,11 +61,12 @@ public class Game extends GamePart implements ManagedListener {
     private final TimeActionCreator timeActionCreator;
     private final BlockProtectionSystem blockProtectionSystem;
     private final Map<UUID, Scoreboard> playerScoreboards;
-    private final ItemShop itemShop;
+    @Deprecated(forRemoval = true) private final ItemShop itemShop; // to be removed
+    private final net.jandie1505.bedwars.game.game.shop.ItemShop itemShopNew;
+    private final ShopGUI shopGUI;
     private final ArmorConfig armorConfig;
     private final TeamUpgradesConfig teamUpgradesConfig;
     private final List<ManagedEntity<?>> managedEntities;
-    private final ItemShopNew itemShopNew;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
@@ -83,11 +86,12 @@ public class Game extends GamePart implements ManagedListener {
         this.timeActionCreator = new TimeActionCreator(this);
         this.blockProtectionSystem = new BlockProtectionSystem(this);
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
-        this.itemShop = new ItemShop(this);
+        this.itemShop = new ItemShop(this); // To be removed
+        this.itemShopNew = new net.jandie1505.bedwars.game.game.shop.ItemShop(this);
+        this.shopGUI = new ShopGUI(this);
         this.armorConfig = armorConfig;
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
-        this.itemShopNew = new ItemShopNew(this);
         this.time = this.data.maxTime();
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
@@ -1700,6 +1704,10 @@ public class Game extends GamePart implements ManagedListener {
         return this.itemShop;
     }
 
+    public net.jandie1505.bedwars.game.game.shop.ItemShop getItemShopNew() {
+        return this.itemShopNew;
+    }
+
     public Location buildLocationWithWorld(Location old) {
         return new Location(
                 this.world,
@@ -1784,10 +1792,6 @@ public class Game extends GamePart implements ManagedListener {
         this.managedEntities.remove(managedEntity);
     }
 
-    public ItemShopNew getItemShopNew() {
-        return itemShopNew;
-    }
-
     //
 
     public boolean isNoWinnerEnd() {
@@ -1841,4 +1845,18 @@ public class Game extends GamePart implements ManagedListener {
         item.setType(material);
 
     }
+
+    @EventHandler
+    public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
+        if (!event.getMessage().equals("shopgui")) return;
+        event.setCancelled(true);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                event.getPlayer().openInventory(shopGUI.getInventory(event.getPlayer(), 0));
+            }
+        }.runTask(this.getPlugin());
+    }
+
 }
