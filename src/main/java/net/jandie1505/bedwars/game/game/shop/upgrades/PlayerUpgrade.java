@@ -1,0 +1,270 @@
+package net.jandie1505.bedwars.game.game.shop.upgrades;
+
+import net.chaossquad.mclib.misc.Removable;
+import net.chaossquad.mclib.scheduler.TaskScheduler;
+import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.shop.UpgradeManager;
+import net.kyori.adventure.text.Component;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+
+/**
+ * The base class for a player upgrade like armor, pickaxe, etc...
+ */
+public abstract class PlayerUpgrade implements Removable {
+    @NotNull private final UpgradeManager manager;
+    @NotNull private final String id;
+    @NotNull private final TaskScheduler scheduler;
+    /**
+     * Creates a new player upgrade.
+     * @param manager manager
+     * @param id id
+     */
+    public PlayerUpgrade(@NotNull UpgradeManager manager, @NotNull String id) {
+        if (id.isEmpty()) throw new IllegalArgumentException("id cannot be empty");
+        this.manager = manager;
+        this.id = id;
+        this.scheduler = new TaskScheduler(this.manager.getGame().getPlugin().getLogger());
+    }
+
+    // ----- UTILITIES -----
+
+    /**
+     * Called when the upgrade is registered.
+     */
+    @ApiStatus.OverrideOnly
+    public void onRegister() {}
+
+    /**
+     * Called when the upgrade is unregistered/removed.
+     */
+    @ApiStatus.OverrideOnly
+    public void onUnregister() {}
+
+    // ----- APPLY/REMOVE METHODS -----
+
+    /**
+     * This method is called when the upgrade (level) is applied to the player.<br/>
+     * Please note that {@link #onRemove(Player, PlayerData, int)} is called before this method if the upgrade was applied before but the level has changed.
+     * @param player player
+     * @param playerData player data
+     * @param level the upgrade level
+     */
+    @ApiStatus.OverrideOnly
+    public void onApply(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
+
+    /**
+     * This method is called when the upgrade (level) is removed from the player.<br/>
+     * This method is also called before calling {@link #onApply(Player, PlayerData, int)} when the upgrade level changes.
+     * @param player player
+     * @param playerData player data
+     * @param level level
+     */
+    @ApiStatus.OverrideOnly
+    public void onRemove(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
+
+    @ApiStatus.OverrideOnly
+    public void onAffectedPlayerDeath(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
+
+    @ApiStatus.OverrideOnly
+    public void onAffectedPlayerRespawn(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
+
+    // ----- SCHEDULER -----
+
+    /**
+     * Schedules a task repeating task for this upgrade.
+     * @param runnable upgrade task runnable
+     * @param delay delay
+     * @param interval interval
+     * @param removeCondition remove condition
+     * @param label label
+     * @return task id
+     */
+    protected final long scheduleRepeatingTask(@NotNull UpgradeTaskRunnable runnable, long delay, long interval, @Nullable Removable removeCondition, @Nullable String label) {
+        return this.scheduler.scheduleRepeatingTask(task -> {
+
+            for (Player player : this.getAffectedPlayers()) {
+
+                PlayerData playerData = this.manager.getGame().getPlayerData(player);
+                if (playerData == null) continue;
+
+                int level = playerData.getUpgrade(this.id);
+
+                try {
+                    runnable.run(player, playerData, level);
+                } catch (Exception e) {
+                    this.manager.getGame().getPlugin().getLogger().log(Level.WARNING, "Failed to run upgrade task for player " + player.getUniqueId() + "(" + player.getName() + ")", e);
+                }
+            }
+
+        }, delay, interval, removeCondition, label);
+    }
+
+    /**
+     * Schedules a task repeating task for this upgrade.
+     * @param runnable upgrade task runnable
+     * @param delay delay
+     * @param interval interval
+     * @param removeCondition remove condition
+     * @return task id
+     */
+    protected final long scheduleRepeatingTask(@NotNull UpgradeTaskRunnable runnable, long delay, long interval, @Nullable Removable removeCondition) {
+        return this.scheduleRepeatingTask(runnable, delay, interval, removeCondition, null);
+    }
+
+    /**
+     * Schedules a task repeating task for this upgrade.
+     * @param runnable upgrade task runnable
+     * @param delay delay
+     * @param interval interval
+     * @param label label
+     * @return task id
+     */
+    protected final long scheduleRepeatingTask(@NotNull UpgradeTaskRunnable runnable, long delay, long interval, @Nullable String label) {
+        return this.scheduleRepeatingTask(runnable, delay, interval, null, label);
+    }
+
+    /**
+     * Schedules a task repeating task for this upgrade.
+     * @param runnable upgrade task runnable
+     * @param delay delay
+     * @param interval interval
+     * @return task id
+     */
+    protected final long scheduleRepeatingTask(@NotNull UpgradeTaskRunnable runnable, long delay, long interval) {
+        return this.scheduleRepeatingTask(runnable, delay, interval, (Removable) null);
+    }
+
+    // ----- PLAYERS -----
+
+    /**
+     * Returns a set of player that have this upgrade on <b>any</b> upgrade level.
+     * @return set of affected players
+     */
+    public final Set<Player> getAffectedPlayers() {
+        Set<Player> affectedPlayers = new HashSet<>();
+
+        for (Player player : this.manager.getGame().getOnlinePlayers()) {
+            PlayerData playerData = this.manager.getGame().getPlayerData(player);
+            if (playerData == null) continue;
+
+            int upgradeLevel = playerData.getUpgrade(this.id);
+            if (upgradeLevel <= 0) continue;
+
+            affectedPlayers.add(player);
+        }
+
+        return affectedPlayers;
+    }
+
+    /**
+     * Returns a set of players with the <b>specified</b> upgrade level.
+     * @param level level
+     * @return set of affected players
+     */
+    public final Set<Player> getAffectedPlayers(int level) {
+        Set<Player> affectedPlayers = new HashSet<>();
+
+        for (Player player : this.manager.getGame().getOnlinePlayers()) {
+
+            PlayerData playerData = this.manager.getGame().getPlayerData(player);
+            if (playerData == null) continue;
+
+            int upgradeLevel = playerData.getUpgrade(this.id);
+
+            if (upgradeLevel <= 0) continue;
+            if (upgradeLevel != level) continue;
+
+            affectedPlayers.add(player);
+        }
+
+        return affectedPlayers;
+    }
+
+    // ----- APPEARANCE -----
+
+    /**
+     * Returns the name of the upgrade.
+     * @return name
+     */
+    @ApiStatus.OverrideOnly
+    public @NotNull Component getName() {
+        return Component.text(this.id);
+    }
+
+    /**
+     * Returns the description of the upgrade.
+     * @return name
+     */
+    @ApiStatus.OverrideOnly
+    public @NotNull Component getDescription() {
+        return Component.empty();
+    }
+
+    /**
+     * Returns the icon list of the upgrade.
+     * @return icon list
+     */
+    @ApiStatus.OverrideOnly
+    public @NotNull List<ItemStack> getIcons() {
+        return List.of();
+    }
+
+    /**
+     * Returns the icon of the specified level.
+     * @param level level
+     * @return icon or null
+     */
+    public final @Nullable ItemStack getIcon(int level) {
+        List<ItemStack> icons = this.getIcons();
+
+        if (icons.isEmpty()) return null;
+        if (level < 0) return icons.getFirst();
+        if (level >= icons.size()) return icons.getLast();
+
+        return icons.get(level);
+    }
+
+    // ----- OTHER -----
+
+    public final @NotNull UpgradeManager getManager() {
+        return this.manager;
+    }
+
+    public final @NotNull String getId() {
+        return this.id;
+    }
+
+    public final boolean isRegistered() {
+        return this.manager.getUpgrade(this.id) == this;
+    }
+
+    public final void unregister() {
+        this.manager.removeUpgrade(this.id);
+    }
+
+    public final @NotNull TaskScheduler getTaskScheduler() {
+        return this.scheduler;
+    }
+
+    @Override
+    public final boolean toBeRemoved() {
+        return !this.isRegistered();
+    }
+
+    /**
+     * A task runnable for upgrades.
+     */
+    public interface UpgradeTaskRunnable {
+        void run(@NotNull Player player, @NotNull PlayerData playerData, int level);
+    }
+
+}

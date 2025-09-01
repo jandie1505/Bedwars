@@ -11,6 +11,7 @@ import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.ShopVillager;
 import net.jandie1505.bedwars.game.game.entities.entities.UpgradeVillager;
+import net.jandie1505.bedwars.game.game.events.GamePlayerRespawnEvent;
 import net.jandie1505.bedwars.game.game.generators.Generator;
 import net.jandie1505.bedwars.game.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.game.generators.PublicGenerator;
@@ -19,7 +20,9 @@ import net.jandie1505.bedwars.game.game.listeners.*;
 import net.jandie1505.bedwars.game.game.menu.shop.old.ArmorConfig;
 import net.jandie1505.bedwars.game.game.menu.shop.old.ItemShop;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.shop.UpgradeManager;
 import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
+import net.jandie1505.bedwars.game.game.shop.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
@@ -28,6 +31,7 @@ import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.game.timeactions.provider.TimeActionCreator;
 import net.jandie1505.bedwars.game.game.world.BlockProtectionSystem;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -64,6 +68,7 @@ public class Game extends GamePart implements ManagedListener {
     @Deprecated(forRemoval = true) private final ItemShop itemShop; // to be removed
     private final net.jandie1505.bedwars.game.game.shop.ItemShop itemShopNew;
     private final ShopGUI shopGUI;
+    @NotNull private final UpgradeManager upgradeManager;
     private final ArmorConfig armorConfig;
     private final TeamUpgradesConfig teamUpgradesConfig;
     private final List<ManagedEntity<?>> managedEntities;
@@ -89,6 +94,7 @@ public class Game extends GamePart implements ManagedListener {
         this.itemShop = new ItemShop(this); // To be removed
         this.itemShopNew = new net.jandie1505.bedwars.game.game.shop.ItemShop(this);
         this.shopGUI = new ShopGUI(this);
+        this.upgradeManager = new UpgradeManager(this, () -> false);
         this.armorConfig = armorConfig;
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
@@ -197,6 +203,11 @@ public class Game extends GamePart implements ManagedListener {
         this.registerListener(new GameProtectionsForNotIngamePlayersListener(this));
         this.registerListener(new GameChatListener(this));
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
+
+        // TEST
+
+        this.upgradeManager.registerUpgrade(new UpgradableItemUpgrade(this.upgradeManager, "pickaxe", Component.text("Test Upgrade"), Component.empty(), List.of(), List.of(new ItemStack(Material.OAK_PLANKS), new ItemStack(Material.DIAMOND))));
+
     }
 
     @Override
@@ -1535,7 +1546,12 @@ public class Game extends GamePart implements ManagedListener {
             return false;
         }
 
-        PlayerData playerData = this.players.get(player.getUniqueId());
+        PlayerData playerData = this.getPlayerData(player);
+        if (playerData == null) return false;
+
+        GamePlayerRespawnEvent event = new GamePlayerRespawnEvent(this, player, playerData);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return false;
 
         playerData.setAlive(true);
         player.teleport(WorldUtils.locationWithWorld(this.teams.get(playerData.getTeam()).getRandomSpawnpoint(), this.getWorld()));
