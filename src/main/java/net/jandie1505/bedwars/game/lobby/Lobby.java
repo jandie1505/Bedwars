@@ -7,7 +7,10 @@ import de.simonsator.partyandfriends.spigot.api.party.PlayerParty;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
+import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.commands.game.subcommands.GameStartSubcommand;
+import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
@@ -123,6 +126,10 @@ public class Lobby extends GamePart {
         } else {
             this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), "Random Map");
         }
+
+        // Commands
+
+        this.addDynamicSubcommand("start", SubcommandEntry.of(new GameStartSubcommand(plugin), sender -> Permissions.hasPermission(sender, Permissions.START)));
 
         // Listeners
 

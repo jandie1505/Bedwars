@@ -43,9 +43,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.5-R0.1-SNAPSHOT")
-    implementation("net.chaossquad:mclib:main-4130dc249d1f588dcc88853545538900c64c674a")
-    implementation("net.chaossquad:mclib-json:main-188b6f2059b1a8bf1bf547c6aeb98a0f89937a74")
+    compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
+    implementation("net.chaossquad:mclib:main-ae5c6fc83d9904544f973a1227170b1b0c29a612-2")
+    implementation("net.chaossquad:mclib-json:main-188b6f2059b1a8bf1bf547c6aeb98a0f89937a74") {
+        exclude(group = "net.chaossquad", module = "mclib")
+    }
     implementation("org.json:json:20250107")
     compileOnly("eu.cloudnetservice.cloudnet:bridge:4.0.0-RC10")
     compileOnly("eu.cloudnetservice.cloudnet:wrapper-jvm:4.0.0-RC10")
@@ -70,7 +72,7 @@ tasks {
     }
     shadowJar {
         relocate("net.chaossquad.mclib", "net.jandie1505.bedwars.dependencies.net.chaossquad.mclib")
-        relocate("org.json", "net.chaossquad.jandie1505.dependencies.org.json")
+        relocate("org.json", "net.jandie1505.bedwars.dependencies.org.json")
         archiveClassifier.set("")
     }
     build {

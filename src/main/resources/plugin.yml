@@ -19,5 +19,8 @@ commands:
   bedwars:
     description: main command
     usage: /bedwars
+  start:
+    description: force-start a game
+    usage: /start
 author: jandie1505
 website: jandie1505.net

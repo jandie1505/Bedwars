@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.game.game.Game;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scoreboard.Scoreboard;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,12 +53,21 @@ public class PlayerData {
         this.blackHoleCooldown = 0;
     }
 
+    public @NotNull Map<String, Integer> getUpgrades() {
+        return Map.copyOf(upgrades);
+    }
+
     public int getUpgrade(String id) {
         return this.upgrades.getOrDefault(id, 0);
     }
 
     public void setUpgrade(String id, int level) {
-        if (level < 0) return;
+
+        if (level < 0) {
+            this.upgrades.remove(id);
+            return;
+        }
+
         this.upgrades.put(id, level);
     }
 

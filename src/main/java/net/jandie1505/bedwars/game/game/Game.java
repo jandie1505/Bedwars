@@ -3,8 +3,10 @@ package net.jandie1505.bedwars.game.game;
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import net.chaossquad.mclib.WorldUtils;
+import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.game.game.commands.GamePlayersSubcommand;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
@@ -156,6 +158,10 @@ public class Game extends GamePart implements ManagedListener {
         // PREPARE GAME
 
         this.getTaskScheduler().runTaskLater(this::prepareGame, 1, "prepare_game");
+
+        // COMMANDS
+
+        this.addDynamicSubcommand("players", SubcommandEntry.of(new GamePlayersSubcommand(this)));
 
         // TASKS
 
