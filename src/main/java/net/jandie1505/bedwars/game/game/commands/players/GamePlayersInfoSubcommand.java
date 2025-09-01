@@ -78,6 +78,7 @@ public class GamePlayersInfoSubcommand implements TabCompletingCommandExecutor {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
+        if (!Permissions.hasPermission(sender, Permissions.ADMIN)) return List.of();
 
         if (args.length == 1) return this.game.getRegisteredPlayers().stream()
                 .map(uuid -> {

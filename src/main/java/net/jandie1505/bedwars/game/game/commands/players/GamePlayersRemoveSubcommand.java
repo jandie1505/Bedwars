@@ -4,8 +4,10 @@ import net.chaossquad.mclib.PlayerUtils;
 import net.chaossquad.mclib.command.TabCompletingCommandExecutor;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.game.Game;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -49,6 +51,15 @@ public class GamePlayersRemoveSubcommand implements TabCompletingCommandExecutor
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
+        if (!Permissions.hasPermission(sender, Permissions.ADMIN)) return List.of();
+
+        if (args.length == 1) return this.game.getRegisteredPlayers().stream()
+                .map(uuid -> {
+                    Player player = Bukkit.getPlayer(uuid);
+                    return player != null ? player.getName() : uuid.toString();
+                })
+                .toList();
+
         return List.of();
     }
 
