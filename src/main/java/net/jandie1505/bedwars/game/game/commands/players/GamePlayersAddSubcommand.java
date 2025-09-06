@@ -88,6 +88,7 @@ public class GamePlayersAddSubcommand implements TabCompletingCommandExecutor {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
+        if (!Permissions.hasPermission(sender, Permissions.ADMIN)) return List.of();
 
         if (args.length == 1) {
             return Bukkit.getOnlinePlayers().stream().filter(player -> !this.game.isPlayerIngame(player)).map(Player::getName).toList();
