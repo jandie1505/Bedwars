@@ -70,7 +70,7 @@ public class GamePlayersInfoSubcommand implements TabCompletingCommandExecutor {
                 .append(Component.text(" - Kills: " + playerData.getKills(), NamedTextColor.YELLOW)).appendNewline()
                 .append(Component.text(" - Deaths: " + playerData.getDeaths(), NamedTextColor.YELLOW)).appendNewline()
                 .append(Component.text(" - Beds broken: " + playerData.getBedsBroken(), NamedTextColor.YELLOW)).appendNewline()
-                .append(Component.text(" - Reward points: " + playerData.getRewardPoints(), NamedTextColor.YELLOW)).appendNewline();
+                .append(Component.text(" - Reward points: " + playerData.getRewardPoints(), NamedTextColor.YELLOW));
 
         sender.sendMessage(out);
         return true;

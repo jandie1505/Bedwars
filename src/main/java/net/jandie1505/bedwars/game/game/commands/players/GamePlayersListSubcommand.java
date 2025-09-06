@@ -61,6 +61,7 @@ public class GamePlayersListSubcommand implements TabCompletingCommandExecutor {
 
         }
 
+        sender.sendMessage(out);
         return true;
     }
 
