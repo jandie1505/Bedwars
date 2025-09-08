@@ -10,6 +10,7 @@ import net.jandie1505.bedwars.game.game.commands.GamePlayersSubcommand;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.game.commands.GameTeleportToMapSubcommand;
+import net.jandie1505.bedwars.game.game.commands.GameValueSubcommand;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.ShopVillager;
@@ -162,6 +163,7 @@ public class Game extends GamePart implements ManagedListener {
 
         // COMMANDS
 
+        this.addDynamicSubcommand("value", SubcommandEntry.of(new GameValueSubcommand(this)));
         this.addDynamicSubcommand("players", SubcommandEntry.of(new GamePlayersSubcommand(this)));
         this.addDynamicSubcommand("teleport-to-map", SubcommandEntry.of(new GameTeleportToMapSubcommand(this)));
 

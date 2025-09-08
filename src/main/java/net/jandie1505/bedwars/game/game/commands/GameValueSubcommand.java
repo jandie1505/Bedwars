@@ -1,10 +1,9 @@
-package net.jandie1505.bedwars.game.game.commands.players;
+package net.jandie1505.bedwars.game.game.commands;
 
 import net.chaossquad.mclib.PlayerUtils;
 import net.chaossquad.mclib.command.SubcommandCommand;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.command.TabCompletingCommandExecutor;
-import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.kyori.adventure.text.Component;
@@ -19,32 +18,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class GamePlayersValueSubcommand extends SubcommandCommand {
+public class GameValueSubcommand extends SubcommandCommand {
     @NotNull private final Game game;
 
-    public GamePlayersValueSubcommand(@NotNull Game game) {
-        super(game.getPlugin(), sender -> Permissions.hasPermission(sender, Permissions.ADMIN));
+    public GameValueSubcommand(@NotNull Game game) {
+        super(game.getPlugin());
         this.game = game;
 
-        this.addSubcommand("alive", SubcommandEntry.of(new SingleValueSubcommand<>("alive", PlayerData::isAlive, PlayerData::setAlive, Boolean::parseBoolean)));
-        this.addSubcommand("respawncountdown", SubcommandEntry.of(new SingleValueSubcommand<>("respawncountdown", PlayerData::getRespawnCountdown, PlayerData::setRespawnCountdown, Integer::parseInt)));
-        this.addSubcommand("team", SubcommandEntry.of(new SingleValueSubcommand<>("team", PlayerData::getTeam, PlayerData::setTeam, Integer::parseInt)));
-        this.addSubcommand("kills", SubcommandEntry.of(new SingleValueSubcommand<>("kills", PlayerData::getKills, PlayerData::setKills, Integer::parseInt)));
-        this.addSubcommand("deaths", SubcommandEntry.of(new SingleValueSubcommand<>("deaths", PlayerData::getDeaths, PlayerData::setDeaths, Integer::parseInt)));
-        this.addSubcommand("bedsbroken", SubcommandEntry.of(new SingleValueSubcommand<>("bedsbroken", PlayerData::getBedsBroken, PlayerData::setBedsBroken, Integer::parseInt)));
-        this.addSubcommand("rewardpoints", SubcommandEntry.of(new SingleValueSubcommand<>("rewardpoints", PlayerData::getRewardPoints, PlayerData::setRewardPoints, Integer::parseInt)));
-
-        this.addSubcommand("upgrades", SubcommandEntry.of(new MultiValueSubcommand<>("upgrades", PlayerData::getUpgrades, PlayerData::setUpgrade, Integer::parseInt)));
-        this.addSubcommand("timers", SubcommandEntry.of(new MultiValueSubcommand<>("timers", PlayerData::getTimers, PlayerData::setTimer, Integer::parseInt)));
+        this.addSubcommand("time", SubcommandEntry.of(new SingleValueSubcommand<>("time", game::getTime, game::setTime, Integer::parseInt)));
     }
 
     private class SingleValueSubcommand<TYPE> implements TabCompletingCommandExecutor {
         @NotNull private final String name;
         @NotNull private final ValueGetter<TYPE> getter;
-        @NotNull private final ValueSetter<TYPE> setter;
+        @Nullable private final ValueSetter<TYPE> setter;
         @NotNull private final Converter<TYPE> converter;
 
-        public SingleValueSubcommand(@NotNull String name, @NotNull ValueGetter<TYPE> getter, @NotNull ValueSetter<TYPE> setter, @NotNull Converter<TYPE> converter) {
+        public SingleValueSubcommand(@NotNull String name, @NotNull ValueGetter<TYPE> getter, @Nullable ValueSetter<TYPE> setter, @NotNull Converter<TYPE> converter) {
             this.name = name;
             this.getter = getter;
             this.setter = setter;
@@ -65,7 +55,7 @@ public class GamePlayersValueSubcommand extends SubcommandCommand {
                 return true;
             }
 
-            PlayerData playerData = GamePlayersValueSubcommand.this.game.getPlayerData(playerId);
+            PlayerData playerData = GameValueSubcommand.this.game.getPlayerData(playerId);
             if (playerData == null) {
                 sender.sendRichMessage("<red>Player not ingame!");
                 return true;
@@ -75,15 +65,20 @@ public class GamePlayersValueSubcommand extends SubcommandCommand {
 
                 if (args.length > 1) {
 
+                    if (this.setter == null) {
+                        sender.sendRichMessage("<red>This value cannot be set!");
+                        return true;
+                    }
+
                     String value = "";
                     for (int i = 1; i < args.length; i++) {
                         value += args[i] + (i == args.length - 1 ? "" : " ");
                     }
 
-                    this.setter.setValue(playerData, this.converter.convert(value));
+                    this.setter.setValue(this.converter.convert(value));
                     sender.sendRichMessage("<green>Updated " + this.name + " to " + value);
                 } else {
-                    sender.sendRichMessage("<gray>" + this.name + ": " + this.getter.getValue(playerData));
+                    sender.sendRichMessage("<gray>" + this.name + ": " + this.getter.getValue());
                 }
 
             } catch (Exception e) {
@@ -95,16 +90,16 @@ public class GamePlayersValueSubcommand extends SubcommandCommand {
 
         @Override
         public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-            if (args.length == 1) return GamePlayersValueSubcommand.this.game.getOnlinePlayers().stream().map(Player::getName).toList();
+            if (args.length == 1) return GameValueSubcommand.this.game.getOnlinePlayers().stream().map(Player::getName).toList();
             return List.of();
         }
 
         public interface ValueGetter<TYPE> {
-            @Nullable TYPE getValue(@NotNull PlayerData playerData);
+            @Nullable TYPE getValue();
         }
 
         public interface ValueSetter<TYPE> {
-            void setValue(@NotNull PlayerData playerData, @NotNull TYPE value);
+            void setValue(@NotNull TYPE value);
         }
 
     }
@@ -115,10 +110,10 @@ public class GamePlayersValueSubcommand extends SubcommandCommand {
     private class MultiValueSubcommand<TYPE> implements TabCompletingCommandExecutor {
         @NotNull private final String name;
         @NotNull private final ValueGetter<TYPE> getter;
-        @NotNull private final ValueSetter<TYPE> setter;
+        @Nullable private final ValueSetter<TYPE> setter;
         @NotNull private final Converter<TYPE> converter;
 
-        public MultiValueSubcommand(@NotNull String name, @NotNull ValueGetter<TYPE> getter, @NotNull ValueSetter<TYPE> setter, @NotNull Converter<TYPE> converter) {
+        public MultiValueSubcommand(@NotNull String name, @NotNull ValueGetter<TYPE> getter, @Nullable ValueSetter<TYPE> setter, @NotNull Converter<TYPE> converter) {
             this.name = name;
             this.getter = getter;
             this.setter = setter;
@@ -139,7 +134,7 @@ public class GamePlayersValueSubcommand extends SubcommandCommand {
                 return true;
             }
 
-            PlayerData playerData = GamePlayersValueSubcommand.this.game.getPlayerData(playerId);
+            PlayerData playerData = GameValueSubcommand.this.game.getPlayerData(playerId);
             if (playerData == null) {
                 sender.sendRichMessage("<red>Player not ingame!");
                 return true;
@@ -153,22 +148,27 @@ public class GamePlayersValueSubcommand extends SubcommandCommand {
 
                     if (args.length > 2) {
 
+                        if (this.setter == null) {
+                            sender.sendRichMessage("<red>This value cannot be set!");
+                            return true;
+                        }
+
                         String value = "";
                         for (int i = 2; i < args.length; i++) {
                             value += args[i] + (i == args.length - 1 ? "" : " ");
                         }
 
-                        this.setter.setValue(playerData, key, this.converter.convert(value));
+                        this.setter.setValue(key, this.converter.convert(value));
                         sender.sendRichMessage("<green>Updated " + key + " (" + this.name + ") to " + value);
 
                     } else {
-                        TYPE value = this.getter.getValues(playerData).get(key);
+                        TYPE value = this.getter.getValues().get(key);
                         sender.sendRichMessage("<gray>" + key + ": " + value);
                     }
 
                 } else {
 
-                    Map<String, TYPE> values = this.getter.getValues(playerData);
+                    Map<String, TYPE> values = this.getter.getValues();
 
                     if (values.isEmpty()) {
                         sender.sendRichMessage("<red>Values of " + this.name + " are empty.");
@@ -203,34 +203,21 @@ public class GamePlayersValueSubcommand extends SubcommandCommand {
         @Override
         public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
 
-            if (args.length == 1) return GamePlayersValueSubcommand.this.game.getOnlinePlayers().stream().map(Player::getName).toList();
+            if (args.length == 1) return GameValueSubcommand.this.game.getOnlinePlayers().stream().map(Player::getName).toList();
 
             if (args.length == 2) {
-
-                UUID playerId = PlayerUtils.getPlayerUUIDFromString(args[0]);
-                if (playerId == null) {
-                    sender.sendRichMessage("<red>Player not found!");
-                    return List.of();
-                }
-
-                PlayerData playerData = GamePlayersValueSubcommand.this.game.getPlayerData(playerId);
-                if (playerData == null) {
-                    sender.sendRichMessage("<red>Player not ingame!");
-                    return List.of();
-                }
-
-                return this.getter.getValues(playerData).keySet().stream().toList();
+                return this.getter.getValues().keySet().stream().toList();
             }
 
             return List.of();
         }
 
         public interface ValueGetter<TYPE> {
-            @NotNull Map<String, TYPE> getValues(@NotNull PlayerData playerData);
+            @NotNull Map<String, TYPE> getValues();
         }
 
         public interface ValueSetter<TYPE> {
-            void setValue(@NotNull PlayerData playerData, @NotNull String key, @NotNull TYPE value);
+            void setValue(@NotNull String key, @NotNull TYPE value);
         }
 
     }
