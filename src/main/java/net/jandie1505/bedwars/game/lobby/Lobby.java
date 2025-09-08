@@ -9,7 +9,7 @@ import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
-import net.jandie1505.bedwars.commands.game.subcommands.GameStartSubcommand;
+import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
@@ -19,6 +19,7 @@ import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
+import net.jandie1505.bedwars.game.lobby.commands.LobbyValueSubcommand;
 import net.jandie1505.bedwars.game.lobby.inventory.VotingMenuListener;
 import net.jandie1505.bedwars.game.utils.LobbyChatListener;
 import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
@@ -129,7 +130,8 @@ public class Lobby extends GamePart {
 
         // Commands
 
-        this.addDynamicSubcommand("start", SubcommandEntry.of(new GameStartSubcommand(plugin), sender -> Permissions.hasPermission(sender, Permissions.START)));
+        this.addDynamicSubcommand("start", SubcommandEntry.of(new LobbyStartSubcommand(plugin), sender -> Permissions.hasPermission(sender, Permissions.START)));
+        this.addDynamicSubcommand("value", SubcommandEntry.of(new LobbyValueSubcommand(this)));
 
         // Listeners
 

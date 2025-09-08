@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.commands.game.subcommands;
+package net.jandie1505.bedwars.game.lobby.commands;
 
 import net.chaossquad.mclib.command.OptionParser;
 import net.chaossquad.mclib.command.TabCompletingCommandExecutor;
@@ -14,10 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class GameStartSubcommand implements TabCompletingCommandExecutor {
+public class LobbyStartSubcommand implements TabCompletingCommandExecutor {
     @NotNull private final Bedwars plugin;
 
-    public GameStartSubcommand(@NotNull Bedwars plugin) {
+    public LobbyStartSubcommand(@NotNull Bedwars plugin) {
         this.plugin = plugin;
     }
 

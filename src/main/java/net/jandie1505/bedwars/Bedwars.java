@@ -3,7 +3,7 @@ package net.jandie1505.bedwars;
 import de.myzelyam.api.vanish.VanishAPI;
 import net.chaossquad.mclib.dynamicevents.EventListenerManager;
 import net.jandie1505.bedwars.commands.BedwarsCommand;
-import net.jandie1505.bedwars.commands.game.subcommands.GameStartSubcommand;
+import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
 import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.base.GamePart;
@@ -89,7 +89,7 @@ public class Bedwars extends JavaPlugin {
 
         PluginCommand startCommand = this.getCommand("start");
         if (startCommand != null) {
-            GameStartSubcommand cmd = new  GameStartSubcommand(this);
+            LobbyStartSubcommand cmd = new LobbyStartSubcommand(this);
             startCommand.setExecutor(cmd);
             startCommand.setTabCompleter(cmd);
         }

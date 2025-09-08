@@ -1,40 +1,57 @@
-package net.jandie1505.bedwars.game.game.commands;
+package net.jandie1505.bedwars.game.lobby.commands;
 
-import net.chaossquad.mclib.PlayerUtils;
 import net.chaossquad.mclib.command.SubcommandCommand;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.command.TabCompletingCommandExecutor;
-import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.constants.Permissions;
+import net.jandie1505.bedwars.game.game.MapData;
+import net.jandie1505.bedwars.game.lobby.Lobby;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Objects;
 
-public class GameValueSubcommand extends SubcommandCommand {
-    @NotNull private final Game game;
+public class LobbyValueSubcommand extends SubcommandCommand {
+    @NotNull private final Lobby lobby;
 
-    public GameValueSubcommand(@NotNull Game game) {
-        super(game.getPlugin());
-        this.game = game;
+    public LobbyValueSubcommand(@NotNull Lobby lobby) {
+        super(lobby.getPlugin(), sender -> Permissions.hasPermission(sender, Permissions.ADMIN));
+        this.lobby = lobby;
 
-        this.addSubcommand("time", SubcommandEntry.of(new SingleValueSubcommand<>("time", game::getTime, game::setTime, Integer::parseInt)));
+        this.addSubcommand("time", SubcommandEntry.of(new SingleValueSubcommand<>("time", lobby::getTime, time -> lobby.setTime(Objects.requireNonNullElse(time, 0)), s -> s != null ? Integer.parseInt(s) : 0)));
+        this.addSubcommand("voting", SubcommandEntry.of(new SingleValueSubcommand<>("map", lobby::isMapVoting, mapVoting -> lobby.setMapVoting(Objects.requireNonNullElse(mapVoting, false)), Boolean::parseBoolean)));
+        this.addSubcommand("requiredplayers", SubcommandEntry.of(new SingleValueSubcommand<>("requiredplayers", lobby::getRequiredPlayers, requiredPlayers -> lobby.setRequiredPlayers(Objects.requireNonNullElse(requiredPlayers, 0)), s -> s != null ? Integer.parseInt(s) : 0)));
+
+        this.addSubcommand("map", SubcommandEntry.of(new SingleValueSubcommand<>("map", () -> lobby.getSelectedMap() != null ? lobby.getSelectedMap().world() : null, value -> {
+
+            MapData mapData = null;
+            for (MapData map : lobby.getMaps()) {
+
+                if (map.world().equals(value)) {
+                    mapData = map;
+                    break;
+                }
+
+            }
+
+            lobby.selectMap(mapData);
+        }, value -> value)));
     }
 
     private class SingleValueSubcommand<TYPE> implements TabCompletingCommandExecutor {
         @NotNull private final String name;
-        @NotNull private final ValueGetter<TYPE> getter;
-        @Nullable private final ValueSetter<TYPE> setter;
-        @NotNull private final Converter<TYPE> converter;
+        @NotNull private final LobbyValueSubcommand.SingleValueSubcommand.ValueGetter<TYPE> getter;
+        @Nullable
+        private final LobbyValueSubcommand.SingleValueSubcommand.ValueSetter<TYPE> setter;
+        @NotNull private final LobbyValueSubcommand.Converter<TYPE> converter;
 
-        public SingleValueSubcommand(@NotNull String name, @NotNull ValueGetter<TYPE> getter, @Nullable ValueSetter<TYPE> setter, @NotNull Converter<TYPE> converter) {
+        public SingleValueSubcommand(@NotNull String name, @NotNull LobbyValueSubcommand.SingleValueSubcommand.ValueGetter<TYPE> getter, @Nullable LobbyValueSubcommand.SingleValueSubcommand.ValueSetter<TYPE> setter, @NotNull LobbyValueSubcommand.Converter<TYPE> converter) {
             this.name = name;
             this.getter = getter;
             this.setter = setter;
@@ -50,6 +67,12 @@ public class GameValueSubcommand extends SubcommandCommand {
 
                     if (this.setter == null) {
                         sender.sendRichMessage("<red>This value cannot be set!");
+                        return true;
+                    }
+
+                    if (args[0].equalsIgnoreCase("null")) {
+                        this.setter.setValue(null);
+                        sender.sendRichMessage("<green>Value set to null.");
                         return true;
                     }
 
@@ -73,7 +96,6 @@ public class GameValueSubcommand extends SubcommandCommand {
 
         @Override
         public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-            if (args.length == 1) return GameValueSubcommand.this.game.getOnlinePlayers().stream().map(Player::getName).toList();
             return List.of();
         }
 
@@ -82,7 +104,7 @@ public class GameValueSubcommand extends SubcommandCommand {
         }
 
         public interface ValueSetter<TYPE> {
-            void setValue(@NotNull TYPE value);
+            void setValue(@Nullable TYPE value);
         }
 
     }
@@ -92,11 +114,11 @@ public class GameValueSubcommand extends SubcommandCommand {
      */
     private class MultiValueSubcommand<TYPE> implements TabCompletingCommandExecutor {
         @NotNull private final String name;
-        @NotNull private final ValueGetter<TYPE> getter;
-        @Nullable private final ValueSetter<TYPE> setter;
-        @NotNull private final Converter<TYPE> converter;
+        @NotNull private final LobbyValueSubcommand.MultiValueSubcommand.ValueGetter<TYPE> getter;
+        @Nullable private final LobbyValueSubcommand.MultiValueSubcommand.ValueSetter<TYPE> setter;
+        @NotNull private final LobbyValueSubcommand.Converter<TYPE> converter;
 
-        public MultiValueSubcommand(@NotNull String name, @NotNull ValueGetter<TYPE> getter, @Nullable ValueSetter<TYPE> setter, @NotNull Converter<TYPE> converter) {
+        public MultiValueSubcommand(@NotNull String name, @NotNull LobbyValueSubcommand.MultiValueSubcommand.ValueGetter<TYPE> getter, @Nullable LobbyValueSubcommand.MultiValueSubcommand.ValueSetter<TYPE> setter, @NotNull LobbyValueSubcommand.Converter<TYPE> converter) {
             this.name = name;
             this.getter = getter;
             this.setter = setter;
@@ -116,6 +138,12 @@ public class GameValueSubcommand extends SubcommandCommand {
 
                         if (this.setter == null) {
                             sender.sendRichMessage("<red>This value cannot be set!");
+                            return true;
+                        }
+
+                        if (args[1].equalsIgnoreCase("null")) {
+                            this.setter.setValue(key, null);
+                            sender.sendRichMessage("<green>Value set to null.");
                             return true;
                         }
 
@@ -181,13 +209,13 @@ public class GameValueSubcommand extends SubcommandCommand {
         }
 
         public interface ValueSetter<TYPE> {
-            void setValue(@NotNull String key, @NotNull TYPE value);
+            void setValue(@NotNull String key, @Nullable TYPE value);
         }
 
     }
 
     private interface Converter<TYPE> {
-        TYPE convert(@NotNull String value);
+        TYPE convert(@Nullable String value);
     }
 
 }
