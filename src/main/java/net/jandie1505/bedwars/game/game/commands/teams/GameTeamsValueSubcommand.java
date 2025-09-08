@@ -4,6 +4,7 @@ import net.chaossquad.mclib.command.SubcommandCommand;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.command.TabCompletingCommandExecutor;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.commands.GameTeamsSubcommand;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -79,7 +80,7 @@ public class GameTeamsValueSubcommand extends SubcommandCommand {
 
         @Override
         public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-            if (args.length == 1) return GameTeamsValueSubcommand.this.game.getOnlinePlayers().stream().map(Player::getName).toList();
+            if (args.length == 1) return GameTeamsSubcommand.completeTeamIds(GameTeamsValueSubcommand.this.game.getTeams().size());
             return List.of();
         }
 
@@ -181,7 +182,7 @@ public class GameTeamsValueSubcommand extends SubcommandCommand {
         @Override
         public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
 
-            if (args.length == 1) return GameTeamsValueSubcommand.this.game.getOnlinePlayers().stream().map(Player::getName).toList();
+            if (args.length == 1) return GameTeamsSubcommand.completeTeamIds(GameTeamsValueSubcommand.this.game.getTeams().size());
 
             if (args.length == 2) {
 
