@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Deprecated(forRemoval = true)
 public class BedwarsCommandOld implements TabCompletingCommandExecutor {
     private Bedwars plugin;
 
