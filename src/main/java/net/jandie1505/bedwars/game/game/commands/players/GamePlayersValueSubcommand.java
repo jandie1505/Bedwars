@@ -208,16 +208,10 @@ public class GamePlayersValueSubcommand extends SubcommandCommand {
             if (args.length == 2) {
 
                 UUID playerId = PlayerUtils.getPlayerUUIDFromString(args[0]);
-                if (playerId == null) {
-                    sender.sendRichMessage("<red>Player not found!");
-                    return List.of();
-                }
+                if (playerId == null) return List.of();
 
                 PlayerData playerData = GamePlayersValueSubcommand.this.game.getPlayerData(playerId);
-                if (playerData == null) {
-                    sender.sendRichMessage("<red>Player not ingame!");
-                    return List.of();
-                }
+                if (playerData == null) return List.of();
 
                 return this.getter.getValues(playerData).keySet().stream().toList();
             }
