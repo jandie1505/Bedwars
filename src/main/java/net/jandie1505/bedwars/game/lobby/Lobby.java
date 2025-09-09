@@ -20,6 +20,7 @@ import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyValueSubcommand;
+import net.jandie1505.bedwars.game.lobby.commands.LobbyVotemapCommand;
 import net.jandie1505.bedwars.game.lobby.inventory.VotingMenuListener;
 import net.jandie1505.bedwars.game.utils.LobbyChatListener;
 import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
@@ -132,6 +133,7 @@ public class Lobby extends GamePart {
 
         this.addDynamicSubcommand("start", SubcommandEntry.of(new LobbyStartSubcommand(plugin), sender -> Permissions.hasPermission(sender, Permissions.START)));
         this.addDynamicSubcommand("value", SubcommandEntry.of(new LobbyValueSubcommand(this)));
+        this.addDynamicSubcommand("votemap", SubcommandEntry.of(new LobbyVotemapCommand(plugin)));
 
         // Listeners
 
@@ -964,6 +966,38 @@ public class Lobby extends GamePart {
 
         }
 
+    }
+
+    /**
+     * Searches a map by its world name.
+     * @param worldName world name
+     * @return map
+     */
+    public @Nullable MapData findMapByWorldName(String worldName) {
+
+        for (MapData mapData : this.maps) {
+            if (mapData.world().equalsIgnoreCase(worldName)) {
+                return mapData;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Searches a map by its name.
+     * @param mapName map name
+     * @return map
+     */
+    public @Nullable MapData findMapByName(String mapName) {
+
+        for (MapData mapData : this.maps) {
+            if (mapData.name().equalsIgnoreCase(mapName)) {
+                return mapData;
+            }
+        }
+
+        return null;
     }
 
     public boolean isMapVoting() {

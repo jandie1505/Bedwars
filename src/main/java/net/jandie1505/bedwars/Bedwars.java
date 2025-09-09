@@ -8,6 +8,7 @@ import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.lobby.commands.LobbyVotemapCommand;
 import net.jandie1505.bedwars.global.listeners.EventListener;
 import net.jandie1505.bedwars.items.ItemStorage;
 import net.jandie1505.bedwars.game.lobby.Lobby;
@@ -92,6 +93,13 @@ public class Bedwars extends JavaPlugin {
             LobbyStartSubcommand cmd = new LobbyStartSubcommand(this);
             startCommand.setExecutor(cmd);
             startCommand.setTabCompleter(cmd);
+        }
+
+        PluginCommand votemapCommand = this.getCommand("votemap");
+        if (votemapCommand != null) {
+            LobbyVotemapCommand cmd = new LobbyVotemapCommand(this);
+            votemapCommand.setExecutor(cmd);
+            votemapCommand.setTabCompleter(cmd);
         }
 
         // Listeners

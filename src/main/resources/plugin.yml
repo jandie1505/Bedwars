@@ -22,5 +22,8 @@ commands:
   start:
     description: force-start a game
     usage: /start
+  votemap:
+    description: vote for a map
+    usage: /votemap (<map name>|--use-world-name <world name>)
 author: jandie1505
 website: jandie1505.net
