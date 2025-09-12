@@ -5,10 +5,10 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.menu.shop.ShopEntry;
-import net.jandie1505.bedwars.game.game.menu.shop.ShopGUIPosition;
+import net.jandie1505.bedwars.game.game.shop.shop.ShopEntry;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
+import net.jandie1505.bedwars.game.game.shop.shop.ShopGUIPosition;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -238,7 +238,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
             String itemId = data.get(MENU_SHOP_ITEM_ID, PersistentDataType.STRING);
             if (itemId == null) return;
 
-            ShopEntry entry = this.game.getItemShopNew().getItem(itemId);
+            ShopEntry entry = this.game.getItemShop().getItem(itemId);
             if (entry == null) return;
 
            this.purchaseItem(player, entry, event.isShiftClick());

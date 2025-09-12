@@ -19,9 +19,8 @@ import net.jandie1505.bedwars.game.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.game.listeners.*;
-import net.jandie1505.bedwars.game.game.menu.shop.old.ArmorConfig;
-import net.jandie1505.bedwars.game.game.menu.shop.old.ItemShop;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.shop.ItemShop;
 import net.jandie1505.bedwars.game.game.shop.UpgradeManager;
 import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.shop.upgrades.types.UpgradableItemUpgrade;
@@ -67,11 +66,9 @@ public class Game extends GamePart implements ManagedListener {
     private final TimeActionCreator timeActionCreator;
     private final BlockProtectionSystem blockProtectionSystem;
     private final Map<UUID, Scoreboard> playerScoreboards;
-    @Deprecated(forRemoval = true) private final ItemShop itemShop; // to be removed
-    private final net.jandie1505.bedwars.game.game.shop.ItemShop itemShopNew;
+    private final ItemShop itemShop;
     private final ShopGUI shopGUI;
     @NotNull private final UpgradeManager upgradeManager;
-    private final ArmorConfig armorConfig;
     private final TeamUpgradesConfig teamUpgradesConfig;
     private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
@@ -82,7 +79,7 @@ public class Game extends GamePart implements ManagedListener {
     private BedwarsTeam winner;
     private boolean noWinnerEnd;
 
-    public Game(Bedwars plugin, World world, MapData data, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig) {
+    public Game(Bedwars plugin, World world, MapData data, JSONObject shopConfig, TeamUpgradesConfig teamUpgradesConfig) {
         super(plugin);
         this.world = world;
         this.data = data;
@@ -93,11 +90,9 @@ public class Game extends GamePart implements ManagedListener {
         this.timeActionCreator = new TimeActionCreator(this);
         this.blockProtectionSystem = new BlockProtectionSystem(this);
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
-        this.itemShop = new ItemShop(this); // To be removed
-        this.itemShopNew = new net.jandie1505.bedwars.game.game.shop.ItemShop(this);
+        this.itemShop = new ItemShop(this);
         this.shopGUI = new ShopGUI(this);
         this.upgradeManager = new UpgradeManager(this, () -> false);
-        this.armorConfig = armorConfig;
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.data.maxTime();
@@ -156,7 +151,7 @@ public class Game extends GamePart implements ManagedListener {
 
         }
 
-        this.itemShop.initEntries(shopConfig);
+        //this.itemShop.initEntries(shopConfig); // TODO: Replace for new shop
 
         this.world.getWorldBorder().setCenter(this.data.centerLocation());
         this.world.getWorldBorder().setSize(this.data.mapRadius() * 2);
@@ -852,6 +847,10 @@ public class Game extends GamePart implements ManagedListener {
         }
     }
 
+    /**
+     * @deprecated TODO: Rewrite most parts of it
+     */
+    @Deprecated
     private void inventoryTick(Player player, PlayerData playerData, BedwarsTeam team) {
 
         // Item management
@@ -939,14 +938,6 @@ public class Game extends GamePart implements ManagedListener {
                 continue;
             }
 
-            // Default Sword Condition
-
-            if ((item.getType().toString().endsWith("SWORD") || (item.getType().toString().endsWith("AXE") && !item.getType().toString().endsWith("PICKAXE"))) && this.itemShop.getDefaultWeapon() != null && itemId != this.itemShop.getDefaultWeapon()) {
-                inventoryDefaultSwordMissing = false;
-            } else if (this.itemShop.getDefaultWeapon() != null && itemId == this.itemShop.getDefaultWeapon()) {
-                inventoryDefaultSwordMissing = false;
-            }
-
             // Sharpness Team Upgrade
 
             if (item != null && (item.getType().toString().endsWith("SWORD") || item.getType().toString().endsWith("AXE"))) {
@@ -1013,222 +1004,6 @@ public class Game extends GamePart implements ManagedListener {
                         ItemMeta meta = item.getItemMeta();
                         meta.removeEnchant(Enchantment.PROTECTION);
                         item.setItemMeta(meta);
-                    }
-
-                }
-
-            }
-
-            // Default Sword
-
-            if (this.itemShop.getDefaultWeapon() != null && itemId == this.itemShop.getDefaultWeapon()) {
-
-                for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2 ++) {
-                    ItemStack item2 = player.getInventory().getItem(slot2);
-
-                    if (item2 == null) {
-                        continue;
-                    }
-
-                    int item2Id = this.getPlugin().getItemStorage().getItemId(item2);
-
-                    if (item2Id < 0) {
-                        continue;
-                    }
-
-                    if ((item2.getType().toString().endsWith("SWORD") || (item2.getType().toString().endsWith("AXE") && !item2.getType().toString().endsWith("PICKAXE"))) && item2Id != itemId) {
-                        Bedwars.removeItemCompletely(player.getInventory(), item);
-                        break;
-                    }
-
-                }
-
-                continue;
-            }
-
-            // Pickaxe Player Upgrade
-
-            if (this.itemShop.getPickaxeUpgrade() != null && this.itemShop.getPickaxeUpgrade().getUpgradeItemIds().contains(itemId)) {
-
-                if (this.itemShop.getPickaxeUpgrade().getItemId(playerData.getPickaxeUpgrade()) == itemId) {
-                    inventoryPickaxeUpgradeMissing = false;
-                    continue;
-                }
-
-                Bedwars.removeItemCompletely(player.getInventory(), item);
-
-                if (slot >= player.getInventory().getSize()) {
-                    player.setItemOnCursor(new ItemStack(Material.AIR));
-                }
-
-                continue;
-            }
-
-            // Shears Player Upgrade
-
-            if (this.itemShop.getShearsUpgrade() != null && this.itemShop.getShearsUpgrade().getUpgradeItemIds().contains(itemId)) {
-
-                if (this.itemShop.getShearsUpgrade().getItemId(playerData.getShearsUpgrade()) == itemId) {
-                    inventoryShearsUpgradeMissing = false;
-                    continue;
-                }
-
-                Bedwars.removeItemCompletely(player.getInventory(), item);
-
-                if (slot >= player.getInventory().getSize()) {
-                    player.setItemOnCursor(new ItemStack(Material.AIR));
-                }
-
-                continue;
-            }
-
-        }
-
-        // Default Sword
-
-        if (this.itemShop.getDefaultWeapon() != null && this.itemShop.getDefaultWeaponItem() != null && inventoryDefaultSwordMissing) {
-            player.getInventory().addItem(this.itemShop.getDefaultWeaponItem());
-        }
-
-        // Pickaxe Player Upgrade
-
-        if (this.itemShop.getPickaxeUpgrade() != null && playerData.getPickaxeUpgrade() > 0 && inventoryPickaxeUpgradeMissing) {
-            ItemStack item = this.itemShop.getPickaxeUpgrade().getItem(playerData.getPickaxeUpgrade());
-
-            if (item != null) {
-                player.getInventory().addItem(item);
-            }
-        }
-
-        // Shears Player Upgrade
-
-        if (this.itemShop.getShearsUpgrade() != null && playerData.getShearsUpgrade() > 0 && inventoryShearsUpgradeMissing) {
-            ItemStack item = this.itemShop.getShearsUpgrade().getItem(playerData.getShearsUpgrade());
-
-            if (item != null) {
-                player.getInventory().addItem(item);
-            }
-        }
-
-        // Armor management
-
-        if (this.armorConfig.isEnableArmorSystem() && this.itemShop.getArmorUpgrade() != null) {
-
-            if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-                player.getInventory().setBoots(new ItemStack(Material.AIR));
-                player.getInventory().setLeggings(new ItemStack(Material.AIR));
-                player.getInventory().setChestplate(new ItemStack(Material.AIR));
-                player.getInventory().setHelmet(new ItemStack(Material.AIR));
-            } else {
-
-                // Boots
-
-                int bootsItemId;
-
-                if (playerData.getArmorUpgrade() > 0) {
-                    bootsItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
-                } else {
-                    bootsItemId = this.armorConfig.getDefaultBoots();
-                }
-
-                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getBoots()) != bootsItemId) {
-
-                    ItemStack item = this.getPlugin().getItemStorage().getItem(bootsItemId);
-
-                    if (item != null) {
-
-                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
-                        }
-
-                        player.getInventory().setBoots(item);
-                    }
-
-                }
-
-                // Leggings
-
-                int leggingsItemId;
-
-                if (this.armorConfig.isCopyLeggings() && playerData.getArmorUpgrade() > 0) {
-                    leggingsItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
-                } else {
-                    leggingsItemId = this.armorConfig.getDefaultLeggings();
-                }
-
-                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getLeggings()) != leggingsItemId) {
-
-                    ItemStack item = this.getPlugin().getItemStorage().getItem(leggingsItemId);
-
-                    if (item != null) {
-
-                        if (leggingsItemId != this.armorConfig.getDefaultLeggings()) {
-                            item = this.getPlugin().getItemStorage().copyItemMeta(item, this.getPlugin().getItemStorage().getArmorPiece(item.getType(), 2));
-                        }
-
-                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
-                        }
-
-                        player.getInventory().setLeggings(item);
-                    }
-
-                }
-
-                // Chestplate
-
-                int chestplateItemId;
-
-                if (this.armorConfig.isCopyChestplate() && playerData.getArmorUpgrade() > 0) {
-                    chestplateItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
-                } else {
-                    chestplateItemId = this.armorConfig.getDefaultChestplate();
-                }
-
-                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getChestplate()) != chestplateItemId) {
-
-                    ItemStack item = this.getPlugin().getItemStorage().getItem(chestplateItemId);
-
-                    if (item != null) {
-
-                        if (chestplateItemId != this.armorConfig.getDefaultChestplate()) {
-                            item = this.getPlugin().getItemStorage().copyItemMeta(item, this.getPlugin().getItemStorage().getArmorPiece(item.getType(), 1));
-                        }
-
-                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
-                        }
-
-                        player.getInventory().setChestplate(item);
-                    }
-
-                }
-
-                // Helmet
-
-                int helmetItemId;
-
-                if (this.armorConfig.isCopyHelmet() && playerData.getArmorUpgrade() > 0) {
-                    helmetItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
-                } else {
-                    helmetItemId = this.armorConfig.getDefaultHelmet();
-                }
-
-                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getHelmet()) != helmetItemId) {
-
-                    ItemStack item = this.getPlugin().getItemStorage().getItem(helmetItemId);
-
-                    if (item != null) {
-
-                        if (helmetItemId != this.armorConfig.getDefaultHelmet()) {
-                            item = this.getPlugin().getItemStorage().copyItemMeta(item, this.getPlugin().getItemStorage().getArmorPiece(item.getType(), 0));
-                        }
-
-                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
-                        }
-
-                        player.getInventory().setHelmet(item);
                     }
 
                 }
@@ -1726,12 +1501,20 @@ public class Game extends GamePart implements ManagedListener {
         return Map.copyOf(this.playerScoreboards);
     }
 
+    /**
+     * Returns the item shop.
+     * @return item shop
+     */
     public ItemShop getItemShop() {
         return this.itemShop;
     }
 
-    public net.jandie1505.bedwars.game.game.shop.ItemShop getItemShopNew() {
-        return this.itemShopNew;
+    /**
+     * Returns the shop gui.
+     * @return shop gui
+     */
+    public ShopGUI getShopGUI() {
+        return this.shopGUI;
     }
 
     public Location buildLocationWithWorld(Location old) {
@@ -1761,10 +1544,6 @@ public class Game extends GamePart implements ManagedListener {
 
     public TeamUpgradesConfig getTeamUpgradesConfig() {
         return this.teamUpgradesConfig;
-    }
-
-    public ArmorConfig getArmorConfig() {
-        return this.armorConfig;
     }
 
     public void setTime(int time) {

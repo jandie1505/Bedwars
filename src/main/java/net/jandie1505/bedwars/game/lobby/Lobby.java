@@ -15,7 +15,6 @@ import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
-import net.jandie1505.bedwars.game.game.menu.shop.old.ArmorConfig;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
@@ -652,6 +651,7 @@ public class Lobby extends GamePart {
 
         JSONObject shopConfig = this.getPlugin().getShopConfig().getConfig();
 
+        /*
         ArmorConfig armorConfig = new ArmorConfig(
                 shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("enableArmorSystem", false),
                 shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("copyHelmet", false),
@@ -662,6 +662,8 @@ public class Lobby extends GamePart {
                 shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultLeggings", 127),
                 shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultBoots", 128)
         );
+        TODO: Find alternative for new armor system.
+         */
 
         TeamUpgradesConfig teamUpgradesConfig = new TeamUpgradesConfig(
                 this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("sharpness", new JSONObject())),
@@ -682,7 +684,6 @@ public class Lobby extends GamePart {
                 world,
                 selectedMap,
                 new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
-                armorConfig,
                 teamUpgradesConfig
         );
 

@@ -1161,11 +1161,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
             case "diamondlevel":
                 sender.sendMessage("§7Diamond Generator Level: " + ((Game) this.plugin.getGame()).getPublicDiamondGeneratorLevel());
                 break;
-            case "armorconfig":
-                sender.sendMessage("§7Armor Config:");
-                sender.sendMessage("§7Item ids: HEAD CHEST LEGS BOOTS " + ((Game) this.plugin.getGame()).getArmorConfig().getDefaultHelmet() + " " + ((Game) this.plugin.getGame()).getArmorConfig().getDefaultChestplate() + " " + ((Game) this.plugin.getGame()).getArmorConfig().getDefaultLeggings() + " " + ((Game) this.plugin.getGame()).getArmorConfig().getDefaultBoots());
-                sender.sendMessage("§7Copy boots: HEAD CHEST LEGS " + ((Game) this.plugin.getGame()).getArmorConfig().isCopyHelmet() + " " + ((Game) this.plugin.getGame()).getArmorConfig().isCopyChestplate() + " " + ((Game) this.plugin.getGame()).getArmorConfig().isCopyLeggings());
-                break;
             case "teamupgradesconfig":
                 sender.sendMessage("§cCurrently not supported");
                 break;

@@ -4,9 +4,6 @@ import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.menu.shop.old.ShopEntryOld;
-import net.jandie1505.bedwars.game.game.menu.shop.old.ShopMenu;
-import net.jandie1505.bedwars.game.game.menu.shop.old.UpgradeEntryOld;
 import net.jandie1505.bedwars.game.game.menu.upgrades.UpgradesMenu;
 import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
@@ -190,27 +187,6 @@ public class GameInventoryManagementListener implements ManagedListener {
         // block not allowed inventories
         if (!ALLOWED_INVENTORY_TYPES.contains(inventory.getType())) return true;
 
-        // Old check (to be removed)
-        // These checks can be removed when all items have migrated to the new, PersistentDataContainer-based system. TODO: Remove
-
-        if (this.game.getItemShop().getDefaultWeapon() != null && this.game.getPlugin().getItemStorage().getItemId(currentItem) == this.game.getItemShop().getDefaultWeapon()) {
-            player.sendMessage("§cYou cannot move the default weapon to other inventories");
-            return true;
-        }
-
-        for (UpgradeEntryOld upgradeEntry : this.game.getItemShop().getUpgradeEntries()) {
-            for (int itemId : upgradeEntry.getUpgradeItemIds()) {
-
-                if (this.game.getPlugin().getItemStorage().getItemId(currentItem) == itemId) {
-                    player.sendMessage("§cYou cannot move upgradable items to other inventories");
-                    return true;
-                }
-
-            }
-        }
-
-        // NEW CHECK
-
         // The moveable value cannot be got from an item which has no meta.
         ItemMeta meta = currentItem.getItemMeta();
         if (meta == null) return false;
@@ -232,29 +208,6 @@ public class GameInventoryManagementListener implements ManagedListener {
         }
 
         ItemStack item = event.getItemDrop().getItemStack();
-
-        // Old check (to be removed)
-        // These checks can be removed when all items have migrated to the new, PersistentDataContainer-based system. TODO: Remove
-
-        // Prevent dropping default weapon
-        if (this.game.getItemShop().getDefaultWeapon() != null && this.game.getPlugin().getItemStorage().getItemId(item) == this.game.getItemShop().getDefaultWeapon()) {
-            event.setCancelled(true);
-            event.getPlayer().sendRichMessage("<red>You cannot drop the default weapon!");
-            return;
-        }
-
-        // Prevent dropping upgrade items
-        for (UpgradeEntryOld upgradeEntry : this.game.getItemShop().getUpgradeEntries()) {
-            for (int itemId : upgradeEntry.getUpgradeItemIds()) {
-
-                if (this.game.getPlugin().getItemStorage().getItemId(item) == itemId && !this.game.getPlugin().isPlayerBypassing(event.getPlayer())) {
-                    event.setCancelled(true);
-                    event.getPlayer().sendRichMessage("<red>You cannot drop upgradable items!");
-                    return;
-                }
-
-            }
-        }
 
         // TODO: Add config option for this
         // Prevent players from dropping items while not on ground (which should prevent players from dropping resources when being knocked into the void)
@@ -295,98 +248,6 @@ public class GameInventoryManagementListener implements ManagedListener {
 
     // ----- STUFF THAT HAS TO BE REFACTORED -----
     // TODO: Refactor
-
-    /**
-     * @deprecated Should be integrated into the gui class itself, will be done when the gui is rewritten (TODO)
-     */
-    @Deprecated
-    @EventHandler
-    public void onInventoryClickForShopMenu(@NotNull InventoryClickEvent event) {
-        if (!(event.getInventory().getHolder() instanceof ShopMenu shopMenu)) return;
-        event.setCancelled(true);
-
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-
-        PlayerData playerData = this.game.getPlayerData(player);
-        if (playerData == null) return;
-
-        if (!(event.getClick() == ClickType.LEFT || event.getClick() == ClickType.RIGHT)) return;
-        if (event.getCurrentItem() == null) return;
-
-        int itemId = this.game.getPlugin().getItemStorage().getItemId(event.getCurrentItem());
-        if (itemId < 0) return;
-
-        Integer[] menuItems = this.game.getItemShop().getMenuItems();
-        for (int i = 0; i < menuItems.length; i++) {
-
-            if (menuItems[i] != null && menuItems[i] == itemId) {
-                event.getWhoClicked().openInventory(new ShopMenu(this.game, event.getWhoClicked().getUniqueId()).getPage(i));
-                return;
-            }
-
-        }
-
-        ShopEntryOld shopEntry = this.game.getItemShop().getShopEntry(itemId);
-        if (shopEntry != null) {
-
-            if (!this.purchaseItem(event.getWhoClicked().getInventory(), shopEntry.getPrice(), shopEntry.getCurrency())) {
-                event.getWhoClicked().sendMessage("§cYou don't have enough " + shopEntry.getCurrency().name() + "s!");
-                return;
-            }
-
-            ItemStack item = this.game.getPlugin().getItemStorage().getItem(itemId);
-
-            if (item == null) {
-                return;
-            }
-
-            BedwarsTeam team = this.game.getTeam(playerData.getTeam());
-            if (team != null) {
-                Game.replaceBlockWithTeamColor(item, team);
-            }
-
-            event.getWhoClicked().sendMessage("§aItem successfully purchased");
-            event.getWhoClicked().getInventory().addItem(item);
-            event.getWhoClicked().openInventory(new ShopMenu(this.game, event.getWhoClicked().getUniqueId()).getPage(ShopMenu.getMenuPage(event.getInventory())));
-
-            return;
-        }
-
-        UpgradeEntryOld upgradeEntry = this.game.getItemShop().getUpgradeEntry(itemId);
-
-        if (upgradeEntry != null) {
-
-            int upgradeLevel = upgradeEntry.getUpgradeLevel(playerData) + 1;
-            if (upgradeLevel < 0) return;
-
-            int price = upgradeEntry.getUpgradePrice(upgradeLevel);
-            if (price < 0) return;
-
-            Material currency = upgradeEntry.getUpgradeCurrency(upgradeLevel);
-            if (currency == null) return;
-
-            if (!this.purchaseItem(event.getWhoClicked().getInventory(), price, currency)) {
-                event.getWhoClicked().sendMessage("§cYou don't have enough " + currency.name() + "s!");
-                return;
-            }
-
-            event.getWhoClicked().sendMessage("§aItem successfully purchased");
-            upgradeEntry.upgradePlayer(playerData);
-            playerData.setRewardPoints(playerData.getRewardPoints() + this.game.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("playerUpgradePurchased", 0));
-            event.getWhoClicked().openInventory(new ShopMenu(this.game, event.getWhoClicked().getUniqueId()).getPage(ShopMenu.getMenuPage(event.getInventory())));
-
-            return;
-        }
-
-        return;
-    }
-
-    @Deprecated
-    @EventHandler
-    public void onInventoryDragForShopMenu(@NotNull InventoryDragEvent event) {
-        if (!(event.getInventory().getHolder() instanceof ShopMenu)) return;
-        event.setCancelled(true);
-    }
 
     @Deprecated
     @EventHandler

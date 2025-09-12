@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.game.menu.shop;
+package net.jandie1505.bedwars.game.game.shop.shop;
 
 import net.chaossquad.mclib.json.JSONConfigUtils;
 import org.bukkit.Material;

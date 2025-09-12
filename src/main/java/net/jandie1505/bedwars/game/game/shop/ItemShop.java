@@ -2,7 +2,7 @@ package net.jandie1505.bedwars.game.game.shop;
 
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.menu.shop.ShopEntry;
+import net.jandie1505.bedwars.game.game.shop.shop.ShopEntry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
