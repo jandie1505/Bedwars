@@ -10,6 +10,8 @@ public interface Permissions {
     String ADMIN = PREFIX + "admin";
     String CHAT_FORMATTING = PREFIX + "chat_formatting";
     String START = PREFIX + "start";
+    String FORCE_MAP = PREFIX + "force_map";
+    String VOTE_MAP = PREFIX + "vote_map";
 
     /**
      * Returns if the specified sender has at least one of the specified permissions.<br/>

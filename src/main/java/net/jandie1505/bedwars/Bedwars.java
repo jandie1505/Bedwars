@@ -3,10 +3,12 @@ package net.jandie1505.bedwars;
 import de.myzelyam.api.vanish.VanishAPI;
 import net.chaossquad.mclib.dynamicevents.EventListenerManager;
 import net.jandie1505.bedwars.commands.BedwarsCommand;
+import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
 import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.lobby.commands.LobbyVotemapCommand;
 import net.jandie1505.bedwars.global.listeners.EventListener;
 import net.jandie1505.bedwars.items.ItemStorage;
 import net.jandie1505.bedwars.game.lobby.Lobby;
@@ -15,6 +17,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.black_ixx.playerpoints.PlayerPoints;
 import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.*;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -79,8 +82,27 @@ public class Bedwars extends JavaPlugin {
             this.svLoaded = false;
         }
 
-        this.getCommand("bedwars").setExecutor(new BedwarsCommand(this));
-        this.getCommand("bedwars").setTabCompleter(new BedwarsCommand(this));
+        // Commands
+
+        BedwarsCommand command = new BedwarsCommand(this);
+        this.getCommand("bedwars").setExecutor(command);
+        this.getCommand("bedwars").setTabCompleter(command);
+
+        PluginCommand startCommand = this.getCommand("start");
+        if (startCommand != null) {
+            LobbyStartSubcommand cmd = new LobbyStartSubcommand(this);
+            startCommand.setExecutor(cmd);
+            startCommand.setTabCompleter(cmd);
+        }
+
+        PluginCommand votemapCommand = this.getCommand("votemap");
+        if (votemapCommand != null) {
+            LobbyVotemapCommand cmd = new LobbyVotemapCommand(this);
+            votemapCommand.setExecutor(cmd);
+            votemapCommand.setTabCompleter(cmd);
+        }
+
+        // Listeners
 
         this.eventListener = new EventListener(this);
         this.getServer().getPluginManager().registerEvents(this.eventListener, this);

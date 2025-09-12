@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.game.game.Game;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scoreboard.Scoreboard;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,43 +14,35 @@ public class PlayerData {
     private final Game game;
     private final Inventory enderchest;
     private final Map<String, Integer> upgrades;
+    private final Map<String, Integer> timers;
     private boolean alive;
     private int respawnCountdown;
     private int team;
-    private Scoreboard scoreboard;
     private int kills;
     private int deaths;
     private int bedsBroken;
-    private int fireballCooldown;
-    private int trapCooldown;
     private UUID trackingTarget;
     private int milkTimer;
-    private int ironGolemCooldown;
     private int rewardPoints;
-    private int zapperCooldown;
-    private int teleportToBaseCooldown;
-    private int blackHoleCooldown;
 
     public PlayerData(Game game, int team) {
         this.game = game;
         this.enderchest = this.game.getPlugin().getServer().createInventory(null, 27, "Enderchest");
         this.upgrades = new HashMap<>();
+        this.timers = new HashMap<>();
         this.alive = false;
         this.respawnCountdown = 0;
         this.team = team;
-        this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         this.kills = 0;
         this.deaths = 0;
         this.bedsBroken = 0;
-        this.fireballCooldown = 0;
-        this.trapCooldown = 0;
         this.trackingTarget = null;
         this.milkTimer = 0;
-        this.ironGolemCooldown = 0;
         this.rewardPoints = 0;
-        this.zapperCooldown = 0;
-        this.teleportToBaseCooldown = 0;
-        this.blackHoleCooldown = 0;
+    }
+
+    public @NotNull Map<String, Integer> getUpgrades() {
+        return Map.copyOf(upgrades);
     }
 
     public int getUpgrade(String id) {
@@ -57,8 +50,31 @@ public class PlayerData {
     }
 
     public void setUpgrade(String id, int level) {
-        if (level < 0) return;
+
+        if (level < 0) {
+            this.upgrades.remove(id);
+            return;
+        }
+
         this.upgrades.put(id, level);
+    }
+
+    public @NotNull Map<String, Integer> getTimers() {
+        return Map.copyOf(timers);
+    }
+
+    public int getTimer(String id) {
+        return this.timers.getOrDefault(id, 0);
+    }
+
+    public void setTimer(String id, int level) {
+
+        if (level < 0) {
+            this.timers.remove(id);
+            return;
+        }
+
+        this.timers.put(id, level);
     }
 
     public boolean isAlive() {
@@ -85,14 +101,6 @@ public class PlayerData {
         this.team = team;
     }
 
-    public Scoreboard getScoreboard() {
-        return scoreboard;
-    }
-
-    public void resetScoreboard() {
-        this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-    }
-
     public int getKills() {
         return kills;
     }
@@ -115,10 +123,6 @@ public class PlayerData {
 
     public void setBedsBroken(int bedsBroken) {
         this.bedsBroken = bedsBroken;
-    }
-
-    public void setScoreboard(Scoreboard scoreboard) {
-        this.scoreboard = scoreboard;
     }
 
     public int getArmorUpgrade() {
@@ -145,20 +149,23 @@ public class PlayerData {
         this.setUpgrade("shears", shearsUpgrade);
     }
 
+    @Deprecated
     public int getFireballCooldown() {
-        return fireballCooldown;
+        return this.timers.getOrDefault("item.fireball_cooldown", 0);
     }
 
+    @Deprecated
     public void setFireballCooldown(int fireballCooldown) {
-        this.fireballCooldown = fireballCooldown;
+        this.timers.put("item.fireball_cooldown", fireballCooldown);
     }
 
+    @Deprecated
     public int getTrapCooldown() {
-        return trapCooldown;
+        return this.timers.getOrDefault("player.trap_cooldown", 0);
     }
 
     public void setTrapCooldown(int trapCooldown) {
-        this.trapCooldown = trapCooldown;
+        this.timers.put("player.trap_cooldown", trapCooldown);
     }
 
     public UUID getTrackingTarget() {
@@ -185,12 +192,14 @@ public class PlayerData {
         this.milkTimer = milkTimer;
     }
 
+    @Deprecated
     public int getIronGolemCooldown() {
-        return ironGolemCooldown;
+        return this.timers.getOrDefault("item.iron_golem_cooldown", 0);
     }
 
+    @Deprecated
     public void setIronGolemCooldown(int ironGolemCooldown) {
-        this.ironGolemCooldown = ironGolemCooldown;
+        this.timers.put("item.iron_golem_cooldown", ironGolemCooldown);
     }
 
     public int getRewardPoints() {
@@ -201,27 +210,33 @@ public class PlayerData {
         this.rewardPoints = rewardPoints;
     }
 
+    @Deprecated
     public int getZapperCooldown() {
-        return zapperCooldown;
+        return this.timers.getOrDefault("item.zapper_cooldown", 0);
     }
 
+    @Deprecated
     public void setZapperCooldown(int zapperCooldown) {
-        this.zapperCooldown = zapperCooldown;
+        this.timers.put("item.zapper_cooldown", zapperCooldown);
     }
 
+    @Deprecated
     public int getTeleportToBaseCooldown() {
-        return teleportToBaseCooldown;
+        return this.timers.getOrDefault("item.teleport_to_base_cooldown", 0);
     }
 
+    @Deprecated
     public void setTeleportToBaseCooldown(int teleportToBaseCooldown) {
-        this.teleportToBaseCooldown = teleportToBaseCooldown;
+        this.timers.put("item.teleport_to_base_cooldown", teleportToBaseCooldown);
     }
 
+    @Deprecated
     public int getBlackHoleCooldown() {
-        return blackHoleCooldown;
+        return this.timers.getOrDefault("item.blackhole_cooldown", 0);
     }
 
+    @Deprecated
     public void setBlackHoleCooldown(int blackHoleCooldown) {
-        this.blackHoleCooldown = blackHoleCooldown;
+        this.timers.put("item.blackhole_cooldown", 0);
     }
 }

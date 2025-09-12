@@ -7,35 +7,32 @@ import net.jandie1505.bedwars.game.game.team.traps.BedwarsTrap;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.data.type.Bed;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public class BedwarsTeam {
-    private final Game game;
-    private final TeamData data;
+    @NotNull private final Game game;
+    @NotNull private final TeamData data;
+    @NotNull private final Map<String, Integer> upgrades;
     private final BedwarsTrap[] primaryTraps;
     private final BedwarsTrap[] secondaryTraps;
-    private int attackDamageUpgrade;
-    private int protectionUpgrade;
-    private int hasteUpgrade;
-    private int forgeUpgrade;
-    private int healPoolUpgrade;
-    private int endgameBuffUpgrade;
     private boolean disableBed;
 
-    public BedwarsTeam(Game game, TeamData data) {
+    public BedwarsTeam(@NotNull Game game, @NotNull TeamData data) {
         this.game = game;
         this.data = data;
+        this.upgrades = new HashMap<>();
 
         this.primaryTraps = new BedwarsTrap[2];
         this.secondaryTraps = new BedwarsTrap[2];
 
-        this.attackDamageUpgrade = 0;
-        this.protectionUpgrade = 0;
-        this.hasteUpgrade = 0;
-        this.forgeUpgrade = 0;
-        this.healPoolUpgrade = 0;
-        this.endgameBuffUpgrade = 0;
+        this.upgrades.put(TeamUpgrades.ATTACK_DAMAGE, 0);
+        this.upgrades.put(TeamUpgrades.PROTECTION, 0);
+        this.upgrades.put(TeamUpgrades.HASTE, 0);
+        this.upgrades.put(TeamUpgrades.FORGE, 0);
+        this.upgrades.put(TeamUpgrades.HEAL_POOL, 0);
+        this.upgrades.put(TeamUpgrades.ENDGAME_BUFF, 0);
 
         this.disableBed = false;
     }
@@ -120,52 +117,97 @@ public class BedwarsTeam {
         return data;
     }
 
+    /**
+     * Returns an unmodifiable map of the current team upgrades.
+     * @return map of team upgrades
+     */
+    public @NotNull Map<String, Integer> getUpgrades() {
+        return Map.copyOf(this.upgrades);
+    }
+
+    /**
+     * Gets the level of a specific team upgrade.<br/>
+     * Returns 0 if the upgrade is not set.
+     * @param upgradeId upgrade id
+     * @return upgrade level
+     */
+    public int getUpgrade(@NotNull String upgradeId) {
+        return this.upgrades.getOrDefault(upgradeId, 0);
+    }
+
+    /**
+     * Sets the level of a specific team upgrade.<br/>
+     * An upgrade can be removed by setting a negative value.
+     * @param upgradeId upgrade id
+     * @param upgrade new upgrade level (negative value to clear)
+     */
+    public void setUpgrade(@NotNull String upgradeId, int upgrade) {
+
+        if (upgrade < 0) {
+            this.upgrades.remove(upgradeId);
+            return;
+        }
+
+        this.upgrades.put(upgradeId, upgrade);
+    }
+
     public int getAttackDamageUpgrade() {
-        return attackDamageUpgrade;
+        return this.upgrades.getOrDefault(TeamUpgrades.ATTACK_DAMAGE, 0);
     }
 
+    @Deprecated
     public void setAttackDamageUpgrade(int attackDamageUpgrade) {
-        this.attackDamageUpgrade = attackDamageUpgrade;
+        this.upgrades.put(TeamUpgrades.ATTACK_DAMAGE, attackDamageUpgrade);
     }
 
+    @Deprecated
     public int getProtectionUpgrade() {
-        return protectionUpgrade;
+        return this.upgrades.getOrDefault(TeamUpgrades.PROTECTION, 0);
     }
 
+    @Deprecated
     public void setProtectionUpgrade(int protectionUpgrade) {
-        this.protectionUpgrade = protectionUpgrade;
+        this.upgrades.put(TeamUpgrades.PROTECTION, protectionUpgrade);
     }
 
+    @Deprecated
     public int getHasteUpgrade() {
-        return hasteUpgrade;
+        return this.upgrades.getOrDefault(TeamUpgrades.HASTE, 0);
     }
 
+    @Deprecated
     public void setHasteUpgrade(int hasteUpgrade) {
-        this.hasteUpgrade = hasteUpgrade;
+        this.upgrades.put(TeamUpgrades.HASTE, hasteUpgrade);
     }
 
+    @Deprecated
     public int getForgeUpgrade() {
-        return forgeUpgrade;
+        return this.upgrades.getOrDefault(TeamUpgrades.FORGE, 0);
     }
 
+    @Deprecated
     public void setForgeUpgrade(int forgeUpgrade) {
-        this.forgeUpgrade = forgeUpgrade;
+        this.upgrades.put(TeamUpgrades.FORGE, forgeUpgrade);
     }
 
+    @Deprecated
     public int getHealPoolUpgrade() {
-        return healPoolUpgrade;
+        return this.upgrades.getOrDefault(TeamUpgrades.HEAL_POOL, 0);
     }
 
+    @Deprecated
     public void setHealPoolUpgrade(int healPoolUpgrade) {
-        this.healPoolUpgrade = healPoolUpgrade;
+        this.upgrades.put(TeamUpgrades.HEAL_POOL, healPoolUpgrade);
     }
 
+    @Deprecated
     public int getEndgameBuffUpgrade() {
-        return endgameBuffUpgrade;
+        return this.upgrades.getOrDefault(TeamUpgrades.ENDGAME_BUFF, 0);
     }
 
+    @Deprecated
     public void setEndgameBuffUpgrade(int endgameBuffUpgrade) {
-        this.endgameBuffUpgrade = endgameBuffUpgrade;
+        this.upgrades.put(TeamUpgrades.ENDGAME_BUFF, endgameBuffUpgrade);
     }
 
     public int getTeamUpgrade(TeamUpgrade teamUpgrade) {
@@ -191,17 +233,17 @@ public class BedwarsTeam {
     public void setTeamUpgrade(TeamUpgrade teamUpgrade, int value) {
 
         if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getSharpnessUpgrade()) {
-            this.attackDamageUpgrade = value;
+            this.upgrades.put(TeamUpgrades.ATTACK_DAMAGE, value);
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getProtectionUpgrade()) {
-            this.protectionUpgrade = value;
+            this.upgrades.put(TeamUpgrades.PROTECTION, value);
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHasteUpgrade()) {
-            this.hasteUpgrade = value;
+            this.upgrades.put(TeamUpgrades.HASTE, value);
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getForgeUpgrade()) {
-            this.forgeUpgrade = value;
+            this.upgrades.put(TeamUpgrades.FORGE, value);
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHealPoolUpgrade()) {
-            this.healPoolUpgrade = value;
+            this.upgrades.put(TeamUpgrades.HEAL_POOL, value);
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getEndgameBuffUpgrade()) {
-            this.endgameBuffUpgrade = value;
+            this.upgrades.put(TeamUpgrades.ENDGAME_BUFF, value);
         }
 
     }
@@ -252,16 +294,25 @@ public class BedwarsTeam {
         }
     }
 
+    /**
+     * Returns if the bed is disabled (counts as destroyed even if it is there).
+     * @return bed disabled
+     */
     public boolean isBedDisabled() {
         return this.disableBed;
     }
 
-    public void disableBed() {
-        this.disableBed = true;
+    /**
+     * Sets if the bed of the team should be disabled (counts as destroyed even if it is there).
+     * @param bedDisabled bed disabled
+     */
+    public void setBedDisabled(boolean bedDisabled) {
+        this.disableBed = bedDisabled;
     }
 
-    public void enableBed() {
-        this.disableBed = false;
+    @Deprecated
+    public void disableBed() {
+        this.setBedDisabled(true);
     }
 
     public static int getTrapsCount(BedwarsTrap[] bedwarsTraps) {
