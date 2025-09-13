@@ -5,10 +5,12 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
+import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -43,6 +45,8 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
     @NotNull public static NamespacedKey MENU_BAR_PAGE_ID = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.menu_bar_page_id");
     // The shop item id that is used to identify the item in ItemShop. Is used to get the original item and price.
     @NotNull public static NamespacedKey MENU_SHOP_ITEM_ID = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.shop_item_id");
+    // The upgrade id (in the map of ItemShop) that is used to identify the item in ItemShop. It is used to get the upgrade and the price.
+    @NotNull public static NamespacedKey MENU_SHOP_UPGRADE_ID = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.upgrade_id");
 
     @NotNull private final Game game;
     @NotNull private final ItemStack[] menuBarItems;
@@ -73,7 +77,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
         // PAGE
 
         if (page > 0) {
-            buildShopMenuPage(inventory, page);
+            buildShopMenuPage(inventory, page, player);
         } else {
             buildQuickBuyMenu(inventory);
         }
@@ -164,8 +168,11 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
 
     // ----- SHOP PAGES -----
 
-    private void buildShopMenuPage(@NotNull Inventory inventory, int page) {
+    private void buildShopMenuPage(@NotNull Inventory inventory, int page, @NotNull Player player) {
         ItemShop itemShop = new ItemShop(this.game); // Will be added later
+
+        PlayerData playerData = this.game.getPlayerData(player);
+        if (playerData == null) return;
 
         for (int slot = 18; slot < inventory.getSize(); slot++) {
 
@@ -179,6 +186,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
             // ITEMS
 
             boolean itemLoopInterrupted = false;
+
             for (Map.Entry<String, ShopEntry> e : itemShop.getItems().entrySet()) {
                 if (!e.getValue().positions().contains(new ShopGUIPosition(page, slot))) continue;
 
@@ -209,7 +217,50 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
 
             // UPGRADES
 
+            for (Map.Entry<String, UpgradeEntry> e : itemShop.getUpgrades().entrySet()) {
+                if (!e.getValue().positions().contains(new ShopGUIPosition(page, slot))) continue;
+                UpgradeEntry entry = e.getValue();
 
+                PlayerUpgrade upgrade = this.game.getPlayerUpgradeManager().getUpgrade(entry.upgradeId());
+                if (upgrade == null) continue;
+
+                int level = playerData.getUpgrade(upgrade.getId()) + 1;
+
+                @Nullable UpgradeEntry.PriceEntry price = entry.prices().get(level);
+
+                ItemStack icon = entry.icons().get(level);
+                if (icon == null) continue;
+
+                ItemMeta iconMeta = icon.getItemMeta();
+
+                iconMeta.getPersistentDataContainer().set(MENU_SHOP_UPGRADE_ID, PersistentDataType.STRING, e.getKey());
+
+                List<Component> lore = iconMeta.lore();
+                lore = lore != null ? new ArrayList<>(lore) : new ArrayList<>();
+                if (!lore.isEmpty()) lore.add(Component.text(" "));
+
+                if (price != null) {
+                    lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                            .append(Component.text("Price: ", NamedTextColor.GRAY))
+                            .append(Component.text(price.amount(), NamedTextColor.YELLOW))
+                            .appendSpace()
+                            .append(Component.text(price.currency().name(), NamedTextColor.YELLOW))
+                    );
+                } else {
+                    lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                            .append(Component.text("No upgrade available", NamedTextColor.GRAY))
+                    );
+                }
+                iconMeta.lore(lore);
+
+                icon.setItemMeta(iconMeta);
+                inventory.setItem(slot, icon);
+
+                itemLoopInterrupted = true;
+                break;
+            }
+
+            if (itemLoopInterrupted) continue;
 
         }
 

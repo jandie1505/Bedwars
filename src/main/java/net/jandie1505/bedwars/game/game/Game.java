@@ -1518,6 +1518,14 @@ public class Game extends GamePart implements ManagedListener {
         return this.shopGUI;
     }
 
+    /**
+     * Returns the player upgrade manager.
+     * @return player upgrade manager
+     */
+    public @NotNull PlayerUpgradeManager getPlayerUpgradeManager() {
+        return this.playerUpgradeManager;
+    }
+
     public Location buildLocationWithWorld(Location old) {
         return new Location(
                 this.world,
