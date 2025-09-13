@@ -23,6 +23,27 @@ public record UpgradeEntry(
         @NotNull Map<Integer, ItemStack> icons
 ) {
 
+    @Override
+    public @NotNull Map<Integer, PriceEntry> prices() {
+        return new HashMap<>(this.prices);
+    }
+
+    @Override
+    public @NotNull Set<ShopGUIPosition> positions() {
+        return new HashSet<>(this.positions);
+    }
+
+    @Override
+    public @NotNull Map<Integer, ItemStack> icons() {
+        HashMap<Integer, ItemStack> items = new HashMap<>();
+
+        for (Map.Entry<Integer, ItemStack> entry : this.icons.entrySet()) {
+            items.put(entry.getKey(), entry.getValue().clone());
+        }
+
+        return items;
+    }
+
     public static @NotNull UpgradeEntry fromJSON(JSONObject json) {
 
         String upgradeId = json.getString("upgradeId");
