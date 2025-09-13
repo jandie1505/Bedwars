@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Command that can give shop items to players.
@@ -71,11 +72,19 @@ public class GameGiveSubcommand implements TabCompletingCommandExecutor {
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-        if (args.length == 1) return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
-        if (args.length == 2) return this.game.getItemShop().getItems().keySet().stream().toList();
-        if (args.length == 3) return List.of("1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024");
-        return List.of();
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] oldArgs) {
+        return OptionParser.complete(
+                commandSender,
+                OptionParser.parse(oldArgs),
+                (sender, args) -> {
+                    if (args.args().length == 1) return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
+                    if (args.args().length == 2) return this.game.getItemShop().getItems().keySet().stream().toList();
+                    if (args.args().length == 3) return List.of("1", "2", "4", "8", "16", "32", "64", "128", "256", "512", "1024");
+                    return List.of();
+                },
+                Set.of("silent"),
+                null
+        );
     }
 
 }

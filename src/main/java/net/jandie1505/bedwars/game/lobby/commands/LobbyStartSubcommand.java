@@ -65,7 +65,7 @@ public class LobbyStartSubcommand implements TabCompletingCommandExecutor {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-        return OptionParser.complete(sender, OptionParser.parse(args), Set.of("ignore-requirements"), Map.of());
+        return OptionParser.complete(sender, OptionParser.parse(args), null, Set.of("ignore-requirements"), Map.of());
     }
 
 }
