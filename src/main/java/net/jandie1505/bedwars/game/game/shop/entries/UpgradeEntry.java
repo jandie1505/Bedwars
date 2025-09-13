@@ -1,6 +1,8 @@
 package net.jandie1505.bedwars.game.game.shop.entries;
 
+import net.chaossquad.mclib.json.JSONConfigUtils;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,11 +14,13 @@ import java.util.*;
  * @param upgradeId ID of the upgrade that can be bought.
  * @param prices Map of price entries for each level.
  * @param positions Positions where the upgrade should be displayed in the shop menu.
+ * @param icons The item that is displayed in the shop GUI for this upgrade.
  */
 public record UpgradeEntry(
         @NotNull String upgradeId,
         @NotNull Map<Integer, PriceEntry> prices,
-        @NotNull Set<ShopGUIPosition> positions
+        @NotNull Set<ShopGUIPosition> positions,
+        @NotNull Map<Integer, ItemStack> icons
 ) {
 
     public static @NotNull UpgradeEntry fromJSON(JSONObject json) {
@@ -42,7 +46,20 @@ public record UpgradeEntry(
             positions.add(position);
         }
 
-        return new UpgradeEntry(upgradeId, priceEntries, positions);
+        Map<Integer, ItemStack> icons = new HashMap<>();
+        JSONArray iconsJSON = json.getJSONArray("icons");
+        for (Object o : iconsJSON) {
+            if (!(o instanceof JSONObject iconEntryJSON)) throw new IllegalArgumentException("Invalid icon entry");
+
+            int level = iconEntryJSON.getInt("level");
+
+            ItemStack itemEntry = JSONConfigUtils.deserializeItem(iconEntryJSON.getJSONObject("item"));
+            if (itemEntry == null) throw new IllegalArgumentException("Invalid item");
+
+            icons.put(level, itemEntry);
+        }
+
+        return new UpgradeEntry(upgradeId, priceEntries, positions, icons);
     }
 
     public @NotNull JSONObject toJSON() {
@@ -63,6 +80,17 @@ public record UpgradeEntry(
             positions.put(ShopGUIPosition.convertToJSON(guiPosition));
         }
         json.put("positions", positions);
+
+        JSONArray icons = new JSONArray();
+        for (Map.Entry<Integer, ItemStack> e : this.icons.entrySet()) {
+            JSONObject icon = new JSONObject();
+
+            icon.put("level", e.getKey());
+            icons.put(JSONConfigUtils.serializeItem(e.getValue()));
+
+            icons.put(icon);
+        }
+        json.put("icons", icons);
 
         return json;
     }
