@@ -2,7 +2,10 @@ package net.jandie1505.bedwars.game.game.shop;
 
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.shop.shop.ShopEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
+import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
+import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,10 +15,12 @@ import java.util.Map;
 public class ItemShop {
     @NotNull private final Game game;
     @NotNull private final Map<String, ShopEntry> items;
+    @NotNull private final Map<String, UpgradeEntry> upgrades;
 
     public ItemShop(@NotNull Game game) {
         this.game = game;
         this.items = new HashMap<>();
+        this.upgrades = new HashMap<>();
 
         this.items.putAll(DefaultConfigValues.getDefaultShopEntries(game.getPlugin()));
     }

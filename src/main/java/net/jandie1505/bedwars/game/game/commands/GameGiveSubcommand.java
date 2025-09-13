@@ -6,7 +6,7 @@ import net.chaossquad.mclib.command.TabCompletingCommandExecutor;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
-import net.jandie1505.bedwars.game.game.shop.shop.ShopEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

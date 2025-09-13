@@ -1,7 +1,7 @@
 package net.jandie1505.bedwars.config;
 
-import net.jandie1505.bedwars.game.game.shop.shop.ShopGUIPosition;
-import net.jandie1505.bedwars.game.game.shop.shop.ShopEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
