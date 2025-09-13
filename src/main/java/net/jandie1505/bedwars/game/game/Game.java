@@ -19,11 +19,11 @@ import net.jandie1505.bedwars.game.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.game.listeners.*;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
-import net.jandie1505.bedwars.game.game.shop.UpgradeManager;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
-import net.jandie1505.bedwars.game.game.shop.upgrades.types.UpgradableItemUpgrade;
+import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
@@ -43,7 +43,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -68,7 +67,7 @@ public class Game extends GamePart implements ManagedListener {
     private final Map<UUID, Scoreboard> playerScoreboards;
     private final ItemShop itemShop;
     private final ShopGUI shopGUI;
-    @NotNull private final UpgradeManager upgradeManager;
+    @NotNull private final PlayerUpgradeManager playerUpgradeManager;
     private final TeamUpgradesConfig teamUpgradesConfig;
     private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
@@ -92,7 +91,7 @@ public class Game extends GamePart implements ManagedListener {
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
         this.shopGUI = new ShopGUI(this);
-        this.upgradeManager = new UpgradeManager(this, () -> false);
+        this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.data.maxTime();
@@ -211,7 +210,7 @@ public class Game extends GamePart implements ManagedListener {
 
         // TEST
 
-        this.upgradeManager.registerUpgrade(new UpgradableItemUpgrade(this.upgradeManager, "pickaxe", Component.text("Test Upgrade"), Component.empty(), List.of(), List.of(new ItemStack(Material.OAK_PLANKS), new ItemStack(Material.DIAMOND))));
+        this.playerUpgradeManager.registerUpgrade(new UpgradableItemUpgrade(this.playerUpgradeManager, "pickaxe", Component.text("Test Upgrade"), Component.empty(), List.of(), List.of(new ItemStack(Material.OAK_PLANKS), new ItemStack(Material.DIAMOND))));
 
     }
 

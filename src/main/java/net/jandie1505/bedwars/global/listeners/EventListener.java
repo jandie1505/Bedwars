@@ -2,13 +2,9 @@ package net.jandie1505.bedwars.global.listeners;
 
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
-import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
-import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.lobby.Lobby;
 import net.kyori.adventure.text.Component;
-import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -21,9 +17,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerListPingEvent;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 

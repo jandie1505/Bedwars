@@ -9,7 +9,7 @@ import net.jandie1505.bedwars.game.game.entities.entities.*;
 import net.jandie1505.bedwars.game.game.generators.Generator;
 import net.jandie1505.bedwars.game.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.game.generators.TeamGenerator;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.timeactions.actions.DestroyBedsAction;
 import net.jandie1505.bedwars.game.game.timeactions.actions.GeneratorUpgradeAction;
@@ -21,9 +21,7 @@ import net.jandie1505.bedwars.game.lobby.LobbyPlayerData;
 import net.jandie1505.bedwars.game.game.MapData;
 import org.bukkit.*;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 

@@ -6,7 +6,7 @@ import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.shop.shop.ShopEntry;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
 import net.jandie1505.bedwars.game.game.shop.shop.ShopGUIPosition;
 import net.kyori.adventure.text.Component;

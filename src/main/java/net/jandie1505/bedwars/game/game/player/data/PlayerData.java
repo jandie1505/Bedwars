@@ -1,9 +1,7 @@
-package net.jandie1505.bedwars.game.game.player;
+package net.jandie1505.bedwars.game.game.player.data;
 
 import net.jandie1505.bedwars.game.game.Game;
-import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;

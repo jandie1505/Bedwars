@@ -8,7 +8,7 @@ import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.BridgeEgg;
 import net.jandie1505.bedwars.game.game.entities.entities.SnowDefender;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

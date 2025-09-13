@@ -6,7 +6,7 @@ import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.EndgameWither;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.generators.Generator;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import org.bukkit.GameRule;
 import org.bukkit.entity.*;

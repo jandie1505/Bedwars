@@ -1,7 +1,7 @@
 package net.jandie1505.bedwars.game.game.events;
 
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;

@@ -1,11 +1,10 @@
-package net.jandie1505.bedwars.game.game.shop;
+package net.jandie1505.bedwars.game.game.player.upgrades;
 
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.chaossquad.mclib.misc.Removable;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.events.GamePlayerRespawnEvent;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
-import net.jandie1505.bedwars.game.game.shop.upgrades.PlayerUpgrade;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.PlayerDeathEvent;
@@ -16,12 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 
-public class UpgradeManager implements ManagedListener {
+public class PlayerUpgradeManager implements ManagedListener {
     @NotNull private final Game game;
     @NotNull private final Removable removeCondition;
     @NotNull private final Map<String, PlayerUpgrade> upgrades;
 
-    public UpgradeManager(@NotNull Game game, @Nullable Removable removeCondition) {
+    public PlayerUpgradeManager(@NotNull Game game, @Nullable Removable removeCondition) {
         this.game = game;
         this.removeCondition = removeCondition != null ? removeCondition : () -> false;
         this.upgrades = new HashMap<>();

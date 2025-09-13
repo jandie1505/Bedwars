@@ -1,9 +1,8 @@
-package net.jandie1505.bedwars.game.game.shop.upgrades;
+package net.jandie1505.bedwars.game.game.player.upgrades;
 
 import net.chaossquad.mclib.misc.Removable;
 import net.chaossquad.mclib.scheduler.TaskScheduler;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
-import net.jandie1505.bedwars.game.game.shop.UpgradeManager;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +19,7 @@ import java.util.logging.Level;
  * The base class for a player upgrade like armor, pickaxe, etc...
  */
 public abstract class PlayerUpgrade implements Removable {
-    @NotNull private final UpgradeManager manager;
+    @NotNull private final PlayerUpgradeManager manager;
     @NotNull private final String id;
     @NotNull private final TaskScheduler scheduler;
     /**
@@ -28,7 +27,7 @@ public abstract class PlayerUpgrade implements Removable {
      * @param manager manager
      * @param id id
      */
-    public PlayerUpgrade(@NotNull UpgradeManager manager, @NotNull String id) {
+    public PlayerUpgrade(@NotNull PlayerUpgradeManager manager, @NotNull String id) {
         if (id.isEmpty()) throw new IllegalArgumentException("id cannot be empty");
         this.manager = manager;
         this.id = id;
@@ -235,7 +234,7 @@ public abstract class PlayerUpgrade implements Removable {
 
     // ----- OTHER -----
 
-    public final @NotNull UpgradeManager getManager() {
+    public final @NotNull PlayerUpgradeManager getManager() {
         return this.manager;
     }
 

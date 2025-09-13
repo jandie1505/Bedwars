@@ -6,7 +6,7 @@ import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;

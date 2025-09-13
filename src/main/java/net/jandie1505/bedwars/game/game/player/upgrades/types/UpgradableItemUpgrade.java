@@ -1,17 +1,12 @@
-package net.jandie1505.bedwars.game.game.shop.upgrades.types;
+package net.jandie1505.bedwars.game.game.player.upgrades.types;
 
 import net.jandie1505.bedwars.constants.NamespacedKeys;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
-import net.jandie1505.bedwars.game.game.shop.UpgradeManager;
-import net.jandie1505.bedwars.game.game.shop.upgrades.PlayerUpgrade;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -36,7 +31,7 @@ public class UpgradableItemUpgrade extends PlayerUpgrade {
      * @param description description
      * @param icons       icons
      */
-    public UpgradableItemUpgrade(@NotNull UpgradeManager manager, @NotNull String id, @NotNull Component name, @NotNull Component description, @NotNull List<ItemStack> icons, @NotNull List<ItemStack> items) {
+    public UpgradableItemUpgrade(@NotNull PlayerUpgradeManager manager, @NotNull String id, @NotNull Component name, @NotNull Component description, @NotNull List<ItemStack> icons, @NotNull List<ItemStack> items) {
         super(manager, id);
         this.items = items.stream().map(ItemStack::clone).toList();
         this.name = name;
