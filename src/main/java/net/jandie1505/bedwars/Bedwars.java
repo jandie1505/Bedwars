@@ -1,7 +1,9 @@
 package net.jandie1505.bedwars;
 
 import de.myzelyam.api.vanish.VanishAPI;
+import net.chaossquad.mclib.WorldUtils;
 import net.chaossquad.mclib.dynamicevents.EventListenerManager;
+import net.chaossquad.mclib.world.DynamicWorldLoadingSystem;
 import net.jandie1505.bedwars.commands.BedwarsCommand;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
 import net.jandie1505.bedwars.config.ConfigManager;
@@ -41,7 +43,7 @@ public class Bedwars extends JavaPlugin {
     private Set<UUID> bypassingPlayers;
     private EventListenerManager listenerManager;
     private GamePart game;
-    private List<World> managedWorlds;
+    private DynamicWorldLoadingSystem dynamicWorldLoadingSystem;
     private ItemStorage itemStorage;
     private net.jandie1505.bedwars.global.listeners.EventListener eventListener;
     private boolean nextStatus;
@@ -59,7 +61,7 @@ public class Bedwars extends JavaPlugin {
         this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop.json");
         this.bypassingPlayers = Collections.synchronizedSet(new HashSet<>());
         this.listenerManager = new EventListenerManager(this);
-        this.managedWorlds = Collections.synchronizedList(new ArrayList<>());
+        this.dynamicWorldLoadingSystem = new DynamicWorldLoadingSystem(this);
         this.itemStorage = new ItemStorage(this);
         this.nextStatus = false;
         this.paused = false;
@@ -173,17 +175,16 @@ public class Bedwars extends JavaPlugin {
             @Override
             public void run() {
 
-                for (World world : List.copyOf(Bedwars.this.managedWorlds)) {
+                for (World world : Bedwars.this.dynamicWorldLoadingSystem.getDynamicWorlds()) {
 
-                    if (world == null || !Bedwars.this.getServer().getWorlds().contains(world) || Bedwars.this.getServer().getWorlds().get(0) == world) {
-                        Bedwars.this.managedWorlds.remove(world);
+                    if (world == null || !getServer().getWorlds().contains(world) || getServer().getWorlds().getFirst() == world) {
                         continue;
                     }
 
-                    if (!(Bedwars.this.game instanceof Lobby || (Bedwars.this.game instanceof Game && ((Game) Bedwars.this.game).getWorld() == world))) {
-                        Bedwars.this.unloadWorld(world);
-                    }
+                    if (Bedwars.this.getGame() instanceof Lobby) continue;
+                    if (Bedwars.this.getGame() instanceof Game g && g.getWorld() == world) continue;
 
+                    Bedwars.this.unloadWorld(world);
                 }
 
             }
@@ -228,6 +229,8 @@ public class Bedwars extends JavaPlugin {
 
         }.runTaskTimer(this, 1, 20);
 
+        // Cloudsystem Mode
+
         if (this.isCloudSystemMode()) {
             this.getLogger().info("Cloud System Mode enabled (autostart game + switch to ingame + shutdown on end)");
             this.startGame();
@@ -239,9 +242,7 @@ public class Bedwars extends JavaPlugin {
 
         this.stopGame();
 
-        for (World world : List.copyOf(this.managedWorlds)) {
-            this.unloadWorld(world);
-        }
+        this.dynamicWorldLoadingSystem.remove();
 
         this.getLogger().info(this.getName() + " was successfully disabled");
     }
@@ -280,56 +281,39 @@ public class Bedwars extends JavaPlugin {
 
     // ----- WORLD MANAGEMENT -----
 
+    /**
+     * Creates and loads a copy of the specified world.
+     * @param name world name
+     * @return created and loaded world
+     */
     public World loadWorld(String name) {
-
-        World world = this.getServer().getWorld(name);
-
-        if (world != null) {
-            this.managedWorlds.add(world);
-            world.setAutoSave(false);
-            this.getLogger().info("World [" + this.getServer().getWorlds().indexOf(world) + "] " + world.getUID() + " (" + world.getName() + ") is already loaded and was added to managed worlds");
-            return world;
-        }
-
-        world = this.getServer().createWorld(new WorldCreator(name));
-
-        if (world != null) {
-            this.managedWorlds.add(world);
-            world.setAutoSave(false);
-            this.getLogger().info("Loaded world [" + this.getServer().getWorlds().indexOf(world) + "] " + world.getUID() + " (" + world.getName() + ")");
-        } else {
-            this.getLogger().warning("Error while loading world " + name);
-        }
-
-        return world;
-
+        return this.dynamicWorldLoadingSystem.createWorldFromTemplate(name);
     }
 
+    /**
+     * Unloads (and deletes) a dynamic world.
+     * @param world world
+     * @return success
+     */
     public boolean unloadWorld(World world) {
 
-        if (world == null || this.getServer().getWorlds().get(0) == world || !this.managedWorlds.contains(world) || !this.getServer().getWorlds().contains(world)) {
+        // Prevent unloading null worlds, the default world, an unmanaged world or an not existing world
+
+        if (world == null || this.getServer().getWorlds().get(0) == world || !this.dynamicWorldLoadingSystem.getDynamicWorlds().contains(world) || !this.getServer().getWorlds().contains(world)) {
             return false;
         }
 
-        UUID uid = world.getUID();
-        int index = this.getServer().getWorlds().indexOf(world);
-        String name = world.getName();
+        // Unload world
 
-        for (Player player : world.getPlayers()) {
-            player.teleport(new Location(this.getServer().getWorlds().get(0), 0, 0, 0));
-        }
+        return WorldUtils.unloadWorld(world, false);
+    }
 
-        boolean success = this.getServer().unloadWorld(world, false);
-
-        if (success) {
-            this.managedWorlds.remove(world);
-            this.getLogger().info("Unloaded world [" + index + "] " + uid + " (" + name + ")");
-        } else {
-            this.getLogger().warning("Error white unloading world [" + index + "] " + uid + " (" + name + ")");
-        }
-
-        return success;
-
+    /**
+     * Returns a list of all managed worlds.
+     * @return list of managed worlds
+     */
+    public List<World> getManagedWorlds() {
+        return this.dynamicWorldLoadingSystem.getDynamicWorlds();
     }
 
     // ----- CONFIGS -----
