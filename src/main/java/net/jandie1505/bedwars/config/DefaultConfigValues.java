@@ -1,9 +1,12 @@
 package net.jandie1505.bedwars.config;
 
+import net.chaossquad.mclib.MiscUtils;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -27,6 +30,10 @@ import java.util.Set;
 
 public final class DefaultConfigValues {
     private DefaultConfigValues() {}
+
+    public static final Component LORE = Component.empty()
+            .color(NamedTextColor.WHITE)
+            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
 
     public static JSONObject getGeneralConfig() {
         JSONObject config = new JSONObject();
@@ -3239,7 +3246,7 @@ public final class DefaultConfigValues {
 
         // Dog Spawn Egg
 
-        ItemStack dogSpawnEggItem = new ItemStack(Material.SNOW_GOLEM_SPAWN_EGG);
+        ItemStack dogSpawnEggItem = new ItemStack(Material.WOLF_SPAWN_EGG);
         ItemMeta dogSpawnEggMeta = dogSpawnEggItem.getItemMeta();
         dogSpawnEggMeta.setDisplayName("§rDog Spawn Egg");
         dogSpawnEggMeta.setLore(List.of("§r§7Spawns your new best friend."));
@@ -3252,6 +3259,32 @@ public final class DefaultConfigValues {
                         Material.EMERALD,
                         16,
                         List.of(new ShopGUIPosition(7, 46))
+                )
+        );
+
+        // Grappling Hook
+
+        ItemStack grapplingHookItem = new ItemStack(Material.CROSSBOW);
+        ItemMeta grapplingHookMeta = grapplingHookItem.getItemMeta();
+        grapplingHookMeta.displayName(LORE.append(Component.text("Grappling Hook")));
+        grapplingHookMeta.lore(List.of(
+                LORE.append(Component.text("A grappling hook.", NamedTextColor.GRAY)),
+                LORE.append(Component.text("- Right click to hook", NamedTextColor.GRAY)),
+                LORE.append(Component.text("- Left click to release hook", NamedTextColor.GRAY)),
+                LORE.append(Component.text("- Other items can be used while being hooked", NamedTextColor.GRAY)),
+                LORE.append(Component.text("- Current status is displayed in the actionbar", NamedTextColor.GRAY))
+        ));
+        grapplingHookMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
+        grapplingHookMeta.addItemFlags(ItemFlag.values());
+        grapplingHookItem.setItemMeta(grapplingHookMeta);
+
+        entries.put(
+                "grappling_hook",
+                new ShopEntry(
+                        grapplingHookItem,
+                        Material.EMERALD,
+                        20,
+                        List.of(new ShopGUIPosition(7, 47))
                 )
         );
 
@@ -3278,6 +3311,25 @@ public final class DefaultConfigValues {
                 )
         );
 
+        // Aspect of the World Bait
+
+        ItemStack aspectOfTheWorldBaitItem = new ItemStack(Material.GOLDEN_SWORD);
+        ItemMeta aspectOfTheWorldBaitMeta = aspectOfTheWorldBaitItem.getItemMeta();
+        aspectOfTheWorldBaitMeta.displayName(Component.text("Aspect of the World").color(NamedTextColor.DARK_RED).decorate(TextDecoration.BOLD, TextDecoration.UNDERLINED));
+        aspectOfTheWorldBaitMeta.lore(List.of(Component.text("A Sword which came from the world of \"Minceraft\"")));
+        aspectOfTheWorldBaitMeta.addItemFlags(ItemFlag.values());
+        aspectOfTheWorldBaitItem.setItemMeta(aspectOfTheWorldBaitMeta);
+
+        entries.put(
+                "aspect_of_the_world_bait",
+                new ShopEntry(
+                        aspectOfTheWorldBaitItem,
+                        Material.EMERALD,
+                        2369,
+                        List.of(new ShopGUIPosition(7, 51))
+                )
+        );
+
         // Environment Scanner
 
         ItemStack environmentScannerItem = new ItemStack(Material.NETHER_STAR);
@@ -3298,6 +3350,18 @@ public final class DefaultConfigValues {
                         Material.EMERALD,
                         3,
                         List.of(new ShopGUIPosition(7, 52))
+                )
+        );
+
+        // Real Aspect of the World (just for fun here, it can not be bought since no ShopGUIPosition is set)
+
+        entries.put(
+                "aspect_of_the_world",
+                new ShopEntry(
+                        MiscUtils.getAspectOfTheWorld(),
+                        Material.BARRIER,
+                        Integer.MAX_VALUE,
+                        List.of()
                 )
         );
 
