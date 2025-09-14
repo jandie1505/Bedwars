@@ -21,6 +21,8 @@ public class UpgradableItemUpgrade extends PlayerUpgrade {
     @NotNull private final Component name;
     @NotNull private final Component description;
     @NotNull private final List<ItemStack> icons;
+    private final boolean downgradeOnPlayerDeath;
+    private final boolean keepFirstLevelOnDowngrade;
 
     /**
      * Creates a new player upgrade.
@@ -31,12 +33,14 @@ public class UpgradableItemUpgrade extends PlayerUpgrade {
      * @param description description
      * @param icons       icons
      */
-    public UpgradableItemUpgrade(@NotNull PlayerUpgradeManager manager, @NotNull String id, @NotNull Component name, @NotNull Component description, @NotNull List<ItemStack> icons, @NotNull List<ItemStack> items) {
+    public UpgradableItemUpgrade(@NotNull PlayerUpgradeManager manager, @NotNull String id, @NotNull Component name, @NotNull Component description, @NotNull List<ItemStack> icons, @NotNull List<ItemStack> items,  boolean downgradeOnPlayerDeath, boolean keepFirstLevelOnDowngrade) {
         super(manager, id);
         this.items = items.stream().map(ItemStack::clone).toList();
         this.name = name;
         this.description = description;
         this.icons = icons;
+        this.downgradeOnPlayerDeath = downgradeOnPlayerDeath;
+        this.keepFirstLevelOnDowngrade = keepFirstLevelOnDowngrade;
 
         this.scheduleRepeatingTask(this::checkItem, 1, 20, "check_item");
     }
@@ -57,6 +61,12 @@ public class UpgradableItemUpgrade extends PlayerUpgrade {
     @Override
     public void onAffectedPlayerDeath(@NotNull Player player, @NotNull PlayerData playerData, int level) {
         this.removeItem(player);
+
+        if (this.downgradeOnPlayerDeath) {
+            if (level > 1 || (level > 0 && !this.keepFirstLevelOnDowngrade)) {
+                playerData.setUpgrade(this.getId(), level - 1);
+            }
+        }
     }
 
     @Override
