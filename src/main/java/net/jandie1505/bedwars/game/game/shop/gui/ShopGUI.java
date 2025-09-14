@@ -5,7 +5,6 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
@@ -221,10 +220,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
                 if (!e.getValue().positions().contains(new ShopGUIPosition(page, slot))) continue;
                 UpgradeEntry entry = e.getValue();
 
-                PlayerUpgrade upgrade = this.game.getPlayerUpgradeManager().getUpgrade(entry.upgradeId());
-                if (upgrade == null) continue;
-
-                int level = playerData.getUpgrade(upgrade.getId()) + 1;
+                int level = playerData.getUpgrade(entry.upgradeId()) + 1;
 
                 @Nullable UpgradeEntry.PriceEntry price = entry.prices().get(level);
 
