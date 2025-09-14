@@ -56,7 +56,7 @@ public class Bedwars extends JavaPlugin {
         this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.json");
         this.mapConfig = new ConfigManager(this, DefaultConfigValues.getMapConfig(), true, "maps.json");
         this.itemConfig = new ConfigManager(this, DefaultConfigValues.getItemConfig(), true, "items.json");
-        this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop.json");
+        this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop-old.json");
         this.bypassingPlayers = Collections.synchronizedSet(new HashSet<>());
         this.listenerManager = new EventListenerManager(this);
         this.managedWorlds = Collections.synchronizedList(new ArrayList<>());

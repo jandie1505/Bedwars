@@ -23,11 +23,6 @@ public class ItemShop {
         this.game = game;
         this.items = new HashMap<>();
         this.upgrades = new HashMap<>();
-
-        this.items.putAll(DefaultConfigValues.getDefaultShopEntries(game.getPlugin()));
-
-        // Demo upgrade. TODO: Remove when no longer needed
-        this.upgrades.put("pickaxe", new UpgradeEntry("pickaxe", Map.of(1, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 10)), Set.of(new ShopGUIPosition(4, 20)), Map.of(1, new ItemStack(Material.WOODEN_PICKAXE))));
     }
 
     public @Nullable ShopEntry getItem(@NotNull String itemId) {

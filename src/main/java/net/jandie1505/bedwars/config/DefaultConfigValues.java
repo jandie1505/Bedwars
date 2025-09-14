@@ -2,6 +2,8 @@ package net.jandie1505.bedwars.config;
 
 import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
+import net.kyori.adventure.text.Component;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -21,6 +23,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public final class DefaultConfigValues {
     private DefaultConfigValues() {}
@@ -3301,6 +3304,117 @@ public final class DefaultConfigValues {
         // ----- RETURN -----
 
         return entries;
+    }
+
+    public static Map<String, UpgradeEntry> getDefaultUpgradeEntries(Plugin plugin) {
+        Map<String, UpgradeEntry> entries = new HashMap<>();
+
+        // Pickaxe
+        entries.put("pickaxe", new UpgradeEntry(
+                "pickaxe",
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 10),
+                        2, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 20),
+                        3, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 30),
+                        4, new UpgradeEntry.PriceEntry(Material.GOLD_INGOT, 3),
+                        5, new UpgradeEntry.PriceEntry(Material.GOLD_INGOT, 6)
+                ),
+                Set.of(new ShopGUIPosition(4, 20)),
+                Map.of(
+                        1, getUpgradePickaxe(1),
+                        2, getUpgradePickaxe(2),
+                        3, getUpgradePickaxe(3),
+                        4, getUpgradePickaxe(4),
+                        5, getUpgradePickaxe(5)
+                )
+        ));
+
+        // Armor
+        entries.put("armor", new UpgradeEntry(
+                "armor",
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 40),
+                        2, new UpgradeEntry.PriceEntry(Material.GOLD_INGOT, 12),
+                        3, new UpgradeEntry.PriceEntry(Material.EMERALD, 6),
+                        4, new UpgradeEntry.PriceEntry(Material.EMERALD, 15)
+                ),
+                Set.of(new ShopGUIPosition(3, 31)),
+                Map.of(
+                        1, new ItemStack(Material.CHAINMAIL_BOOTS),
+                        2, new ItemStack(Material.IRON_BOOTS),
+                        3, new ItemStack(Material.DIAMOND_BOOTS),
+                        4, new ItemStack(Material.NETHERITE_BOOTS)
+                )
+        ));
+
+        // Shears
+        entries.put("shears", new UpgradeEntry(
+                "shears",
+                Map.of(1, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 10)),
+                Set.of(new ShopGUIPosition(4, 21)),
+                Map.of(1, new ItemStack(Material.SHEARS))
+        ));
+
+        return entries;
+    }
+
+    public static ItemStack getUpgradePickaxe(int level) {
+
+        switch (level) {
+            case 1 -> {
+                ItemStack item = new ItemStack(Material.WOODEN_PICKAXE);
+                ItemMeta meta = item.getItemMeta();
+
+                meta.displayName(Component.text("Pickaxe Lvl. 1"));
+
+                item.setItemMeta(meta);
+                return item;
+            }
+            case 2 -> {
+                ItemStack item = new ItemStack(Material.STONE_PICKAXE);
+                ItemMeta meta = item.getItemMeta();
+
+                meta.displayName(Component.text("Pickaxe Lvl. 2"));
+                meta.addEnchant(Enchantment.EFFICIENCY, 1, true);
+
+                item.setItemMeta(meta);
+                return item;
+            }
+            case 3 -> {
+                ItemStack item = new ItemStack(Material.IRON_PICKAXE);
+                ItemMeta meta = item.getItemMeta();
+
+                meta.displayName(Component.text("Pickaxe Lvl. 3"));
+                meta.addEnchant(Enchantment.EFFICIENCY, 2, true);
+
+                item.setItemMeta(meta);
+                return item;
+            }
+            case 4 -> {
+                ItemStack item = new ItemStack(Material.GOLDEN_PICKAXE);
+                ItemMeta meta = item.getItemMeta();
+
+                meta.displayName(Component.text("Pickaxe Lvl. 4"));
+                meta.addEnchant(Enchantment.EFFICIENCY, 3, true);
+
+                item.setItemMeta(meta);
+                return item;
+            }
+            case 5 -> {
+                ItemStack item = new ItemStack(Material.DIAMOND_PICKAXE);
+                ItemMeta meta = item.getItemMeta();
+
+                meta.displayName(Component.text("Pickaxe Lvl. 5"));
+                meta.addEnchant(Enchantment.EFFICIENCY, 3, true);
+
+                item.setItemMeta(meta);
+                return item;
+            }
+            default -> {
+                return new ItemStack(Material.AIR);
+            }
+        }
+
     }
 
 }

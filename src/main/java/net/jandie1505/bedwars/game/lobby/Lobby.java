@@ -9,6 +9,7 @@ import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyPlayersSubcommand;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
 import net.jandie1505.bedwars.constants.Permissions;
@@ -683,7 +684,8 @@ public class Lobby extends GamePart {
                 this.getPlugin(),
                 world,
                 selectedMap,
-                new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
+                DefaultConfigValues.getDefaultShopEntries(this.getPlugin()),
+                DefaultConfigValues.getDefaultUpgradeEntries(this.getPlugin()),
                 teamUpgradesConfig
         );
 

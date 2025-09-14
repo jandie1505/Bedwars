@@ -168,7 +168,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
     // ----- SHOP PAGES -----
 
     private void buildShopMenuPage(@NotNull Inventory inventory, int page, @NotNull Player player) {
-        ItemShop itemShop = new ItemShop(this.game); // Will be added later
+        ItemShop itemShop = this.getGame().getItemShop();
 
         PlayerData playerData = this.game.getPlayerData(player);
         if (playerData == null) return;

@@ -23,6 +23,8 @@ import net.jandie1505.bedwars.game.game.listeners.*;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
@@ -79,7 +81,7 @@ public class Game extends GamePart implements ManagedListener {
     private BedwarsTeam winner;
     private boolean noWinnerEnd;
 
-    public Game(Bedwars plugin, World world, MapData data, JSONObject shopConfig, TeamUpgradesConfig teamUpgradesConfig) {
+    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, TeamUpgradesConfig teamUpgradesConfig) {
         super(plugin);
         this.world = world;
         this.data = data;
@@ -101,6 +103,13 @@ public class Game extends GamePart implements ManagedListener {
         this.prepared = false;
         this.winner = null;
         this.noWinnerEnd = false;
+
+        // Shop
+
+        this.itemShop.getItems().putAll(shopEntries);
+        this.itemShop.getUpgrades().putAll(playerUpgradeEntries);
+
+        // Teams
 
         for (TeamData teamData : List.copyOf(this.data.teams())) {
             BedwarsTeam team = new BedwarsTeam(this, teamData);
