@@ -4,15 +4,14 @@ import net.chaossquad.mclib.misc.Removable;
 import net.chaossquad.mclib.scheduler.TaskScheduler;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -22,6 +21,8 @@ public abstract class PlayerUpgrade implements Removable {
     @NotNull private final PlayerUpgradeManager manager;
     @NotNull private final String id;
     @NotNull private final TaskScheduler scheduler;
+    @NotNull private final Map<UUID, Integer> playerCache;
+
     /**
      * Creates a new player upgrade.
      * @param manager manager
@@ -32,6 +33,9 @@ public abstract class PlayerUpgrade implements Removable {
         this.manager = manager;
         this.id = id;
         this.scheduler = new TaskScheduler(this.manager.getGame().getPlugin().getLogger());
+        this.playerCache = new HashMap<>();
+
+        this.scheduler.scheduleRepeatingTask(this::onApplyAndRemoveTask, 1, 20, "apply_and_remove_task");
     }
 
     // ----- UTILITIES -----
@@ -232,6 +236,71 @@ public abstract class PlayerUpgrade implements Removable {
         return icons.get(level);
     }
 
+    // ----- TASKS -----
+
+    private void onApplyAndRemoveTask() {
+
+        for (Map.Entry<UUID, PlayerData> entry : this.getManager().getGame().getPlayerDataMap().entrySet()) {
+            UUID playerId = entry.getKey();
+            PlayerData playerData = entry.getValue();
+
+            // Get current and cached levels
+            int currentLevel = playerData.getUpgrade(this.id);
+            int cachedLevel = this.playerCache.getOrDefault(playerId, 0);
+            if (cachedLevel < 0) cachedLevel = 0;
+
+            // Levels < 0 can only occur when an admin sets this value manually using the debug command.
+            // Setting a < 0 value means that the upgrade is cleared from cache, and never applied or removed.
+            // This is only for debug purposes, since it breaks how an upgrade normally behaves.
+            if (currentLevel < 0) {
+                this.playerCache.remove(playerId);
+                continue;
+            }
+
+            // Check if cache and current levels match
+            if (currentLevel == cachedLevel) continue;
+
+            Player player = Bukkit.getPlayer(playerId);
+            if (player == null) continue;
+
+            // Call onRemove for the old level
+            if (cachedLevel > 0) {
+                try {
+                    this.onRemove(player, playerData, cachedLevel);
+                } catch (Exception e) {
+                    this.getManager().getGame().getPlugin().getLogger().log(Level.WARNING, "Failed to remove upgrade " + this.id + " for player " + playerId, e);
+                    continue;
+                }
+            }
+
+            // Update cache
+            if (currentLevel > 0) {
+                this.playerCache.put(playerId, currentLevel);
+            } else {
+                this.playerCache.remove(playerId);
+            }
+
+            // Call onApply
+            if (currentLevel > 0) {
+                try {
+                    this.onApply(player, playerData, currentLevel);
+                } catch (Exception e) {
+                    this.getManager().getGame().getPlugin().getLogger().log(Level.WARNING, "Failed to apply upgrade " + this.id + " for player " + playerId, e);
+                }
+            }
+
+        }
+
+        // Clean up non-ingame players
+        Iterator<UUID> i = this.playerCache.keySet().iterator();
+        while (i.hasNext()) {
+            UUID playerId = i.next();
+            if (this.getManager().getGame().isPlayerIngame(playerId)) continue;
+            i.remove();
+        }
+
+    }
+
     // ----- OTHER -----
 
     public final @NotNull PlayerUpgradeManager getManager() {
@@ -250,7 +319,7 @@ public abstract class PlayerUpgrade implements Removable {
         this.manager.removeUpgrade(this.id);
     }
 
-    public final @NotNull TaskScheduler getTaskScheduler() {
+    final @NotNull TaskScheduler getTaskScheduler() {
         return this.scheduler;
     }
 
