@@ -212,7 +212,7 @@ public class Game extends GamePart implements ManagedListener {
 
         // TEST
 
-        this.playerUpgradeManager.registerUpgrade(new UpgradableItemUpgrade(this.playerUpgradeManager, "pickaxe", Component.text("Test Upgrade"), Component.empty(), List.of(), List.of(new ItemStack(Material.OAK_PLANKS), new ItemStack(Material.DIAMOND)), true, true));
+        this.playerUpgradeManager.registerUpgrade(new UpgradableItemUpgrade(this.playerUpgradeManager, "pickaxe", Component.text("Test Upgrade"), Component.empty(), List.of(new ItemStack(Material.OAK_PLANKS), new ItemStack(Material.DIAMOND)), true, true));
 
     }
 

@@ -1,10 +1,12 @@
 package net.jandie1505.bedwars.game.game.player.upgrades.types;
 
+import net.chaossquad.mclib.json.JSONConfigUtils;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -13,14 +15,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UpgradableItemUpgrade extends PlayerUpgrade {
     @NotNull private final List<ItemStack> items;
     @NotNull private final Component name;
     @NotNull private final Component description;
-    @NotNull private final List<ItemStack> icons;
     private final boolean downgradeOnPlayerDeath;
     private final boolean keepFirstLevelOnDowngrade;
 
@@ -31,14 +35,12 @@ public class UpgradableItemUpgrade extends PlayerUpgrade {
      * @param id          id
      * @param name        name
      * @param description description
-     * @param icons       icons
      */
-    public UpgradableItemUpgrade(@NotNull PlayerUpgradeManager manager, @NotNull String id, @NotNull Component name, @NotNull Component description, @NotNull List<ItemStack> icons, @NotNull List<ItemStack> items,  boolean downgradeOnPlayerDeath, boolean keepFirstLevelOnDowngrade) {
+    public UpgradableItemUpgrade(@NotNull PlayerUpgradeManager manager, @NotNull String id, @NotNull Component name, @NotNull Component description, @NotNull List<ItemStack> items,  boolean downgradeOnPlayerDeath, boolean keepFirstLevelOnDowngrade) {
         super(manager, id);
         this.items = items.stream().map(ItemStack::clone).toList();
         this.name = name;
         this.description = description;
-        this.icons = icons;
         this.downgradeOnPlayerDeath = downgradeOnPlayerDeath;
         this.keepFirstLevelOnDowngrade = keepFirstLevelOnDowngrade;
 
@@ -210,9 +212,53 @@ public class UpgradableItemUpgrade extends PlayerUpgrade {
         return this.description;
     }
 
-    @Override
-    public @NotNull List<ItemStack> getIcons() {
-        return this.icons;
+    // ----- JSON -----
+
+    /**
+     * Creates a new UpgradableItemUpgrade from json.
+     * @param manager manager
+     * @param id id
+     * @param json json
+     * @return UpgradableItemUpgrade
+     */
+    public static @NotNull UpgradableItemUpgrade fromJSON(@NotNull PlayerUpgradeManager manager, @NotNull String id, @NotNull JSONObject json) {
+
+        Component name = MiniMessage.miniMessage().deserialize(json.getString("name"));
+        Component desc = MiniMessage.miniMessage().deserialize(json.getString("description"));
+
+        List<ItemStack> items = new ArrayList<>();
+        JSONArray itemsJSON = json.getJSONArray("items");
+        for (Object o : itemsJSON) {
+            if (!(o instanceof JSONObject itemJSON)) throw new IllegalArgumentException("Invalid item");
+            items.add(JSONConfigUtils.deserializeItem(itemJSON));
+        }
+
+        boolean downgradeOnPlayerDeath = json.getBoolean("downgrade_on_player_death");
+        boolean keepFirstLevelOnDowngrade = json.getBoolean("keep_first_level_on_downgrade");
+
+        return new UpgradableItemUpgrade(manager, id, name, desc, items, downgradeOnPlayerDeath, keepFirstLevelOnDowngrade);
+    }
+
+    /**
+     * Converts this UpgradableItemUpgrade to json.
+     * @return json
+     */
+    public @NotNull JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+
+        json.put("name", MiniMessage.miniMessage().serialize(this.name));
+        json.put("description", MiniMessage.miniMessage().serialize(this.description));
+
+        JSONArray itemsJSON = new JSONArray();
+        for (ItemStack item : this.items) {
+            itemsJSON.put(JSONConfigUtils.serializeItem(item));
+        }
+        json.put("items", itemsJSON);
+
+        json.put("downgrade_on_player_death", this.downgradeOnPlayerDeath);
+        json.put("keep_first_level_on_downgrade", this.keepFirstLevelOnDowngrade);
+
+        return json;
     }
 
 }
