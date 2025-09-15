@@ -10,6 +10,7 @@ import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
+import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyPlayersSubcommand;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
@@ -724,6 +725,17 @@ public class Lobby extends GamePart {
         // TODO: This needs to be replaced by loading a player-upgrades.json or yml file which contains the upgrades.
         game.getPlayerUpgradeManager().registerUpgrade(new UpgradableItemUpgrade(game.getPlayerUpgradeManager(), "pickaxe", Component.text("Pickaxe"), Component.text("Pickaxe"), List.of(DefaultConfigValues.getUpgradePickaxe(1), DefaultConfigValues.getUpgradePickaxe(2), DefaultConfigValues.getUpgradePickaxe(3), DefaultConfigValues.getUpgradePickaxe(4), DefaultConfigValues.getUpgradePickaxe(5)), true, true));
         game.getPlayerUpgradeManager().registerUpgrade(new UpgradableItemUpgrade(game.getPlayerUpgradeManager(), "shears", Component.text("Shears"), Component.text("Shears"), List.of(new ItemStack(Material.SHEARS)), true, true));
+        game.getPlayerUpgradeManager().registerUpgrade(new ArmorUpgrade(
+                game.getPlayerUpgradeManager(),
+                "armor",
+                List.of(
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.CHAINMAIL_LEGGINGS), new ItemStack(Material.CHAINMAIL_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS),  new ItemStack(Material.IRON_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_BOOTS))
+                )
+        ));
 
         this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.name());
 

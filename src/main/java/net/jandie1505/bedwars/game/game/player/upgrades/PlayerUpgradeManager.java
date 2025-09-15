@@ -25,7 +25,7 @@ public class PlayerUpgradeManager implements ManagedListener {
         this.removeCondition = removeCondition != null ? removeCondition : () -> false;
         this.upgrades = new HashMap<>();
 
-        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::upgradeTasksTask, 1, 1, removeCondition, "upgrade_manager_upgrade_schedulers");
+        this.getGame().getTaskScheduler().scheduleRepeatingTask(this::upgradeTasksTask, 10*20, 1, removeCondition, "upgrade_manager_upgrade_schedulers");
         this.game.registerListener(this);
     }
 

@@ -3397,17 +3397,17 @@ public final class DefaultConfigValues {
         entries.put("armor", new UpgradeEntry(
                 "armor",
                 Map.of(
-                        1, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 40),
-                        2, new UpgradeEntry.PriceEntry(Material.GOLD_INGOT, 12),
-                        3, new UpgradeEntry.PriceEntry(Material.EMERALD, 6),
-                        4, new UpgradeEntry.PriceEntry(Material.EMERALD, 15)
+                        2, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 40),
+                        3, new UpgradeEntry.PriceEntry(Material.GOLD_INGOT, 12),
+                        4, new UpgradeEntry.PriceEntry(Material.EMERALD, 6),
+                        5, new UpgradeEntry.PriceEntry(Material.EMERALD, 15)
                 ),
                 Set.of(new ShopGUIPosition(3, 31)),
                 Map.of(
-                        1, new ItemStack(Material.CHAINMAIL_BOOTS),
-                        2, new ItemStack(Material.IRON_BOOTS),
-                        3, new ItemStack(Material.DIAMOND_BOOTS),
-                        4, new ItemStack(Material.NETHERITE_BOOTS)
+                        2, new ItemStack(Material.CHAINMAIL_BOOTS),
+                        3, new ItemStack(Material.IRON_BOOTS),
+                        4, new ItemStack(Material.DIAMOND_BOOTS),
+                        5, new ItemStack(Material.NETHERITE_BOOTS)
                 )
         ));
 

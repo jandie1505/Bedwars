@@ -44,13 +44,13 @@ public abstract class PlayerUpgrade implements Removable {
      * Called when the upgrade is registered.
      */
     @ApiStatus.OverrideOnly
-    public void onRegister() {}
+    protected void onRegister() {}
 
     /**
      * Called when the upgrade is unregistered/removed.
      */
     @ApiStatus.OverrideOnly
-    public void onUnregister() {}
+    protected void onUnregister() {}
 
     // ----- APPLY/REMOVE METHODS -----
 
@@ -62,7 +62,7 @@ public abstract class PlayerUpgrade implements Removable {
      * @param level the upgrade level
      */
     @ApiStatus.OverrideOnly
-    public void onApply(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
+    protected void onApply(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
 
     /**
      * This method is called when the upgrade (level) is removed from the player.<br/>
@@ -72,13 +72,13 @@ public abstract class PlayerUpgrade implements Removable {
      * @param level level
      */
     @ApiStatus.OverrideOnly
-    public void onRemove(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
+    protected void onRemove(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
 
     @ApiStatus.OverrideOnly
-    public void onAffectedPlayerDeath(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
+    protected void onAffectedPlayerDeath(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
 
     @ApiStatus.OverrideOnly
-    public void onAffectedPlayerRespawn(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
+    protected void onAffectedPlayerRespawn(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
 
     // ----- SCHEDULER -----
 

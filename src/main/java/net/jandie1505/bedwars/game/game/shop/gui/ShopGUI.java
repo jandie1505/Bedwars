@@ -273,7 +273,6 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
 
         int currentPage = this.getCurrentPage(event.getInventory());
         if (currentPage < 0) return;
-        System.out.println(currentPage);
 
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
