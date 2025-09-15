@@ -80,6 +80,34 @@ public abstract class PlayerUpgrade implements Removable {
     @ApiStatus.OverrideOnly
     protected void onAffectedPlayerRespawn(@NotNull Player player, @NotNull PlayerData playerData, int level) {}
 
+    // ----- CHECKS -----
+
+    /**
+     * When this returns false, the upgrade will handle this player as they does not have the upgrade.
+     * @param playerId player uuid
+     * @param player player
+     * @param playerData player data
+     * @return enabled
+     */
+    @ApiStatus.OverrideOnly
+    protected boolean isEnabled(@NotNull UUID playerId, @Nullable Player player, @NotNull PlayerData playerData) {
+        return true;
+    }
+
+    /**
+     * Returns the level after the negative and enabled checks.
+     * @param player player
+     * @param playerData playerData
+     * @return level
+     */
+    protected final int getLevel(@NotNull UUID playerId, @Nullable Player player, @NotNull PlayerData playerData) {
+        int level = playerData.getUpgrade(this.id);
+
+        if (level < 0) return level;
+        if (!this.isEnabled(playerId, player, playerData)) return 0;
+        return level;
+    }
+
     // ----- SCHEDULER -----
 
     /**
@@ -99,7 +127,7 @@ public abstract class PlayerUpgrade implements Removable {
                 PlayerData playerData = this.manager.getGame().getPlayerData(player);
                 if (playerData == null) continue;
 
-                int level = playerData.getUpgrade(this.id);
+                int level = this.getLevel(player.getUniqueId(), player, playerData);
 
                 try {
                     runnable.run(player, playerData, level);
@@ -159,7 +187,7 @@ public abstract class PlayerUpgrade implements Removable {
             PlayerData playerData = this.manager.getGame().getPlayerData(player);
             if (playerData == null) continue;
 
-            int upgradeLevel = playerData.getUpgrade(this.id);
+            int upgradeLevel = this.getLevel(player.getUniqueId(), player, playerData);
             if (upgradeLevel <= 0) continue;
 
             affectedPlayers.add(player);
@@ -181,7 +209,7 @@ public abstract class PlayerUpgrade implements Removable {
             PlayerData playerData = this.manager.getGame().getPlayerData(player);
             if (playerData == null) continue;
 
-            int upgradeLevel = playerData.getUpgrade(this.id);
+            int upgradeLevel = this.getLevel(player.getUniqueId(), player, playerData);
 
             if (upgradeLevel <= 0) continue;
             if (upgradeLevel != level) continue;
@@ -245,7 +273,7 @@ public abstract class PlayerUpgrade implements Removable {
             PlayerData playerData = entry.getValue();
 
             // Get current and cached levels
-            int currentLevel = playerData.getUpgrade(this.id);
+            int currentLevel = this.getLevel(playerId, Bukkit.getPlayer(playerId), playerData);
             int cachedLevel = this.playerCache.getOrDefault(playerId, 0);
             if (cachedLevel < 0) cachedLevel = 0;
 

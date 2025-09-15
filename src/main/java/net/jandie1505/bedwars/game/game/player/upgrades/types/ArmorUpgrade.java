@@ -5,7 +5,6 @@ import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
-import net.jandie1505.bedwars.game.game.team.TeamData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -16,10 +15,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ArmorUpgrade extends ItemUpgrade implements ManagedListener {
     @NotNull private final List<ArmorSet> armors;
@@ -45,6 +46,14 @@ public class ArmorUpgrade extends ItemUpgrade implements ManagedListener {
     @Override
     public void onUnregister() {
         this.getManager().getGame().unregisterListener(this);
+    }
+
+    // ----- CHECKS -----
+
+    @Override
+    public boolean isEnabled(@NotNull UUID playerId, @Nullable Player player, @NotNull PlayerData playerData) {
+        if (player == null) return false;
+        return !player.hasPotionEffect(PotionEffectType.INVISIBILITY);
     }
 
     // ----- GIVE AND REMOVE ARMOR -----
