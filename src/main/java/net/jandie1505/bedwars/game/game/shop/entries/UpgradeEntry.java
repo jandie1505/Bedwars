@@ -107,7 +107,7 @@ public record UpgradeEntry(
             JSONObject icon = new JSONObject();
 
             icon.put("level", e.getKey());
-            icons.put(JSONConfigUtils.serializeItem(e.getValue()));
+            icon.put("item", JSONConfigUtils.serializeItem(e.getValue()));
 
             icons.put(icon);
         }

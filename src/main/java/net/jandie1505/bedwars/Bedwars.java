@@ -5,6 +5,8 @@ import net.chaossquad.mclib.WorldUtils;
 import net.chaossquad.mclib.dynamicevents.EventListenerManager;
 import net.chaossquad.mclib.world.DynamicWorldLoadingSystem;
 import net.jandie1505.bedwars.commands.BedwarsCommand;
+import net.jandie1505.bedwars.config.JSONLoader;
+import net.jandie1505.bedwars.game.game.builder.GameBuilder;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
 import net.jandie1505.bedwars.config.ConfigManager;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
@@ -32,8 +34,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import java.util.logging.Level;
 
 public class Bedwars extends JavaPlugin {
     private ConfigManager configManager;
@@ -51,7 +56,7 @@ public class Bedwars extends JavaPlugin {
     private boolean cloudSystemMode;
     private boolean svLoaded;
 
-    // ----- ENABLE/DISABLE -----
+    // ----- ENABLE -----
 
     @Override
     public void onEnable() {
@@ -229,6 +234,14 @@ public class Bedwars extends JavaPlugin {
 
         }.runTaskTimer(this, 1, 20);
 
+        // Game Configs
+
+        try {
+            this.setupGameConfigs();
+        } catch (Exception e) {
+            this.getLogger().log(Level.WARNING, "Failed to create game configs", e);
+        }
+
         // Cloudsystem Mode
 
         if (this.isCloudSystemMode()) {
@@ -236,6 +249,28 @@ public class Bedwars extends JavaPlugin {
             this.startGame();
         }
     }
+
+    /**
+     * Sets up the game config files.<br/>
+     * They are normally loaded by {@link GameBuilder} on game start.
+     * @throws IOException IOException
+     */
+    private void setupGameConfigs() throws IOException {
+
+        File shopFile = new File(this.getDataFolder(), "shop.json");
+        if (!shopFile.exists()) {
+            shopFile.createNewFile();
+
+            JSONObject shopFileContent = new JSONObject();
+            shopFileContent.put("items", GameBuilder.createJSONFromShopEntries(DefaultConfigValues.getDefaultShopEntries(this)));
+            shopFileContent.put("upgrade_entries", GameBuilder.createJSONFromUpgradeEntries(DefaultConfigValues.getDefaultUpgradeEntries(this)));
+            JSONLoader.saveJSONToFile(shopFile, shopFileContent, 4);
+
+        }
+
+    }
+
+    // ----- DISABLE -----
 
     public void onDisable() {
         this.getLogger().info("Disabling " + this.getName());
@@ -245,26 +280,6 @@ public class Bedwars extends JavaPlugin {
         this.dynamicWorldLoadingSystem.remove();
 
         this.getLogger().info(this.getName() + " was successfully disabled");
-    }
-
-    /**
-     * Get a list of all listeners (not registered listeners).
-     * This can be used to clear listeners of the game.
-     * @return List of listeners
-     */
-    public List<Listener> getListeners() {
-        List<RegisteredListener> registeredListenerList = List.copyOf(HandlerList.getRegisteredListeners(this));
-        List<Listener> listenerList = new ArrayList<>();
-
-        for (RegisteredListener registeredListener : registeredListenerList) {
-
-            if (!listenerList.contains(registeredListener.getListener())) {
-                listenerList.add(registeredListener.getListener());
-            }
-
-        }
-
-        return List.copyOf(listenerList);
     }
 
     // ----- LISTENERS -----
