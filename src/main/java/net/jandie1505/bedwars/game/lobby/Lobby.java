@@ -10,6 +10,7 @@ import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
+import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyPlayersSubcommand;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
 import net.jandie1505.bedwars.constants.Permissions;
@@ -719,6 +720,10 @@ public class Lobby extends GamePart {
             game.addPlayer(playerId, lowestPlayerCount.getId());
             this.players.remove(playerId);
         }
+
+        // TODO: This needs to be replaced by loading a player-upgrades.json or yml file which contains the upgrades.
+        game.getPlayerUpgradeManager().registerUpgrade(new UpgradableItemUpgrade(game.getPlayerUpgradeManager(), "pickaxe", Component.text("Pickaxe"), Component.text("Pickaxe"), List.of(DefaultConfigValues.getUpgradePickaxe(1), DefaultConfigValues.getUpgradePickaxe(2), DefaultConfigValues.getUpgradePickaxe(3), DefaultConfigValues.getUpgradePickaxe(4), DefaultConfigValues.getUpgradePickaxe(5)), true, true));
+        game.getPlayerUpgradeManager().registerUpgrade(new UpgradableItemUpgrade(game.getPlayerUpgradeManager(), "shears", Component.text("Shears"), Component.text("Shears"), List.of(new ItemStack(Material.SHEARS)), true, true));
 
         this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.name());
 

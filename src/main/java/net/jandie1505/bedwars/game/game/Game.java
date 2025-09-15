@@ -218,11 +218,6 @@ public class Game extends GamePart implements ManagedListener {
         this.registerListener(new GameProtectionsForNotIngamePlayersListener(this));
         this.registerListener(new GameChatListener(this));
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
-
-        // TEST
-
-        this.playerUpgradeManager.registerUpgrade(new UpgradableItemUpgrade(this.playerUpgradeManager, "pickaxe", Component.text("Test Upgrade"), Component.empty(), List.of(new ItemStack(Material.OAK_PLANKS), new ItemStack(Material.DIAMOND)), true, true));
-
     }
 
     @Override
