@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game.game.player.upgrades.types;
 
 import net.chaossquad.mclib.json.JSONConfigUtils;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -60,10 +61,10 @@ public class UpgradableItemUpgrade extends ItemUpgrade {
     /**
      * Gives the player the item with the specified level and returns that ItemStack.
      * @param player player
+     * @param playerData player data
      * @param level level
-     * @return ItemStack that has been given to the player
      */
-    protected void giveItem(@NotNull Player player, int level) {
+    protected void giveItem(@NotNull Player player, @NotNull PlayerData playerData, int level) {
         ItemStack item = this.getItem(level);
         if (item.getType() == Material.AIR) return;
 

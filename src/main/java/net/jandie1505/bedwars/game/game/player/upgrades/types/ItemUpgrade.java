@@ -144,7 +144,7 @@ public abstract class ItemUpgrade extends PlayerUpgrade {
     }
 
     /**
-     * Step between {@link #giveItem(Player, int)} and the task.
+     * Step between {@link #giveItem(Player, PlayerData, int)} and the task.
      * @param player player
      * @param playerData player data
      * @param level level
@@ -152,16 +152,16 @@ public abstract class ItemUpgrade extends PlayerUpgrade {
     protected final void give(@NotNull Player player, @NotNull PlayerData playerData, int level) {
         if (player.isDead() || player.getGameMode() == GameMode.SPECTATOR) return;
         if (!playerData.isAlive()) return;
-        this.giveItem(player, level);
+        this.giveItem(player, playerData, level);
     }
 
     /**
      * Gives the item of the specified level to the player.
      * @param player player
+     * @param playerData player data
      * @param level level
-     * @return item that has been given to the player
      */
-    protected abstract void giveItem(@NotNull Player player, int level);
+    protected abstract void giveItem(@NotNull Player player, @NotNull PlayerData playerData, int level);
 
     // ----- OTHER -----
 

@@ -4,6 +4,8 @@ import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
+import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.game.team.TeamData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -12,6 +14,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -81,16 +84,16 @@ public class ArmorUpgrade extends ItemUpgrade implements ManagedListener {
      * @param player player
      * @param level level
      */
-    protected void giveItem(@NotNull Player player, int level) {
+    protected void giveItem(@NotNull Player player, @NotNull PlayerData playerData, int level) {
         this.removeItem(player);
 
         @Nullable ArmorSet armorSet = getArmorSet(level);
         if (armorSet == null) return;
 
-        @Nullable ItemStack helmet = this.setItemId(armorSet.helmet(), level);
-        @Nullable ItemStack chest =  this.setItemId(armorSet.chest(), level);
-        @Nullable ItemStack leggings =  this.setItemId(armorSet.leggings(), level);
-        @Nullable ItemStack boots = this.setItemId(armorSet.boots(), level);
+        @Nullable ItemStack helmet = this.prepareItem(armorSet.helmet(), player, playerData, level);
+        @Nullable ItemStack chest =  this.prepareItem(armorSet.chest(), player, playerData, level);
+        @Nullable ItemStack leggings =  this.prepareItem(armorSet.leggings(), player, playerData, level);
+        @Nullable ItemStack boots = this.prepareItem(armorSet.boots(), player, playerData, level);
 
         if (helmet != null) player.getInventory().setHelmet(helmet);
         if (chest != null) player.getInventory().setChestplate(chest);
@@ -103,18 +106,29 @@ public class ArmorUpgrade extends ItemUpgrade implements ManagedListener {
      * @param item item
      * @return changed item
      */
-    private @Nullable ItemStack setItemId(@Nullable ItemStack item, int level) {
+    private @Nullable ItemStack prepareItem(@Nullable ItemStack item, @NotNull Player player, @NotNull PlayerData playerData, int level) {
         if (item == null) return null;
         item = item.clone();
 
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return null;
 
+        // Set data values
+
         meta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_UPGRADE_ID, PersistentDataType.STRING, this.getId());
         meta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_UPGRADE_LEVEL, PersistentDataType.INTEGER, level);
 
         meta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_PREVENT_DROP, PersistentDataType.BOOLEAN, true);
         meta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_KEEP_IN_PLAYER_INVENTORY, PersistentDataType.BOOLEAN, true);
+
+        // Set color
+
+        if (meta instanceof LeatherArmorMeta leatherArmorMeta) {
+            BedwarsTeam team = this.getManager().getGame().getTeam(playerData.getTeam());
+            if (team != null) {
+                leatherArmorMeta.setColor(team.getData().color());
+            }
+        }
 
         item.setItemMeta(meta);
 
