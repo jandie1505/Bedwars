@@ -1,6 +1,11 @@
 package net.jandie1505.bedwars.config;
 
 import net.chaossquad.mclib.MiscUtils;
+import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
+import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
+import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
@@ -23,10 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public final class DefaultConfigValues {
     private DefaultConfigValues() {}
@@ -3479,6 +3481,43 @@ public final class DefaultConfigValues {
             }
         }
 
+    }
+
+    public static @NotNull List<PlayerUpgrade.Data> getPlayerUpgrades() {
+        List<PlayerUpgrade.Data> upgrades = new ArrayList<>();
+
+        upgrades.add(new UpgradableItemUpgrade.Data(
+                "pickaxe",
+                List.of(
+                        DefaultConfigValues.getUpgradePickaxe(1),
+                        DefaultConfigValues.getUpgradePickaxe(2),
+                        DefaultConfigValues.getUpgradePickaxe(3),
+                        DefaultConfigValues.getUpgradePickaxe(4),
+                        DefaultConfigValues.getUpgradePickaxe(5)
+                ),
+                true,
+                true
+        ));
+
+        upgrades.add(new UpgradableItemUpgrade.Data(
+                "shears",
+                List.of(new ItemStack(Material.SHEARS)),
+                true,
+                true
+        ));
+
+        upgrades.add(new ArmorUpgrade.Data(
+                "armor",
+                List.of(
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.CHAINMAIL_LEGGINGS), new ItemStack(Material.CHAINMAIL_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS),  new ItemStack(Material.IRON_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_BOOTS))
+                )
+        ));
+
+        return upgrades;
     }
 
 }

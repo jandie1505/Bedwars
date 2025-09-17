@@ -268,6 +268,15 @@ public class Bedwars extends JavaPlugin {
 
         }
 
+        File playerUpgradesFile = new File(this.getDataFolder(), "player_upgrades.json");
+        if (!playerUpgradesFile.exists()) {
+
+            JSONObject playerUpgradesFileContent = new JSONObject();
+            DefaultConfigValues.getPlayerUpgrades().forEach(upgrade -> playerUpgradesFileContent.put(upgrade.id(), upgrade.toJSON()));
+            JSONLoader.saveJSONToFile(playerUpgradesFile, playerUpgradesFileContent, 4);
+
+        }
+
     }
 
     // ----- DISABLE -----

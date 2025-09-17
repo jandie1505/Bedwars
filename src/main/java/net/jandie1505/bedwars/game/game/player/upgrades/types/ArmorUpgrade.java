@@ -1,8 +1,10 @@
 package net.jandie1505.bedwars.game.game.player.upgrades.types;
 
 import net.chaossquad.mclib.executable.ManagedListener;
+import net.chaossquad.mclib.json.JSONConfigUtils;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import org.bukkit.entity.Player;
@@ -18,22 +20,25 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class ArmorUpgrade extends ItemUpgrade implements ManagedListener {
-    @NotNull private final List<ArmorSet> armors;
+    @NotNull private final List<ArmorSet> armorSets;
 
     /**
      * Creates a new player upgrade.
      *
      * @param manager manager
-     * @param id      id
+     * @param data data
      */
-    public ArmorUpgrade(@NotNull PlayerUpgradeManager manager, @NotNull String id, @NotNull List<ArmorSet> armors) {
-        super(manager, id, false, false);
-        this.armors = armors;
+    public ArmorUpgrade(@NotNull PlayerUpgradeManager manager, @NotNull Data data) {
+        super(manager, data.id(), false, false);
+        this.armorSets = data.armorSets().stream().map(ArmorSet::clone).toList();
     }
 
     // ----- REGISTER AND REMOVE -----
@@ -64,14 +69,14 @@ public class ArmorUpgrade extends ItemUpgrade implements ManagedListener {
      * @return ArmorSet of that level
      */
     private @Nullable ArmorSet getArmorSet(int level) {
-        if (this.armors.isEmpty()) return null;
+        if (this.armorSets.isEmpty()) return null;
 
         if (level <= 0) return null;
         level -= 1;
 
-        if (level >= this.armors.size()) return this.armors.getLast();
+        if (level >= this.armorSets.size()) return this.armorSets.getLast();
 
-        return this.armors.get(level);
+        return this.armorSets.get(level);
     }
 
     /**
@@ -236,8 +241,8 @@ public class ArmorUpgrade extends ItemUpgrade implements ManagedListener {
         }
 
         @Override
-        protected ArmorSet clone() throws CloneNotSupportedException {
-            return new ArmorSet(helmet, chest, leggings, boots);
+        public @NotNull ArmorSet clone() {
+            return new ArmorSet(helmet != null ? helmet.clone() : null, chest != null ? chest.clone() : null, leggings != null ? leggings.clone() : null, boots != null ? boots.clone() : null);
         }
 
         public @Nullable ItemStack getItem(@NotNull EquipmentSlot slot) {
@@ -250,6 +255,92 @@ public class ArmorUpgrade extends ItemUpgrade implements ManagedListener {
             };
         }
 
+        public static @NotNull ArmorSet fromJSON(@NotNull JSONObject json) {
+            return new ArmorUpgrade.ArmorSet(
+                    json.has("helmet") ? JSONConfigUtils.deserializeItem(json.getJSONObject("helmet")) : null,
+                    json.has("chestplate") ? JSONConfigUtils.deserializeItem(json.getJSONObject("chestplate")) : null,
+                    json.has("leggings") ? JSONConfigUtils.deserializeItem(json.getJSONObject("leggings")) : null,
+                    json.has("boots") ? JSONConfigUtils.deserializeItem(json.getJSONObject("boots")) : null
+            );
+        }
+
+        public @NotNull JSONObject toJSON() {
+            JSONObject json = new JSONObject();
+
+            if (this.helmet != null) json.put("helmet", JSONConfigUtils.serializeItem(this.helmet));
+            if (this.chest != null) json.put("chestplate", JSONConfigUtils.serializeItem(this.chest));
+            if (this.leggings != null) json.put("leggings", JSONConfigUtils.serializeItem(this.leggings));
+            if (this.boots != null) json.put("boots", JSONConfigUtils.serializeItem(this.boots));
+
+            return json;
+        }
+
+    }
+
+    // ----- DATA -----
+
+    /**
+     * Stores data about an ArmorUpgrade.
+     * @param id id
+     * @param armorSets armor sets
+     */
+    public record Data(@NotNull String id, @NotNull List<ArmorSet> armorSets) implements PlayerUpgrade.Data {
+
+        public Data(@NotNull String id, @NotNull List<ArmorSet> armorSets) {
+            this.id = id;
+            this.armorSets = List.copyOf(armorSets);
+        }
+
+        @Override
+        public @NotNull String type() {
+            return "armor";
+        }
+
+        /**
+         * Creates a new UpgradableItemUpgrade Data from json.
+         * @param id id
+         * @param json json
+         * @return UpgradableItemUpgrade
+         */
+        public static @NotNull Data fromJSON(@NotNull String id, @NotNull JSONObject json) {
+
+            List<ArmorSet> armorSets = new ArrayList<>();
+            JSONArray itemsJSON = json.getJSONArray("armor_sets");
+            for (Object o : itemsJSON) {
+                if (!(o instanceof JSONObject itemJSON)) throw new IllegalArgumentException("Invalid item");
+                armorSets.add(ArmorSet.fromJSON(itemJSON));
+            }
+
+            return new Data(id, armorSets);
+        }
+
+        /**
+         * Converts this UpgradableItemUpgrade to json.
+         * @return json
+         */
+        public @NotNull JSONObject toJSON() {
+            JSONObject json = new JSONObject();
+
+            json.put("type", this.type());
+
+            JSONArray armorsJson = new JSONArray();
+            for (ArmorSet set : this.armorSets) {
+                armorsJson.put(set.toJSON());
+            }
+            json.put("armor_sets", armorsJson);
+
+            return json;
+        }
+
+        @Override
+        public @NotNull PlayerUpgrade buildUpgrade(@NotNull PlayerUpgradeManager manager) {
+            return new ArmorUpgrade(manager, this);
+        }
+
+    }
+
+    public @NotNull Data toData() {
+        return new Data(this.getId(), this.armorSets);
     }
 
 }

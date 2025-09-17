@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONObject;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -327,6 +328,15 @@ public abstract class PlayerUpgrade implements Removable {
             i.remove();
         }
 
+    }
+
+    // ----- DATA -----
+
+    public interface Data {
+        @NotNull String id();
+        @NotNull String type();
+        @NotNull PlayerUpgrade buildUpgrade(@NotNull PlayerUpgradeManager manager);
+        @NotNull JSONObject toJSON();
     }
 
     // ----- OTHER -----

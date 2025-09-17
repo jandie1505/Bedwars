@@ -5,17 +5,17 @@ import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.config.JSONLoader;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
-import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -207,28 +207,59 @@ public final class GameBuilder {
     // ----- UPGRADES -----
 
     /**
+     * Converts a json to PlayerUpgrade Data.
+     * @param id id
+     * @param json json
+     * @return PlayerUpgrade Data
+     */
+    public static @Nullable PlayerUpgrade.Data deserializePlayerUpgradeDataFromJSON(@NotNull String id, @NotNull JSONObject json) {
+
+        switch (json.getString("type")) {
+            case "upgradable_item" -> {
+                return UpgradableItemUpgrade.Data.fromJSON(id, json);
+            }
+            case "armor" -> {
+                return ArmorUpgrade.Data.fromJSON(id, json);
+            }
+            default -> {
+                return null;
+            }
+        }
+
+    }
+
+    /**
+     * Converts a json to list of PlayerUpgrade Data.<br/>
+     * The id is the key and the value the other values.
+     * @param json json
+     * @return list of PlayerUpgrade Data
+     */
+    public static @NotNull List<PlayerUpgrade.Data> getPlayerUpgradesFromJSON(@NotNull JSONObject json) {
+        List<PlayerUpgrade.Data> playerUpgrades = new ArrayList<>();
+
+        for (String key : json.keySet()) {
+            JSONObject dataJson = json.getJSONObject(key);
+            PlayerUpgrade.Data data = deserializePlayerUpgradeDataFromJSON(key, dataJson);
+            if (data == null) throw new IllegalArgumentException("Invalid player upgrade type for " + key);
+            playerUpgrades.add(data);
+        }
+
+        return playerUpgrades;
+    }
+
+    /**
      * Sets up the player upgrades.
      * @param game game
-     * @deprecated This needs to be replaced by loading a player-upgrades.json or yml file which contains the upgrades.
      */
-    @Deprecated
     private void setupPlayerUpgrades(@NotNull Game game) {
+        JSONObject playerUpgradesFile = JSONLoader.loadJSONFromFile(new File(game.getPlugin().getDataFolder(), "player_upgrades.json"));
 
-        // TODO: This needs to be replaced by loading a player-upgrades.json or yml file which contains the upgrades.
-        game.getPlayerUpgradeManager().registerUpgrade(new UpgradableItemUpgrade(game.getPlayerUpgradeManager(), "pickaxe", Component.text("Pickaxe"), Component.text("Pickaxe"), List.of(DefaultConfigValues.getUpgradePickaxe(1), DefaultConfigValues.getUpgradePickaxe(2), DefaultConfigValues.getUpgradePickaxe(3), DefaultConfigValues.getUpgradePickaxe(4), DefaultConfigValues.getUpgradePickaxe(5)), true, true));
-        game.getPlayerUpgradeManager().registerUpgrade(new UpgradableItemUpgrade(game.getPlayerUpgradeManager(), "shears", Component.text("Shears"), Component.text("Shears"), List.of(new ItemStack(Material.SHEARS)), true, true));
-        game.getPlayerUpgradeManager().registerUpgrade(new ArmorUpgrade(
-                game.getPlayerUpgradeManager(),
-                "armor",
-                List.of(
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.CHAINMAIL_LEGGINGS), new ItemStack(Material.CHAINMAIL_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS),  new ItemStack(Material.IRON_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_BOOTS))
-                )
-        ));
+        if (playerUpgradesFile.isEmpty()) {
+            DefaultConfigValues.getPlayerUpgrades().forEach(upgrade -> game.getPlayerUpgradeManager().registerUpgrade(upgrade.buildUpgrade(game.getPlayerUpgradeManager())));
+            return;
+        }
 
+        getPlayerUpgradesFromJSON(playerUpgradesFile).forEach(upgrade -> game.getPlayerUpgradeManager().registerUpgrade(upgrade.buildUpgrade(game.getPlayerUpgradeManager())));
     }
 
 }
