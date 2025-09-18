@@ -35,6 +35,7 @@ import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.game.timeactions.provider.TimeActionCreator;
 import net.jandie1505.bedwars.game.game.world.BlockProtectionSystem;
+import net.jandie1505.bedwars.utilities.ItemSimilarityKey;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -43,6 +44,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
@@ -191,6 +193,7 @@ public class Game extends GamePart implements ManagedListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::playerCleanupTask, 1, 20, "ingame_player_cleanup");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerAliveStatusTask, 1, 20, "ingame_player_alive_status");
         this.getTaskScheduler().scheduleRepeatingTask(this::inventoryTickTask, 1, 1, "ingame_player_inventory");
+        this.getTaskScheduler().scheduleRepeatingTask(this::groupItemsTask, 1, 10*20, "group_items");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerTeamUpgradeTask, 1, 20, "ingame_player_team_upgrades");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerValuesTask, 1, 200, "ingame_player_values");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerCooldownTask, 1, 1, "ingame_player_cooldowns");
@@ -859,10 +862,6 @@ public class Game extends GamePart implements ManagedListener {
 
         // Item management
 
-        boolean inventoryDefaultSwordMissing = true;
-        boolean inventoryPickaxeUpgradeMissing = true;
-        boolean inventoryShearsUpgradeMissing = true;
-
         for (int slot = 0; slot < player.getInventory().getSize() + 1; slot++) {
             ItemStack item;
 
@@ -879,60 +878,6 @@ public class Game extends GamePart implements ManagedListener {
             // Replace Wool
 
             replaceBlockWithTeamColor(item, team);
-
-            // Group Items
-
-            if (this.getPlugin().getConfigManager().getConfig().optBoolean("inventorySort", false)) {
-
-                if ((item.getType().name().endsWith("WOOL") || item.getType().name().endsWith("GLASS") || item.getType() == Material.BLAZE_ROD || item.getType() == Material.FIRE_CHARGE || item.getType() == Material.SNOWBALL || item.getType() == Material.ENDER_PEARL || item.getType() == Material.GOLDEN_APPLE) && slot < player.getInventory().getSize() && this.timeStep >= 20) {
-
-                    for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2++) {
-                        ItemStack item2 = player.getInventory().getItem(slot2);
-
-                        // Slot must not be offhand
-
-                        if (slot == 40) {
-                            continue;
-                        }
-
-                        // Target slot must be lower (or the offhand slot) than the origin slot
-
-                        if (slot <= slot2 && slot2 != 40) {
-                            continue;
-                        }
-
-                        // item must not be null
-
-                        if (item2 == null) {
-                            continue;
-                        }
-
-                        //  items must be similar
-
-                        if (!item.isSimilar(item2)) {
-                            continue;
-                        }
-
-                        for (int amount = 0; amount < item.getAmount(); amount++) {
-
-                            if (item2.getAmount() >= item2.getMaxStackSize()) {
-                                break;
-                            }
-
-                            if (item.getAmount() <= 0) {
-                                break;
-                            }
-
-                            item2.setAmount(item2.getAmount() + 1);
-                            item.setAmount(item.getAmount() - 1);
-
-                        }
-
-                    }
-
-                }
-
-            }
 
             // item ids
 
@@ -1013,6 +958,72 @@ public class Game extends GamePart implements ManagedListener {
                 }
 
             }
+
+        }
+
+    }
+
+    private void groupItemsTask() {
+        if (!this.getPlugin().getConfigManager().getConfig().optBoolean("inventorySort", false)) return;
+
+        for (Player player : this.getOnlinePlayers()) {
+            this.groupItemsAlgorithm(player.getInventory());
+        }
+
+    }
+
+    /**
+     * This algorithm groups item stacks to ensure that stacks are always as full as possible and always moves items in the inventory to the first available position in the inventory.<br/>
+     *<br/>
+     * Use case: A player has several stacks of fireballs, one of them in the hotbar, the others in the rest of the inventory.
+     * Normally, these fireballs in the hotbar slot would now decrease as the player shoots them.
+     * However, this algorithm always moves the fireballs from the rest of the inventory to the slot with the fireball in the hotbar, as that slot comes before the others.
+     * This means that the player does not have to manually go into the inventory and move fireballs to the hotbar slot.
+     * @param inventory player inventory
+     */
+    private void groupItemsAlgorithm(@NotNull Inventory inventory) {
+
+        Map<ItemSimilarityKey, LinkedList<Integer>> movedSlotsMap = new HashMap<>();
+
+        for (int firstSlot = 0; firstSlot < Math.min(inventory.getSize(), 36); firstSlot++) {
+            ItemStack firstItem = inventory.getItem(firstSlot);
+
+            if (firstItem == null || firstItem.getType() == Material.AIR) continue;
+
+            // TODO: Replace this hard-coded list with a configurable one which items are affected and which not.
+            if (!(firstItem.getType().name().endsWith("WOOL") || firstItem.getType().name().endsWith("GLASS") || firstItem.getType() == Material.BLAZE_ROD || firstItem.getType() == Material.FIRE_CHARGE || firstItem.getType() == Material.SNOWBALL || firstItem.getType() == Material.ENDER_PEARL || firstItem.getType() == Material.GOLDEN_APPLE)) continue;
+
+            if (firstItem.getAmount() >= firstItem.getMaxStackSize()) continue;
+
+            for (int secondSlot = firstSlot + 1; secondSlot < Math.min(inventory.getSize(), 36); secondSlot++) {
+                ItemStack secondItem = inventory.getItem(secondSlot);
+
+                if (secondItem == null || secondItem.getType() == Material.AIR) continue;
+                if (!secondItem.isSimilar(firstItem)) continue;
+
+                int maxMoveableItemCount = firstItem.getMaxStackSize() - firstItem.getAmount();
+                int moveableItemCount = Math.min(maxMoveableItemCount, secondItem.getAmount());
+
+                firstItem.setAmount(firstItem.getAmount() + moveableItemCount);
+                secondItem.setAmount(secondItem.getAmount() - moveableItemCount);
+
+                // Slot claiming system (moves items forward to the first slots that were completely emptied after moving the item)
+                LinkedList<Integer> movedSlots = movedSlotsMap.computeIfAbsent(ItemSimilarityKey.of(firstItem), k -> new LinkedList<>());
+                if (secondItem.isEmpty()) {
+                    movedSlots.add(secondSlot);
+                } else {
+
+                    if (!movedSlots.isEmpty()) {
+                        int firstFreeSlot = movedSlots.pop();
+                        inventory.setItem(firstFreeSlot, secondItem.clone());
+                        inventory.setItem(secondSlot, new ItemStack(Material.AIR));
+                    }
+
+                }
+
+            }
+
+
 
         }
 
