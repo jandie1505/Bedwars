@@ -9,7 +9,7 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.game.game.commands.*;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
-import net.jandie1505.bedwars.game.game.commands.GameGiveSubcommand;
+import net.jandie1505.bedwars.game.game.commands.shop.GameShopGiveSubcommand;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.ShopVillager;
@@ -27,7 +27,6 @@ import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
-import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
@@ -36,7 +35,6 @@ import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.game.timeactions.provider.TimeActionCreator;
 import net.jandie1505.bedwars.game.game.world.BlockProtectionSystem;
-import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -181,7 +179,6 @@ public class Game extends GamePart implements ManagedListener {
         this.addDynamicSubcommand("teams", SubcommandEntry.of(new GameTeamsSubcommand(this)));
         this.addDynamicSubcommand("teleport-to-map", SubcommandEntry.of(new GameTeleportToMapSubcommand(this)));
         this.addDynamicSubcommand("finish", SubcommandEntry.of(new GameFinishSubcommand(this)));
-        this.addDynamicSubcommand("give", SubcommandEntry.of(new GameGiveSubcommand(this)));
         this.addDynamicSubcommand("shop", SubcommandEntry.of(new GameShopSubcommand(this)));
 
         // TASKS

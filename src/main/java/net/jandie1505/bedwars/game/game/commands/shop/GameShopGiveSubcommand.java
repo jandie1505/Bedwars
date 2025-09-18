@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.game.commands;
+package net.jandie1505.bedwars.game.game.commands.shop;
 
 import net.chaossquad.mclib.PlayerUtils;
 import net.chaossquad.mclib.command.OptionParser;
@@ -21,10 +21,10 @@ import java.util.Set;
 /**
  * Command that can give shop items to players.
  */
-public class GameGiveSubcommand implements TabCompletingCommandExecutor {
+public class GameShopGiveSubcommand implements TabCompletingCommandExecutor {
     @NotNull private final Game game;
 
-    public GameGiveSubcommand(@NotNull Game game) {
+    public GameShopGiveSubcommand(@NotNull Game game) {
         this.game = game;
     }
 
