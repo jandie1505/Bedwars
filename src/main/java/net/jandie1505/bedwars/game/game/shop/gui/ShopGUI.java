@@ -37,8 +37,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class ShopGUI implements ManagedListener, InventoryHolder {
-    // The current page, which is stored in the quick buy item
+    // The current page, which is stored in the quick buy item (slot 0).
     @NotNull public static NamespacedKey MENU_CURRENT_PAGE = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.current_page");
+    // The status of the free mode (all items can be purchased without cost), which is stored in the quick buy item (slot 0).
+    @NotNull public static NamespacedKey MENU_FREE_MODE = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.free_mode");
     // The menu bar page id, which is stored in all menu bar items
     @NotNull public static NamespacedKey MENU_BAR_PAGE_ID = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.menu_bar_page_id");
     // The shop item id that is used to identify the item in ItemShop. Is used to get the original item and price.
@@ -57,7 +59,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
         this.defaultQuickBuyMenu = defaultQuickBuyMenu != null ? Map.copyOf(defaultQuickBuyMenu) : Map.of();
     }
 
-    public @NotNull Inventory getInventory(@NotNull Player player, @Nullable Integer page) {
+    public @NotNull Inventory getInventory(@NotNull Player player, @Nullable Integer page, boolean freeMode) {
 
         if (page == null) {
             page = 0;
@@ -70,7 +72,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
 
         // MENU BAR
 
-        inventory.setItem(0, this.getQuickBuyItem(page));
+        inventory.setItem(0, this.getQuickBuyItem(page, freeMode));
         this.generateMenuBarItems(inventory, page);
         this.generateMenuBarSpacer(inventory);
 
@@ -87,17 +89,22 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
         return inventory;
     }
 
+    public @NotNull Inventory getInventory(@NotNull Player player, @Nullable Integer page) {
+        return getInventory(player, page, false);
+    }
+
     /**
      * Returns the quick buy item.
      * @return quick buy item
      */
-    private @NotNull ItemStack getQuickBuyItem(int page) {
+    private @NotNull ItemStack getQuickBuyItem(int page, boolean freeMode) {
         ItemStack quickBuyItem = new ItemStack(Material.NETHER_STAR);
         ItemMeta quickBuyMeta = quickBuyItem.getItemMeta();
 
         quickBuyMeta.displayName(Component.text("Quick Buy", NamedTextColor.GOLD,  TextDecoration.BOLD));
         quickBuyMeta.addItemFlags(ItemFlag.values());
         quickBuyMeta.getPersistentDataContainer().set(MENU_CURRENT_PAGE, PersistentDataType.INTEGER, page);
+        quickBuyMeta.getPersistentDataContainer().set(MENU_FREE_MODE, PersistentDataType.BOOLEAN, freeMode);
         quickBuyMeta.getPersistentDataContainer().set(MENU_BAR_PAGE_ID, PersistentDataType.INTEGER, 0);
 
         if (page == 0) {
@@ -252,6 +259,8 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
         int currentPage = this.getCurrentPage(event.getInventory());
         if (currentPage < 0) return;
 
+        boolean freeMode = this.isFreeMode(event.getInventory());
+
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
 
@@ -259,7 +268,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
 
         // Menu Bar
         if (data.has(MENU_BAR_PAGE_ID, PersistentDataType.INTEGER)) {
-            player.openInventory(this.getInventory(player, data.get(MENU_BAR_PAGE_ID, PersistentDataType.INTEGER)));
+            player.openInventory(this.getInventory(player, data.get(MENU_BAR_PAGE_ID, PersistentDataType.INTEGER), freeMode));
             return;
         }
 
@@ -271,7 +280,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
             ShopEntry entry = this.game.getItemShop().getItem(itemId);
             if (entry == null) return;
 
-            this.purchaseItem(player, entry, event.isShiftClick());
+            this.purchaseItem(player, entry, event.isShiftClick(), freeMode);
             return;
         }
 
@@ -283,8 +292,8 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
             UpgradeEntry entry = this.game.getItemShop().getUpgrade(upgradeId);
             if (entry == null) return;
 
-            this.purchaseUpgrade(player, entry);
-            player.openInventory(this.getInventory(player, currentPage));
+            this.purchaseUpgrade(player, entry, freeMode);
+            player.openInventory(this.getInventory(player, currentPage, freeMode));
             return;
         }
 
@@ -364,25 +373,19 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
 
     // ----- PURCHASE PROCESS -----
 
-    private void purchaseItem(@NotNull Player player, @NotNull ShopEntry entry, boolean stackPurchase) {
+    private void purchaseItem(@NotNull Player player, @NotNull ShopEntry entry, boolean stackPurchase, boolean freeMode) {
         int availableCurrency = this.getAvailableCurrency(player.getInventory(), entry.currency());
         int price;
         int itemAmount;
 
+        // Calculate stack size for stack purchase
         if (stackPurchase) {
-            int[] stackPurchaseResult = this.calculateStackPurchase(entry, availableCurrency);
+            int[] stackPurchaseResult = this.calculateStackPurchase(entry, availableCurrency, freeMode);
             itemAmount = stackPurchaseResult[0];
             price = stackPurchaseResult[1];
         } else {
             itemAmount = entry.item().getAmount();
             price = entry.price();
-        }
-
-        // Check for enough currency
-        if (this.getAvailableCurrency(player.getInventory(), entry.currency()) < price) {
-            player.sendRichMessage("<red>You don't have enough money to purchase the item!");
-            player.playSound(player.getLocation().clone(), Sound.ENTITY_PLAYER_TELEPORT, 1, 2);
-            return;
         }
 
         // Prepare purchased item
@@ -396,13 +399,27 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
             return;
         }
 
-        // Purchase success
-        Bedwars.removeSpecificAmountOfItems(player.getInventory(), entry.currency(), price);
+        // Purchase
+        if (!freeMode) {
+
+            // Check for enough currency
+            if (this.getAvailableCurrency(player.getInventory(), entry.currency()) < price) {
+                player.sendRichMessage("<red>You don't have enough money to purchase the item!");
+                player.playSound(player.getLocation().clone(), Sound.ENTITY_PLAYER_TELEPORT, 1, 2);
+                return;
+            }
+
+            // Remove amount of money
+            Bedwars.removeSpecificAmountOfItems(player.getInventory(), entry.currency(), price);
+
+        }
+
+        // Give item
         player.getInventory().addItem(purchasedItemStack);
         player.playSound(player.getLocation().clone(), Sound.BLOCK_STONE_BUTTON_CLICK_ON, 1.0f, 1.0f);
     }
 
-    private void purchaseUpgrade(@NotNull Player player, @NotNull UpgradeEntry entry) {
+    private void purchaseUpgrade(@NotNull Player player, @NotNull UpgradeEntry entry, boolean freeMode) {
 
         // Get player data
         PlayerData playerData = this.game.getPlayerData(player);
@@ -411,23 +428,30 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
         // Get next upgrade level
         int level = playerData.getUpgrade(entry.upgradeId()) + 1;
 
-        // Get the price for the upgrade
-        UpgradeEntry.PriceEntry price = entry.prices().get(level);
-        if (price == null) return;
-        if (price.amount() < 0) return;
+        // Purchase
+        if (!freeMode) {
 
-        // Get the amount of the currency the player currently has
-        int availableCurrency = this.getAvailableCurrency(player.getInventory(), price.currency());
+            // Get the price for the upgrade
+            UpgradeEntry.PriceEntry price = entry.prices().get(level);
+            if (price == null) return;
+            if (price.amount() < 0) return;
 
-        // Check for enough money
-        if (availableCurrency < price.amount()) {
-            player.sendRichMessage("<red>You don't have enough money to purchase the upgrade!");
-            player.playSound(player.getLocation().clone(), Sound.ENTITY_PLAYER_TELEPORT, 1, 2);
-            return;
+            // Get the amount of the currency the player currently has
+            int availableCurrency = this.getAvailableCurrency(player.getInventory(), price.currency());
+
+            // Check for enough money
+            if (availableCurrency < price.amount()) {
+                player.sendRichMessage("<red>You don't have enough money to purchase the upgrade!");
+                player.playSound(player.getLocation().clone(), Sound.ENTITY_PLAYER_TELEPORT, 1, 2);
+                return;
+            }
+
+            // Remove amount of money
+            Bedwars.removeSpecificAmountOfItems(player.getInventory(), price.currency(), price.amount());
+
         }
 
-        // Purchase success
-        Bedwars.removeSpecificAmountOfItems(player.getInventory(), price.currency(), price.amount());
+        // Give upgrade
         playerData.setUpgrade(entry.upgradeId(), level);
         player.playSound(player.getLocation().clone(), Sound.BLOCK_STONE_BUTTON_CLICK_ON, 1.0f, 1.0f);
     }
@@ -452,9 +476,11 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
      * @param availableMoney money the purchasing player has available
      * @return array: [item amount, price]
      */
-    private int[] calculateStackPurchase(@NotNull ShopEntry entry, int availableMoney) {
+    private int[] calculateStackPurchase(@NotNull ShopEntry entry, int availableMoney, boolean freeMode) {
         int amount = 0;
         int price = 0;
+
+        if (freeMode) return new int[]{entry.item().getMaxStackSize(), price};
 
         while (amount < entry.item().getMaxStackSize() || price <= availableMoney) {
             int nextAmount = amount + entry.item().getAmount();
@@ -479,6 +505,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
     private boolean hasEnoughSpace(@NotNull ItemStack purchasedItem, @NotNull Inventory inventory) {
 
         for (int slot = 0;  slot < inventory.getSize(); slot++) {
+            if (slot >= 36) break;
             ItemStack item = inventory.getItem(slot);
 
             // If there is a free slot in the inventory, there is always space for an item.
@@ -507,6 +534,22 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
         if (meta == null) return -1;
 
         return meta.getPersistentDataContainer().getOrDefault(MENU_CURRENT_PAGE, PersistentDataType.INTEGER, -1);
+    }
+
+    /**
+     * Returns the status of free mode of the current inventory.
+     * @param inventory shop gui inventory
+     * @return free mode status (false if invalid)
+     */
+    private boolean isFreeMode(@NotNull Inventory inventory) {
+
+        ItemStack item = inventory.getItem(0);
+        if (item == null) return false;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return false;
+
+        return meta.getPersistentDataContainer().getOrDefault(MENU_FREE_MODE, PersistentDataType.BOOLEAN, false);
     }
 
     // ----- OTHER -----
