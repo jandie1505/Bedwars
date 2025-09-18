@@ -79,7 +79,9 @@ public abstract class ItemUpgrade extends PlayerUpgrade {
             ItemMeta meta = item.getItemMeta();
             if (meta == null) continue;
 
-            if (meta.getPersistentDataContainer().getOrDefault(NamespacedKeys.GAME_ITEM_UPGRADE_ID, PersistentDataType.STRING, "").isEmpty()) continue;
+            String retrievedUpgradeId = meta.getPersistentDataContainer().getOrDefault(NamespacedKeys.GAME_ITEM_UPGRADE_ID, PersistentDataType.STRING, "");
+            if (retrievedUpgradeId.isEmpty()) continue;
+            if (!retrievedUpgradeId.equals(this.getId())) continue;
             itemAvail = true;
 
             int upgradeLevel = meta.getPersistentDataContainer().getOrDefault(NamespacedKeys.GAME_ITEM_UPGRADE_LEVEL, PersistentDataType.INTEGER, -1);

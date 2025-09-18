@@ -7,6 +7,7 @@ import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
+import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
@@ -3524,6 +3525,23 @@ public final class DefaultConfigValues {
         ));
 
         return upgrades;
+    }
+
+    public static @NotNull Map<Integer, QuickBuyMenuEntry> getDefaultQuickBuyMenu() {
+        Map<Integer, QuickBuyMenuEntry> menu = new HashMap<>();
+
+        menu.put(19, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "wool"));
+        menu.put(20, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "stone_sword"));
+        menu.put(21, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.UPGRADE, "armor"));
+        menu.put(23, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "standard_bow"));
+        menu.put(25, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "automatically_igniting_tnt"));
+        menu.put(28, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "wood"));
+        menu.put(29, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "iron_sword"));
+        menu.put(31, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.UPGRADE, "shears"));
+        menu.put(32, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "spectral_arrow"));
+        menu.put(34, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "water_bucket"));
+
+        return menu;
     }
 
 }

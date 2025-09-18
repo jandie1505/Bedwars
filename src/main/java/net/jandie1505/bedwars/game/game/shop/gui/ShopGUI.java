@@ -5,6 +5,7 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
@@ -18,6 +19,7 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -78,7 +80,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
         if (page > 0) {
             buildShopMenuPage(inventory, page, player);
         } else {
-            buildQuickBuyMenu(inventory);
+            buildQuickBuyMenu(inventory, player);
         }
 
         // RETURN
@@ -159,9 +161,34 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
 
     // ----- QUICK BUY MENU -----
 
-    private void buildQuickBuyMenu(@NotNull Inventory inventory) {
+    private void buildQuickBuyMenu(@NotNull Inventory inventory, @NotNull Player player) {
+        Map<Integer, QuickBuyMenuEntry> entries = DefaultConfigValues.getDefaultQuickBuyMenu();
 
+        PlayerData playerData = this.game.getPlayerData(player);
+        if (playerData == null) return;
 
+        for (Map.Entry<Integer, QuickBuyMenuEntry> e : entries.entrySet()) {
+            int slot = e.getKey();
+            QuickBuyMenuEntry entry = e.getValue();
+
+            if (slot < 10) continue;
+            if (slot >= inventory.getSize()) continue;
+            if (slot > 52) continue;
+
+            switch (entry.type()) {
+                case ITEM -> {
+                    ShopEntry shopEntry = this.game.getItemShop().getItem(entry.id());
+                    if (shopEntry == null) continue;
+                    inventory.setItem(slot, this.createShopItem(entry.id(), shopEntry));
+                }
+                case UPGRADE -> {
+                    UpgradeEntry upgradeEntry = this.game.getItemShop().getUpgrade(entry.id());
+                    if (upgradeEntry == null) continue;
+                    int level = playerData.getUpgrade(upgradeEntry.upgradeId()) + 1;
+                    inventory.setItem(slot, this.createUpgradeItem(entry.id(), upgradeEntry, level));
+                }
+            }
+        }
 
     }
 
@@ -188,26 +215,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
 
             for (Map.Entry<String, ShopEntry> e : itemShop.getItems().entrySet()) {
                 if (!e.getValue().positions().contains(new ShopGUIPosition(page, slot))) continue;
-
-                ItemStack item = e.getValue().item().clone();
-                ItemMeta meta = item.getItemMeta();
-
-                meta.getPersistentDataContainer().set(MENU_SHOP_ITEM_ID, PersistentDataType.STRING, e.getKey());
-
-                List<Component> lore = meta.lore();
-                lore = lore != null ? new ArrayList<>(lore) : new ArrayList<>();
-                if (!lore.isEmpty()) lore.add(Component.text(" "));
-                lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                        .append(Component.text("Price: ", NamedTextColor.GRAY))
-                        .append(Component.text(e.getValue().price(), NamedTextColor.YELLOW))
-                        .appendSpace()
-                        .append(Component.text(e.getValue().currency().name(), NamedTextColor.YELLOW))
-                );
-                meta.lore(lore);
-
-                item.setItemMeta(meta);
-                inventory.setItem(slot, item);
-
+                inventory.setItem(slot, this.createShopItem(e.getKey(), e.getValue()));
                 itemLoopInterrupted = true;
                 break;
             }
@@ -221,36 +229,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
                 UpgradeEntry entry = e.getValue();
 
                 int level = playerData.getUpgrade(entry.upgradeId()) + 1;
-
-                @Nullable UpgradeEntry.PriceEntry price = entry.prices().get(level);
-
-                ItemStack icon = entry.icons().get(level);
-                if (icon == null) continue;
-
-                ItemMeta iconMeta = icon.getItemMeta();
-
-                iconMeta.getPersistentDataContainer().set(MENU_SHOP_UPGRADE_ID, PersistentDataType.STRING, e.getKey());
-
-                List<Component> lore = iconMeta.lore();
-                lore = lore != null ? new ArrayList<>(lore) : new ArrayList<>();
-                if (!lore.isEmpty()) lore.add(Component.text(" "));
-
-                if (price != null) {
-                    lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                            .append(Component.text("Price: ", NamedTextColor.GRAY))
-                            .append(Component.text(price.amount(), NamedTextColor.YELLOW))
-                            .appendSpace()
-                            .append(Component.text(price.currency().name(), NamedTextColor.YELLOW))
-                    );
-                } else {
-                    lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
-                            .append(Component.text("No upgrade available", NamedTextColor.GRAY))
-                    );
-                }
-                iconMeta.lore(lore);
-
-                icon.setItemMeta(iconMeta);
-                inventory.setItem(slot, icon);
+                inventory.setItem(slot, this.createUpgradeItem(e.getKey(), e.getValue(), level));
 
                 itemLoopInterrupted = true;
                 break;
@@ -327,6 +306,61 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
         meta.addItemFlags(ItemFlag.values());
         item.setItemMeta(meta);
         return item;
+    }
+
+    // ----- ITEMS -----
+
+    private @NotNull ItemStack createShopItem(@NotNull String key, @NotNull ShopEntry entry) {
+        ItemStack item = entry.item().clone();
+        ItemMeta meta = item.getItemMeta();
+
+        meta.getPersistentDataContainer().set(MENU_SHOP_ITEM_ID, PersistentDataType.STRING, key);
+
+        List<Component> lore = meta.lore();
+        lore = lore != null ? new ArrayList<>(lore) : new ArrayList<>();
+        if (!lore.isEmpty()) lore.add(Component.text(" "));
+        lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                .append(Component.text("Price: ", NamedTextColor.GRAY))
+                .append(Component.text(entry.price(), NamedTextColor.YELLOW))
+                .appendSpace()
+                .append(Component.text(entry.currency().name(), NamedTextColor.YELLOW))
+        );
+        meta.lore(lore);
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private @NotNull ItemStack createUpgradeItem(@NotNull String key, @NotNull UpgradeEntry entry, int level) {
+        @Nullable UpgradeEntry.PriceEntry price = entry.prices().get(level);
+
+        ItemStack icon = entry.icons().get(level);
+        if (icon == null) return new ItemStack(Material.AIR);
+
+        ItemMeta iconMeta = icon.getItemMeta();
+
+        iconMeta.getPersistentDataContainer().set(MENU_SHOP_UPGRADE_ID, PersistentDataType.STRING, key);
+
+        List<Component> lore = iconMeta.lore();
+        lore = lore != null ? new ArrayList<>(lore) : new ArrayList<>();
+        if (!lore.isEmpty()) lore.add(Component.text(" "));
+
+        if (price != null) {
+            lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text("Price: ", NamedTextColor.GRAY))
+                    .append(Component.text(price.amount(), NamedTextColor.YELLOW))
+                    .appendSpace()
+                    .append(Component.text(price.currency().name(), NamedTextColor.YELLOW))
+            );
+        } else {
+            lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text("No upgrade available", NamedTextColor.GRAY))
+            );
+        }
+        iconMeta.lore(lore);
+
+        icon.setItemMeta(iconMeta);
+        return icon;
     }
 
     // ----- PURCHASE PROCESS -----
