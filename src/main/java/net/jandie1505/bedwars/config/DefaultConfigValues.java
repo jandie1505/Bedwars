@@ -1,6 +1,7 @@
 package net.jandie1505.bedwars.config;
 
 import net.chaossquad.mclib.MiscUtils;
+import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
@@ -2521,6 +2522,7 @@ public final class DefaultConfigValues {
         creeperArrowMeta.setLore(List.of("§r§7Spawns a Creeper at the point of impact."));
         creeperArrowMeta.setColor(Color.GREEN);
         creeperArrowMeta.addItemFlags(ItemFlag.values());
+        creeperArrowMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.CREEPER_ARROW);
         creeperArrowItem.setItemMeta(creeperArrowMeta);
 
         entries.put(
@@ -2816,7 +2818,7 @@ public final class DefaultConfigValues {
         ));
         effectImmunityDringMeta.addItemFlags(ItemFlag.values());
         effectImmunityDringMeta.setColor(Color.RED);
-        if (plugin != null) effectImmunityDringMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.EFFECT_IMMUNITY_POTION);
+        if (plugin != null) effectImmunityDringMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.EFFECT_IMMUNITY_POTION);
         effectImmunityDrinkItem.setItemMeta(effectImmunityDringMeta);
 
         entries.put(
@@ -2840,7 +2842,7 @@ public final class DefaultConfigValues {
         ));
         stealthPotionMeta.addItemFlags(ItemFlag.values());
         stealthPotionMeta.setColor(Color.GRAY);
-        if (plugin != null) stealthPotionMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.STEALTH_POTION);
+        if (plugin != null) stealthPotionMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.STEALTH_POTION);
         stealthPotionItem.setItemMeta(stealthPotionMeta);
 
         entries.put(
@@ -2910,6 +2912,7 @@ public final class DefaultConfigValues {
         ItemMeta ironGolemSpawnEggMeta = ironGolemSpawnEggItem.getItemMeta();
         ironGolemSpawnEggMeta.setDisplayName("§rBase Defender Spawn Egg");
         ironGolemSpawnEggMeta.setLore(List.of("§r§7Spawns a base defender."));
+        ironGolemSpawnEggMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.BASE_DEFENDER_SPAWN_EGG);
         ironGolemSpawnEggItem.setItemMeta(ironGolemSpawnEggMeta);
 
         entries.put(
@@ -2928,7 +2931,7 @@ public final class DefaultConfigValues {
         ItemMeta fireballMeta = fireballItem.getItemMeta();
         fireballMeta.setDisplayName("§rFireball");
         fireballMeta.setLore(List.of("§r§7For a small explosion!"));
-        if (plugin != null) fireballMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.FIREBALL);
+        if (plugin != null) fireballMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.FIREBALL);
         fireballItem.setItemMeta(fireballMeta);
 
         entries.put(
@@ -2949,7 +2952,7 @@ public final class DefaultConfigValues {
         enhancedFireballMeta.setLore(List.of("§r§7For a big explosion!"));
         enhancedFireballMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         enhancedFireballMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) enhancedFireballMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.ENHANCED_FIREBALL);
+        if (plugin != null) enhancedFireballMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.ENHANCED_FIREBALL);
         enhancedFireballItem.setItemMeta(enhancedFireballMeta);
 
         entries.put(
@@ -2970,7 +2973,7 @@ public final class DefaultConfigValues {
         automaticallyIgnitingTNTMeta.setLore(List.of("§r§7TNT that ignites when placed."));
         automaticallyIgnitingTNTMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         automaticallyIgnitingTNTMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) automaticallyIgnitingTNTMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.AUTOMATICALLY_IGNITING_TNT);
+        if (plugin != null) automaticallyIgnitingTNTMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.AUTOMATICALLY_IGNITING_TNT);
         automaticallyIgnitingTNTItem.setItemMeta(automaticallyIgnitingTNTMeta);
 
         entries.put(
@@ -3092,7 +3095,7 @@ public final class DefaultConfigValues {
         ));
         safetyPlattformMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         safetyPlattformMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) safetyPlattformMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.SAFETY_PLATTFORM);
+        if (plugin != null) safetyPlattformMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.SAFETY_PLATTFORM);
         safetyPlattformItem.setItemMeta(safetyPlattformMeta);
 
         entries.put(
@@ -3120,7 +3123,7 @@ public final class DefaultConfigValues {
         ));
         unlimitedPlatformMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         unlimitedPlatformMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) unlimitedPlatformMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.UNLIMITED_PLATTFORM);
+        if (plugin != null) unlimitedPlatformMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.UNLIMITED_PLATTFORM);
         unlimitedPlatformItem.setItemMeta(unlimitedPlatformMeta);
 
         entries.put(
@@ -3147,7 +3150,7 @@ public final class DefaultConfigValues {
         ));
         battlePlattformMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         battlePlattformMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) battlePlattformMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.BATTLEGROUND_PLATTFORM);
+        if (plugin != null) battlePlattformMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.BATTLEGROUND_PLATTFORM);
         battlePlattformItem.setItemMeta(battlePlattformMeta);
 
         entries.put(
@@ -3168,7 +3171,7 @@ public final class DefaultConfigValues {
         autoBridgeMeta.setLore(List.of("§r§7Spawns a bridge in front of you."));
         autoBridgeMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         autoBridgeMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) autoBridgeMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.AUTO_BRIDGE);
+        if (plugin != null) autoBridgeMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.AUTO_BRIDGE);
         autoBridgeItem.setItemMeta(autoBridgeMeta);
 
         entries.put(
@@ -3194,7 +3197,7 @@ public final class DefaultConfigValues {
         ));
         mobileCastleMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         mobileCastleMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) mobileCastleMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.MOBILE_CASTLE);
+        if (plugin != null) mobileCastleMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.MOBILE_CASTLE);
         mobileCastleItem.setItemMeta(mobileCastleMeta);
 
         entries.put(
@@ -3215,7 +3218,7 @@ public final class DefaultConfigValues {
         singleUseJetpackMeta.setLore(List.of("§r§7Will boost you up a few blocks."));
         singleUseJetpackMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         singleUseJetpackMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) singleUseJetpackMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.SINGLE_USE_JETPACK);
+        if (plugin != null) singleUseJetpackMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.SINGLE_USE_JETPACK);
         singleUseJetpackItem.setItemMeta(singleUseJetpackMeta);
 
         entries.put(
@@ -3234,6 +3237,7 @@ public final class DefaultConfigValues {
         ItemMeta snowDefenderSpawnEggMeta = snowDefenderSpawnEggItem.getItemMeta();
         snowDefenderSpawnEggMeta.setDisplayName("§rSnow Defender Spawn Egg");
         snowDefenderSpawnEggMeta.setLore(List.of("§r§7Spawns a Snow Defender."));
+        snowDefenderSpawnEggMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.SNOW_DEFENDER_SPAWN_EGG);
         snowDefenderSpawnEggItem.setItemMeta(snowDefenderSpawnEggMeta);
 
         entries.put(
@@ -3252,6 +3256,7 @@ public final class DefaultConfigValues {
         ItemMeta dogSpawnEggMeta = dogSpawnEggItem.getItemMeta();
         dogSpawnEggMeta.setDisplayName("§rDog Spawn Egg");
         dogSpawnEggMeta.setLore(List.of("§r§7Spawns your new best friend."));
+        dogSpawnEggMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.DOG_SPAWN_EGG);
         dogSpawnEggItem.setItemMeta(dogSpawnEggMeta);
 
         entries.put(
@@ -3278,6 +3283,7 @@ public final class DefaultConfigValues {
         ));
         grapplingHookMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
         grapplingHookMeta.addItemFlags(ItemFlag.values());
+        grapplingHookMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.GRAPPLING_HOOK);
         grapplingHookItem.setItemMeta(grapplingHookMeta);
 
         entries.put(
@@ -3342,7 +3348,7 @@ public final class DefaultConfigValues {
                 "§r§7- The glowing is shown to all players.",
                 "§r§7- 30 seconds cooldown to prevent spamming."
         ));
-        if (plugin != null) environmentScannerMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.ENVIRONMENT_SCANNER);
+        if (plugin != null) environmentScannerMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.ENVIRONMENT_SCANNER);
         environmentScannerItem.setItemMeta(environmentScannerMeta);
 
         entries.put(

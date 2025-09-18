@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game.game.listeners;
 
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.config.CustomItemValues;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
@@ -51,7 +52,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerInteractForFireball(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (!event.getAction().isRightClick()) return;
-        if (!hasItemSpecialItemKey(event.getItem(), NamespacedKeys.GAME_ITEM_FIREBALL)) return;
+        if (!isSpecialItem(event.getItem(), CustomItemValues.FIREBALL)) return;
 
         event.setCancelled(true);
 
@@ -84,7 +85,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerInteractForEnhancedFireball(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (!event.getAction().isRightClick()) return;
-        if (!hasItemSpecialItemKey(event.getItem(), NamespacedKeys.GAME_ITEM_ENHANCED_FIREBALL)) return;
+        if (!isSpecialItem(event.getItem(), CustomItemValues.ENHANCED_FIREBALL)) return;
 
         event.setCancelled(true);
 
@@ -119,7 +120,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerInteractForSafetyPlatform(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (!event.getAction().isRightClick()) return;
-        if (!hasItemSpecialItemKey(event.getItem(), NamespacedKeys.GAME_ITEM_SAFETY_PLATFORM)) return;
+        if (!isSpecialItem(event.getItem(), CustomItemValues.SAFETY_PLATTFORM)) return;
 
         event.setCancelled(true);
 
@@ -133,7 +134,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerInteractForEnhancedSafetyPlatform(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (!event.getAction().isRightClick()) return;
-        if (!hasItemSpecialItemKey(event.getItem(),NamespacedKeys.GAME_ITEM_SAFETY_PLATFORM_ENHANCED)) return;
+        if (!isSpecialItem(event.getItem(),CustomItemValues.SAFETY_PLATTFORM_ENHANCED)) return;
 
         event.setCancelled(true);
 
@@ -150,13 +151,13 @@ public class SpecialItemListeners implements ManagedListener {
         PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if (playerData == null) return;
 
-        if (hasItemSpecialItemKey(event.getMainHandItem(), NamespacedKeys.GAME_ITEM_SAFETY_PLATFORM)) {
+        if (isSpecialItem(event.getMainHandItem(), CustomItemValues.SAFETY_PLATTFORM)) {
             event.setCancelled(true);
             this.createSafetyPlatform(event.getPlayer(), playerData, false);
             return;
         }
 
-        if(hasItemSpecialItemKey(event.getMainHandItem(), NamespacedKeys.GAME_ITEM_SAFETY_PLATFORM_ENHANCED)) {
+        if(isSpecialItem(event.getMainHandItem(), CustomItemValues.SAFETY_PLATTFORM_ENHANCED)) {
             event.setCancelled(true);
             this.createSafetyPlatform(event.getPlayer(), playerData, true);
             return;
@@ -167,12 +168,12 @@ public class SpecialItemListeners implements ManagedListener {
 
         ItemStack itemStack = player.getInventory().getItem(player.getInventory().getHeldItemSlot());
 
-        if ((hasItemSpecialItemKey(itemStack, NamespacedKeys.GAME_ITEM_SAFETY_PLATFORM) || hasItemSpecialItemKey(itemStack, NamespacedKeys.GAME_ITEM_SAFETY_PLATFORM_ENHANCED)) && itemStack.getAmount() > 0) {
+        if ((isSpecialItem(itemStack, CustomItemValues.SAFETY_PLATTFORM) || isSpecialItem(itemStack, CustomItemValues.SAFETY_PLATTFORM_ENHANCED)) && itemStack.getAmount() > 0) {
             itemStack.setAmount(itemStack.getAmount() - 1);
         } else {
             ItemStack offhandItem = player.getInventory().getItemInOffHand();
 
-            if ((hasItemSpecialItemKey(itemStack, NamespacedKeys.GAME_ITEM_SAFETY_PLATFORM) || hasItemSpecialItemKey(itemStack, NamespacedKeys.GAME_ITEM_SAFETY_PLATFORM_ENHANCED)) && itemStack.getAmount() > 0) {
+            if ((isSpecialItem(offhandItem, CustomItemValues.SAFETY_PLATTFORM) || isSpecialItem(offhandItem, CustomItemValues.SAFETY_PLATTFORM_ENHANCED)) && offhandItem.getAmount() > 0) {
                 offhandItem.setAmount(offhandItem.getAmount() - 1);
             }
 
@@ -248,7 +249,7 @@ public class SpecialItemListeners implements ManagedListener {
     @EventHandler
     public void onProjectileLaunchForBridgeEgg(ProjectileLaunchEvent event) {
         if (!(event.getEntity() instanceof Egg egg)) return;
-        if (!hasItemSpecialItemKey(egg.getItem(), NamespacedKeys.GAME_ITEM_BRIDGE_EGG)) return;
+        if (!isSpecialItem(egg.getItem(), CustomItemValues.AUTO_BRIDGE)) return;
         if (!(egg.getShooter() instanceof Player shooter)) return;
 
         PlayerData shooterData = this.game.getPlayerData(shooter);
@@ -269,7 +270,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerInteractForPlayerTracker(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (!event.getAction().isRightClick()) return;
-        if (!hasItemSpecialItemKey(event.getItem(), NamespacedKeys.GAME_ITEM_PLAYER_TRACKER)) return;
+        if (!isSpecialItem(event.getItem(), CustomItemValues.ENVIRONMENT_SCANNER)) return;
 
         event.setCancelled(true);
 
@@ -314,7 +315,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerInteractForBaseDefender(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (!hasItemSpecialItemKey(event.getItem(), NamespacedKeys.GAME_ITEM_BASE_DEFENDER)) return;
+        if (!isSpecialItem(event.getItem(), CustomItemValues.BASE_DEFENDER_SPAWN_EGG)) return;
 
         event.setCancelled(true);
 
@@ -344,7 +345,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerInteractForSnowDefender(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-        if (!hasItemSpecialItemKey(event.getItem(), NamespacedKeys.GAME_ITEM_SNOW_DEFENDER)) return;
+        if (!isSpecialItem(event.getItem(), CustomItemValues.SNOW_DEFENDER_SPAWN_EGG)) return;
 
         event.setCancelled(true);
 
@@ -382,7 +383,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerInteractForZapper(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (!event.getAction().isRightClick()) return;
-        if (!hasItemSpecialItemKey(event.getItem(), NamespacedKeys.GAME_ITEM_ZAPPER)) return;
+        if (!isSpecialItem(event.getItem(), CustomItemValues.ZAPPER)) return;
 
         event.setCancelled(true);
 
@@ -423,7 +424,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerInteractForSpawnDust(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (!event.getAction().isRightClick()) return;
-        if (!hasItemSpecialItemKey(event.getItem(), NamespacedKeys.GAME_ITEM_SPAWN_DUST)) return;
+        if (!isSpecialItem(event.getItem(), CustomItemValues.SPAWN_DUST)) return;
 
         event.setCancelled(true);
 
@@ -467,7 +468,7 @@ public class SpecialItemListeners implements ManagedListener {
     public void onPlayerInteractForBlackHole(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (!event.getAction().isRightClick()) return;
-        if (!hasItemSpecialItemKey(event.getItem(), NamespacedKeys.GAME_ITEM_BLACK_HOLE)) return;
+        if (!isSpecialItem(event.getItem(), CustomItemValues.BLACK_HOLE)) return;
 
         event.setCancelled(true);
 
@@ -599,18 +600,20 @@ public class SpecialItemListeners implements ManagedListener {
      * If the item has this value available and set to true, the item is a special item.<br/>
      * This method is to make it easier to check for such a value to avoid duplicate code.
      * @param item item (can be null)
-     * @param key (not null)
      * @return is special item
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean hasItemSpecialItemKey(@Nullable ItemStack item, @NotNull NamespacedKey key) {
+    private boolean isSpecialItem(@Nullable ItemStack item, String specialItemValue) {
         if (item == null) return false;
 
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return false;
 
         PersistentDataContainer dataContainer = meta.getPersistentDataContainer();
-        return dataContainer.getOrDefault(key, PersistentDataType.BOOLEAN, false);
+
+        String value = dataContainer.getOrDefault(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, "");
+        if (value.isEmpty()) return false;
+        return value.equals(specialItemValue);
     }
 
     // ----- OTHER -----

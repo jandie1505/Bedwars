@@ -45,7 +45,7 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT")
     implementation("net.chaossquad:mclib:main-f54795e7aa44aff7e2da665360ccafb9405d90ee")
-    implementation("net.chaossquad:mclib-json:main-3ff1b6dc60b0095802d12edf43464fadf6481fdd") {
+    implementation("net.chaossquad:mclib-json:main-05a36246845af9928448b56a45097fab44ba57cd") {
         exclude(group = "net.chaossquad", module = "mclib")
     }
     implementation("org.json:json:20250107")

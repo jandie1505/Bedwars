@@ -55,10 +55,10 @@ public class GameGiveSubcommand implements TabCompletingCommandExecutor {
 
         ItemStack item = entry.item();
 
-        if (args.args().length > 3) {
+        if (args.args().length > 2) {
 
             try {
-                item.setAmount(Integer.parseInt(args.args()[3]));
+                item.setAmount(Integer.parseInt(args.args()[2]));
             } catch (IllegalArgumentException e) {
                 sender.sendRichMessage("Invalid amount.");
                 return true;
