@@ -23,6 +23,7 @@ import net.jandie1505.bedwars.game.game.listeners.*;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
+import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
@@ -81,7 +82,7 @@ public class Game extends GamePart implements ManagedListener {
     private BedwarsTeam winner;
     private boolean noWinnerEnd;
 
-    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, TeamUpgradesConfig teamUpgradesConfig) {
+    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, TeamUpgradesConfig teamUpgradesConfig) {
         super(plugin);
         this.world = world;
         this.data = data;
@@ -93,7 +94,7 @@ public class Game extends GamePart implements ManagedListener {
         this.blockProtectionSystem = new BlockProtectionSystem(this);
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
-        this.shopGUI = new ShopGUI(this);
+        this.shopGUI = new ShopGUI(this, defaultQuickBuyMenu);
         this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());

@@ -8,6 +8,7 @@ import net.jandie1505.bedwars.game.game.MapData;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
+import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
@@ -45,11 +46,14 @@ public final class GameBuilder {
 
         JSONObject shopFile = JSONLoader.loadJSONFromFile(new File(this.plugin.getDataFolder(), "shop.json"));
 
-        Map<String, ShopEntry> shopEntries = getShopEntriesFromJSON(shopFile.getJSONObject("items"));
+        Map<String, ShopEntry> shopEntries = getShopEntriesFromJSON(shopFile.optJSONObject("items", new JSONObject()));
         if (shopEntries.isEmpty()) shopEntries.putAll(DefaultConfigValues.getDefaultShopEntries(this.plugin));
 
-        Map<String, UpgradeEntry> upgradeEntries = getUpgradeEntriesFromJSON(shopFile.getJSONObject("upgrade_entries"));
+        Map<String, UpgradeEntry> upgradeEntries = getUpgradeEntriesFromJSON(shopFile.optJSONObject("upgrade_entries", new JSONObject()));
         if (upgradeEntries.isEmpty()) upgradeEntries.putAll(DefaultConfigValues.getDefaultUpgradeEntries(this.plugin));
+
+        Map<Integer, QuickBuyMenuEntry> quickBuyMenuEntries = getQuickBuyMenuEntriesFromJSON(shopFile.optJSONArray("default_quick_buy_menu", new JSONArray()));
+        if (quickBuyMenuEntries.isEmpty()) quickBuyMenuEntries.putAll(DefaultConfigValues.getDefaultQuickBuyMenu());
 
         // CREATE GAME
 
@@ -59,6 +63,7 @@ public final class GameBuilder {
                 selectedMap,
                 shopEntries,
                 upgradeEntries,
+                quickBuyMenuEntries,
                 this.loadTeamUpgradesConfig()
         );
 
@@ -199,6 +204,29 @@ public final class GameBuilder {
 
         for (Map.Entry<String, UpgradeEntry> entry : upgradeEntries.entrySet()) {
             json.put(entry.getKey(), entry.getValue().toJSON());
+        }
+
+        return json;
+    }
+
+    public static @NotNull Map<Integer, QuickBuyMenuEntry> getQuickBuyMenuEntriesFromJSON(@NotNull JSONArray json) {
+        Map<Integer, QuickBuyMenuEntry> quickBuyMenuEntries = new HashMap<>();
+
+        for (Object o : json) {
+            if (!(o instanceof JSONObject entryJSON)) throw new IllegalArgumentException("Invalid quick buy menu entry");
+            quickBuyMenuEntries.put(entryJSON.getInt("slot"), QuickBuyMenuEntry.fromJSON(entryJSON));
+        }
+
+        return quickBuyMenuEntries;
+    }
+
+    public static @NotNull JSONArray createJSONFromQuickBuyMenuEntries(@NotNull Map<Integer, QuickBuyMenuEntry> quickBuyMenuEntries) {
+        JSONArray json = new JSONArray();
+
+        for (Map.Entry<Integer, QuickBuyMenuEntry> entry : quickBuyMenuEntries.entrySet()) {
+            JSONObject entryJSON = entry.getValue().toJSON();
+            entryJSON.put("slot", entry.getKey());
+            json.put(entryJSON);
         }
 
         return json;

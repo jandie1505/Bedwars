@@ -264,6 +264,7 @@ public class Bedwars extends JavaPlugin {
             JSONObject shopFileContent = new JSONObject();
             shopFileContent.put("items", GameBuilder.createJSONFromShopEntries(DefaultConfigValues.getDefaultShopEntries(this)));
             shopFileContent.put("upgrade_entries", GameBuilder.createJSONFromUpgradeEntries(DefaultConfigValues.getDefaultUpgradeEntries(this)));
+            shopFileContent.put("default_quick_buy_menu", GameBuilder.createJSONFromQuickBuyMenuEntries(DefaultConfigValues.getDefaultQuickBuyMenu()));
             JSONLoader.saveJSONToFile(shopFile, shopFileContent, 4);
 
         }

@@ -34,10 +34,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ShopGUI implements ManagedListener, InventoryHolder {
     // The current page, which is stored in the quick buy item
@@ -51,11 +48,13 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
 
     @NotNull private final Game game;
     @NotNull private final ItemStack[] menuBarItems;
+    @NotNull private final Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu;
 
-    public ShopGUI(@NotNull Game game) {
+    public ShopGUI(@NotNull Game game, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu) {
         this.game = game;
         this.menuBarItems = DefaultConfigValues.getShopMenuBar();
         this.game.registerListener(this);
+        this.defaultQuickBuyMenu = defaultQuickBuyMenu != null ? Map.copyOf(defaultQuickBuyMenu) : Map.of();
     }
 
     public @NotNull Inventory getInventory(@NotNull Player player, @Nullable Integer page) {
@@ -162,7 +161,7 @@ public class ShopGUI implements ManagedListener, InventoryHolder {
     // ----- QUICK BUY MENU -----
 
     private void buildQuickBuyMenu(@NotNull Inventory inventory, @NotNull Player player) {
-        Map<Integer, QuickBuyMenuEntry> entries = DefaultConfigValues.getDefaultQuickBuyMenu();
+        Map<Integer, QuickBuyMenuEntry> entries = this.defaultQuickBuyMenu; // TODO: Replace with player-specific quick buy menu which is currently not implemented.
 
         PlayerData playerData = this.game.getPlayerData(player);
         if (playerData == null) return;
