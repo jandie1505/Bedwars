@@ -103,9 +103,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
             case "pause":
                 this.pauseSubcommand(sender, args);
                 break;
-            case "give":
-                this.giveSubcommand(sender, args);
-                break;
             case "cloudsystemmode":
                 this.cloudsystemModeSubcommand(sender, args);
                 break;
@@ -1336,62 +1333,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
         } else {
             sender.sendMessage("§aGame pause disabled");
         }
-
-    }
-
-    public void giveSubcommand(CommandSender sender, String[] args) {
-
-        if (!this.hasAdminPermission(sender)) {
-            sender.sendMessage("§cNo permission");
-            return;
-        }
-
-        if (args.length < 3) {
-            sender.sendMessage("§cUsage: /bedwars give <Player> <ItemId> [amount]");
-            return;
-        }
-
-        Player player = this.getPlayer(args[1]);
-
-        if (player == null) {
-            sender.sendMessage("§cPlayer not online");
-            return;
-        }
-
-        ItemStack item;
-
-        try {
-            item = this.plugin.getItemStorage().getItem(Integer.parseInt(args[2]));
-        } catch (IllegalArgumentException e) {
-            sender.sendMessage("§cPlease specify a valid int as item id");
-            return;
-        }
-
-        if (item == null) {
-            sender.sendMessage("§cItem does not exist");
-            return;
-        }
-
-        if (args.length > 3) {
-
-            try {
-                int amount = Integer.parseInt(args[3]);
-
-                if (amount < 0) {
-                    sender.sendMessage("§cThe amount must be higher than 0");
-                    return;
-                }
-
-                item.setAmount(amount);
-            } catch (IllegalArgumentException e) {
-                sender.sendMessage("§cPlease specify a valid int value");
-                return;
-            }
-
-        }
-
-        player.getInventory().addItem(item);
-        sender.sendMessage("§aItem was given to player");
 
     }
 

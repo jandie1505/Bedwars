@@ -76,7 +76,7 @@ public class GameInventoryManagementListener implements ManagedListener {
         }
 
         // Prevent putting on armor via shift-right-click
-        if (this.game.getPlugin().getItemStorage().isArmorItem(event.getCurrentItem())) {
+        if (Bedwars.isArmorItem(event.getCurrentItem())) {
             event.setCancelled(true);
             player.sendRichMessage("<red>You need to purchase armor in the item shop!");
             return;
@@ -241,7 +241,7 @@ public class GameInventoryManagementListener implements ManagedListener {
     public void onPlayerInteract(@NotNull PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (this.game.getPlugin().isPlayerBypassing(event.getPlayer().getUniqueId())) return;
-        if (!this.game.getPlugin().getItemStorage().isArmorItem(event.getItem())) return;
+        if (!Bedwars.isArmorItem(event.getItem())) return;
 
         event.setCancelled(true);
     }

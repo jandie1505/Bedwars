@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.util.*;
 
+@Deprecated(forRemoval = true)
 public class ItemStorage {
     private final Bedwars plugin;
     private final Map<Integer, ItemStack> items;
@@ -346,40 +347,6 @@ public class ItemStorage {
         }
 
         return Map.copyOf(returnMap);
-    }
-
-    public boolean isArmorItem(ItemStack item) {
-
-        if (item == null) {
-            return false;
-        }
-
-        Material itemType = item.getType();
-
-        return itemType == Material.LEATHER_BOOTS ||
-                itemType == Material.LEATHER_LEGGINGS ||
-                itemType == Material.LEATHER_CHESTPLATE ||
-                itemType == Material.LEATHER_HELMET ||
-                itemType == Material.CHAINMAIL_BOOTS ||
-                itemType == Material.CHAINMAIL_LEGGINGS ||
-                itemType == Material.CHAINMAIL_CHESTPLATE ||
-                itemType == Material.CHAINMAIL_HELMET ||
-                itemType == Material.IRON_BOOTS ||
-                itemType == Material.IRON_LEGGINGS ||
-                itemType == Material.IRON_CHESTPLATE ||
-                itemType == Material.IRON_HELMET ||
-                itemType == Material.GOLDEN_BOOTS ||
-                itemType == Material.GOLDEN_LEGGINGS ||
-                itemType == Material.GOLDEN_CHESTPLATE ||
-                itemType == Material.GOLDEN_HELMET ||
-                itemType == Material.DIAMOND_BOOTS ||
-                itemType == Material.DIAMOND_LEGGINGS ||
-                itemType == Material.DIAMOND_CHESTPLATE ||
-                itemType == Material.DIAMOND_HELMET ||
-                itemType == Material.NETHERITE_BOOTS ||
-                itemType == Material.NETHERITE_LEGGINGS ||
-                itemType == Material.NETHERITE_CHESTPLATE ||
-                itemType == Material.NETHERITE_HELMET;
     }
 
     public ItemStack colorArmor(ItemStack item, Color color) {

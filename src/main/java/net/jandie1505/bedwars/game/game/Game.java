@@ -925,7 +925,7 @@ public class Game extends GamePart implements ManagedListener {
 
             // Protection Team Upgrade
 
-            if (item != null && this.getPlugin().getItemStorage().isArmorItem(item)) {
+            if (item != null && Bedwars.isArmorItem(item)) {
 
                 if (item.getItemMeta() == null) {
                     item.setItemMeta(this.getPlugin().getServer().getItemFactory().getItemMeta(item.getType()));
