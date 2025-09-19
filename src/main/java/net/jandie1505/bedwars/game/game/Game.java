@@ -9,19 +9,24 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.game.game.commands.*;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
+import net.jandie1505.bedwars.game.game.commands.shop.GameShopGiveSubcommand;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.ShopVillager;
 import net.jandie1505.bedwars.game.game.entities.entities.UpgradeVillager;
+import net.jandie1505.bedwars.game.game.events.GamePlayerRespawnEvent;
 import net.jandie1505.bedwars.game.game.generators.Generator;
 import net.jandie1505.bedwars.game.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.game.listeners.*;
-import net.jandie1505.bedwars.game.game.menu.shop.old.ArmorConfig;
-import net.jandie1505.bedwars.game.game.menu.shop.old.ItemShop;
-import net.jandie1505.bedwars.game.game.menu.shop.ItemShopNew;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
+import net.jandie1505.bedwars.game.game.shop.ItemShop;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
+import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
+import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
@@ -30,18 +35,21 @@ import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.game.timeactions.provider.TimeActionCreator;
 import net.jandie1505.bedwars.game.game.world.BlockProtectionSystem;
+import net.jandie1505.bedwars.utilities.ItemSimilarityKey;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,10 +70,10 @@ public class Game extends GamePart implements ManagedListener {
     private final BlockProtectionSystem blockProtectionSystem;
     private final Map<UUID, Scoreboard> playerScoreboards;
     private final ItemShop itemShop;
-    private final ArmorConfig armorConfig;
+    private final ShopGUI shopGUI;
+    @NotNull private final PlayerUpgradeManager playerUpgradeManager;
     private final TeamUpgradesConfig teamUpgradesConfig;
     private final List<ManagedEntity<?>> managedEntities;
-    private final ItemShopNew itemShopNew;
     private int timeStep;
     private int time;
     private int publicEmeraldGeneratorLevel;
@@ -74,7 +82,7 @@ public class Game extends GamePart implements ManagedListener {
     private BedwarsTeam winner;
     private boolean noWinnerEnd;
 
-    public Game(Bedwars plugin, World world, MapData data, JSONObject shopConfig, ArmorConfig armorConfig, TeamUpgradesConfig teamUpgradesConfig) {
+    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, TeamUpgradesConfig teamUpgradesConfig) {
         super(plugin);
         this.world = world;
         this.data = data;
@@ -86,16 +94,23 @@ public class Game extends GamePart implements ManagedListener {
         this.blockProtectionSystem = new BlockProtectionSystem(this);
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
-        this.armorConfig = armorConfig;
+        this.shopGUI = new ShopGUI(this, defaultQuickBuyMenu);
+        this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
-        this.itemShopNew = new ItemShopNew(this);
         this.time = this.data.maxTime();
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
         this.prepared = false;
         this.winner = null;
         this.noWinnerEnd = false;
+
+        // Shop
+
+        this.itemShop.getItems().putAll(shopEntries);
+        this.itemShop.getUpgrades().putAll(playerUpgradeEntries);
+
+        // Teams
 
         for (TeamData teamData : List.copyOf(this.data.teams())) {
             BedwarsTeam team = new BedwarsTeam(this, teamData);
@@ -146,7 +161,7 @@ public class Game extends GamePart implements ManagedListener {
 
         }
 
-        this.itemShop.initEntries(shopConfig);
+        //this.itemShop.initEntries(shopConfig); // TODO: Replace for new shop
 
         this.world.getWorldBorder().setCenter(this.data.centerLocation());
         this.world.getWorldBorder().setSize(this.data.mapRadius() * 2);
@@ -166,6 +181,7 @@ public class Game extends GamePart implements ManagedListener {
         this.addDynamicSubcommand("teams", SubcommandEntry.of(new GameTeamsSubcommand(this)));
         this.addDynamicSubcommand("teleport-to-map", SubcommandEntry.of(new GameTeleportToMapSubcommand(this)));
         this.addDynamicSubcommand("finish", SubcommandEntry.of(new GameFinishSubcommand(this)));
+        this.addDynamicSubcommand("shop", SubcommandEntry.of(new GameShopSubcommand(this)));
 
         // TASKS
 
@@ -177,6 +193,7 @@ public class Game extends GamePart implements ManagedListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::playerCleanupTask, 1, 20, "ingame_player_cleanup");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerAliveStatusTask, 1, 20, "ingame_player_alive_status");
         this.getTaskScheduler().scheduleRepeatingTask(this::inventoryTickTask, 1, 1, "ingame_player_inventory");
+        this.getTaskScheduler().scheduleRepeatingTask(this::groupItemsTask, 1, 10*20, "group_items");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerTeamUpgradeTask, 1, 20, "ingame_player_team_upgrades");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerValuesTask, 1, 200, "ingame_player_values");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerCooldownTask, 1, 1, "ingame_player_cooldowns");
@@ -837,13 +854,13 @@ public class Game extends GamePart implements ManagedListener {
         }
     }
 
+    /**
+     * @deprecated TODO: Rewrite most parts of it
+     */
+    @Deprecated
     private void inventoryTick(Player player, PlayerData playerData, BedwarsTeam team) {
 
         // Item management
-
-        boolean inventoryDefaultSwordMissing = true;
-        boolean inventoryPickaxeUpgradeMissing = true;
-        boolean inventoryShearsUpgradeMissing = true;
 
         for (int slot = 0; slot < player.getInventory().getSize() + 1; slot++) {
             ItemStack item;
@@ -862,74 +879,12 @@ public class Game extends GamePart implements ManagedListener {
 
             replaceBlockWithTeamColor(item, team);
 
-            // Group Items
-
-            if (this.getPlugin().getConfigManager().getConfig().optBoolean("inventorySort", false)) {
-
-                if ((item.getType().name().endsWith("WOOL") || item.getType().name().endsWith("GLASS") || item.getType() == Material.BLAZE_ROD || item.getType() == Material.FIRE_CHARGE || item.getType() == Material.SNOWBALL || item.getType() == Material.ENDER_PEARL || item.getType() == Material.GOLDEN_APPLE) && slot < player.getInventory().getSize() && this.timeStep >= 20) {
-
-                    for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2++) {
-                        ItemStack item2 = player.getInventory().getItem(slot2);
-
-                        // Slot must not be offhand
-
-                        if (slot == 40) {
-                            continue;
-                        }
-
-                        // Target slot must be lower (or the offhand slot) than the origin slot
-
-                        if (slot <= slot2 && slot2 != 40) {
-                            continue;
-                        }
-
-                        // item must not be null
-
-                        if (item2 == null) {
-                            continue;
-                        }
-
-                        //  items must be similar
-
-                        if (!item.isSimilar(item2)) {
-                            continue;
-                        }
-
-                        for (int amount = 0; amount < item.getAmount(); amount++) {
-
-                            if (item2.getAmount() >= item2.getMaxStackSize()) {
-                                break;
-                            }
-
-                            if (item.getAmount() <= 0) {
-                                break;
-                            }
-
-                            item2.setAmount(item2.getAmount() + 1);
-                            item.setAmount(item.getAmount() - 1);
-
-                        }
-
-                    }
-
-                }
-
-            }
-
             // item ids
 
             int itemId = this.getPlugin().getItemStorage().getItemId(item);
 
             if (itemId < 0) {
                 continue;
-            }
-
-            // Default Sword Condition
-
-            if ((item.getType().toString().endsWith("SWORD") || (item.getType().toString().endsWith("AXE") && !item.getType().toString().endsWith("PICKAXE"))) && this.itemShop.getDefaultWeapon() != null && itemId != this.itemShop.getDefaultWeapon()) {
-                inventoryDefaultSwordMissing = false;
-            } else if (this.itemShop.getDefaultWeapon() != null && itemId == this.itemShop.getDefaultWeapon()) {
-                inventoryDefaultSwordMissing = false;
             }
 
             // Sharpness Team Upgrade
@@ -1004,221 +959,77 @@ public class Game extends GamePart implements ManagedListener {
 
             }
 
-            // Default Sword
-
-            if (this.itemShop.getDefaultWeapon() != null && itemId == this.itemShop.getDefaultWeapon()) {
-
-                for (int slot2 = 0; slot2 < player.getInventory().getSize(); slot2 ++) {
-                    ItemStack item2 = player.getInventory().getItem(slot2);
-
-                    if (item2 == null) {
-                        continue;
-                    }
-
-                    int item2Id = this.getPlugin().getItemStorage().getItemId(item2);
-
-                    if (item2Id < 0) {
-                        continue;
-                    }
-
-                    if ((item2.getType().toString().endsWith("SWORD") || (item2.getType().toString().endsWith("AXE") && !item2.getType().toString().endsWith("PICKAXE"))) && item2Id != itemId) {
-                        Bedwars.removeItemCompletely(player.getInventory(), item);
-                        break;
-                    }
-
-                }
-
-                continue;
-            }
-
-            // Pickaxe Player Upgrade
-
-            if (this.itemShop.getPickaxeUpgrade() != null && this.itemShop.getPickaxeUpgrade().getUpgradeItemIds().contains(itemId)) {
-
-                if (this.itemShop.getPickaxeUpgrade().getItemId(playerData.getPickaxeUpgrade()) == itemId) {
-                    inventoryPickaxeUpgradeMissing = false;
-                    continue;
-                }
-
-                Bedwars.removeItemCompletely(player.getInventory(), item);
-
-                if (slot >= player.getInventory().getSize()) {
-                    player.setItemOnCursor(new ItemStack(Material.AIR));
-                }
-
-                continue;
-            }
-
-            // Shears Player Upgrade
-
-            if (this.itemShop.getShearsUpgrade() != null && this.itemShop.getShearsUpgrade().getUpgradeItemIds().contains(itemId)) {
-
-                if (this.itemShop.getShearsUpgrade().getItemId(playerData.getShearsUpgrade()) == itemId) {
-                    inventoryShearsUpgradeMissing = false;
-                    continue;
-                }
-
-                Bedwars.removeItemCompletely(player.getInventory(), item);
-
-                if (slot >= player.getInventory().getSize()) {
-                    player.setItemOnCursor(new ItemStack(Material.AIR));
-                }
-
-                continue;
-            }
-
         }
 
-        // Default Sword
+    }
 
-        if (this.itemShop.getDefaultWeapon() != null && this.itemShop.getDefaultWeaponItem() != null && inventoryDefaultSwordMissing) {
-            player.getInventory().addItem(this.itemShop.getDefaultWeaponItem());
+    private void groupItemsTask() {
+        if (!this.getPlugin().getConfigManager().getConfig().optBoolean("inventorySort", false)) return;
+
+        for (Player player : this.getOnlinePlayers()) {
+            this.groupItemsAlgorithm(player.getInventory());
         }
 
-        // Pickaxe Player Upgrade
+    }
 
-        if (this.itemShop.getPickaxeUpgrade() != null && playerData.getPickaxeUpgrade() > 0 && inventoryPickaxeUpgradeMissing) {
-            ItemStack item = this.itemShop.getPickaxeUpgrade().getItem(playerData.getPickaxeUpgrade());
+    /**
+     * This algorithm groups item stacks to ensure that stacks are always as full as possible and always moves items in the inventory to the first available position in the inventory.<br/>
+     *<br/>
+     * Use case: A player has several stacks of fireballs, one of them in the hotbar, the others in the rest of the inventory.
+     * Normally, these fireballs in the hotbar slot would now decrease as the player shoots them.
+     * However, this algorithm always moves the fireballs from the rest of the inventory to the slot with the fireball in the hotbar, as that slot comes before the others.
+     * This means that the player does not have to manually go into the inventory and move fireballs to the hotbar slot.
+     * @param inventory player inventory
+     */
+    private void groupItemsAlgorithm(@NotNull Inventory inventory) {
 
-            if (item != null) {
-                player.getInventory().addItem(item);
-            }
-        }
+        Map<ItemSimilarityKey, LinkedList<Integer>> movedSlotsMap = new HashMap<>();
 
-        // Shears Player Upgrade
+        for (int firstSlotBeforeProcessing = -1; firstSlotBeforeProcessing < Math.min(inventory.getSize(), 36); firstSlotBeforeProcessing++) {
+            int firstSlot = firstSlotBeforeProcessing;
+            if (firstSlot == -1) firstSlot = 40; // Put offhand in front of other slots to prevent emptying the offhand slot.
 
-        if (this.itemShop.getShearsUpgrade() != null && playerData.getShearsUpgrade() > 0 && inventoryShearsUpgradeMissing) {
-            ItemStack item = this.itemShop.getShearsUpgrade().getItem(playerData.getShearsUpgrade());
+            ItemStack firstItem = inventory.getItem(firstSlot);
 
-            if (item != null) {
-                player.getInventory().addItem(item);
-            }
-        }
+            if (firstItem == null || firstItem.getType() == Material.AIR) continue;
 
-        // Armor management
+            // TODO: Replace this hard-coded list with a configurable one which items are affected and which not.
+            if (!(firstItem.getType().name().endsWith("WOOL") || firstItem.getType().name().endsWith("GLASS") || firstItem.getType() == Material.BLAZE_ROD || firstItem.getType() == Material.FIRE_CHARGE || firstItem.getType() == Material.SNOWBALL || firstItem.getType() == Material.ENDER_PEARL || firstItem.getType() == Material.GOLDEN_APPLE)) continue;
 
-        if (this.armorConfig.isEnableArmorSystem() && this.itemShop.getArmorUpgrade() != null) {
+            if (firstItem.getAmount() >= firstItem.getMaxStackSize()) continue;
 
-            if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-                player.getInventory().setBoots(new ItemStack(Material.AIR));
-                player.getInventory().setLeggings(new ItemStack(Material.AIR));
-                player.getInventory().setChestplate(new ItemStack(Material.AIR));
-                player.getInventory().setHelmet(new ItemStack(Material.AIR));
-            } else {
+            for (int secondSlotBeforeProcessing = firstSlotBeforeProcessing + 1; secondSlotBeforeProcessing < Math.min(inventory.getSize(), 36); secondSlotBeforeProcessing++) {
+                int secondSlot = secondSlotBeforeProcessing;
+                if (secondSlot == -1) secondSlot = 40; // Put offhand in front of other slots to prevent emptying the offhand slot.
 
-                // Boots
+                ItemStack secondItem = inventory.getItem(secondSlot);
 
-                int bootsItemId;
+                if (secondItem == null || secondItem.getType() == Material.AIR) continue;
+                if (!secondItem.isSimilar(firstItem)) continue;
 
-                if (playerData.getArmorUpgrade() > 0) {
-                    bootsItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
+                int maxMoveableItemCount = firstItem.getMaxStackSize() - firstItem.getAmount();
+                int moveableItemCount = Math.min(maxMoveableItemCount, secondItem.getAmount());
+
+                firstItem.setAmount(firstItem.getAmount() + moveableItemCount);
+                secondItem.setAmount(secondItem.getAmount() - moveableItemCount);
+
+                // Slot claiming system (moves items forward to the first slots that were completely emptied after moving the item)
+                LinkedList<Integer> movedSlots = movedSlotsMap.computeIfAbsent(ItemSimilarityKey.of(firstItem), k -> new LinkedList<>());
+                if (secondItem.isEmpty()) {
+                    movedSlots.add(secondSlot);
                 } else {
-                    bootsItemId = this.armorConfig.getDefaultBoots();
-                }
 
-                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getBoots()) != bootsItemId) {
-
-                    ItemStack item = this.getPlugin().getItemStorage().getItem(bootsItemId);
-
-                    if (item != null) {
-
-                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
-                        }
-
-                        player.getInventory().setBoots(item);
-                    }
-
-                }
-
-                // Leggings
-
-                int leggingsItemId;
-
-                if (this.armorConfig.isCopyLeggings() && playerData.getArmorUpgrade() > 0) {
-                    leggingsItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
-                } else {
-                    leggingsItemId = this.armorConfig.getDefaultLeggings();
-                }
-
-                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getLeggings()) != leggingsItemId) {
-
-                    ItemStack item = this.getPlugin().getItemStorage().getItem(leggingsItemId);
-
-                    if (item != null) {
-
-                        if (leggingsItemId != this.armorConfig.getDefaultLeggings()) {
-                            item = this.getPlugin().getItemStorage().copyItemMeta(item, this.getPlugin().getItemStorage().getArmorPiece(item.getType(), 2));
-                        }
-
-                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
-                        }
-
-                        player.getInventory().setLeggings(item);
-                    }
-
-                }
-
-                // Chestplate
-
-                int chestplateItemId;
-
-                if (this.armorConfig.isCopyChestplate() && playerData.getArmorUpgrade() > 0) {
-                    chestplateItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
-                } else {
-                    chestplateItemId = this.armorConfig.getDefaultChestplate();
-                }
-
-                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getChestplate()) != chestplateItemId) {
-
-                    ItemStack item = this.getPlugin().getItemStorage().getItem(chestplateItemId);
-
-                    if (item != null) {
-
-                        if (chestplateItemId != this.armorConfig.getDefaultChestplate()) {
-                            item = this.getPlugin().getItemStorage().copyItemMeta(item, this.getPlugin().getItemStorage().getArmorPiece(item.getType(), 1));
-                        }
-
-                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
-                        }
-
-                        player.getInventory().setChestplate(item);
-                    }
-
-                }
-
-                // Helmet
-
-                int helmetItemId;
-
-                if (this.armorConfig.isCopyHelmet() && playerData.getArmorUpgrade() > 0) {
-                    helmetItemId = this.itemShop.getArmorUpgrade().getItemId(playerData.getArmorUpgrade());
-                } else {
-                    helmetItemId = this.armorConfig.getDefaultHelmet();
-                }
-
-                if (this.getPlugin().getItemStorage().getItemId(player.getInventory().getHelmet()) != helmetItemId) {
-
-                    ItemStack item = this.getPlugin().getItemStorage().getItem(helmetItemId);
-
-                    if (item != null) {
-
-                        if (helmetItemId != this.armorConfig.getDefaultHelmet()) {
-                            item = this.getPlugin().getItemStorage().copyItemMeta(item, this.getPlugin().getItemStorage().getArmorPiece(item.getType(), 0));
-                        }
-
-                        if (item.getItemMeta() instanceof LeatherArmorMeta) {
-                            item = this.getPlugin().getItemStorage().colorArmor(item, team.getData().color());
-                        }
-
-                        player.getInventory().setHelmet(item);
+                    if (!movedSlots.isEmpty()) {
+                        int firstFreeSlot = movedSlots.pop();
+                        inventory.setItem(firstFreeSlot, secondItem.clone());
+                        inventory.setItem(secondSlot, new ItemStack(Material.AIR));
                     }
 
                 }
 
             }
+
+
 
         }
 
@@ -1541,7 +1352,12 @@ public class Game extends GamePart implements ManagedListener {
             return false;
         }
 
-        PlayerData playerData = this.players.get(player.getUniqueId());
+        PlayerData playerData = this.getPlayerData(player);
+        if (playerData == null) return false;
+
+        GamePlayerRespawnEvent event = new GamePlayerRespawnEvent(this, player, playerData);
+        Bukkit.getPluginManager().callEvent(event);
+        if (event.isCancelled()) return false;
 
         playerData.setAlive(true);
         player.teleport(WorldUtils.locationWithWorld(this.teams.get(playerData.getTeam()).getRandomSpawnpoint(), this.getWorld()));
@@ -1706,8 +1522,28 @@ public class Game extends GamePart implements ManagedListener {
         return Map.copyOf(this.playerScoreboards);
     }
 
+    /**
+     * Returns the item shop.
+     * @return item shop
+     */
     public ItemShop getItemShop() {
         return this.itemShop;
+    }
+
+    /**
+     * Returns the shop gui.
+     * @return shop gui
+     */
+    public ShopGUI getShopGUI() {
+        return this.shopGUI;
+    }
+
+    /**
+     * Returns the player upgrade manager.
+     * @return player upgrade manager
+     */
+    public @NotNull PlayerUpgradeManager getPlayerUpgradeManager() {
+        return this.playerUpgradeManager;
     }
 
     public Location buildLocationWithWorld(Location old) {
@@ -1737,10 +1573,6 @@ public class Game extends GamePart implements ManagedListener {
 
     public TeamUpgradesConfig getTeamUpgradesConfig() {
         return this.teamUpgradesConfig;
-    }
-
-    public ArmorConfig getArmorConfig() {
-        return this.armorConfig;
     }
 
     public void setTime(int time) {
@@ -1792,10 +1624,6 @@ public class Game extends GamePart implements ManagedListener {
      */
     public void removeManagedEntity(BaseDefender managedEntity) {
         this.managedEntities.remove(managedEntity);
-    }
-
-    public ItemShopNew getItemShopNew() {
-        return itemShopNew;
     }
 
     //
@@ -1851,4 +1679,18 @@ public class Game extends GamePart implements ManagedListener {
         item.setType(material);
 
     }
+
+    @EventHandler
+    public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
+        if (!event.getMessage().equals("shopgui")) return;
+        event.setCancelled(true);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                event.getPlayer().openInventory(shopGUI.getInventory(event.getPlayer(), 0));
+            }
+        }.runTask(this.getPlugin());
+    }
+
 }

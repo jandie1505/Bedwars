@@ -2,8 +2,6 @@ package net.jandie1505.bedwars.game.lobby.commands.players;
 
 import net.chaossquad.mclib.command.TabCompletingCommandExecutor;
 import net.jandie1505.bedwars.constants.Permissions;
-import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
 import net.jandie1505.bedwars.game.lobby.Lobby;
 import net.jandie1505.bedwars.game.lobby.LobbyPlayerData;
 import net.kyori.adventure.text.Component;

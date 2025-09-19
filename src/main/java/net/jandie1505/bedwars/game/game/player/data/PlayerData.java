@@ -1,9 +1,8 @@
-package net.jandie1505.bedwars.game.game.player;
+package net.jandie1505.bedwars.game.game.player.data;
 
 import net.jandie1505.bedwars.game.game.Game;
-import org.bukkit.Bukkit;
+import net.jandie1505.bedwars.game.game.player.upgrades.constants.PlayerUpgradeKeys;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -39,6 +38,10 @@ public class PlayerData {
         this.trackingTarget = null;
         this.milkTimer = 0;
         this.rewardPoints = 0;
+
+        this.upgrades.put(PlayerUpgradeKeys.PICKAXE, 0);
+        this.upgrades.put(PlayerUpgradeKeys.SHEARS, 0);
+        this.upgrades.put(PlayerUpgradeKeys.ARMOR, 1);
     }
 
     public @NotNull Map<String, Integer> getUpgrades() {

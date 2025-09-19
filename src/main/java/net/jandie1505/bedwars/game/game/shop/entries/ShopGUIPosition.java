@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.game.menu.shop;
+package net.jandie1505.bedwars.game.game.shop.entries;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

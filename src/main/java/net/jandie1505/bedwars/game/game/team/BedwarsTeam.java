@@ -2,7 +2,7 @@ package net.jandie1505.bedwars.game.game.team;
 
 import net.chaossquad.mclib.immutables.ImmutableLocation;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.traps.BedwarsTrap;
 import org.bukkit.Location;
 import org.bukkit.Material;

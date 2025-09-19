@@ -1,7 +1,19 @@
 package net.jandie1505.bedwars.config;
 
-import net.jandie1505.bedwars.game.game.menu.shop.ShopGUIPosition;
-import net.jandie1505.bedwars.game.game.menu.shop.ShopEntry;
+import net.chaossquad.mclib.MiscUtils;
+import net.jandie1505.bedwars.constants.NamespacedKeys;
+import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
+import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
+import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
+import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -18,12 +30,14 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class DefaultConfigValues {
     private DefaultConfigValues() {}
+
+    public static final Component LORE = Component.empty()
+            .color(NamedTextColor.WHITE)
+            .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
 
     public static JSONObject getGeneralConfig() {
         JSONObject config = new JSONObject();
@@ -2509,6 +2523,7 @@ public final class DefaultConfigValues {
         creeperArrowMeta.setLore(List.of("§r§7Spawns a Creeper at the point of impact."));
         creeperArrowMeta.setColor(Color.GREEN);
         creeperArrowMeta.addItemFlags(ItemFlag.values());
+        creeperArrowMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.CREEPER_ARROW);
         creeperArrowItem.setItemMeta(creeperArrowMeta);
 
         entries.put(
@@ -2804,7 +2819,7 @@ public final class DefaultConfigValues {
         ));
         effectImmunityDringMeta.addItemFlags(ItemFlag.values());
         effectImmunityDringMeta.setColor(Color.RED);
-        if (plugin != null) effectImmunityDringMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.EFFECT_IMMUNITY_POTION);
+        if (plugin != null) effectImmunityDringMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.EFFECT_IMMUNITY_POTION);
         effectImmunityDrinkItem.setItemMeta(effectImmunityDringMeta);
 
         entries.put(
@@ -2828,7 +2843,7 @@ public final class DefaultConfigValues {
         ));
         stealthPotionMeta.addItemFlags(ItemFlag.values());
         stealthPotionMeta.setColor(Color.GRAY);
-        if (plugin != null) stealthPotionMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.STEALTH_POTION);
+        if (plugin != null) stealthPotionMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.STEALTH_POTION);
         stealthPotionItem.setItemMeta(stealthPotionMeta);
 
         entries.put(
@@ -2898,6 +2913,7 @@ public final class DefaultConfigValues {
         ItemMeta ironGolemSpawnEggMeta = ironGolemSpawnEggItem.getItemMeta();
         ironGolemSpawnEggMeta.setDisplayName("§rBase Defender Spawn Egg");
         ironGolemSpawnEggMeta.setLore(List.of("§r§7Spawns a base defender."));
+        ironGolemSpawnEggMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.BASE_DEFENDER_SPAWN_EGG);
         ironGolemSpawnEggItem.setItemMeta(ironGolemSpawnEggMeta);
 
         entries.put(
@@ -2916,7 +2932,7 @@ public final class DefaultConfigValues {
         ItemMeta fireballMeta = fireballItem.getItemMeta();
         fireballMeta.setDisplayName("§rFireball");
         fireballMeta.setLore(List.of("§r§7For a small explosion!"));
-        if (plugin != null) fireballMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.FIREBALL);
+        if (plugin != null) fireballMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.FIREBALL);
         fireballItem.setItemMeta(fireballMeta);
 
         entries.put(
@@ -2937,7 +2953,7 @@ public final class DefaultConfigValues {
         enhancedFireballMeta.setLore(List.of("§r§7For a big explosion!"));
         enhancedFireballMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         enhancedFireballMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) enhancedFireballMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.ENHANCED_FIREBALL);
+        if (plugin != null) enhancedFireballMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.ENHANCED_FIREBALL);
         enhancedFireballItem.setItemMeta(enhancedFireballMeta);
 
         entries.put(
@@ -2958,7 +2974,7 @@ public final class DefaultConfigValues {
         automaticallyIgnitingTNTMeta.setLore(List.of("§r§7TNT that ignites when placed."));
         automaticallyIgnitingTNTMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         automaticallyIgnitingTNTMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) automaticallyIgnitingTNTMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.AUTOMATICALLY_IGNITING_TNT);
+        if (plugin != null) automaticallyIgnitingTNTMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.AUTOMATICALLY_IGNITING_TNT);
         automaticallyIgnitingTNTItem.setItemMeta(automaticallyIgnitingTNTMeta);
 
         entries.put(
@@ -3080,7 +3096,7 @@ public final class DefaultConfigValues {
         ));
         safetyPlattformMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         safetyPlattformMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) safetyPlattformMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.SAFETY_PLATTFORM);
+        if (plugin != null) safetyPlattformMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.SAFETY_PLATTFORM);
         safetyPlattformItem.setItemMeta(safetyPlattformMeta);
 
         entries.put(
@@ -3108,7 +3124,7 @@ public final class DefaultConfigValues {
         ));
         unlimitedPlatformMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         unlimitedPlatformMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) unlimitedPlatformMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.UNLIMITED_PLATTFORM);
+        if (plugin != null) unlimitedPlatformMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.UNLIMITED_PLATTFORM);
         unlimitedPlatformItem.setItemMeta(unlimitedPlatformMeta);
 
         entries.put(
@@ -3135,7 +3151,7 @@ public final class DefaultConfigValues {
         ));
         battlePlattformMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         battlePlattformMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) battlePlattformMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.BATTLEGROUND_PLATTFORM);
+        if (plugin != null) battlePlattformMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.BATTLEGROUND_PLATTFORM);
         battlePlattformItem.setItemMeta(battlePlattformMeta);
 
         entries.put(
@@ -3156,7 +3172,7 @@ public final class DefaultConfigValues {
         autoBridgeMeta.setLore(List.of("§r§7Spawns a bridge in front of you."));
         autoBridgeMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         autoBridgeMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) autoBridgeMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.AUTO_BRIDGE);
+        if (plugin != null) autoBridgeMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.AUTO_BRIDGE);
         autoBridgeItem.setItemMeta(autoBridgeMeta);
 
         entries.put(
@@ -3182,7 +3198,7 @@ public final class DefaultConfigValues {
         ));
         mobileCastleMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         mobileCastleMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) mobileCastleMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.MOBILE_CASTLE);
+        if (plugin != null) mobileCastleMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.MOBILE_CASTLE);
         mobileCastleItem.setItemMeta(mobileCastleMeta);
 
         entries.put(
@@ -3203,7 +3219,7 @@ public final class DefaultConfigValues {
         singleUseJetpackMeta.setLore(List.of("§r§7Will boost you up a few blocks."));
         singleUseJetpackMeta.addEnchant(Enchantment.FORTUNE, 0, true);
         singleUseJetpackMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) singleUseJetpackMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.SINGLE_USE_JETPACK);
+        if (plugin != null) singleUseJetpackMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.SINGLE_USE_JETPACK);
         singleUseJetpackItem.setItemMeta(singleUseJetpackMeta);
 
         entries.put(
@@ -3222,6 +3238,7 @@ public final class DefaultConfigValues {
         ItemMeta snowDefenderSpawnEggMeta = snowDefenderSpawnEggItem.getItemMeta();
         snowDefenderSpawnEggMeta.setDisplayName("§rSnow Defender Spawn Egg");
         snowDefenderSpawnEggMeta.setLore(List.of("§r§7Spawns a Snow Defender."));
+        snowDefenderSpawnEggMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.SNOW_DEFENDER_SPAWN_EGG);
         snowDefenderSpawnEggItem.setItemMeta(snowDefenderSpawnEggMeta);
 
         entries.put(
@@ -3236,10 +3253,11 @@ public final class DefaultConfigValues {
 
         // Dog Spawn Egg
 
-        ItemStack dogSpawnEggItem = new ItemStack(Material.SNOW_GOLEM_SPAWN_EGG);
+        ItemStack dogSpawnEggItem = new ItemStack(Material.WOLF_SPAWN_EGG);
         ItemMeta dogSpawnEggMeta = dogSpawnEggItem.getItemMeta();
         dogSpawnEggMeta.setDisplayName("§rDog Spawn Egg");
         dogSpawnEggMeta.setLore(List.of("§r§7Spawns your new best friend."));
+        dogSpawnEggMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.DOG_SPAWN_EGG);
         dogSpawnEggItem.setItemMeta(dogSpawnEggMeta);
 
         entries.put(
@@ -3249,6 +3267,33 @@ public final class DefaultConfigValues {
                         Material.EMERALD,
                         16,
                         List.of(new ShopGUIPosition(7, 46))
+                )
+        );
+
+        // Grappling Hook
+
+        ItemStack grapplingHookItem = new ItemStack(Material.CROSSBOW);
+        ItemMeta grapplingHookMeta = grapplingHookItem.getItemMeta();
+        grapplingHookMeta.displayName(LORE.append(Component.text("Grappling Hook")));
+        grapplingHookMeta.lore(List.of(
+                LORE.append(Component.text("A grappling hook.", NamedTextColor.GRAY)),
+                LORE.append(Component.text("- Right click to hook", NamedTextColor.GRAY)),
+                LORE.append(Component.text("- Left click to release hook", NamedTextColor.GRAY)),
+                LORE.append(Component.text("- Other items can be used while being hooked", NamedTextColor.GRAY)),
+                LORE.append(Component.text("- Current status is displayed in the actionbar", NamedTextColor.GRAY))
+        ));
+        grapplingHookMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
+        grapplingHookMeta.addItemFlags(ItemFlag.values());
+        grapplingHookMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.GRAPPLING_HOOK);
+        grapplingHookItem.setItemMeta(grapplingHookMeta);
+
+        entries.put(
+                "grappling_hook",
+                new ShopEntry(
+                        grapplingHookItem,
+                        Material.EMERALD,
+                        20,
+                        List.of(new ShopGUIPosition(7, 47))
                 )
         );
 
@@ -3275,6 +3320,25 @@ public final class DefaultConfigValues {
                 )
         );
 
+        // Aspect of the World Bait
+
+        ItemStack aspectOfTheWorldBaitItem = new ItemStack(Material.GOLDEN_SWORD);
+        ItemMeta aspectOfTheWorldBaitMeta = aspectOfTheWorldBaitItem.getItemMeta();
+        aspectOfTheWorldBaitMeta.displayName(Component.text("Aspect of the World").color(NamedTextColor.DARK_RED).decorate(TextDecoration.BOLD, TextDecoration.UNDERLINED));
+        aspectOfTheWorldBaitMeta.lore(List.of(Component.text("A Sword which came from the world of \"Minceraft\"")));
+        aspectOfTheWorldBaitMeta.addItemFlags(ItemFlag.values());
+        aspectOfTheWorldBaitItem.setItemMeta(aspectOfTheWorldBaitMeta);
+
+        entries.put(
+                "aspect_of_the_world_bait",
+                new ShopEntry(
+                        aspectOfTheWorldBaitItem,
+                        Material.EMERALD,
+                        2369,
+                        List.of(new ShopGUIPosition(7, 51))
+                )
+        );
+
         // Environment Scanner
 
         ItemStack environmentScannerItem = new ItemStack(Material.NETHER_STAR);
@@ -3285,7 +3349,7 @@ public final class DefaultConfigValues {
                 "§r§7- The glowing is shown to all players.",
                 "§r§7- 30 seconds cooldown to prevent spamming."
         ));
-        if (plugin != null) environmentScannerMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, PersistentDataKeys.SPECIAL_ITEM), PersistentDataType.STRING, CustomItemValues.ENVIRONMENT_SCANNER);
+        if (plugin != null) environmentScannerMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.ENVIRONMENT_SCANNER);
         environmentScannerItem.setItemMeta(environmentScannerMeta);
 
         entries.put(
@@ -3298,9 +3362,186 @@ public final class DefaultConfigValues {
                 )
         );
 
+        // Real Aspect of the World (just for fun here, it can not be bought since no ShopGUIPosition is set)
+
+        entries.put(
+                "aspect_of_the_world",
+                new ShopEntry(
+                        MiscUtils.getAspectOfTheWorld(),
+                        Material.BARRIER,
+                        Integer.MAX_VALUE,
+                        List.of()
+                )
+        );
+
         // ----- RETURN -----
 
         return entries;
+    }
+
+    public static Map<String, UpgradeEntry> getDefaultUpgradeEntries(Plugin plugin) {
+        Map<String, UpgradeEntry> entries = new HashMap<>();
+
+        // Pickaxe
+        entries.put("pickaxe", new UpgradeEntry(
+                "pickaxe",
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 10),
+                        2, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 20),
+                        3, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 30),
+                        4, new UpgradeEntry.PriceEntry(Material.GOLD_INGOT, 3),
+                        5, new UpgradeEntry.PriceEntry(Material.GOLD_INGOT, 6)
+                ),
+                Set.of(new ShopGUIPosition(4, 20)),
+                Map.of(
+                        1, getUpgradePickaxe(1),
+                        2, getUpgradePickaxe(2),
+                        3, getUpgradePickaxe(3),
+                        4, getUpgradePickaxe(4),
+                        5, getUpgradePickaxe(5)
+                )
+        ));
+
+        // Armor
+        entries.put("armor", new UpgradeEntry(
+                "armor",
+                Map.of(
+                        2, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 40),
+                        3, new UpgradeEntry.PriceEntry(Material.GOLD_INGOT, 12),
+                        4, new UpgradeEntry.PriceEntry(Material.EMERALD, 6),
+                        5, new UpgradeEntry.PriceEntry(Material.EMERALD, 15)
+                ),
+                Set.of(new ShopGUIPosition(3, 31)),
+                Map.of(
+                        2, new ItemStack(Material.CHAINMAIL_BOOTS),
+                        3, new ItemStack(Material.IRON_BOOTS),
+                        4, new ItemStack(Material.DIAMOND_BOOTS),
+                        5, new ItemStack(Material.NETHERITE_BOOTS)
+                )
+        ));
+
+        // Shears
+        entries.put("shears", new UpgradeEntry(
+                "shears",
+                Map.of(1, new UpgradeEntry.PriceEntry(Material.IRON_INGOT, 10)),
+                Set.of(new ShopGUIPosition(4, 21)),
+                Map.of(1, new ItemStack(Material.SHEARS))
+        ));
+
+        return entries;
+    }
+
+    public static ItemStack getUpgradePickaxe(int level) {
+
+        switch (level) {
+            case 1 -> {
+                ItemStack item = new ItemStack(Material.WOODEN_PICKAXE);
+                ItemMeta meta = item.getItemMeta();
+
+                meta.displayName(Component.text("Pickaxe Lvl. 1"));
+
+                item.setItemMeta(meta);
+                return item;
+            }
+            case 2 -> {
+                ItemStack item = new ItemStack(Material.STONE_PICKAXE);
+                ItemMeta meta = item.getItemMeta();
+
+                meta.displayName(Component.text("Pickaxe Lvl. 2"));
+                meta.addEnchant(Enchantment.EFFICIENCY, 1, true);
+
+                item.setItemMeta(meta);
+                return item;
+            }
+            case 3 -> {
+                ItemStack item = new ItemStack(Material.IRON_PICKAXE);
+                ItemMeta meta = item.getItemMeta();
+
+                meta.displayName(Component.text("Pickaxe Lvl. 3"));
+                meta.addEnchant(Enchantment.EFFICIENCY, 2, true);
+
+                item.setItemMeta(meta);
+                return item;
+            }
+            case 4 -> {
+                ItemStack item = new ItemStack(Material.GOLDEN_PICKAXE);
+                ItemMeta meta = item.getItemMeta();
+
+                meta.displayName(Component.text("Pickaxe Lvl. 4"));
+                meta.addEnchant(Enchantment.EFFICIENCY, 3, true);
+
+                item.setItemMeta(meta);
+                return item;
+            }
+            case 5 -> {
+                ItemStack item = new ItemStack(Material.DIAMOND_PICKAXE);
+                ItemMeta meta = item.getItemMeta();
+
+                meta.displayName(Component.text("Pickaxe Lvl. 5"));
+                meta.addEnchant(Enchantment.EFFICIENCY, 3, true);
+
+                item.setItemMeta(meta);
+                return item;
+            }
+            default -> {
+                return new ItemStack(Material.AIR);
+            }
+        }
+
+    }
+
+    public static @NotNull List<PlayerUpgrade.Data> getPlayerUpgrades() {
+        List<PlayerUpgrade.Data> upgrades = new ArrayList<>();
+
+        upgrades.add(new UpgradableItemUpgrade.Data(
+                "pickaxe",
+                List.of(
+                        DefaultConfigValues.getUpgradePickaxe(1),
+                        DefaultConfigValues.getUpgradePickaxe(2),
+                        DefaultConfigValues.getUpgradePickaxe(3),
+                        DefaultConfigValues.getUpgradePickaxe(4),
+                        DefaultConfigValues.getUpgradePickaxe(5)
+                ),
+                true,
+                true
+        ));
+
+        upgrades.add(new UpgradableItemUpgrade.Data(
+                "shears",
+                List.of(new ItemStack(Material.SHEARS)),
+                true,
+                true
+        ));
+
+        upgrades.add(new ArmorUpgrade.Data(
+                "armor",
+                List.of(
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.CHAINMAIL_LEGGINGS), new ItemStack(Material.CHAINMAIL_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS),  new ItemStack(Material.IRON_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_BOOTS))
+                )
+        ));
+
+        return upgrades;
+    }
+
+    public static @NotNull Map<Integer, QuickBuyMenuEntry> getDefaultQuickBuyMenu() {
+        Map<Integer, QuickBuyMenuEntry> menu = new HashMap<>();
+
+        menu.put(19, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "wool"));
+        menu.put(20, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "stone_sword"));
+        menu.put(21, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.UPGRADE, "armor"));
+        menu.put(23, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "standard_bow"));
+        menu.put(25, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "automatically_igniting_tnt"));
+        menu.put(28, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "wood"));
+        menu.put(29, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "iron_sword"));
+        menu.put(31, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.UPGRADE, "shears"));
+        menu.put(32, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "spectral_arrow"));
+        menu.put(34, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "water_bucket"));
+
+        return menu;
     }
 
 }

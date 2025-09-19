@@ -1,0 +1,177 @@
+package net.jandie1505.bedwars.game.game.player.upgrades.types;
+
+import net.jandie1505.bedwars.constants.NamespacedKeys;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
+import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+
+public abstract class ItemUpgrade extends PlayerUpgrade {
+    private final boolean downgradeOnPlayerDeath;
+    private final boolean keepFirstLevelOnDowngrade;
+
+    /**
+     * Creates a new player upgrade.
+     *
+     * @param manager manager
+     * @param id      id
+     */
+    public ItemUpgrade(@NotNull PlayerUpgradeManager manager, @NotNull String id, boolean downgradeOnPlayerDeath, boolean keepFirstLevelOnDowngrade) {
+        super(manager, id);
+        this.downgradeOnPlayerDeath = downgradeOnPlayerDeath;
+        this.keepFirstLevelOnDowngrade = keepFirstLevelOnDowngrade;
+
+        this.scheduleRepeatingTask(this::checkItem, 1, 20, "check_item");
+    }
+
+    // ----- APPLY/REMOVE -----
+
+    @Override
+    protected void onApply(@NotNull Player player, @NotNull PlayerData playerData, int level) {
+        this.removeItem(player);
+        this.give(player, playerData, level);
+    }
+
+    @Override
+    protected void onRemove(@NotNull Player player, @NotNull PlayerData playerData, int level) {
+        this.removeItem(player);
+    }
+
+    @Override
+    protected void onAffectedPlayerDeath(@NotNull Player player, @NotNull PlayerData playerData, int level) {
+        this.removeItem(player);
+
+        if (this.downgradeOnPlayerDeath) {
+            if (level > 1 || (level > 0 && !this.keepFirstLevelOnDowngrade)) {
+                playerData.setUpgrade(this.getId(), level - 1);
+            }
+        }
+    }
+
+    @Override
+    protected void onAffectedPlayerRespawn(@NotNull Player player, @NotNull PlayerData playerData, int level) {
+        this.removeItem(player);
+        this.give(player, playerData, level);
+    }
+
+    private void checkItem(@NotNull Player player, @NotNull PlayerData playerData, int level) {
+        boolean itemAvail = false;
+
+        for (int slot = 0; slot < player.getInventory().getSize() + 1; slot++) {
+
+            ItemStack item;
+            if (slot < player.getInventory().getSize()) {
+                item = player.getInventory().getItem(slot);
+            } else {
+                item = player.getItemOnCursor();
+            }
+
+            if (item == null) continue;
+            if (item.getType() == Material.AIR) continue;
+
+            ItemMeta meta = item.getItemMeta();
+            if (meta == null) continue;
+
+            String retrievedUpgradeId = meta.getPersistentDataContainer().getOrDefault(NamespacedKeys.GAME_ITEM_UPGRADE_ID, PersistentDataType.STRING, "");
+            if (retrievedUpgradeId.isEmpty()) continue;
+            if (!retrievedUpgradeId.equals(this.getId())) continue;
+            itemAvail = true;
+
+            int upgradeLevel = meta.getPersistentDataContainer().getOrDefault(NamespacedKeys.GAME_ITEM_UPGRADE_LEVEL, PersistentDataType.INTEGER, -1);
+
+            // Level <= 0 means that the player can't have an item.
+            // This is also an invalid id check for the item's upgradeLevel.
+            if (upgradeLevel <= 0 || level <= 0) {
+                this.removeItem(player);
+                itemAvail = false;
+                continue;
+            }
+
+            // If there is an item with the wrong upgrade level, clear and re-give.
+            if (upgradeLevel != level) {
+                this.removeItem(player);
+                this.give(player, playerData, level);
+                continue;
+            }
+
+        }
+
+        // Give item to player when not already available
+
+        if (level <= 0) return;
+        if (itemAvail) return;
+
+        this.removeItem(player);
+        this.give(player, playerData, level);
+    }
+
+    // ----- ITEM MANAGEMENT -----
+
+    /**
+     * Removes all items of this upgrade from the specified player's inventory.
+     * @param player player
+     */
+    protected final void removeItem(@NotNull Player player) {
+        this.removeItem(player.getInventory());
+    }
+
+    /**
+     * Removes all items of this upgrade from the specified inventory.
+     * @param inventory inventory
+     */
+    protected final void removeItem(@NotNull Inventory inventory) {
+
+        for (int slot = 0; slot < inventory.getSize(); slot++) {
+
+            ItemStack item = inventory.getItem(slot);
+            if (item == null) continue;
+
+            ItemMeta meta = item.getItemMeta();
+            if (meta == null) continue;
+
+            if (!meta.getPersistentDataContainer().getOrDefault(NamespacedKeys.GAME_ITEM_UPGRADE_ID, PersistentDataType.STRING, "").equals(this.getId())) {
+                continue;
+            }
+
+            inventory.clear(slot);
+        }
+
+    }
+
+    /**
+     * Step between {@link #giveItem(Player, PlayerData, int)} and the task.
+     * @param player player
+     * @param playerData player data
+     * @param level level
+     */
+    protected final void give(@NotNull Player player, @NotNull PlayerData playerData, int level) {
+        if (player.isDead() || player.getGameMode() == GameMode.SPECTATOR) return;
+        if (!playerData.isAlive()) return;
+        this.giveItem(player, playerData, level);
+    }
+
+    /**
+     * Gives the item of the specified level to the player.
+     * @param player player
+     * @param playerData player data
+     * @param level level
+     */
+    protected abstract void giveItem(@NotNull Player player, @NotNull PlayerData playerData, int level);
+
+    // ----- OTHER -----
+
+    public final boolean isDowngradeOnPlayerDeath() {
+        return downgradeOnPlayerDeath;
+    }
+
+    public final boolean isKeepFirstLevelOnDowngrade() {
+        return keepFirstLevelOnDowngrade;
+    }
+}

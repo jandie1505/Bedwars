@@ -9,22 +9,35 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class GuiNpc extends RespawningManagedEntity<Villager> {
     @NotNull private final Game game;
-    @NotNull private final InventoryProvider provider;
+    @Nullable private InventoryProvider provider;
 
     /**
-     * Creates a new GUI NPC.
+     * Creates a new GUI NPC.<br/>
+     * When the inventory provider is null, nothing happens when a player clicks on it.
      *
      * @param game              game
      * @param location          location
      * @param provider          inventory provider
      */
-    public GuiNpc(@NotNull Game game, @NotNull Location location, @NotNull EntityCreator<Villager> creator, @NotNull InventoryProvider provider) {
+    public GuiNpc(@NotNull Game game, @NotNull Location location, @NotNull EntityCreator<Villager> creator, @Nullable InventoryProvider provider) {
         super(game.getWorld(), game.getTaskScheduler(), game, location, creator, true);
         this.game = game;
         this.provider = provider;
+    }
+
+    /**
+     * Creates a new GUI NPC.<br/>
+     * When the inventory provider is null, nothing happens when a player clicks on it.
+     *
+     * @param game              game
+     * @param location          location
+     */
+    public GuiNpc(@NotNull Game game, @NotNull Location location, @NotNull EntityCreator<Villager> creator) {
+        this(game, location, creator, null);
     }
 
     // ----- LISTENERS -----
@@ -39,19 +52,39 @@ public class GuiNpc extends RespawningManagedEntity<Villager> {
 
         if (!this.game.isPlayerIngame(event.getPlayer())) return;
 
+        if (this.provider == null) return;
         event.getPlayer().openInventory(this.provider.getInventory(event.getPlayer()));
     }
 
     // ----- OTHER -----
 
+    /**
+     * Returns the game.
+     * @return game
+     */
     public final @NotNull Game getGame() {
         return this.game;
     }
 
-    public final @NotNull InventoryProvider getProvider() {
+    /**
+     * Returns the inventory provider
+     * @return inventory provider
+     */
+    public final @Nullable InventoryProvider getProvider() {
         return this.provider;
     }
 
+    /**
+     * Sets the inventory provider.
+     * @param provider inventory provider
+     */
+    public final void setProvider(@Nullable InventoryProvider provider) {
+        this.provider = provider;
+    }
+
+    /**
+     * Provider for the inventory the GUI NPC will open when a player clicks on it.
+     */
     public interface InventoryProvider {
         Inventory getInventory(@NotNull Player player);
     }

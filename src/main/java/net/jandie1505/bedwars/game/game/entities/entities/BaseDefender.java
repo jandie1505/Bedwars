@@ -2,7 +2,7 @@ package net.jandie1505.bedwars.game.game.entities.entities;
 
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.base.ExpiringManagedEntity;
-import net.jandie1505.bedwars.game.game.player.PlayerData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import org.bukkit.Location;
 import org.bukkit.entity.IronGolem;

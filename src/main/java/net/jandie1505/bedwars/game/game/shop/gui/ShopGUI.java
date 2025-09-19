@@ -1,0 +1,565 @@
+package net.jandie1505.bedwars.game.game.shop.gui;
+
+import net.chaossquad.mclib.executable.ManagedListener;
+import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.config.DefaultConfigValues;
+import net.jandie1505.bedwars.constants.NamespacedKeys;
+import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
+import net.jandie1505.bedwars.game.game.shop.ItemShop;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
+import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+
+public class ShopGUI implements ManagedListener, InventoryHolder {
+    // The current page, which is stored in the quick buy item (slot 0).
+    @NotNull public static NamespacedKey MENU_CURRENT_PAGE = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.current_page");
+    // The status of the free mode (all items can be purchased without cost), which is stored in the quick buy item (slot 0).
+    @NotNull public static NamespacedKey MENU_FREE_MODE = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.free_mode");
+    // The menu bar page id, which is stored in all menu bar items
+    @NotNull public static NamespacedKey MENU_BAR_PAGE_ID = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.menu_bar_page_id");
+    // The shop item id that is used to identify the item in ItemShop. Is used to get the original item and price.
+    @NotNull public static NamespacedKey MENU_SHOP_ITEM_ID = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.shop_item_id");
+    // The upgrade id (in the map of ItemShop) that is used to identify the item in ItemShop. It is used to get the upgrade and the price.
+    @NotNull public static NamespacedKey MENU_SHOP_UPGRADE_ID = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.shop.upgrade_id");
+
+    @NotNull private final Game game;
+    @NotNull private final ItemStack[] menuBarItems;
+    @NotNull private final Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu;
+
+    public ShopGUI(@NotNull Game game, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu) {
+        this.game = game;
+        this.menuBarItems = DefaultConfigValues.getShopMenuBar();
+        this.game.registerListener(this);
+        this.defaultQuickBuyMenu = defaultQuickBuyMenu != null ? Map.copyOf(defaultQuickBuyMenu) : Map.of();
+    }
+
+    public @NotNull Inventory getInventory(@NotNull Player player, @Nullable Integer page, boolean freeMode) {
+
+        if (page == null) {
+            page = 0;
+        }
+
+        PlayerData playerData = this.game.getPlayerData(player);
+        if (playerData == null) return Bukkit.createInventory(this, 9, Component.text("ShopGUI: Player data not found", NamedTextColor.RED));
+
+        Inventory inventory = Bukkit.createInventory(this, 54, Component.text("Item Shop", NamedTextColor.GOLD, TextDecoration.BOLD));
+
+        // MENU BAR
+
+        inventory.setItem(0, this.getQuickBuyItem(page, freeMode));
+        this.generateMenuBarItems(inventory, page);
+        this.generateMenuBarSpacer(inventory);
+
+        // PAGE
+
+        if (page > 0) {
+            buildShopMenuPage(inventory, page, player);
+        } else {
+            buildQuickBuyMenu(inventory, player);
+        }
+
+        // RETURN
+
+        return inventory;
+    }
+
+    public @NotNull Inventory getInventory(@NotNull Player player, @Nullable Integer page) {
+        return getInventory(player, page, false);
+    }
+
+    /**
+     * Returns the quick buy item.
+     * @return quick buy item
+     */
+    private @NotNull ItemStack getQuickBuyItem(int page, boolean freeMode) {
+        ItemStack quickBuyItem = new ItemStack(Material.NETHER_STAR);
+        ItemMeta quickBuyMeta = quickBuyItem.getItemMeta();
+
+        quickBuyMeta.displayName(Component.text("Quick Buy", NamedTextColor.GOLD,  TextDecoration.BOLD));
+        quickBuyMeta.addItemFlags(ItemFlag.values());
+        quickBuyMeta.getPersistentDataContainer().set(MENU_CURRENT_PAGE, PersistentDataType.INTEGER, page);
+        quickBuyMeta.getPersistentDataContainer().set(MENU_FREE_MODE, PersistentDataType.BOOLEAN, freeMode);
+        quickBuyMeta.getPersistentDataContainer().set(MENU_BAR_PAGE_ID, PersistentDataType.INTEGER, 0);
+
+        if (page == 0) {
+            quickBuyMeta.lore(List.of(Component.text("selected", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)));
+            quickBuyMeta.addEnchant(Enchantment.EFFICIENCY, 1, true); // Adds glint effect
+        }
+
+        quickBuyItem.setItemMeta(quickBuyMeta);
+        return quickBuyItem;
+    }
+
+    /**
+     * Generates the menu bar.
+     * @param inventory gui inventory
+     */
+    private void generateMenuBarItems(@NotNull Inventory inventory, int page) {
+
+        int slot = 1;
+        for (int i = 0; i < this.menuBarItems.length; i++) {
+            if (slot > 8 || slot >= inventory.getSize()) break;
+
+            ItemStack item = this.menuBarItems[i].clone();
+            ItemMeta meta = item.getItemMeta();
+            if (meta == null) {
+                slot++;
+                continue;
+            }
+
+            if (page == i+1) {
+                meta.lore(List.of(Component.text("selected", NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)));
+                meta.addEnchant(Enchantment.EFFICIENCY, 1, true); // Add glint effect
+            }
+
+            meta.addItemFlags(ItemFlag.values());
+            meta.getPersistentDataContainer().set(MENU_BAR_PAGE_ID, PersistentDataType.INTEGER, i + 1);
+            item.setItemMeta(meta);
+
+            inventory.setItem(slot, item);
+            slot++;
+        }
+
+    }
+
+    /**
+     * Generates the glass pane bar below the menu bar.
+     * @param inventory gui inventory
+     */
+    private void generateMenuBarSpacer(@NotNull Inventory inventory) {
+
+        for (int slot = 9; slot <= 17; slot++) {
+            inventory.setItem(slot, this.getPlaceholderItem());
+        }
+
+    }
+
+    @Override
+    public @NotNull Inventory getInventory() {
+        return Bukkit.createInventory(this, 9, Component.text("Shop GUI", NamedTextColor.RED, TextDecoration.STRIKETHROUGH));
+    }
+
+    // ----- QUICK BUY MENU -----
+
+    private void buildQuickBuyMenu(@NotNull Inventory inventory, @NotNull Player player) {
+        Map<Integer, QuickBuyMenuEntry> entries = this.defaultQuickBuyMenu; // TODO: Replace with player-specific quick buy menu which is currently not implemented.
+
+        PlayerData playerData = this.game.getPlayerData(player);
+        if (playerData == null) return;
+
+        for (Map.Entry<Integer, QuickBuyMenuEntry> e : entries.entrySet()) {
+            int slot = e.getKey();
+            QuickBuyMenuEntry entry = e.getValue();
+
+            if (slot < 10) continue;
+            if (slot >= inventory.getSize()) continue;
+            if (slot > 52) continue;
+
+            switch (entry.type()) {
+                case ITEM -> {
+                    ShopEntry shopEntry = this.game.getItemShop().getItem(entry.id());
+                    if (shopEntry == null) continue;
+                    inventory.setItem(slot, this.createShopItem(entry.id(), shopEntry));
+                }
+                case UPGRADE -> {
+                    UpgradeEntry upgradeEntry = this.game.getItemShop().getUpgrade(entry.id());
+                    if (upgradeEntry == null) continue;
+                    int level = playerData.getUpgrade(upgradeEntry.upgradeId()) + 1;
+                    inventory.setItem(slot, this.createUpgradeItem(entry.id(), upgradeEntry, level));
+                }
+            }
+        }
+
+    }
+
+    // ----- SHOP PAGES -----
+
+    private void buildShopMenuPage(@NotNull Inventory inventory, int page, @NotNull Player player) {
+        ItemShop itemShop = this.getGame().getItemShop();
+
+        PlayerData playerData = this.game.getPlayerData(player);
+        if (playerData == null) return;
+
+        for (int slot = 18; slot < inventory.getSize(); slot++) {
+
+            // PLACEHOLDERS
+
+            if (slot % 9 == 0 || (slot + 1) % 9 == 0) {
+                inventory.setItem(slot, this.getPlaceholderItem());
+                continue;
+            }
+
+            // ITEMS
+
+            boolean itemLoopInterrupted = false;
+
+            for (Map.Entry<String, ShopEntry> e : itemShop.getItems().entrySet()) {
+                if (!e.getValue().positions().contains(new ShopGUIPosition(page, slot))) continue;
+                inventory.setItem(slot, this.createShopItem(e.getKey(), e.getValue()));
+                itemLoopInterrupted = true;
+                break;
+            }
+
+            if (itemLoopInterrupted) continue;
+
+            // UPGRADES
+
+            for (Map.Entry<String, UpgradeEntry> e : itemShop.getUpgrades().entrySet()) {
+                if (!e.getValue().positions().contains(new ShopGUIPosition(page, slot))) continue;
+                UpgradeEntry entry = e.getValue();
+
+                int level = playerData.getUpgrade(entry.upgradeId()) + 1;
+                inventory.setItem(slot, this.createUpgradeItem(e.getKey(), e.getValue(), level));
+
+                itemLoopInterrupted = true;
+                break;
+            }
+
+            if (itemLoopInterrupted) continue;
+
+        }
+
+    }
+
+    // ----- EVENTS -----
+
+    @EventHandler
+    public void onInventoryClick(@NotNull InventoryClickEvent event) {
+        if (event.getInventory().getHolder() != this) return;
+        event.setCancelled(true);
+
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        int currentPage = this.getCurrentPage(event.getInventory());
+        if (currentPage < 0) return;
+
+        boolean freeMode = this.isFreeMode(event.getInventory());
+
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+
+        PersistentDataContainer data = clickedItem.getItemMeta().getPersistentDataContainer();
+
+        // Menu Bar
+        if (data.has(MENU_BAR_PAGE_ID, PersistentDataType.INTEGER)) {
+            player.openInventory(this.getInventory(player, data.get(MENU_BAR_PAGE_ID, PersistentDataType.INTEGER), freeMode));
+            return;
+        }
+
+        // Items
+        if (data.has(MENU_SHOP_ITEM_ID, PersistentDataType.STRING)) {
+            String itemId = data.get(MENU_SHOP_ITEM_ID, PersistentDataType.STRING);
+            if (itemId == null) return;
+
+            ShopEntry entry = this.game.getItemShop().getItem(itemId);
+            if (entry == null) return;
+
+            this.purchaseItem(player, entry, event.isShiftClick(), freeMode);
+            return;
+        }
+
+        // Upgrades
+        if (data.has(MENU_SHOP_UPGRADE_ID, PersistentDataType.STRING)) {
+            String upgradeId = data.get(MENU_SHOP_UPGRADE_ID, PersistentDataType.STRING);
+            if (upgradeId == null) return;
+
+            UpgradeEntry entry = this.game.getItemShop().getUpgrade(upgradeId);
+            if (entry == null) return;
+
+            this.purchaseUpgrade(player, entry, freeMode);
+            player.openInventory(this.getInventory(player, currentPage, freeMode));
+            return;
+        }
+
+    }
+
+    @EventHandler
+    public void onInventoryDrag(@NotNull InventoryDragEvent event) {
+        if (event.getInventory().getHolder() != this) return;
+        event.setCancelled(true);
+    }
+
+    // ----- OTHER -----
+
+    private @NotNull ItemStack getPlaceholderItem() {
+        ItemStack item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta meta = item.getItemMeta();
+        meta.customName(Component.empty());
+        meta.addItemFlags(ItemFlag.values());
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    // ----- ITEMS -----
+
+    private @NotNull ItemStack createShopItem(@NotNull String key, @NotNull ShopEntry entry) {
+        ItemStack item = entry.item().clone();
+        ItemMeta meta = item.getItemMeta();
+
+        meta.getPersistentDataContainer().set(MENU_SHOP_ITEM_ID, PersistentDataType.STRING, key);
+
+        List<Component> lore = meta.lore();
+        lore = lore != null ? new ArrayList<>(lore) : new ArrayList<>();
+        if (!lore.isEmpty()) lore.add(Component.text(" "));
+        lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                .append(Component.text("Price: ", NamedTextColor.GRAY))
+                .append(Component.text(entry.price(), NamedTextColor.YELLOW))
+                .appendSpace()
+                .append(Component.text(entry.currency().name(), NamedTextColor.YELLOW))
+        );
+        meta.lore(lore);
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private @NotNull ItemStack createUpgradeItem(@NotNull String key, @NotNull UpgradeEntry entry, int level) {
+        @Nullable UpgradeEntry.PriceEntry price = entry.prices().get(level);
+
+        ItemStack icon = entry.icons().get(level);
+        if (icon == null) return new ItemStack(Material.AIR);
+
+        ItemMeta iconMeta = icon.getItemMeta();
+
+        iconMeta.getPersistentDataContainer().set(MENU_SHOP_UPGRADE_ID, PersistentDataType.STRING, key);
+
+        List<Component> lore = iconMeta.lore();
+        lore = lore != null ? new ArrayList<>(lore) : new ArrayList<>();
+        if (!lore.isEmpty()) lore.add(Component.text(" "));
+
+        if (price != null) {
+            lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text("Price: ", NamedTextColor.GRAY))
+                    .append(Component.text(price.amount(), NamedTextColor.YELLOW))
+                    .appendSpace()
+                    .append(Component.text(price.currency().name(), NamedTextColor.YELLOW))
+            );
+        } else {
+            lore.add(Component.empty().color(NamedTextColor.WHITE).decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE)
+                    .append(Component.text("No upgrade available", NamedTextColor.GRAY))
+            );
+        }
+        iconMeta.lore(lore);
+
+        icon.setItemMeta(iconMeta);
+        return icon;
+    }
+
+    // ----- PURCHASE PROCESS -----
+
+    private void purchaseItem(@NotNull Player player, @NotNull ShopEntry entry, boolean stackPurchase, boolean freeMode) {
+        int availableCurrency = this.getAvailableCurrency(player.getInventory(), entry.currency());
+        int price;
+        int itemAmount;
+
+        // Calculate stack size for stack purchase
+        if (stackPurchase) {
+            int[] stackPurchaseResult = this.calculateStackPurchase(entry, availableCurrency, freeMode);
+            itemAmount = stackPurchaseResult[0];
+            price = stackPurchaseResult[1];
+        } else {
+            itemAmount = entry.item().getAmount();
+            price = entry.price();
+        }
+
+        // Prepare purchased item
+        ItemStack purchasedItemStack = entry.item().clone();
+        purchasedItemStack.setAmount(itemAmount);
+
+        // Enough space check
+        if (!this.hasEnoughSpace(purchasedItemStack, player.getInventory())) {
+            player.sendRichMessage("<red>You don't have enough space to purchase this item!");
+            player.playSound(player.getLocation().clone(), Sound.ENTITY_PLAYER_TELEPORT, 1, 2);
+            return;
+        }
+
+        // Purchase
+        if (!freeMode) {
+
+            // Check for enough currency
+            if (this.getAvailableCurrency(player.getInventory(), entry.currency()) < price) {
+                player.sendRichMessage("<red>You don't have enough money to purchase the item!");
+                player.playSound(player.getLocation().clone(), Sound.ENTITY_PLAYER_TELEPORT, 1, 2);
+                return;
+            }
+
+            // Remove amount of money
+            Bedwars.removeSpecificAmountOfItems(player.getInventory(), entry.currency(), price);
+
+        }
+
+        // Give item
+        player.getInventory().addItem(purchasedItemStack);
+        player.playSound(player.getLocation().clone(), Sound.BLOCK_STONE_BUTTON_CLICK_ON, 1.0f, 1.0f);
+    }
+
+    private void purchaseUpgrade(@NotNull Player player, @NotNull UpgradeEntry entry, boolean freeMode) {
+
+        // Get player data
+        PlayerData playerData = this.game.getPlayerData(player);
+        if (playerData == null) return;
+
+        // Get next upgrade level
+        int level = playerData.getUpgrade(entry.upgradeId()) + 1;
+
+        // Purchase
+        if (!freeMode) {
+
+            // Get the price for the upgrade
+            UpgradeEntry.PriceEntry price = entry.prices().get(level);
+            if (price == null) return;
+            if (price.amount() < 0) return;
+
+            // Get the amount of the currency the player currently has
+            int availableCurrency = this.getAvailableCurrency(player.getInventory(), price.currency());
+
+            // Check for enough money
+            if (availableCurrency < price.amount()) {
+                player.sendRichMessage("<red>You don't have enough money to purchase the upgrade!");
+                player.playSound(player.getLocation().clone(), Sound.ENTITY_PLAYER_TELEPORT, 1, 2);
+                return;
+            }
+
+            // Remove amount of money
+            Bedwars.removeSpecificAmountOfItems(player.getInventory(), price.currency(), price.amount());
+
+        }
+
+        // Give upgrade
+        playerData.setUpgrade(entry.upgradeId(), level);
+        player.playSound(player.getLocation().clone(), Sound.BLOCK_STONE_BUTTON_CLICK_ON, 1.0f, 1.0f);
+    }
+
+    private int getAvailableCurrency(@NotNull Inventory inventory, @NotNull Material currency) {
+        int availableCurrency = 0;
+
+        for (ItemStack item : Arrays.copyOf(inventory.getContents(), inventory.getContents().length)) {
+
+            if (item != null && item.getType() == currency) {
+                availableCurrency += item.getAmount();
+            }
+
+        }
+
+        return availableCurrency;
+    }
+
+    /**
+     * Calculates the amount and price of a stack purchase.
+     * @param entry shop entry
+     * @param availableMoney money the purchasing player has available
+     * @return array: [item amount, price]
+     */
+    private int[] calculateStackPurchase(@NotNull ShopEntry entry, int availableMoney, boolean freeMode) {
+        int amount = 0;
+        int price = 0;
+
+        if (freeMode) return new int[]{entry.item().getMaxStackSize(), price};
+
+        while (amount < entry.item().getMaxStackSize() || price <= availableMoney) {
+            int nextAmount = amount + entry.item().getAmount();
+            int nextPrice = price + entry.price();
+
+            if (nextAmount > entry.item().getMaxStackSize()) break; // Item has reached max stack size, can't add more.
+            if (nextPrice > availableMoney) break; // Player can't afford next amount.
+
+            amount = nextAmount;
+            price = nextPrice;
+        }
+
+        return  new int[]{amount, price};
+    }
+
+    /**
+     * Checks if there is enough space for an item.
+     * @param purchasedItem purchased item stack
+     * @param inventory inventory of the player
+     * @return true = enough space
+     */
+    private boolean hasEnoughSpace(@NotNull ItemStack purchasedItem, @NotNull Inventory inventory) {
+
+        for (int slot = 0;  slot < inventory.getSize(); slot++) {
+            if (slot >= 36) break;
+            ItemStack item = inventory.getItem(slot);
+
+            // If there is a free slot in the inventory, there is always space for an item.
+            if (item == null || item.getType() == Material.AIR) return true;
+
+            // If the amount of the currently available stack plus the amount of the purchased item
+            // is less or equal than the max stack size of the item, there is enough space.
+            if (!item.isSimilar(purchasedItem)) continue;
+            if (item.getAmount() + purchasedItem.getAmount() <= purchasedItem.getMaxStackSize()) return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the current page of the specified Shop GUI Inventory page.
+     * @param inventory shop gui inventory
+     * @return current page (negative if invalid)
+     */
+    private int getCurrentPage(@NotNull Inventory inventory) {
+
+        ItemStack item = inventory.getItem(0);
+        if (item == null) return -1;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return -1;
+
+        return meta.getPersistentDataContainer().getOrDefault(MENU_CURRENT_PAGE, PersistentDataType.INTEGER, -1);
+    }
+
+    /**
+     * Returns the status of free mode of the current inventory.
+     * @param inventory shop gui inventory
+     * @return free mode status (false if invalid)
+     */
+    private boolean isFreeMode(@NotNull Inventory inventory) {
+
+        ItemStack item = inventory.getItem(0);
+        if (item == null) return false;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return false;
+
+        return meta.getPersistentDataContainer().getOrDefault(MENU_FREE_MODE, PersistentDataType.BOOLEAN, false);
+    }
+
+    // ----- OTHER -----
+
+    public @NotNull Game getGame() {
+        return game;
+    }
+
+    @Override
+    public boolean toBeRemoved() {
+        return false;
+    }
+}

@@ -9,13 +9,16 @@ import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.config.DefaultConfigValues;
+import net.jandie1505.bedwars.game.game.builder.GameBuilder;
+import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
+import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyPlayersSubcommand;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
-import net.jandie1505.bedwars.game.game.menu.shop.old.ArmorConfig;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
@@ -642,49 +645,7 @@ public class Lobby extends GamePart {
             return null;
         }
 
-        MapData selectedMap = this.selectedMap;
-
-        World world = this.getPlugin().loadWorld(selectedMap.world());
-
-        if (world == null) {
-            return null;
-        }
-
-        JSONObject shopConfig = this.getPlugin().getShopConfig().getConfig();
-
-        ArmorConfig armorConfig = new ArmorConfig(
-                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("enableArmorSystem", false),
-                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("copyHelmet", false),
-                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("copyChestplate", false),
-                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optBoolean("copyLeggings", false),
-                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultHelmet", 125),
-                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultChestplate", 126),
-                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultLeggings", 127),
-                shopConfig.optJSONObject("itemShop", new JSONObject()).optJSONObject("armorConfig", new JSONObject()).optInt("defaultBoots", 128)
-        );
-
-        TeamUpgradesConfig teamUpgradesConfig = new TeamUpgradesConfig(
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("sharpness", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("protection", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("haste", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("generators", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("healpool", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("endgamebuff", new JSONObject())),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("noTrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("alarmTrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("itsATrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("miningFatigueTrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("countermeasuresTrap")
-        );
-
-        Game game = new Game(
-                this.getPlugin(),
-                world,
-                selectedMap,
-                new JSONObject(shopConfig.optJSONObject("itemShop").toString()),
-                armorConfig,
-                teamUpgradesConfig
-        );
+        Game game = new GameBuilder(this.getPlugin()).build(this.selectedMap);
 
         for (UUID playerId : this.getPlayers().keySet()) {
             LobbyPlayerData playerData = this.getPlayers().get(playerId);
@@ -720,72 +681,6 @@ public class Lobby extends GamePart {
         this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.name());
 
         return game;
-    }
-
-    private TeamUpgrade getErrorUpgrade() {
-        return new TeamUpgrade(-1, List.of(), List.of(), List.of());
-    }
-
-    private TeamUpgrade buildTeamUpgrade(JSONObject teamUpgrade) {
-
-        int itemId = teamUpgrade.optInt("item", -1);
-
-        if (itemId < 0) {
-            this.getPlugin().getLogger().warning("Shop Config: Missing/wrong item in team upgrade");
-            return this.getErrorUpgrade();
-        }
-
-        JSONArray priceListArray = teamUpgrade.optJSONArray("prices");
-
-        if (priceListArray == null) {
-            this.getPlugin().getLogger().warning("Shop Config: Missing/Wrong prices in team upgrade");
-            return this.getErrorUpgrade();
-        }
-
-        List<Integer> prices = new ArrayList<>();
-        List<Material> currencies = new ArrayList<>();
-
-        for (int i = 0; i < priceListArray.length(); i++) {
-
-            int price = priceListArray.optInt(i, -1);
-
-            if (price < 0) {
-                this.getPlugin().getLogger().warning("Shop Config: Wrong price in prices in team upgrade");
-                return this.getErrorUpgrade();
-            }
-
-            prices.add(price);
-            currencies.add(Material.DIAMOND);
-
-        }
-
-        JSONArray levelArray = teamUpgrade.optJSONArray("levels");
-
-        List<Integer> levels = new ArrayList<>();
-
-        if (levelArray == null) {
-
-            for (int i = 0; i < prices.size(); i++) {
-                levels.add(-1);
-            }
-
-        } else {
-
-            for (int i = 0; i < levelArray.length(); i++) {
-
-                int level = levelArray.optInt(i);
-
-                if (level < 0) {
-                    level = -1;
-                }
-
-                levels.add(level);
-
-            }
-
-        }
-
-        return new TeamUpgrade(itemId, List.copyOf(prices), List.copyOf(currencies), List.copyOf(levels));
     }
 
     private void updateCloudNetMotdAndSlots(int maxPlayers, String motd) {
