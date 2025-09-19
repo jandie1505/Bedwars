@@ -12,8 +12,6 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.config.JSONLoader;
 import net.jandie1505.bedwars.game.game.builder.GameBuilder;
-import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
-import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.lobby.commands.*;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.base.GamePart;
@@ -21,21 +19,15 @@ import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
-import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
-import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
-import net.jandie1505.bedwars.game.lobby.inventory.VotingMenuListener;
+import net.jandie1505.bedwars.game.lobby.gui.MapVoteGUI;
+import net.jandie1505.bedwars.game.lobby.gui.VotingMenuListener;
 import net.jandie1505.bedwars.game.lobby.listeners.LobbyJoinLeaveListener;
 import net.jandie1505.bedwars.game.utils.LobbyChatListener;
 import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -43,14 +35,12 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Stream;
@@ -61,6 +51,7 @@ public class Lobby extends GamePart {
     private final int mapVoteButtonItemId;
     private final int teamSelectionButtonItemId;
     private final int mapButtonItemId;
+    @NotNull private final MapVoteGUI mapVoteGUI;
     private final List<UUID> loginBypassList;
     private int timeStep;
     private int time;
@@ -84,6 +75,7 @@ public class Lobby extends GamePart {
         this.mapVoteButtonItemId = lobbyConfig.optInt("mapVoteButton", -1);
         this.teamSelectionButtonItemId = lobbyConfig.optInt("teamSelectionButton", -1);
         this.mapButtonItemId = lobbyConfig.optInt("mapButton", -1);
+        this.mapVoteGUI = new MapVoteGUI(this);
         this.loginBypassList = Collections.synchronizedList(new ArrayList<>());
         this.timeStep = 0;
         this.time = 120;
@@ -808,6 +800,14 @@ public class Lobby extends GamePart {
 
     public boolean removePlayer(UUID playerId) {
         return this.players.remove(playerId) != null;
+    }
+
+    /**
+     * Returns the map voting gui.
+     * @return MapVoteGUI
+     */
+    public @NotNull MapVoteGUI getMapVoteGUI() {
+        return mapVoteGUI;
     }
 
     public void addLoginBypassPlayer(UUID playerId) {
