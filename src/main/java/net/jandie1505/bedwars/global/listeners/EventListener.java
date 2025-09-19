@@ -3,6 +3,7 @@ package net.jandie1505.bedwars.global.listeners;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.MapData;
 import net.jandie1505.bedwars.game.lobby.Lobby;
 import net.kyori.adventure.text.Component;
 import org.bukkit.advancement.Advancement;
@@ -309,7 +310,8 @@ public class EventListener implements Listener {
             }
 
             if (lobby.getSelectedMap() != null) {
-                event.motd(Component.text(lobby.getSelectedMap().name()));
+                MapData selectedMap = lobby.getSelectedMapData();
+                event.motd(Component.text(selectedMap != null ? selectedMap.name() : "Invalid Map"));
             } else {
                 event.motd(Component.text("Map Voting"));
             }

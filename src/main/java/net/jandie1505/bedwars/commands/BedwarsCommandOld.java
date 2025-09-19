@@ -88,16 +88,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
             case "setgamevalue":
                 this.setGameValue(sender, args);
                 break;
-            case "map":
-            case "maps":
-                this.mapsSubcommand(sender);
-                break;
-            case "forcemap":
-                this.forcemapSubcommand(sender, args);
-                break;
-            case "votemap":
-                this.votemapCommand(sender, args);
-                break;
             case "getlobbyvalue":
                 this.getLobbyValueSubcommand(sender, args);
                 break;
@@ -357,50 +347,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
                         }
 
                         switch (args[3]) {
-                            case "vote":
-                                if (args[4].equalsIgnoreCase("null")) {
-                                    playerData.setVote(null);
-                                    sender.sendMessage("§aCleared map vote");
-                                } else {
-
-                                    String mapName = args[2];
-
-                                    for (int i = 3; i < args.length; i++) {
-
-                                        mapName = mapName + " " + args[i];
-
-                                    }
-
-                                    MapData mapData = null;
-
-                                    for (MapData map : List.copyOf(((Lobby) this.plugin.getGame()).getMaps())) {
-
-                                        if (mapName.startsWith("w:")) {
-
-                                            if (map.world().equals(mapName.substring(2))) {
-                                                mapData = map;
-                                            }
-
-                                        } else {
-
-                                            if (map.world().equals(mapName)) {
-                                                mapData = map;
-                                            }
-
-                                        }
-
-                                    }
-
-                                    if (mapData == null) {
-                                        sender.sendMessage("§cMap does not exist (Set map to null if you want to clear vote)");
-                                        return;
-                                    }
-
-                                    playerData.setVote(mapData);
-                                    sender.sendMessage("§aMap vote set");
-
-                                }
-                                break;
                             case "team":
                                 playerData.setTeam(Integer.parseInt(args[4]));
                                 sender.sendMessage("§aTeam set");
@@ -1248,149 +1194,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
 
     }
 
-    public void mapsSubcommand(CommandSender sender) {
-
-        if (!(this.plugin.getGame() instanceof Lobby)) {
-            sender.sendMessage("§cNo lobby running");
-            return;
-        }
-
-        MapData mapData = ((Lobby) this.plugin.getGame()).getSelectedMap();
-
-        if (mapData == null) {
-            sender.sendMessage("§7No map selected");
-        } else {
-            sender.sendMessage("§7Selected map: " + mapData.name() + " (" + mapData.name() + ")");
-        }
-
-        sender.sendMessage("§7Available Maps:");
-
-        for (MapData map : List.copyOf(((Lobby) this.plugin.getGame()).getMaps())) {
-            sender.sendMessage("§7" + map.name() + " (" + map.name() + ")");
-        }
-
-    }
-
-    public void forcemapSubcommand(CommandSender sender, String[] args) {
-
-        if (!this.hasAdminPermission(sender)) {
-            sender.sendMessage("§cNo permission");
-            return;
-        }
-
-        if (!(this.plugin.getGame() instanceof Lobby)) {
-            sender.sendMessage("§cNo lobby running");
-            return;
-        }
-
-        if (args.length < 2) {
-            sender.sendMessage("§cUsage: /combattest forcemap <mapName/w:worldName>");
-            return;
-        }
-
-        if (args[1].equalsIgnoreCase("null") || args[1].equalsIgnoreCase("none")) {
-            ((Lobby) this.plugin.getGame()).selectMap(null);
-            sender.sendMessage("§aSelected map cleared");
-            return;
-        }
-
-        String mapName = args[1];
-
-        for (int i = 2; i < args.length; i++) {
-
-            mapName = mapName + " " + args[i];
-
-        }
-
-        MapData mapData = null;
-
-        for (MapData map : List.copyOf(((Lobby) this.plugin.getGame()).getMaps())) {
-
-            if (mapName.startsWith("w:")) {
-
-                if (map.world().equals(mapName.substring(2))) {
-                    mapData = map;
-                }
-
-            } else {
-
-                if (map.name().equals(mapName)) {
-                    mapData = map;
-                }
-
-            }
-
-        }
-
-        if (mapData == null) {
-            sender.sendMessage("§cMap does not exist");
-            return;
-        }
-
-        ((Lobby) this.plugin.getGame()).selectMap(mapData);
-        sender.sendMessage("§aMap successfully selected");
-
-    }
-
-    public void votemapCommand(CommandSender sender, String[] args) {
-
-        if (!(this.plugin.getGame() instanceof Lobby)) {
-            sender.sendMessage("§cNo lobby running");
-            return;
-        }
-
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("§cThe command needs to be executed by a player");
-            return;
-        }
-
-        LobbyPlayerData playerData = ((Lobby) this.plugin.getGame()).getPlayers().get(((Player) sender).getUniqueId());
-
-        if (playerData == null) {
-            sender.sendMessage("§cYou are not in the lobby");
-            return;
-        }
-
-        if (!((Lobby) this.plugin.getGame()).isMapVoting() || ((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
-            sender.sendMessage("§cMap voting is already over");
-            return;
-        }
-
-        if (args.length < 2) {
-            playerData.setVote(null);
-            sender.sendMessage("§aYou successfully removed your vote");
-            return;
-        }
-
-        String mapName = args[1];
-
-        for (int i = 2; i < args.length; i++) {
-
-            mapName = mapName + " " + args[i];
-
-        }
-
-        MapData mapData = null;
-
-        for (MapData map : ((Lobby) this.plugin.getGame()).getMaps()) {
-
-            if (map.name().equals(mapName)) {
-                mapData = map;
-                break;
-            }
-
-        }
-
-        if (mapData == null) {
-            sender.sendMessage("§cMap does not exist");
-            return;
-        }
-
-        playerData.setVote(mapData);
-        sender.sendMessage("§aYou voted for " + mapData.name());
-
-    }
-
     public void getLobbyValueSubcommand(CommandSender sender, String[] args) {
 
         if (!this.hasAdminPermission(sender)) {
@@ -1411,13 +1214,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
         switch (args[2]) {
             case "time":
                 sender.sendMessage("§7Time: " + ((Lobby) this.plugin.getGame()).getTime());
-                break;
-            case "map":
-                if (((Lobby) this.plugin.getGame()).getSelectedMap() != null) {
-                    sender.sendMessage("§7Selected Map:" + ((Lobby) this.plugin.getGame()).getSelectedMap().name() + " (" + ((Lobby) this.plugin.getGame()).getSelectedMap().world() + ")");
-                } else {
-                    sender.sendMessage("§7Selected Map: ---");
-                }
                 break;
             case "voting":
                 sender.sendMessage("§7Map Voting: " + ((Lobby) this.plugin.getGame()).isMapVoting());
@@ -1871,21 +1667,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
 
                         break;
                     case "forcemap":
-                    case "votemap":
-
-                        if (!this.hasAdminPermission(sender) && args[0].equals("forcemap")) {
-                            break;
-                        }
-
-                        if (!(this.plugin.getGame() instanceof Lobby)) {
-                            break;
-                        }
-
-                        for (MapData map : ((Lobby) this.plugin.getGame()).getMaps()) {
-                            tabComplete.add(map.name());
-                        }
-
-                        break;
                     case "getlobbyvalue":
 
                         if (!this.hasAdminPermission(sender)) {

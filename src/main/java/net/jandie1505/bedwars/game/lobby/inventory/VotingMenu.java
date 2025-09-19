@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class VotingMenu implements InventoryHolder {
@@ -41,20 +42,20 @@ public class VotingMenu implements InventoryHolder {
 
         Inventory inventory = this.lobby.getPlugin().getServer().createInventory(this, inventorySize, "§6§lMap Voting");
 
-        LobbyPlayerData playerData = this.lobby.getPlayers().get(this.playerId);
+        LobbyPlayerData playerData = this.lobby.getPlayerData(this.playerId);
 
         if (playerData == null) {
             return this.getInventory();
         }
 
         int slot = 0;
-        for (MapData map : this.lobby.getMaps()) {
+        for (Map.Entry<String, MapData> entry : this.lobby.getMaps().entrySet()) {
 
             if (slot >= inventorySize) {
                 break;
             }
 
-            inventory.setItem(slot, getLobbyVoteMapButton(map.name(), map.world(), playerData.getVote() == map));
+            inventory.setItem(slot, getLobbyVoteMapButton(entry.getValue().name(), entry.getValue().world(), entry.getKey().equals(playerData.getVote())));
 
             slot++;
         }

@@ -71,13 +71,27 @@ public class LobbyVotemapCommand implements TabCompletingCommandExecutor {
 
         // Search map
 
-        MapData map = args.hasOption("use-world-name") ? lobby.findMapByWorldName(mapName) : lobby.findMapByName(mapName);
+        String option = args.options().getOrDefault("source", "");
+
+        String mapId;
+        switch (option) {
+            case "mapid" -> mapId = mapName;
+            case "world-name" -> mapId = lobby.findMapByWorldName(mapName);
+            default -> mapId = lobby.findMapByName(mapName);
+        }
+
+        if (mapId == null) {
+            sender.sendRichMessage("<red>This map does not exist.");
+            return true;
+        }
+
+        MapData map =  lobby.getMap(mapId);
         if (map == null) {
             sender.sendRichMessage("<red>This map does not exist.");
             return true;
         }
 
-        playerData.setVote(map);
+        playerData.setVote(mapId);
         sender.sendRichMessage("<green>You successfully voted for " + map.name() + "<green>!");
 
         return true;
@@ -89,7 +103,7 @@ public class LobbyVotemapCommand implements TabCompletingCommandExecutor {
         if (!(this.plugin.getGame() instanceof Lobby lobby)) return List.of();
         if (!lobby.isMapVoting()) return List.of();
         if (lobby.getSelectedMap() != null) return List.of();
-        if (args.length == 1) return lobby.getMaps().stream().map(MapData::name).toList();
+        if (args.length == 1) return lobby.getMaps().values().stream().map(MapData::name).toList();
         return List.of();
     }
 }

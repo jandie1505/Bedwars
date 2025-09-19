@@ -1,9 +1,9 @@
 package net.jandie1505.bedwars.game.lobby;
 
-import net.jandie1505.bedwars.game.game.MapData;
+import org.jetbrains.annotations.Nullable;
 
 public class LobbyPlayerData {
-    private MapData vote;
+    @Nullable private String vote;
     private int team;
 
     public LobbyPlayerData() {
@@ -11,11 +11,11 @@ public class LobbyPlayerData {
         this.team = -1;
     }
 
-    public MapData getVote() {
+    public @Nullable String getVote() {
         return vote;
     }
 
-    public void setVote(MapData vote) {
+    public void setVote(@Nullable String vote) {
         this.vote = vote;
     }
 

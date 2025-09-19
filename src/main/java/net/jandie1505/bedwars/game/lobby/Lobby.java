@@ -14,8 +14,7 @@ import net.jandie1505.bedwars.config.JSONLoader;
 import net.jandie1505.bedwars.game.game.builder.GameBuilder;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
-import net.jandie1505.bedwars.game.lobby.commands.LobbyPlayersSubcommand;
-import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
+import net.jandie1505.bedwars.game.lobby.commands.*;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
@@ -24,8 +23,6 @@ import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
-import net.jandie1505.bedwars.game.lobby.commands.LobbyValueSubcommand;
-import net.jandie1505.bedwars.game.lobby.commands.LobbyVotemapCommand;
 import net.jandie1505.bedwars.game.lobby.inventory.VotingMenuListener;
 import net.jandie1505.bedwars.game.utils.LobbyChatListener;
 import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
@@ -57,7 +54,7 @@ import java.util.logging.Level;
 import java.util.stream.Stream;
 
 public class Lobby extends GamePart {
-    private final List<MapData> maps;
+    private final Map<String, MapData> maps;
     private final Map<UUID, LobbyPlayerData> players;
     private final int mapVoteButtonItemId;
     private final int teamSelectionButtonItemId;
@@ -66,7 +63,7 @@ public class Lobby extends GamePart {
     private int timeStep;
     private int time;
     private boolean forcestart;
-    private MapData selectedMap;
+    @Nullable private String selectedMap;
     private boolean mapVoting;
     private int requiredPlayers;
     private boolean timerPaused;
@@ -76,7 +73,7 @@ public class Lobby extends GamePart {
 
     public Lobby(Bedwars plugin) {
         super(plugin);
-        this.maps = new ArrayList<>();
+        this.maps = new HashMap<>();
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.mapVoteButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapVoteButton", -1);
         this.teamSelectionButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("teamSelectionButton", -1);
@@ -124,6 +121,7 @@ public class Lobby extends GamePart {
         this.addDynamicSubcommand("start", SubcommandEntry.of(new LobbyStartSubcommand(plugin), sender -> Permissions.hasPermission(sender, Permissions.START)));
         this.addDynamicSubcommand("value", SubcommandEntry.of(new LobbyValueSubcommand(this)));
         this.addDynamicSubcommand("players", SubcommandEntry.of(new LobbyPlayersSubcommand(this)));
+        this.addDynamicSubcommand("maps", SubcommandEntry.of(new LobbyMapsSubcommand(this)));
         this.addDynamicSubcommand("votemap", SubcommandEntry.of(new LobbyVotemapCommand(plugin)));
 
         // Listeners
@@ -139,17 +137,22 @@ public class Lobby extends GamePart {
     }
 
     private void loadMaps() {
+        final String requiredExtension = ".json";
 
         Path dir = this.getPlugin().getDataPath().toAbsolutePath().resolve("maps");
 
         try (Stream<Path> paths = Files.walk(dir).filter(Files::isRegularFile)) {
             paths.forEach(path -> {
 
+                String fileName = path.getFileName().toString();
+                if (!fileName.endsWith(requiredExtension)) return;
+
+                String mapId = fileName.substring(0, fileName.length() - requiredExtension.length());
                 JSONObject mapJSON = JSONLoader.loadJSONFromFile(path.toFile());
 
                 try {
                     MapData mapData = MapData.deserializeFromJSON(mapJSON);
-                    this.maps.add(mapData);
+                    this.maps.put(mapId, mapData);
                 } catch (Exception e) {
                     this.getPlugin().getLogger().log(Level.WARNING, "Failed to load map data from file: " + path, e);
                 }
@@ -234,8 +237,10 @@ public class Lobby extends GamePart {
             if (this.timeStep >= 20) {
                 String mapName = "---";
 
-                if (this.selectedMap != null) {
-                    mapName = this.selectedMap.name();
+                MapData selectedMapData = this.selectedMap != null ? this.maps.get(this.selectedMap) : null;
+
+                if (selectedMapData != null) {
+                    mapName = selectedMapData.name();
                 }
 
                 Scoreboard scoreboard = this.getPlugin().getServer().getScoreboardManager().getNewScoreboard();
@@ -264,9 +269,9 @@ public class Lobby extends GamePart {
 
                 objective.getScore("§").setScore(0);
 
-                if (this.selectedMap != null) {
+                if (selectedMapData != null) {
                     if (playerData.getTeam() > 0) {
-                        TeamData team = this.selectedMap.teams().get(playerData.getTeam());
+                        TeamData team = selectedMapData.teams().get(playerData.getTeam());
 
                         if (team != null) {
                             objective.getScore("§7Team: " + team.chatColor() + team.name()).setScore(1);
@@ -409,11 +414,11 @@ public class Lobby extends GamePart {
     
     // UTILITIES
 
-    private List<MapData> getHighestVotedMaps() {
+    private List<String> getHighestVotedMaps() {
 
         // Get map votes
 
-        Map<MapData, Integer> mapVotes = new HashMap<>();
+        Map<String, Integer> mapVotes = new HashMap<>();
 
         for (UUID playerId : this.getPlayers().keySet()) {
             LobbyPlayerData playerData = this.players.get(playerId);
@@ -432,10 +437,10 @@ public class Lobby extends GamePart {
 
         // Get list of maps with the highest vote count
 
-        List<MapData> highestVotedMaps = new ArrayList<>();
+        List<String> highestVotedMaps = new ArrayList<>();
         int maxVotes = Integer.MIN_VALUE;
 
-        for (Map.Entry<MapData, Integer> entry : mapVotes.entrySet()) {
+        for (Map.Entry<String, Integer> entry : mapVotes.entrySet()) {
             int votes = entry.getValue();
             if (votes > maxVotes) {
                 maxVotes = votes;
@@ -447,16 +452,14 @@ public class Lobby extends GamePart {
         }
 
         return highestVotedMaps;
-
     }
 
     private void autoSelectMap() {
-
-        MapData selectedMap = null;
+        String selectedMap = null;
 
         if (this.mapVoting) {
 
-            List<MapData> highestVotedMaps = this.getHighestVotedMaps();
+            List<String> highestVotedMaps = this.getHighestVotedMaps();
 
             if (!highestVotedMaps.isEmpty()) {
 
@@ -470,30 +473,27 @@ public class Lobby extends GamePart {
 
             if (!this.maps.isEmpty()) {
 
-                selectedMap = this.maps.get(new Random().nextInt(this.maps.size()));
+                selectedMap = this.maps.keySet().stream().toList().get(new Random().nextInt(this.maps.size()));
 
             }
 
         }
 
         this.selectMap(selectedMap);
-
     }
 
     private void displayMap() {
 
         for (UUID playerId : this.getPlayers().keySet()) {
             Player player = this.getPlugin().getServer().getPlayer(playerId);
+            if (player == null) return;
 
-            if (player == null) {
-                continue;
-            }
+            if (this.selectedMap == null) return;
 
-            if (this.selectedMap == null) {
-                return;
-            }
+            MapData selectedMapData = this.getSelectedMapData();
+            if (selectedMapData == null) return;
 
-            player.sendMessage("§bThe map has been set to " + this.selectedMap.name());
+            player.sendMessage("§bThe map has been set to " + selectedMapData.name());
 
         }
 
@@ -501,9 +501,9 @@ public class Lobby extends GamePart {
 
     private void createPartyTeams() {
 
-        if (this.selectedMap == null) {
-            return;
-        }
+        if (this.selectedMap == null) return;
+        MapData selectedMapData = this.getSelectedMapData();
+        if (selectedMapData == null) return;
 
         if (this.getPlugin().getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("partyandfriends", false)) {
 
@@ -558,8 +558,8 @@ public class Lobby extends GamePart {
 
                     // iterate through all teams to find the right team for the party
 
-                    for (TeamData team : this.selectedMap.teams()) {
-                        int teamId = this.selectedMap.teams().indexOf(team);
+                    for (TeamData team : selectedMapData.teams()) {
+                        int teamId = selectedMapData.teams().indexOf(team);
 
                         if (teamId < 0) {
                             continue;
@@ -582,8 +582,8 @@ public class Lobby extends GamePart {
 
                             boolean otherTeamAvailable = false;
 
-                            for (TeamData anotherTeam : this.selectedMap.teams()) {
-                                int otherTeamId = this.selectedMap.teams().indexOf(anotherTeam);
+                            for (TeamData anotherTeam : selectedMapData.teams()) {
+                                int otherTeamId = selectedMapData.teams().indexOf(anotherTeam);
 
                                 if (otherTeamId < 0) {
                                     continue;
@@ -654,14 +654,20 @@ public class Lobby extends GamePart {
             return null;
         }
 
-        Game game = new GameBuilder(this.getPlugin()).build(this.selectedMap);
+        MapData selectedMapData = this.getSelectedMapData();
+        if (selectedMapData == null) {
+            this.getPlugin().getLogger().warning("Game stopped because map data of selected map does not exist");
+            return null;
+        }
+
+        Game game = new GameBuilder(this.getPlugin()).build(selectedMapData);
 
         for (UUID playerId : this.getPlayers().keySet()) {
             LobbyPlayerData playerData = this.getPlayers().get(playerId);
             Player player = this.getPlugin().getServer().getPlayer(playerId);
 
             if (player != null) {
-                player.sendMessage("§bMap: " + this.selectedMap.name());
+                player.sendMessage("§bMap: " + selectedMapData.name());
             }
 
             if (playerData.getTeam() < 0) {
@@ -687,7 +693,7 @@ public class Lobby extends GamePart {
             this.players.remove(playerId);
         }
 
-        this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.name());
+        this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), selectedMapData.name());
 
         return game;
     }
@@ -847,21 +853,36 @@ public class Lobby extends GamePart {
         this.loginBypassList.clear();
     }
 
-    public List<MapData> getMaps() {
-        return List.copyOf(this.maps);
+    public Map<String, MapData> getMaps() {
+        return Map.copyOf(this.maps);
     }
 
-    public MapData getSelectedMap() {
+    /**
+     * Returns the map with the specified map id.
+     * @param mapId map id
+     * @return map data or null if not found
+     */
+    public @Nullable MapData getMap(@NotNull String mapId) {
+        return this.maps.get(mapId);
+    }
+
+    public @Nullable String getSelectedMap() {
         return this.selectedMap;
     }
 
-    public void selectMap(MapData selectedMap) {
-        this.selectedMap = selectedMap;
+    public @Nullable MapData getSelectedMapData() {
+        return this.selectedMap != null ? this.maps.get(this.selectedMap) : null;
+    }
+
+    public void selectMap(@Nullable String mapId) {
+        this.selectedMap = mapId;
         this.displayMap();
         this.createPartyTeams();
 
-        if (this.selectedMap != null) {
-            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.name());
+        MapData selectedMapData = this.getSelectedMapData();
+
+        if (selectedMapData != null) {
+            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), selectedMapData.name());
         } else {
 
             if (this.mapVoting) {
@@ -877,13 +898,13 @@ public class Lobby extends GamePart {
     /**
      * Searches a map by its world name.
      * @param worldName world name
-     * @return map
+     * @return map id
      */
-    public @Nullable MapData findMapByWorldName(String worldName) {
+    public @Nullable String findMapByWorldName(String worldName) {
 
-        for (MapData mapData : this.maps) {
-            if (mapData.world().equalsIgnoreCase(worldName)) {
-                return mapData;
+        for (Map.Entry<String, MapData> mapData : this.maps.entrySet()) {
+            if (mapData.getValue().world().equalsIgnoreCase(worldName)) {
+                return mapData.getKey();
             }
         }
 
@@ -893,13 +914,13 @@ public class Lobby extends GamePart {
     /**
      * Searches a map by its name.
      * @param mapName map name
-     * @return map
+     * @return map id
      */
-    public @Nullable MapData findMapByName(String mapName) {
+    public @Nullable String findMapByName(String mapName) {
 
-        for (MapData mapData : this.maps) {
-            if (mapData.name().equalsIgnoreCase(mapName)) {
-                return mapData;
+        for (Map.Entry<String, MapData> mapData : this.maps.entrySet()) {
+            if (mapData.getValue().name().equalsIgnoreCase(mapName)) {
+                return mapData.getKey();
             }
         }
 

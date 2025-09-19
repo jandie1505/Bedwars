@@ -27,21 +27,7 @@ public class LobbyValueSubcommand extends SubcommandCommand {
         this.addSubcommand("time", SubcommandEntry.of(new SingleValueSubcommand<>("time", lobby::getTime, time -> lobby.setTime(Objects.requireNonNullElse(time, 0)), s -> s != null ? Integer.parseInt(s) : 0)));
         this.addSubcommand("voting", SubcommandEntry.of(new SingleValueSubcommand<>("map", lobby::isMapVoting, mapVoting -> lobby.setMapVoting(Objects.requireNonNullElse(mapVoting, false)), Boolean::parseBoolean)));
         this.addSubcommand("requiredplayers", SubcommandEntry.of(new SingleValueSubcommand<>("requiredplayers", lobby::getRequiredPlayers, requiredPlayers -> lobby.setRequiredPlayers(Objects.requireNonNullElse(requiredPlayers, 0)), s -> s != null ? Integer.parseInt(s) : 0)));
-
-        this.addSubcommand("map", SubcommandEntry.of(new SingleValueSubcommand<>("map", () -> lobby.getSelectedMap() != null ? lobby.getSelectedMap().world() : null, value -> {
-
-            MapData mapData = null;
-            for (MapData map : lobby.getMaps()) {
-
-                if (map.world().equals(value)) {
-                    mapData = map;
-                    break;
-                }
-
-            }
-
-            lobby.selectMap(mapData);
-        }, value -> value)));
+        this.addSubcommand("map", SubcommandEntry.of(new SingleValueSubcommand<>("map", lobby::getSelectedMap, lobby::selectMap, value -> value)));
     }
 
     private class SingleValueSubcommand<TYPE> implements TabCompletingCommandExecutor {

@@ -13,6 +13,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 public class VotingMenuListener implements ManagedListener {
     @NotNull private final Lobby lobby;
@@ -61,21 +62,21 @@ public class VotingMenuListener implements ManagedListener {
             return;
         }
 
-        for (MapData map : this.lobby.getMaps()) {
+        for (Map.Entry<String, MapData> entry : this.lobby.getMaps().entrySet()) {
 
-            if (map.world().equals(lore.get(1))) {
+            if (entry.getValue().world().equals(lore.get(1))) {
 
                 event.getWhoClicked().closeInventory();
 
-                if (playerData.getVote() == map) {
+                if (entry.getKey().equals(playerData.getVote())) {
 
                     playerData.setVote(null);
                     event.getWhoClicked().sendMessage("§aYou removed your vote");
 
                 } else {
 
-                    playerData.setVote(map);
-                    event.getWhoClicked().sendMessage("§aYou changed your vote to " + map.world());
+                    playerData.setVote(entry.getKey());
+                    event.getWhoClicked().sendMessage("§aYou changed your vote to " + entry.getValue().name());
 
                 }
 
