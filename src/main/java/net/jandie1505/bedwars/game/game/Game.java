@@ -985,7 +985,10 @@ public class Game extends GamePart implements ManagedListener {
 
         Map<ItemSimilarityKey, LinkedList<Integer>> movedSlotsMap = new HashMap<>();
 
-        for (int firstSlot = 0; firstSlot < Math.min(inventory.getSize(), 36); firstSlot++) {
+        for (int firstSlotBeforeProcessing = -1; firstSlotBeforeProcessing < Math.min(inventory.getSize(), 36); firstSlotBeforeProcessing++) {
+            int firstSlot = firstSlotBeforeProcessing;
+            if (firstSlot == -1) firstSlot = 40; // Put offhand in front of other slots to prevent emptying the offhand slot.
+
             ItemStack firstItem = inventory.getItem(firstSlot);
 
             if (firstItem == null || firstItem.getType() == Material.AIR) continue;
@@ -995,7 +998,10 @@ public class Game extends GamePart implements ManagedListener {
 
             if (firstItem.getAmount() >= firstItem.getMaxStackSize()) continue;
 
-            for (int secondSlot = firstSlot + 1; secondSlot < Math.min(inventory.getSize(), 36); secondSlot++) {
+            for (int secondSlotBeforeProcessing = firstSlotBeforeProcessing + 1; secondSlotBeforeProcessing < Math.min(inventory.getSize(), 36); secondSlotBeforeProcessing++) {
+                int secondSlot = secondSlotBeforeProcessing;
+                if (secondSlot == -1) secondSlot = 40; // Put offhand in front of other slots to prevent emptying the offhand slot.
+
                 ItemStack secondItem = inventory.getItem(secondSlot);
 
                 if (secondItem == null || secondItem.getType() == Material.AIR) continue;
