@@ -1,6 +1,8 @@
 package net.jandie1505.bedwars.game.endlobby;
 
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.config.DefaultConfigValues;
+import net.jandie1505.bedwars.config.JSONLoader;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
@@ -20,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -36,22 +39,25 @@ public class Endlobby extends GamePart {
     public Endlobby(Bedwars plugin, Game game) {
         super(plugin);
 
-        this.lobbyBorderEnabled = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optBoolean("enable", false);
+        JSONObject lobbyConfig = JSONLoader.loadJSONFromFile(new File(this.getPlugin().getDataFolder(), "lobby.json"));
+        if (lobbyConfig.isEmpty()) lobbyConfig = DefaultConfigValues.getLobbyConfig();
+
+        this.lobbyBorderEnabled = lobbyConfig.optJSONObject("border", new JSONObject()).optBoolean("enable", false);
         this.lobbyBorder = new int[]{
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x2", 10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y2", 10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z2", 10)
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("x1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("y1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("z1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("x2", 10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("y2", 10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("z2", 10)
         };
         this.lobbySpawn = new Location(
                 this.getPlugin().getServer().getWorlds().get(0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
         );
 
         this.game = game;
