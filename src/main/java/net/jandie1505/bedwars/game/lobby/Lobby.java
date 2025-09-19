@@ -11,6 +11,7 @@ import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.config.JSONLoader;
+import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.builder.GameBuilder;
 import net.jandie1505.bedwars.game.lobby.commands.*;
 import net.jandie1505.bedwars.constants.Permissions;
@@ -19,16 +20,22 @@ import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
+import net.jandie1505.bedwars.game.lobby.constants.LobbyItems;
 import net.jandie1505.bedwars.game.lobby.gui.MapVoteGUI;
 import net.jandie1505.bedwars.game.lobby.gui.VotingMenuListener;
 import net.jandie1505.bedwars.game.lobby.listeners.LobbyJoinLeaveListener;
 import net.jandie1505.bedwars.game.utils.LobbyChatListener;
 import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -291,31 +298,27 @@ public class Lobby extends GamePart {
 
             if (!this.getPlugin().isPlayerBypassing(player.getUniqueId())) {
 
-                ItemStack lobbyVoteHotbarItem = this.getPlugin().getItemStorage().getItem(this.mapVoteButtonItemId);
-                ItemStack lobbyTeamSelectionHotbarItem = this.getPlugin().getItemStorage().getItem(this.teamSelectionButtonItemId);
+                ItemStack lobbyVoteHotbarItem = LobbyItems.mapVotingMenuItem();
+                ItemStack lobbyTeamSelectionHotbarItem = LobbyItems.teamSelectionMenuItem();
 
-                if (lobbyVoteHotbarItem != null && lobbyTeamSelectionHotbarItem != null) {
+                for (ItemStack item : Arrays.copyOf(player.getInventory().getContents(), player.getInventory().getContents().length)) {
 
-                    for (ItemStack item : Arrays.copyOf(player.getInventory().getContents(), player.getInventory().getContents().length)) {
-
-                        if (item == null || item.getType() == Material.AIR) {
-                            continue;
-                        }
-
-                        if (!item.isSimilar(lobbyVoteHotbarItem) && !item.isSimilar(lobbyTeamSelectionHotbarItem)) {
-                            player.getInventory().clear();
-                        }
-
+                    if (item == null || item.getType() == Material.AIR) {
+                        continue;
                     }
 
-                    if (!player.getInventory().contains(lobbyVoteHotbarItem)) {
-                        player.getInventory().setItem(3, lobbyVoteHotbarItem);
+                    if (!item.isSimilar(lobbyVoteHotbarItem) && !item.isSimilar(lobbyTeamSelectionHotbarItem)) {
+                        player.getInventory().clear();
                     }
 
-                    if (!player.getInventory().contains(lobbyTeamSelectionHotbarItem)) {
-                        player.getInventory().setItem(5, lobbyTeamSelectionHotbarItem);
-                    }
+                }
 
+                if (!player.getInventory().contains(lobbyVoteHotbarItem)) {
+                    player.getInventory().setItem(2, lobbyVoteHotbarItem);
+                }
+
+                if (!player.getInventory().contains(lobbyTeamSelectionHotbarItem)) {
+                    player.getInventory().setItem(6, lobbyTeamSelectionHotbarItem);
                 }
 
             }
