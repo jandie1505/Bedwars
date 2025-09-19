@@ -258,8 +258,10 @@ public class Bedwars extends JavaPlugin {
      */
     private void setupGameConfigs() throws IOException {
 
-        // MAPS
+        // LOBBY
+        this.setupDefaultLobbyConfig();
 
+        // MAPS
         this.setupDefaultMapConfig();
 
         // SHOP
@@ -285,6 +287,16 @@ public class Bedwars extends JavaPlugin {
             DefaultConfigValues.getPlayerUpgrades().forEach(upgrade -> playerUpgradesFileContent.put(upgrade.id(), upgrade.toJSON()));
             JSONLoader.saveJSONToFile(playerUpgradesFile, playerUpgradesFileContent, 4);
 
+        }
+
+    }
+
+    private void setupDefaultLobbyConfig() throws IOException {
+
+        File lobbyConfigFile = new File(this.getDataFolder(), "lobby.json");
+        if (!lobbyConfigFile.exists()) {
+            lobbyConfigFile.createNewFile();
+            JSONLoader.saveJSONToFile(lobbyConfigFile, DefaultConfigValues.getLobbyConfig(), 4);
         }
 
     }

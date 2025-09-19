@@ -49,35 +49,6 @@ public final class DefaultConfigValues {
         config.put("tntParticles", true);
         config.put("inventorySort", true);
 
-        // Lobby
-
-        JSONObject lobbyConfig = new JSONObject();
-        lobbyConfig.put("mapVoting", true);
-        lobbyConfig.put("requiredPlayers", 2);
-        lobbyConfig.put("mapVoteButton", 1);
-        lobbyConfig.put("teamSelectionButton", 2);
-        lobbyConfig.put("mapButton", 171);
-
-        JSONObject lobbyBorder = new JSONObject();
-        lobbyBorder.put("enable", false);
-        lobbyBorder.put("x1", -9);
-        lobbyBorder.put("y1", -60);
-        lobbyBorder.put("z1", -9);
-        lobbyBorder.put("x2", 9);
-        lobbyBorder.put("y2", 255);
-        lobbyBorder.put("z2", 9);
-        lobbyConfig.put("border", lobbyBorder);
-
-        JSONObject lobbySpawnpoint = new JSONObject();
-        lobbySpawnpoint.put("x", 0.5);
-        lobbySpawnpoint.put("y", 0.0);
-        lobbySpawnpoint.put("z", 0.5);
-        lobbySpawnpoint.put("yaw", -90);
-        lobbySpawnpoint.put("pitch", 0);
-        lobbyConfig.put("spawnpoint", lobbySpawnpoint);
-
-        config.put("lobby", lobbyConfig);
-
         // Cloudsystem
 
         JSONObject cloudSystemConfig = new JSONObject();
@@ -126,7 +97,37 @@ public final class DefaultConfigValues {
         return config;
     }
 
-    public static JSONObject getExampleMap() {
+    public static @NotNull JSONObject getLobbyConfig() {
+        JSONObject lobbyConfig = new JSONObject();
+
+        lobbyConfig.put("mapVoting", true);
+        lobbyConfig.put("requiredPlayers", 2);
+        lobbyConfig.put("mapVoteButton", 1);
+        lobbyConfig.put("teamSelectionButton", 2);
+        lobbyConfig.put("mapButton", 171);
+
+        JSONObject lobbyBorder = new JSONObject();
+        lobbyBorder.put("enable", false);
+        lobbyBorder.put("x1", -9);
+        lobbyBorder.put("y1", -60);
+        lobbyBorder.put("z1", -9);
+        lobbyBorder.put("x2", 9);
+        lobbyBorder.put("y2", 255);
+        lobbyBorder.put("z2", 9);
+        lobbyConfig.put("border", lobbyBorder);
+
+        JSONObject lobbySpawnpoint = new JSONObject();
+        lobbySpawnpoint.put("x", 0.5);
+        lobbySpawnpoint.put("y", 0.0);
+        lobbySpawnpoint.put("z", 0.5);
+        lobbySpawnpoint.put("yaw", -90);
+        lobbySpawnpoint.put("pitch", 0);
+        lobbyConfig.put("spawnpoint", lobbySpawnpoint);
+
+        return lobbyConfig;
+    }
+
+    public static @NotNull JSONObject getExampleMap() {
         JSONObject minimalistMap = new JSONObject();
 
         minimalistMap.put("name", "Minimalist");

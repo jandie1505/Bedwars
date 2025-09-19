@@ -24,6 +24,7 @@ import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.lobby.inventory.VotingMenuListener;
+import net.jandie1505.bedwars.game.lobby.listeners.LobbyJoinLeaveListener;
 import net.jandie1505.bedwars.game.utils.LobbyChatListener;
 import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
 import net.kyori.adventure.text.Component;
@@ -45,6 +46,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -73,35 +75,39 @@ public class Lobby extends GamePart {
 
     public Lobby(Bedwars plugin) {
         super(plugin);
+
+        JSONObject lobbyConfig = JSONLoader.loadJSONFromFile(new File(this.getPlugin().getDataFolder(), "lobby.json"));
+        if (lobbyConfig.isEmpty()) lobbyConfig = DefaultConfigValues.getLobbyConfig();
+
         this.maps = new HashMap<>();
         this.players = Collections.synchronizedMap(new HashMap<>());
-        this.mapVoteButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapVoteButton", -1);
-        this.teamSelectionButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("teamSelectionButton", -1);
-        this.mapButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapButton", -1);
+        this.mapVoteButtonItemId = lobbyConfig.optInt("mapVoteButton", -1);
+        this.teamSelectionButtonItemId = lobbyConfig.optInt("teamSelectionButton", -1);
+        this.mapButtonItemId = lobbyConfig.optInt("mapButton", -1);
         this.loginBypassList = Collections.synchronizedList(new ArrayList<>());
         this.timeStep = 0;
         this.time = 120;
         this.forcestart = false;
         this.selectedMap = null;
-        this.mapVoting = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optBoolean("mapVoting", false);
-        this.requiredPlayers = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("requiredPlayers", 2);
+        this.mapVoting = lobbyConfig.optBoolean("mapVoting", false);
+        this.requiredPlayers = lobbyConfig.optInt("requiredPlayers", 2);
         this.timerPaused = false;
-        this.lobbyBorderEnabled = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optBoolean("enable", false);
+        this.lobbyBorderEnabled = lobbyConfig.optJSONObject("border", new JSONObject()).optBoolean("enable", false);
         this.lobbyBorder = new int[]{
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x2", 10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y2", 10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z2", 10)
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("x1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("y1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("z1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("x2", 10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("y2", 10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("z2", 10)
         };
         this.lobbySpawn = new Location(
                 this.getPlugin().getServer().getWorlds().get(0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
         );
 
         // Create map data from config
@@ -129,6 +135,7 @@ public class Lobby extends GamePart {
         this.registerListener(new LobbyProtectionsListener(this));
         this.registerListener(new VotingMenuListener(this));
         this.registerListener(new LobbyChatListener(this));
+        this.registerListener(new LobbyJoinLeaveListener(this));
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
 
         // Tasks
@@ -376,40 +383,6 @@ public class Lobby extends GamePart {
         }
 
         return true;
-    }
-
-    // LISTENERS
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-
-        if (this.getPlugin().isPlayerBypassing(event.getPlayer())) {
-            event.joinMessage(null);
-            return;
-        }
-
-        event.joinMessage(Component.empty()
-                .append(event.getPlayer().displayName())
-                .appendSpace()
-                .append(Component.text("has joined", NamedTextColor.GRAY))
-        );
-
-        event.getPlayer().teleport(this.getLobbySpawn().clone());
-    }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-
-        if (this.getPlugin().isPlayerBypassing(event.getPlayer())) {
-            event.quitMessage(null);
-            return;
-        }
-
-        event.quitMessage(Component.empty()
-                .append(event.getPlayer().displayName())
-                .appendSpace()
-                .append(Component.text("has left", NamedTextColor.GRAY))
-        );
     }
     
     // UTILITIES
