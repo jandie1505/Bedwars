@@ -10,6 +10,7 @@ import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
+import net.jandie1505.bedwars.config.JSONLoader;
 import net.jandie1505.bedwars.game.game.builder.GameBuilder;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
@@ -47,7 +48,13 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.stream.Stream;
 
 public class Lobby extends GamePart {
     private final List<MapData> maps;
@@ -102,29 +109,8 @@ public class Lobby extends GamePart {
 
         // Create map data from config
 
-        JSONArray mapArray = this.getPlugin().getMapConfig().getConfig().optJSONArray("maps");
+        this.loadMaps();
 
-        if (mapArray == null) {
-            mapArray = new JSONArray();
-        }
-
-        int index = -1;
-        for (Object object : mapArray) {
-            index++;
-
-            if (!(object instanceof JSONObject map)) {
-                this.getPlugin().getLogger().warning("Map Config: Index " + index + " is not a json object");
-                continue;
-            }
-            
-            try {
-                this.maps.add(MapData.deserializeFromJSON(map));
-            } catch (IllegalArgumentException e) {
-                this.getPlugin().getLogger().warning("Map Config (at map index + " + index + "): " + e.getMessage());
-            }
-            
-        }
-        
         // Cloud system mode
 
         if (this.mapVoting) {
@@ -150,6 +136,29 @@ public class Lobby extends GamePart {
         // Tasks
 
         this.getTaskScheduler().scheduleRepeatingTask(this::lobbyTask, 1, 1, "lobby");
+    }
+
+    private void loadMaps() {
+
+        Path dir = this.getPlugin().getDataPath().toAbsolutePath().resolve("maps");
+
+        try (Stream<Path> paths = Files.walk(dir).filter(Files::isRegularFile)) {
+            paths.forEach(path -> {
+
+                JSONObject mapJSON = JSONLoader.loadJSONFromFile(path.toFile());
+
+                try {
+                    MapData mapData = MapData.deserializeFromJSON(mapJSON);
+                    this.maps.add(mapData);
+                } catch (Exception e) {
+                    this.getPlugin().getLogger().log(Level.WARNING, "Failed to load map data from file: " + path, e);
+                }
+
+            });
+        } catch (IOException e) {
+            this.getPlugin().getLogger().warning("Maps file could not be found: " + e.getMessage());
+        }
+
     }
 
     public boolean shouldRun() {

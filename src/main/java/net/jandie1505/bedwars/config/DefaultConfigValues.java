@@ -126,11 +126,7 @@ public final class DefaultConfigValues {
         return config;
     }
 
-    public static JSONObject getMapConfig() {
-        JSONObject config = new JSONObject();
-
-        JSONArray maps = new JSONArray();
-
+    public static JSONObject getExampleMap() {
         JSONObject minimalistMap = new JSONObject();
 
         minimalistMap.put("name", "Minimalist");
@@ -624,11 +620,7 @@ public final class DefaultConfigValues {
 
         minimalistMap.put("timeActions", timeActions);
 
-        maps.put(minimalistMap);
-
-        config.put("maps", maps);
-
-        return config;
+        return minimalistMap;
     }
 
     public static JSONObject getItemConfig() {

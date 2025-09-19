@@ -36,13 +36,16 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 public class Bedwars extends JavaPlugin {
     private ConfigManager configManager;
-    private ConfigManager mapConfig;
     private ConfigManager itemConfig;
     private ConfigManager shopConfig;
     private Set<UUID> bypassingPlayers;
@@ -61,7 +64,6 @@ public class Bedwars extends JavaPlugin {
     @Override
     public void onEnable() {
         this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.json");
-        this.mapConfig = new ConfigManager(this, DefaultConfigValues.getMapConfig(), true, "maps.json");
         this.itemConfig = new ConfigManager(this, DefaultConfigValues.getItemConfig(), true, "items.json");
         this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop-old.json");
         this.bypassingPlayers = Collections.synchronizedSet(new HashSet<>());
@@ -73,7 +75,6 @@ public class Bedwars extends JavaPlugin {
         this.cloudSystemMode = false;
 
         this.configManager.reloadConfig();
-        this.mapConfig.reloadConfig();
         this.itemConfig.reloadConfig();
         this.shopConfig.reloadConfig();
 
@@ -257,6 +258,12 @@ public class Bedwars extends JavaPlugin {
      */
     private void setupGameConfigs() throws IOException {
 
+        // MAPS
+
+        this.setupDefaultMapConfig();
+
+        // SHOP
+
         File shopFile = new File(this.getDataFolder(), "shop.json");
         if (!shopFile.exists()) {
             shopFile.createNewFile();
@@ -269,6 +276,8 @@ public class Bedwars extends JavaPlugin {
 
         }
 
+        // UPGRADES
+
         File playerUpgradesFile = new File(this.getDataFolder(), "player_upgrades.json");
         if (!playerUpgradesFile.exists()) {
 
@@ -278,6 +287,27 @@ public class Bedwars extends JavaPlugin {
 
         }
 
+    }
+
+    private void setupDefaultMapConfig() throws IOException {
+
+        Path mapDir = this.getDataPath().toAbsolutePath().resolve("maps");
+        if (Files.notExists(mapDir)) {
+            Files.createDirectories(mapDir);
+        }
+
+        if (!Files.isDirectory(mapDir)) {
+            this.getLogger().warning(mapDir + " is not a directory!");
+            return;
+        }
+
+        try (Stream<Path> stream = Files.list(mapDir)) {
+            if (stream.findAny().isPresent()) {
+                return;
+            }
+        }
+
+        JSONLoader.saveJSONToFile(new File(mapDir.toFile(), "minimalist.json"), DefaultConfigValues.getExampleMap(), 4);
     }
 
     // ----- DISABLE -----
@@ -347,7 +377,6 @@ public class Bedwars extends JavaPlugin {
         this.getLogger().info("Reloading plugin...");
 
         this.configManager.reloadConfig();
-        this.mapConfig.reloadConfig();
         this.itemConfig.reloadConfig();
         this.shopConfig.reloadConfig();
 
@@ -359,10 +388,6 @@ public class Bedwars extends JavaPlugin {
 
     public ConfigManager getConfigManager() {
         return this.configManager;
-    }
-
-    public ConfigManager getMapConfig() {
-        return this.mapConfig;
     }
 
     public ConfigManager getItemConfig() {
