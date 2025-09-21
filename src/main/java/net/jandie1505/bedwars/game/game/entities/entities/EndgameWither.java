@@ -4,6 +4,9 @@ import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
@@ -31,9 +34,12 @@ public class EndgameWither extends ManagedEntity<Wither> {
 
         BedwarsTeam team = this.getGame().getTeam(this.teamId);
         if (team != null) {
-            this.getEntity().setCustomName(team.getData().chatColor() + "§lENDGAME WITHER §r§7(" + team.getData().name() + ")");
+            this.getEntity().customName(Component.empty()
+                    .append(Component.text("ENDGAME WITHER", team.getChatColor()))
+                    .append(Component.text(" (" + team.getName() + ")", team.getChatColor()))
+            );
         } else {
-            this.getEntity().setCustomName("§7§lENDGAME WITHER");
+            this.getEntity().customName(Component.text("ENDGAME WITHER", NamedTextColor.WHITE, TextDecoration.STRIKETHROUGH));
         }
 
         this.getEntity().addScoreboardTag("bedwars.endgamewither");

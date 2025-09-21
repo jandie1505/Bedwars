@@ -42,15 +42,15 @@ public class GameTeamsListSubcommand implements TabCompletingCommandExecutor {
 
             out = out.append(Component.empty().append(
                     Component.text(i + ": ", NamedTextColor.YELLOW)
-                            .append(Component.text(team.getData().name(), ChatCompatibilityUtils.getTextColorFromChatColor(team.getData().chatColor()))).appendSpace()
+                            .append(team.getFormattedName()).appendSpace()
                             .append(Component.text(team.isAlive(), team.isAlive() ? NamedTextColor.GREEN : NamedTextColor.RED))
                     ).hoverEvent(HoverEvent.showText(Component.empty()
                             .append(Component.text("Team ID: " + team.getId(), NamedTextColor.YELLOW)).appendNewline()
-                            .append(Component.text("Name: ", NamedTextColor.YELLOW)).append(Component.text(team.getData().name(), ChatCompatibilityUtils.getTextColorFromChatColor(team.getData().chatColor()))).appendNewline()
-                            .append(Component.text("Color: A" + team.getData().color().getAlpha() + " R" + team.getData().color().getRed() + " G" + team.getData().color().getGreen() + " B" + team.getData().color().getBlue(), NamedTextColor.YELLOW)).appendNewline()
-                            .append(Component.text("Chat Color: " + team.getData().chatColor().toString(), ChatCompatibilityUtils.getTextColorFromChatColor(team.getData().chatColor()))).appendNewline()
+                            .append(Component.text("Name: ", NamedTextColor.YELLOW)).append(team.getFormattedName()).appendNewline()
+                            .append(Component.text("Color: A" + team.getColor().getAlpha() + " R" + team.getColor().getRed() + " G" + team.getColor().getGreen() + " B" + team.getColor().getBlue(), NamedTextColor.YELLOW)).appendNewline()
+                            .append(Component.text("Chat Color: " + team.getChatColor(), team.getChatColor())).appendNewline()
                             .append(Component.text("Alive: ", NamedTextColor.YELLOW)).append(Component.text(team.isAlive(), team.isAlive() ? NamedTextColor.GREEN : NamedTextColor.RED)).appendNewline()
-                            .append(Component.text("Has beds: ", NamedTextColor.YELLOW)).append(Component.text(team.hasBed(), team.hasBed() > 0 ? NamedTextColor.GREEN : NamedTextColor.RED))
+                            .append(Component.text("Has beds: ", NamedTextColor.YELLOW)).append(Component.text(team.getAvailableBedsCount(), team.getAvailableBedsCount() > 0 ? NamedTextColor.GREEN : NamedTextColor.RED))
                     ))
             );
 

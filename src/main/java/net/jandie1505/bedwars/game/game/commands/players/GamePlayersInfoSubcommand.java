@@ -58,8 +58,8 @@ public class GamePlayersInfoSubcommand implements TabCompletingCommandExecutor {
         @Nullable BedwarsTeam team = this.game.getTeam(playerData.getTeam());
         if (team != null) {
             out = out.append(Component.text(" - Team: ", NamedTextColor.YELLOW))
-                    .append(Component.text(playerData.getTeam(), ChatCompatibilityUtils.getTextColorFromChatColor(team.getData().chatColor()))).appendSpace()
-                    .append(Component.text(team.getData().name(), ChatCompatibilityUtils.getTextColorFromChatColor(team.getData().chatColor()))).appendNewline();
+                    .append(Component.text(playerData.getTeam(), team.getChatColor())).appendSpace()
+                    .append(team.getFormattedName()).appendNewline();
         } else {
             out = out.append(Component.text(" - Team: " + playerData.getTeam(), NamedTextColor.YELLOW)).appendNewline();
         }

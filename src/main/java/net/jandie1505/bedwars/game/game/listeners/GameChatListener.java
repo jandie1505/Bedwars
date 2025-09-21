@@ -202,8 +202,7 @@ public class GameChatListener implements ManagedListener {
 
         public static @NotNull TeamNameAndColor fromTeam(@Nullable BedwarsTeam team) {
             if (team == null) return new TeamNameAndColor(Component.text("???"), NamedTextColor.GRAY);
-            NamedTextColor color = ChatCompatibilityUtils.getTextColorFromChatColor(team.getData().chatColor());
-            return new TeamNameAndColor(Component.text(team.getData().name(), color), color);
+            return new TeamNameAndColor(Component.text(team.getName(), team.getChatColor()), team.getChatColor());
         }
 
     }

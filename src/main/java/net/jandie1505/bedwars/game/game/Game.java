@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game.game;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
+import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.chaossquad.mclib.WorldUtils;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.executable.ManagedListener;
@@ -36,6 +37,8 @@ import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.game.timeactions.provider.TimeActionCreator;
 import net.jandie1505.bedwars.game.game.world.BlockProtectionSystem;
 import net.jandie1505.bedwars.utilities.ItemSimilarityKey;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
@@ -66,7 +69,6 @@ public class Game extends GamePart implements ManagedListener {
     private final Map<UUID, PlayerData> players;
     private final List<Generator> generators;
     private final List<TimeAction> timeActions;
-    private final TimeActionCreator timeActionCreator;
     private final BlockProtectionSystem blockProtectionSystem;
     private final Map<UUID, Scoreboard> playerScoreboards;
     private final ItemShop itemShop;
@@ -82,6 +84,8 @@ public class Game extends GamePart implements ManagedListener {
     private BedwarsTeam winner;
     private boolean noWinnerEnd;
 
+    // ----- INIT -----
+
     public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, TeamUpgradesConfig teamUpgradesConfig) {
         super(plugin);
         this.world = world;
@@ -90,7 +94,6 @@ public class Game extends GamePart implements ManagedListener {
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.generators = Collections.synchronizedList(new ArrayList<>());
         this.timeActions = Collections.synchronizedList(new ArrayList<>());
-        this.timeActionCreator = new TimeActionCreator(this);
         this.blockProtectionSystem = new BlockProtectionSystem(this);
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
@@ -105,66 +108,29 @@ public class Game extends GamePart implements ManagedListener {
         this.winner = null;
         this.noWinnerEnd = false;
 
-        // Shop
+        // SHOP
 
         this.itemShop.getItems().putAll(shopEntries);
         this.itemShop.getUpgrades().putAll(playerUpgradeEntries);
 
-        // Teams
+        // TEAMS
 
-        for (TeamData teamData : List.copyOf(this.data.teams())) {
-            BedwarsTeam team = new BedwarsTeam(this, teamData);
+        this.setupTeams(data.teams());
 
-            this.teams.add(team);
+        // GLOBAL GENERATORS
 
-            for (GeneratorData generatorData : teamData.generators()) {
-                this.generators.add(new TeamGenerator(
-                        this,
-                        generatorData,
-                        team
-                ));
-            }
-        }
+        this.setupGlobalGenerators(data.globalGenerators());
 
-        for (GeneratorData generatorData : this.data.globalGenerators()) {
-            this.generators.add(new PublicGenerator(
-                    this,
-                    generatorData
-            ));
-        }
+        // TIME ACTIONS
 
-        for (TimeActionData timeActionData : this.data.timeActions()) {
-            try {
-                TimeAction timeAction = this.timeActionCreator.createTimeAction(timeActionData);
-                if (timeAction == null) {
-                    this.getPlugin().getLogger().warning("Couldn't create time action: Invalid type");
-                    continue;
-                }
-                this.timeActions.add(timeAction);
-            } catch (Exception e) {
-                this.getPlugin().getLogger().log(Level.WARNING, "Couldn't create time action", e);
-                continue;
-            }
-        }
+        this.setupTimeActions(data.timeActions());
 
-        Collections.sort(this.timeActions);
-
-        for (BedwarsTeam team : this.getTeams()) {
-
-            for (Location location : team.getData().shopVillagerLocations()) {
-                new ShopVillager(this, WorldUtils.locationWithWorld(location, this.getWorld()), team.getId());
-            }
-
-            for (Location location : team.getData().upgradeVillagerLocations()) {
-                new UpgradeVillager(this, WorldUtils.locationWithWorld(location, this.getWorld()), team.getId());
-            }
-
-        }
-
-        //this.itemShop.initEntries(shopConfig); // TODO: Replace for new shop
+        // WORLD BORDER
 
         this.world.getWorldBorder().setCenter(this.data.centerLocation());
         this.world.getWorldBorder().setSize(this.data.mapRadius() * 2);
+
+        // GAME RULES
 
         this.world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         this.world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
@@ -221,6 +187,70 @@ public class Game extends GamePart implements ManagedListener {
         this.registerListener(new GameChatListener(this));
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
     }
+
+    private void setupTeams(@NotNull List<TeamData> teams) {
+
+        for (TeamData teamData : List.copyOf(teams)) {
+
+            // Create and add team
+            BedwarsTeam team = new BedwarsTeam(this, teamData);
+            this.teams.add(team);
+
+            // Setup team generators
+            for (GeneratorData generatorData : teamData.generators()) {
+                this.generators.add(new TeamGenerator(
+                        this,
+                        generatorData,
+                        team
+                ));
+            }
+
+            // Setup shop villagers
+            for (Location location : teamData.shopVillagerLocations()) {
+                new ShopVillager(this, WorldUtils.locationWithWorld(location, this.getWorld()), team.getId());
+            }
+
+            // Setup upgrade villagers
+            for (Location location : teamData.upgradeVillagerLocations()) {
+                new UpgradeVillager(this, WorldUtils.locationWithWorld(location, this.getWorld()), team.getId());
+            }
+
+        }
+
+    }
+
+    private void setupGlobalGenerators(@NotNull List<GeneratorData> globalGenerators) {
+
+        for (GeneratorData generatorData : globalGenerators) {
+            this.generators.add(new PublicGenerator(
+                    this,
+                    generatorData
+            ));
+        }
+
+    }
+
+    private void setupTimeActions(@NotNull List<TimeActionData> timeActionDataList) {
+        TimeActionCreator timeActionCreator = new TimeActionCreator(this);
+
+        for (TimeActionData timeActionData : timeActionDataList) {
+            try {
+                TimeAction timeAction = timeActionCreator.createTimeAction(timeActionData);
+                if (timeAction == null) {
+                    this.getPlugin().getLogger().warning("Couldn't create time action: Invalid type");
+                    continue;
+                }
+                this.timeActions.add(timeAction);
+            } catch (Exception e) {
+                this.getPlugin().getLogger().log(Level.WARNING, "Couldn't create time action", e);
+                continue;
+            }
+        }
+
+        Collections.sort(this.timeActions);
+    }
+
+    // ----- ? -----
 
     @Override
     public boolean shouldExecute() {
@@ -478,7 +508,7 @@ public class Game extends GamePart implements ManagedListener {
 
             int healPoolUpgrade = this.getUpgradeLevel(team.getHealPoolUpgrade(), this.teamUpgradesConfig.getHealPoolUpgrade().getUpgradeLevels());
 
-            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(WorldUtils.locationWithWorld(team.getData().baseCenter(), this.getWorld()), player.getLocation()) <= team.getData().baseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
+            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(WorldUtils.locationWithWorld(team.getBaseCenter(), this.getWorld()), player.getLocation()) <= team.getBaseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15 * 20, healPoolUpgrade - 1));
             }
 
@@ -742,7 +772,7 @@ public class Game extends GamePart implements ManagedListener {
 
             if (team.hasPrimaryTraps()) {
 
-                List<Entity> entitiesInRadius = List.copyOf(this.world.getNearbyEntities(team.getData().baseCenter(), team.getData().baseRadius(), team.getData().baseRadius(), team.getData().baseRadius()));
+                List<Entity> entitiesInRadius = List.copyOf(this.world.getNearbyEntities(team.getBaseCenter(), team.getBaseRadius(), team.getBaseRadius(), team.getBaseRadius()));
 
                 for (Entity entity : entitiesInRadius) {
 
@@ -812,7 +842,7 @@ public class Game extends GamePart implements ManagedListener {
             if (aliveTeams.size() == 1) {
 
                 for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b§lGAME END CONDITION TRIGGERED: §r" + aliveTeams.get(0).getData().chatColor() + "Team " + aliveTeams.get(0).getData().name() + " §bhas won"));
+                    player.sendActionBar(Component.empty().append(Component.text("GAME END CONDITION TRIGGERED: ", NamedTextColor.AQUA).append(Component.text(aliveTeams.getFirst().getName(), aliveTeams.getFirst().getChatColor())).append(Component.text(" has won", NamedTextColor.AQUA))));
                 }
 
                 return;
@@ -821,7 +851,7 @@ public class Game extends GamePart implements ManagedListener {
             if (aliveTeams.size() < 1) {
 
                 for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b§lGAME END CONDITION TRIGGERED: §r§cNo team has won"));
+                    player.sendActionBar(Component.empty().append(Component.text("GAME END CONDITION TRIGGERED: ", NamedTextColor.AQUA).append(Component.text("No team has won", NamedTextColor.RED))));
                 }
 
                 return;
@@ -1090,8 +1120,8 @@ public class Game extends GamePart implements ManagedListener {
             if (team == null) {
 
                 team = scoreboard.registerNewTeam(String.valueOf(bedwarsTeam.getId()));
-                team.setDisplayName(bedwarsTeam.getData().name());
-                team.setColor(bedwarsTeam.getData().chatColor());
+                team.displayName(Component.text(bedwarsTeam.getName()));
+                team.color(bedwarsTeam.getChatColor());
                 team.setAllowFriendlyFire(false);
                 team.setCanSeeFriendlyInvisibles(true);
                 team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
@@ -1215,7 +1245,7 @@ public class Game extends GamePart implements ManagedListener {
                 teamStatusIndicator = teamStatusIndicator + " §7(you)";
             }
 
-            sidebarDisplayStrings.add(iTeam.getData().chatColor() + iTeam.getData().name() + "§r: " + teamStatusIndicator);
+            sidebarDisplayStrings.add(Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(iTeam.getChatColor()), ChatColor.BLACK) + iTeam.getName() + "§r: " + teamStatusIndicator);
 
         }
 
@@ -1254,7 +1284,7 @@ public class Game extends GamePart implements ManagedListener {
                 continue;
             }
 
-            player.sendMessage("§7You are in " + team.getData().chatColor() + "Team " + team.getData().chatColor().name() + "§7.");
+            player.sendMessage("§7You are in " + Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(team.getChatColor()), ChatColor.BLACK) + "Team " + team.getChatColor() + "§7.");
 
             player.setHealth(20);
             player.setFoodLevel(20);
@@ -1660,7 +1690,7 @@ public class Game extends GamePart implements ManagedListener {
             typeSuffix = "STAINED_GLASS";
         }
 
-        String blockColor = Bedwars.getBlockColorString(team.getData().chatColor());
+        String blockColor = Bedwars.getBlockColorString(Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(team.getChatColor()), ChatColor.BLACK));
 
         if (blockColor == null) {
             return;

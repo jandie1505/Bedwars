@@ -1,6 +1,5 @@
 package net.jandie1505.bedwars.game.game.commands.teams;
 
-import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.chaossquad.mclib.command.TabCompletingCommandExecutor;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.game.Game;
@@ -17,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class GameTeamPlayersSubcommand implements TabCompletingCommandExecutor {
@@ -41,7 +41,7 @@ public class GameTeamPlayersSubcommand implements TabCompletingCommandExecutor {
             return true;
         }
 
-        List<UUID> players = team.getPlayers();
+        Set<UUID> players = team.getMemberUUIDs();
         if (players.isEmpty()) {
             sender.sendRichMessage("<red>The specified team has no members!");
             return true;
@@ -59,9 +59,9 @@ public class GameTeamPlayersSubcommand implements TabCompletingCommandExecutor {
             out = out.append(Component.text(" -", NamedTextColor.YELLOW)).appendSpace();
 
             if (player != null) {
-                out = out.append(Component.text(player.getName(), ChatCompatibilityUtils.getTextColorFromChatColor(team.getData().chatColor()))).appendSpace();
+                out = out.append(Component.text(player.getName(), team.getChatColor())).appendSpace();
             } else {
-                out = out.append(Component.text("---offline---", ChatCompatibilityUtils.getTextColorFromChatColor(team.getData().chatColor()))).appendSpace();
+                out = out.append(Component.text("---offline---", team.getChatColor())).appendSpace();
             }
 
             out = out.append(Component.text(playerId.toString(), NamedTextColor.YELLOW));

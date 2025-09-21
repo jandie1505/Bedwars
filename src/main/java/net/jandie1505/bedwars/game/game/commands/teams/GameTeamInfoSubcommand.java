@@ -39,20 +39,20 @@ public class GameTeamInfoSubcommand implements TabCompletingCommandExecutor {
             return true;
         }
 
-        Location baseCenter = team.getData().baseCenter().mutableCopy();
+        Location baseCenter = team.getBaseCenter();
 
         Component out = Component.empty()
                 .append(Component.text("Team Info", NamedTextColor.GOLD)).appendNewline()
                 .append(Component.text("Team ID: " + team.getId(), NamedTextColor.YELLOW)).appendNewline()
-                .append(Component.text("Name: ", NamedTextColor.YELLOW)).append(Component.text(team.getData().name(), ChatCompatibilityUtils.getTextColorFromChatColor(team.getData().chatColor()))).appendNewline()
-                .append(Component.text("Color: A" + team.getData().color().getAlpha() + " R" + team.getData().color().getRed() + " G" + team.getData().color().getGreen() + " B" + team.getData().color().getBlue(), NamedTextColor.YELLOW)).appendNewline()
-                .append(Component.text("Chat Color: ", NamedTextColor.YELLOW)).append(Component.text(team.getData().chatColor().name(), ChatCompatibilityUtils.getTextColorFromChatColor(team.getData().chatColor()))).appendNewline()
+                .append(Component.text("Name: ", NamedTextColor.YELLOW)).append(team.getFormattedName()).appendNewline()
+                .append(Component.text("Color: A" + team.getColor().getAlpha() + " R" + team.getColor().getRed() + " G" + team.getColor().getGreen() + " B" + team.getColor().getBlue(), NamedTextColor.YELLOW)).appendNewline()
+                .append(Component.text("Chat Color: ", NamedTextColor.YELLOW)).append(Component.text(team.getChatColor().toString(), team.getChatColor())).appendNewline()
                 .append(Component.text("Base center: " + baseCenter.getX() + " " + baseCenter.getY() + " " + baseCenter.getZ(), NamedTextColor.YELLOW)).appendNewline()
-                .append(Component.text("Base radius: " + team.getData().baseRadius(), NamedTextColor.YELLOW)).appendNewline()
+                .append(Component.text("Base radius: " + team.getBaseRadius(), NamedTextColor.YELLOW)).appendNewline()
                 .append(Component.text("Alive: ", NamedTextColor.YELLOW)).append(Component.text(team.isAlive(), team.isAlive() ? NamedTextColor.GREEN : NamedTextColor.RED)).appendNewline()
-                .append(Component.text("Has beds: ", NamedTextColor.YELLOW)).append(Component.text(team.hasBed(), team.hasBed() > 0 ? NamedTextColor.GREEN : NamedTextColor.RED)).appendNewline()
+                .append(Component.text("Has beds: ", NamedTextColor.YELLOW)).append(Component.text(team.getAvailableBedsCount(), team.getAvailableBedsCount() > 0 ? NamedTextColor.GREEN : NamedTextColor.RED)).appendNewline()
                 .append(Component.text("Beds disabled: ", NamedTextColor.YELLOW)).append(Component.text(team.isBedDisabled(), team.isBedDisabled() ? NamedTextColor.RED : NamedTextColor.GREEN)).appendNewline()
-                .append(Component.text("Players: " + team.getPlayers().size(), NamedTextColor.YELLOW));
+                .append(Component.text("Players: " + team.getMemberUUIDs(), NamedTextColor.YELLOW));
 
         sender.sendMessage(out);
         return true;

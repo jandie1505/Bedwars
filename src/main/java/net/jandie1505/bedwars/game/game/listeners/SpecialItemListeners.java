@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.game.game.listeners;
 
+import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.CustomItemValues;
@@ -181,11 +182,14 @@ public class SpecialItemListeners implements ManagedListener {
 
         BedwarsTeam team = this.game.getTeams().get(playerData.getTeam());
 
-        if (team == null || team.getData().chatColor() == null) {
+        if (team == null) {
             return;
         }
 
-        Material material = Material.getMaterial(Bedwars.getBlockColorString(team.getData().chatColor()) + "_STAINED_GLASS");
+        ChatColor color = ChatCompatibilityUtils.getChatColorFromTextColor(team.getChatColor());
+        if (color == null) return;
+
+        Material material = Material.getMaterial(Bedwars.getBlockColorString(color) + "_STAINED_GLASS");
 
         if (material == null) {
             return;
