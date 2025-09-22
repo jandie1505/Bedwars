@@ -2088,6 +2088,7 @@ public final class DefaultConfigValues {
         stoneSwordMeta.setLore(List.of("§r§7At least better than fighting with your fists."));
         stoneSwordMeta.setUnbreakable(true);
         stoneSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        stoneSwordMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         stoneSwordItem.setItemMeta(stoneSwordMeta);
 
         entries.put(
@@ -2107,6 +2108,7 @@ public final class DefaultConfigValues {
         ironSwordMeta.setLore(List.of("§r§7A mediocre fighting experience."));
         ironSwordMeta.setUnbreakable(true);
         ironSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        ironSwordMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         ironSwordItem.setItemMeta(ironSwordMeta);
 
         entries.put(
@@ -2126,6 +2128,7 @@ public final class DefaultConfigValues {
         diamondSwordMeta.setLore(List.of("§r§7Full fighting power."));
         diamondSwordMeta.setUnbreakable(true);
         diamondSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        diamondSwordMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         diamondSwordItem.setItemMeta(diamondSwordMeta);
 
         entries.put(
@@ -2145,6 +2148,7 @@ public final class DefaultConfigValues {
         netheriteSwordMeta.setLore(List.of("§r§7To destroy everything."));
         netheriteSwordMeta.setUnbreakable(true);
         netheriteSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        netheriteSwordMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         netheriteSwordItem.setItemMeta(netheriteSwordMeta);
 
         entries.put(
@@ -2164,6 +2168,7 @@ public final class DefaultConfigValues {
         stoneAxeMeta.setLore(List.of("§r§7At least better than fighting with your fists."));
         stoneAxeMeta.setUnbreakable(true);
         stoneAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        stoneAxeMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         stoneAxeItem.setItemMeta(stoneAxeMeta);
 
         entries.put(
@@ -2183,6 +2188,7 @@ public final class DefaultConfigValues {
         ironAxeMeta.setLore(List.of("§r§7A mediocre fighting experience."));
         ironAxeMeta.setUnbreakable(true);
         ironAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        ironAxeMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         ironAxeItem.setItemMeta(ironAxeMeta);
 
         entries.put(
@@ -2202,6 +2208,7 @@ public final class DefaultConfigValues {
         diamondAxeMeta.setLore(List.of("§r§7Full fighting power."));
         diamondAxeMeta.setUnbreakable(true);
         diamondAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        diamondAxeMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         diamondAxeItem.setItemMeta(diamondAxeMeta);
 
         entries.put(
@@ -2221,6 +2228,7 @@ public final class DefaultConfigValues {
         netheriteAxeMeta.setLore(List.of("§r§7To destroy everything."));
         netheriteAxeMeta.setUnbreakable(true);
         netheriteAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        netheriteAxeMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         netheriteAxeItem.setItemMeta(netheriteAxeMeta);
 
         entries.put(
@@ -3509,15 +3517,27 @@ public final class DefaultConfigValues {
         upgrades.add(new ArmorUpgrade.Data(
                 "armor",
                 List.of(
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.CHAINMAIL_LEGGINGS), new ItemStack(Material.CHAINMAIL_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS),  new ItemStack(Material.IRON_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_BOOTS))
+                        new ArmorUpgrade.ArmorSet(prepareArmor(Material.LEATHER_HELMET), prepareArmor(Material.LEATHER_CHESTPLATE), prepareArmor(Material.LEATHER_LEGGINGS), prepareArmor(Material.LEATHER_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(prepareArmor(Material.LEATHER_HELMET), prepareArmor(Material.LEATHER_CHESTPLATE), prepareArmor(Material.CHAINMAIL_LEGGINGS), prepareArmor(Material.CHAINMAIL_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(prepareArmor(Material.LEATHER_HELMET), prepareArmor(Material.LEATHER_CHESTPLATE), prepareArmor(Material.IRON_LEGGINGS),  prepareArmor(Material.IRON_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(prepareArmor(Material.LEATHER_HELMET), prepareArmor(Material.LEATHER_CHESTPLATE), prepareArmor(Material.DIAMOND_LEGGINGS), prepareArmor(Material.DIAMOND_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(prepareArmor(Material.LEATHER_HELMET), prepareArmor(Material.LEATHER_CHESTPLATE), prepareArmor(Material.NETHERITE_LEGGINGS), prepareArmor(Material.NETHERITE_BOOTS))
                 )
         ));
 
         return upgrades;
+    }
+
+    private static @NotNull ItemStack prepareArmor(@NotNull Material material) {
+        ItemStack item = new ItemStack(material);
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return item;
+
+        meta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_PROTECTION_AFFECTED, PersistentDataType.BOOLEAN, true);
+
+        item.setItemMeta(meta);
+        return item;
     }
 
     public static @NotNull Map<Integer, QuickBuyMenuEntry> getDefaultQuickBuyMenu() {

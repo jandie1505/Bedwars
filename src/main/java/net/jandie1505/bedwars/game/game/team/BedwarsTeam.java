@@ -4,6 +4,7 @@ import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.traps.BedwarsTrap;
+import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;

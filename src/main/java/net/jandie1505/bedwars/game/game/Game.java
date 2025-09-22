@@ -32,6 +32,7 @@ import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.game.team.traps.BedwarsTrap;
+import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgradeManager;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.game.timeactions.provider.TimeActionCreator;
@@ -74,6 +75,7 @@ public class Game extends GamePart implements ManagedListener {
     private final ItemShop itemShop;
     private final ShopGUI shopGUI;
     @NotNull private final PlayerUpgradeManager playerUpgradeManager;
+    @NotNull private final TeamUpgradeManager teamUpgradeManager;
     private final TeamUpgradesConfig teamUpgradesConfig;
     private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
@@ -99,6 +101,7 @@ public class Game extends GamePart implements ManagedListener {
         this.itemShop = new ItemShop(this);
         this.shopGUI = new ShopGUI(this, defaultQuickBuyMenu);
         this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
+        this.teamUpgradeManager = new TeamUpgradeManager(this, () -> false);
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.data.maxTime();
@@ -909,86 +912,6 @@ public class Game extends GamePart implements ManagedListener {
 
             replaceBlockWithTeamColor(item, team);
 
-            // item ids
-
-            int itemId = this.getPlugin().getItemStorage().getItemId(item);
-
-            if (itemId < 0) {
-                continue;
-            }
-
-            // Sharpness Team Upgrade
-
-            if (item != null && (item.getType().toString().endsWith("SWORD") || item.getType().toString().endsWith("AXE"))) {
-
-                if (item.getItemMeta() == null) {
-                    item.setItemMeta(this.getPlugin().getServer().getItemFactory().getItemMeta(item.getType()));
-                }
-
-                int enchantmentLevel = 0;
-
-                if (team.getAttackDamageUpgrade() > 0 && team.getAttackDamageUpgrade() - 1 < this.teamUpgradesConfig.getSharpnessUpgrade().getUpgradeLevels().size()) {
-                    enchantmentLevel = this.teamUpgradesConfig.getSharpnessUpgrade().getUpgradeLevels().get(team.getAttackDamageUpgrade() - 1);
-                }
-
-                if (enchantmentLevel > 0) {
-
-                    Integer level = item.getItemMeta().getEnchants().get(Enchantment.SHARPNESS);
-
-                    if (level == null || level != enchantmentLevel) {
-                        ItemMeta meta = item.getItemMeta();
-                        meta.addEnchant(Enchantment.SHARPNESS, enchantmentLevel, true);
-                        item.setItemMeta(meta);
-                    }
-
-                } else {
-
-                    if (item.getItemMeta().getEnchants().containsKey(Enchantment.SHARPNESS)) {
-                        ItemMeta meta = item.getItemMeta();
-                        meta.removeEnchant(Enchantment.SHARPNESS);
-                        item.setItemMeta(meta);
-                    }
-
-                }
-
-            }
-
-            // Protection Team Upgrade
-
-            if (item != null && Bedwars.isArmorItem(item)) {
-
-                if (item.getItemMeta() == null) {
-                    item.setItemMeta(this.getPlugin().getServer().getItemFactory().getItemMeta(item.getType()));
-                }
-
-                int enchantmentLevel = 0;
-
-                if (team.getProtectionUpgrade() > 0 && team.getProtectionUpgrade() - 1 < this.teamUpgradesConfig.getProtectionUpgrade().getUpgradeLevels().size()) {
-                    enchantmentLevel = this.teamUpgradesConfig.getProtectionUpgrade().getUpgradeLevels().get(team.getProtectionUpgrade() - 1);
-                }
-
-                if (enchantmentLevel > 0) {
-
-                    Integer level = item.getItemMeta().getEnchants().get(Enchantment.PROTECTION);
-
-                    if (level == null || level != enchantmentLevel) {
-                        ItemMeta meta = item.getItemMeta();
-                        meta.addEnchant(Enchantment.PROTECTION, enchantmentLevel, true);
-                        item.setItemMeta(meta);
-                    }
-
-                } else {
-
-                    if (item.getItemMeta().getEnchants().containsKey(Enchantment.PROTECTION)) {
-                        ItemMeta meta = item.getItemMeta();
-                        meta.removeEnchant(Enchantment.PROTECTION);
-                        item.setItemMeta(meta);
-                    }
-
-                }
-
-            }
-
         }
 
     }
@@ -1574,6 +1497,14 @@ public class Game extends GamePart implements ManagedListener {
      */
     public @NotNull PlayerUpgradeManager getPlayerUpgradeManager() {
         return this.playerUpgradeManager;
+    }
+
+    /**
+     * Returns the team upgrade manager.
+     * @return team upgrade manager
+     */
+    public @NotNull TeamUpgradeManager getTeamUpgradeManager() {
+        return teamUpgradeManager;
     }
 
     public Location buildLocationWithWorld(Location old) {

@@ -1,4 +1,4 @@
-package net.jandie1505.bedwars.game.game.team;
+package net.jandie1505.bedwars.game.game.team.upgrades.constants;
 
 public interface TeamUpgrades {
     String ATTACK_DAMAGE = "attack_damage";

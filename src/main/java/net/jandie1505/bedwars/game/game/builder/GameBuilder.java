@@ -3,6 +3,7 @@ package net.jandie1505.bedwars.game.game.builder;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.config.JSONLoader;
+import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
@@ -13,8 +14,11 @@ import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
+import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -70,6 +74,7 @@ public final class GameBuilder {
         // UPGRADES
 
         this.setupPlayerUpgrades(game);
+        this.setupTeamUpgrades(game);
 
         // RETURN
 
@@ -232,7 +237,7 @@ public final class GameBuilder {
         return json;
     }
 
-    // ----- UPGRADES -----
+    // ----- PLAYER UPGRADES -----
 
     /**
      * Converts a json to PlayerUpgrade Data.
@@ -288,6 +293,15 @@ public final class GameBuilder {
         }
 
         getPlayerUpgradesFromJSON(playerUpgradesFile).forEach(upgrade -> game.getPlayerUpgradeManager().registerUpgrade(upgrade.buildUpgrade(game.getPlayerUpgradeManager())));
+    }
+
+    // ----- TEAM UPGRADES -----
+
+    private void setupTeamUpgrades(@NotNull Game game) {
+
+        game.getTeamUpgradeManager().registerUpgrade(new EnchantmentTeamUpgrade(game.getTeamUpgradeManager(), TeamUpgrades.ATTACK_DAMAGE, NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, Enchantment.SHARPNESS));
+        game.getTeamUpgradeManager().registerUpgrade(new EnchantmentTeamUpgrade(game.getTeamUpgradeManager(), TeamUpgrades.PROTECTION, NamespacedKeys.GAME_ITEM_PROTECTION_AFFECTED, Enchantment.PROTECTION));
+
     }
 
 }

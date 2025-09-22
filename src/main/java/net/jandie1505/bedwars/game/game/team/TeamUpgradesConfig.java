@@ -1,5 +1,6 @@
 package net.jandie1505.bedwars.game.game.team;
 
+@Deprecated(forRemoval = true)
 public class TeamUpgradesConfig {
     private final TeamUpgrade sharpnessUpgrade;
     private final TeamUpgrade protectionUpgrade;

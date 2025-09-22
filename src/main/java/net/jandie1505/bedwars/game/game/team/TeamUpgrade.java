@@ -4,6 +4,7 @@ import org.bukkit.Material;
 
 import java.util.List;
 
+@Deprecated(forRemoval = true)
 public class TeamUpgrade {
     private final int itemId;
     private final List<Integer> upgradePrices;
