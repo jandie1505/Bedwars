@@ -4,6 +4,7 @@ import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.entities.EndgameWither;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -25,22 +26,7 @@ public class EndgameWitherTimeAction extends TimeAction {
                 continue;
             }
 
-            int amount;
-            TeamUpgrade endgameBuffUpgrade = this.getGame().getTeamUpgradesConfig().getEndgameBuffUpgrade();
-
-            if (endgameBuffUpgrade.getUpgradeLevels().isEmpty()) {
-                continue;
-            }
-
-            if (team.getEndgameBuffUpgrade() > 0) {
-                if (team.getEndgameBuffUpgrade() >= endgameBuffUpgrade.getUpgradeLevels().size()) {
-                    amount = endgameBuffUpgrade.getUpgradeLevels().get(endgameBuffUpgrade.getUpgradeLevels().size() - 1);
-                } else {
-                    amount = endgameBuffUpgrade.getUpgradeLevels().get(team.getEndgameBuffUpgrade());
-                }
-            } else {
-                amount = 1;
-            }
+            int amount = team.getUpgrade(TeamUpgrades.ENDGAME_BUFF) + 1;
 
             for (int i = 0; i < amount; i++) {
                 new EndgameWither(

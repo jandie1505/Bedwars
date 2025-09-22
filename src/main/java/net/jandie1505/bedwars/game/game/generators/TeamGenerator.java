@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game.game.generators;
 
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 
 public class TeamGenerator extends Generator {
     private final BedwarsTeam team;
@@ -18,7 +19,7 @@ public class TeamGenerator extends Generator {
 
     @Override
     public int getLevel() {
-        return this.team.getForgeUpgrade();
+        return this.team.getUpgrade(TeamUpgrades.FORGE);
     }
 
     public BedwarsTeam getTeam() {
