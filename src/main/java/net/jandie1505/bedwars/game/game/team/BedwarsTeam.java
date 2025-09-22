@@ -1,6 +1,7 @@
 package net.jandie1505.bedwars.game.game.team;
 
 import net.chaossquad.mclib.ChatCompatibilityUtils;
+import net.chaossquad.mclib.WorldUtils;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.traps.BedwarsTrap;
@@ -39,10 +40,10 @@ public class BedwarsTeam {
         NamedTextColor chatColor = ChatCompatibilityUtils.getTextColorFromChatColor(data.chatColor());
         this.chatColor = chatColor != null ? chatColor : NamedTextColor.BLACK;
         this.color = data.color();
-        this.baseCenter = data.baseCenter().clone();
+        this.baseCenter = WorldUtils.locationWithWorld(data.baseCenter(), this.game.getWorld());
         this.baseRadius = data.baseRadius();
-        this.spawnpoints = data.spawnpoints().stream().map(Location::clone).toList();
-        this.bedLocations = data.bedLocations().stream().map(Location::clone).toList();
+        this.spawnpoints = data.spawnpoints().stream().map(location -> WorldUtils.locationWithWorld(location, this.game.getWorld())).toList();
+        this.bedLocations = data.bedLocations().stream().map(location -> WorldUtils.locationWithWorld(location, this.game.getWorld())).toList();
 
         this.upgrades = new HashMap<>();
 

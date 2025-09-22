@@ -16,6 +16,7 @@ import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.PermanentPotionEffectTeamUpgrade;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -304,6 +305,7 @@ public final class GameBuilder {
         game.getTeamUpgradeManager().registerUpgrade(new EnchantmentTeamUpgrade(game.getTeamUpgradeManager(), TeamUpgrades.ATTACK_DAMAGE, NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, Enchantment.SHARPNESS));
         game.getTeamUpgradeManager().registerUpgrade(new EnchantmentTeamUpgrade(game.getTeamUpgradeManager(), TeamUpgrades.PROTECTION, NamespacedKeys.GAME_ITEM_PROTECTION_AFFECTED, Enchantment.PROTECTION));
         game.getTeamUpgradeManager().registerUpgrade(new PermanentPotionEffectTeamUpgrade(game.getTeamUpgradeManager(), TeamUpgrades.HASTE, PotionEffectType.HASTE, false, false, false));
+        game.getTeamUpgradeManager().registerUpgrade(new HealPoolTeamUpgrade(game.getTeamUpgradeManager(), TeamUpgrades.HEAL_POOL));
 
     }
 

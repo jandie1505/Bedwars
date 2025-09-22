@@ -163,7 +163,6 @@ public class Game extends GamePart implements ManagedListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::playerAliveStatusTask, 1, 20, "ingame_player_alive_status");
         this.getTaskScheduler().scheduleRepeatingTask(this::inventoryTickTask, 1, 1, "ingame_player_inventory");
         this.getTaskScheduler().scheduleRepeatingTask(this::groupItemsTask, 1, 10*20, "group_items");
-        this.getTaskScheduler().scheduleRepeatingTask(this::playerTeamUpgradeTask, 1, 20, "ingame_player_team_upgrades");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerValuesTask, 1, 200, "ingame_player_values");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerCooldownTask, 1, 1, "ingame_player_cooldowns");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerTrackerTask, 1, 100, "ingame_player_player_tracker");
@@ -490,31 +489,6 @@ public class Game extends GamePart implements ManagedListener {
             BedwarsTeam team = this.getTeam(playerData.getTeam());
             if (team == null) continue;
             this.inventoryTick(player, playerData, team);
-        }
-
-    }
-
-    /**
-     * Handles team upgrade behaviors on players.
-     */
-    private void playerTeamUpgradeTask() {
-
-        for (UUID playerId : this.getPlayers().keySet()) {
-            PlayerData playerData = this.getPlayer(playerId);
-            if (playerData == null) continue;
-            Player player = this.getPlugin().getServer().getPlayer(playerId);
-            if (player == null) continue;
-            BedwarsTeam team = this.getTeam(playerData.getTeam());
-            if (team == null) continue;
-
-            // Heal Pool Upgrade
-
-            int healPoolUpgrade = this.getUpgradeLevel(team.getHealPoolUpgrade(), this.teamUpgradesConfig.getHealPoolUpgrade().getUpgradeLevels());
-
-            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(WorldUtils.locationWithWorld(team.getBaseCenter(), this.getWorld()), player.getLocation()) <= team.getBaseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15 * 20, healPoolUpgrade - 1));
-            }
-
         }
 
     }
