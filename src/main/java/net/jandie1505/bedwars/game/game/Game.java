@@ -515,25 +515,6 @@ public class Game extends GamePart implements ManagedListener {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15 * 20, healPoolUpgrade - 1));
             }
 
-            // Haste Team Upgrade
-
-            int hasteUpgradeLevel = this.getUpgradeLevel(team.getHasteUpgrade(), this.teamUpgradesConfig.getHasteUpgrade().getUpgradeLevels());
-
-            if (hasteUpgradeLevel > 0) {
-
-                if (player.getPotionEffect(PotionEffectType.HASTE) == null || player.getPotionEffect(PotionEffectType.HASTE).getAmplifier() != hasteUpgradeLevel - 1) {
-                    player.removePotionEffect(PotionEffectType.HASTE);
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 3600 * 20, hasteUpgradeLevel - 1));
-                }
-
-            } else {
-
-                if (player.hasPotionEffect(PotionEffectType.HASTE)) {
-                    player.removePotionEffect(PotionEffectType.HASTE);
-                }
-
-            }
-
         }
 
     }
