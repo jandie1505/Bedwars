@@ -11,6 +11,11 @@ import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
+import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.PermanentPotionEffectTeamUpgrade;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -3491,6 +3496,8 @@ public final class DefaultConfigValues {
 
     }
 
+    // PLAYER UPGRADES
+
     public static @NotNull List<PlayerUpgrade.Data> getPlayerUpgrades() {
         List<PlayerUpgrade.Data> upgrades = new ArrayList<>();
 
@@ -3527,6 +3534,38 @@ public final class DefaultConfigValues {
 
         return upgrades;
     }
+
+    // TEAM UPGRADES
+
+    public static @NotNull List<TeamUpgrade.Data> getTeamUpgrades() {
+        List<TeamUpgrade.Data> upgrades = new ArrayList<>();
+
+        upgrades.add(new EnchantmentTeamUpgrade.Data(TeamUpgrades.ATTACK_DAMAGE, NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, Enchantment.SHARPNESS));
+        upgrades.add(new EnchantmentTeamUpgrade.Data(TeamUpgrades.PROTECTION, NamespacedKeys.GAME_ITEM_PROTECTION_AFFECTED, Enchantment.PROTECTION));
+        upgrades.add(new PermanentPotionEffectTeamUpgrade.Data(TeamUpgrades.HASTE, PotionEffectType.HASTE, false, false, false));
+        upgrades.add(new HealPoolTeamUpgrade.Data(TeamUpgrades.HEAL_POOL));
+
+        return upgrades;
+    }
+
+    public static @NotNull JSONObject getDefaultTeamUpgradesFile() {
+        JSONObject teamUpgradesFile = new JSONObject();
+
+        // Team Upgrades
+        JSONObject teamUpgradesSection = new JSONObject();
+        for (TeamUpgrade.Data data : DefaultConfigValues.getTeamUpgrades()) {
+            teamUpgradesSection.put(data.id(), data.toJSON());
+        }
+        teamUpgradesFile.put("team_upgrades", teamUpgradesSection);
+
+        // Traps
+        // ...
+
+        // Return
+        return teamUpgradesFile;
+    }
+
+    // ARMOR
 
     private static @NotNull ItemStack prepareArmor(@NotNull Material material) {
         ItemStack item = new ItemStack(material);

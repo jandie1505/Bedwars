@@ -12,8 +12,8 @@ import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgr
 import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
-import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
+import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
@@ -109,11 +109,11 @@ public final class GameBuilder {
         );
     }
 
-    private TeamUpgrade getErrorUpgrade() {
-        return new TeamUpgrade(-1, List.of(), List.of(), List.of());
+    private net.jandie1505.bedwars.game.game.team.TeamUpgrade getErrorUpgrade() {
+        return new net.jandie1505.bedwars.game.game.team.TeamUpgrade(-1, List.of(), List.of(), List.of());
     }
 
-    private TeamUpgrade buildTeamUpgrade(JSONObject teamUpgrade) {
+    private net.jandie1505.bedwars.game.game.team.TeamUpgrade buildTeamUpgrade(JSONObject teamUpgrade) {
 
         int itemId = teamUpgrade.optInt("item", -1);
 
@@ -172,7 +172,7 @@ public final class GameBuilder {
 
         }
 
-        return new TeamUpgrade(itemId, List.copyOf(prices), List.copyOf(currencies), List.copyOf(levels));
+        return new net.jandie1505.bedwars.game.game.team.TeamUpgrade(itemId, List.copyOf(prices), List.copyOf(currencies), List.copyOf(levels));
     }
 
     // ----- SHOP -----
@@ -300,13 +300,63 @@ public final class GameBuilder {
 
     // ----- TEAM UPGRADES -----
 
+    /**
+     * Converts a json to TeamUpgrade Data.
+     * @param id id
+     * @param json json
+     * @return PlayerUpgrade Data
+     */
+    public static @Nullable TeamUpgrade.Data deserializeTeamUpgradeDataFromJSON(@NotNull String id, @NotNull JSONObject json) {
+
+        switch (json.getString("type")) {
+            case EnchantmentTeamUpgrade.TYPE -> {
+                return EnchantmentTeamUpgrade.Data.fromJSON(id, json);
+            }
+            case HealPoolTeamUpgrade.TYPE -> {
+                return HealPoolTeamUpgrade.Data.fromJSON(id, json);
+            }
+            case PermanentPotionEffectTeamUpgrade.TYPE -> {
+                return PermanentPotionEffectTeamUpgrade.Data.fromJSON(id, json);
+            }
+            default -> {
+                return null;
+            }
+        }
+
+    }
+
+    /**
+     * Converts a json to list of TeamUpgrade Data.<br/>
+     * The id is the key and the value the other values.
+     * @param json json
+     * @return list of TeamUpgrade Data
+     */
+    public static @NotNull List<TeamUpgrade.Data> getTeamUpgradesFromJSON(@NotNull JSONObject json) {
+        List<TeamUpgrade.Data> teamUpgrades = new ArrayList<>();
+
+        for (String key : json.keySet()) {
+            JSONObject dataJson = json.getJSONObject(key);
+            TeamUpgrade.Data data = deserializeTeamUpgradeDataFromJSON(key, dataJson);
+            if (data == null) throw new IllegalArgumentException("Invalid team upgrade type for " + key);
+            teamUpgrades.add(data);
+        }
+
+        return teamUpgrades;
+    }
+
+    /**
+     * Sets up the team upgrades.
+     * @param game game
+     */
     private void setupTeamUpgrades(@NotNull Game game) {
+        JSONObject teamUpgradesFile = JSONLoader.loadJSONFromFile(new File(game.getPlugin().getDataFolder(), "team_upgrades.json"));
 
-        game.getTeamUpgradeManager().registerUpgrade(new EnchantmentTeamUpgrade(game.getTeamUpgradeManager(), TeamUpgrades.ATTACK_DAMAGE, NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, Enchantment.SHARPNESS));
-        game.getTeamUpgradeManager().registerUpgrade(new EnchantmentTeamUpgrade(game.getTeamUpgradeManager(), TeamUpgrades.PROTECTION, NamespacedKeys.GAME_ITEM_PROTECTION_AFFECTED, Enchantment.PROTECTION));
-        game.getTeamUpgradeManager().registerUpgrade(new PermanentPotionEffectTeamUpgrade(game.getTeamUpgradeManager(), TeamUpgrades.HASTE, PotionEffectType.HASTE, false, false, false));
-        game.getTeamUpgradeManager().registerUpgrade(new HealPoolTeamUpgrade(game.getTeamUpgradeManager(), TeamUpgrades.HEAL_POOL));
+        if (teamUpgradesFile.isEmpty()) {
+            DefaultConfigValues.getTeamUpgrades().forEach(upgrade -> game.getTeamUpgradeManager().registerUpgrade(upgrade.buildUpgrade(game.getTeamUpgradeManager())));
+            return;
+        }
 
+        getTeamUpgradesFromJSON(teamUpgradesFile.getJSONObject("team_upgrades")).forEach(upgrade -> game.getTeamUpgradeManager().registerUpgrade(upgrade.buildUpgrade(game.getTeamUpgradeManager())));
     }
 
 }

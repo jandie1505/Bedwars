@@ -484,7 +484,7 @@ public abstract class TeamUpgrade implements Removable {
     public interface Data {
         @NotNull String id();
         @NotNull String type();
-        @NotNull TeamUpgrade buildUpgrade(@NotNull TeamUpgrade manager);
+        @NotNull TeamUpgrade buildUpgrade(@NotNull TeamUpgradeManager manager);
         @NotNull JSONObject toJSON();
     }
 

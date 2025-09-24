@@ -289,6 +289,13 @@ public class Bedwars extends JavaPlugin {
 
         }
 
+        // TEAM UPGRADES
+
+        File teamUpgradesFile = new File(this.getDataFolder(), "team_upgrades.json");
+        if (!teamUpgradesFile.exists()) {
+            JSONLoader.saveJSONToFile(teamUpgradesFile, DefaultConfigValues.getDefaultTeamUpgradesFile(), 4);
+        }
+
     }
 
     private void setupDefaultLobbyConfig() throws IOException {

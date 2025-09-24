@@ -8,10 +8,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.util.Collection;
 
 public class HealPoolTeamUpgrade extends TeamUpgrade {
+    @NotNull public static final String TYPE = "heal_pool";
 
     /**
      * Creates a new team upgrade.
@@ -42,6 +44,40 @@ public class HealPoolTeamUpgrade extends TeamUpgrade {
 
         players.forEach(player -> player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15*20, level - 1, true, true, true)));
 
+    }
+
+    // ----- DATA -----
+
+    /**
+     * Data of HealPoolTeamUpgrade.
+     * @param id id
+     */
+    public record Data(@NotNull String id) implements TeamUpgrade.Data {
+
+        @Override
+        public @NotNull String type() {
+            return TYPE;
+        }
+
+        @Override
+        public @NotNull TeamUpgrade buildUpgrade(@NotNull TeamUpgradeManager manager) {
+            return new HealPoolTeamUpgrade(manager, this.id);
+        }
+
+        public static @NotNull Data fromJSON(@NotNull String id, @NotNull JSONObject jsonObject) {
+            return new HealPoolTeamUpgrade.Data(id);
+        }
+
+        @Override
+        public @NotNull JSONObject toJSON() {
+            JSONObject json = new JSONObject();
+            json.put("type", this.type());
+            return json;
+        }
+    }
+
+    public @NotNull Data getData() {
+        return new Data(this.getId());
     }
 
 }
