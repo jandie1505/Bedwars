@@ -50,10 +50,10 @@ public class BedwarsTeam {
         this.primaryTraps = new BedwarsTrap[2];
         this.secondaryTraps = new BedwarsTrap[2];
 
-        this.upgrades.put(TeamUpgrades.ATTACK_DAMAGE, 0);
+        this.upgrades.put(TeamUpgrades.SHARPNESS, 0);
         this.upgrades.put(TeamUpgrades.PROTECTION, 0);
         this.upgrades.put(TeamUpgrades.HASTE, 0);
-        this.upgrades.put(TeamUpgrades.FORGE, 0);
+        this.upgrades.put(TeamUpgrades.GENERATORS, 0);
         this.upgrades.put(TeamUpgrades.HEAL_POOL, 0);
         this.upgrades.put(TeamUpgrades.ENDGAME_BUFF, 0);
 
@@ -264,12 +264,12 @@ public class BedwarsTeam {
     }
 
     public int getAttackDamageUpgrade() {
-        return this.upgrades.getOrDefault(TeamUpgrades.ATTACK_DAMAGE, 0);
+        return this.upgrades.getOrDefault(TeamUpgrades.SHARPNESS, 0);
     }
 
     @Deprecated(forRemoval = true)
     public void setAttackDamageUpgrade(int attackDamageUpgrade) {
-        this.upgrades.put(TeamUpgrades.ATTACK_DAMAGE, attackDamageUpgrade);
+        this.upgrades.put(TeamUpgrades.SHARPNESS, attackDamageUpgrade);
     }
 
     @Deprecated(forRemoval = true)
@@ -294,12 +294,12 @@ public class BedwarsTeam {
 
     @Deprecated(forRemoval = true)
     public int getForgeUpgrade() {
-        return this.upgrades.getOrDefault(TeamUpgrades.FORGE, 0);
+        return this.upgrades.getOrDefault(TeamUpgrades.GENERATORS, 0);
     }
 
     @Deprecated(forRemoval = true)
     public void setForgeUpgrade(int forgeUpgrade) {
-        this.upgrades.put(TeamUpgrades.FORGE, forgeUpgrade);
+        this.upgrades.put(TeamUpgrades.GENERATORS, forgeUpgrade);
     }
 
     @Deprecated(forRemoval = true)
@@ -345,13 +345,13 @@ public class BedwarsTeam {
     public void setTeamUpgrade(TeamUpgrade teamUpgrade, int value) {
 
         if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getSharpnessUpgrade()) {
-            this.upgrades.put(TeamUpgrades.ATTACK_DAMAGE, value);
+            this.upgrades.put(TeamUpgrades.SHARPNESS, value);
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getProtectionUpgrade()) {
             this.upgrades.put(TeamUpgrades.PROTECTION, value);
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHasteUpgrade()) {
             this.upgrades.put(TeamUpgrades.HASTE, value);
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getForgeUpgrade()) {
-            this.upgrades.put(TeamUpgrades.FORGE, value);
+            this.upgrades.put(TeamUpgrades.GENERATORS, value);
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHealPoolUpgrade()) {
             this.upgrades.put(TeamUpgrades.HEAL_POOL, value);
         } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getEndgameBuffUpgrade()) {

@@ -19,7 +19,7 @@ public class TeamGenerator extends Generator {
 
     @Override
     public int getLevel() {
-        return this.team.getUpgrade(TeamUpgrades.FORGE);
+        return this.team.getUpgrade(TeamUpgrades.GENERATORS);
     }
 
     public BedwarsTeam getTeam() {

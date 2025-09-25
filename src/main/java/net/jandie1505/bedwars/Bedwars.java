@@ -296,6 +296,16 @@ public class Bedwars extends JavaPlugin {
             JSONLoader.saveJSONToFile(teamUpgradesFile, DefaultConfigValues.getDefaultTeamUpgradesFile(), 4);
         }
 
+        File teamGUIFile = new File(this.getDataFolder(), "team_gui.json");
+        if (!teamGUIFile.exists()) {
+            teamGUIFile.createNewFile();
+
+            JSONObject shopFileContent = new JSONObject();
+            shopFileContent.put("upgrade_entries", GameBuilder.createJSONFromUpgradeEntries(DefaultConfigValues.getDefaultTeamUpgradeEntries()));
+            JSONLoader.saveJSONToFile(teamGUIFile, shopFileContent, 4);
+
+        }
+
     }
 
     private void setupDefaultLobbyConfig() throws IOException {

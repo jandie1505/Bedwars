@@ -1,10 +1,9 @@
 package net.jandie1505.bedwars.config;
 
+import net.chaossquad.mclib.ItemUtils;
 import net.chaossquad.mclib.MiscUtils;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
-import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
-import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
@@ -3540,7 +3539,7 @@ public final class DefaultConfigValues {
     public static @NotNull List<TeamUpgrade.Data> getTeamUpgrades() {
         List<TeamUpgrade.Data> upgrades = new ArrayList<>();
 
-        upgrades.add(new EnchantmentTeamUpgrade.Data(TeamUpgrades.ATTACK_DAMAGE, NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, Enchantment.SHARPNESS));
+        upgrades.add(new EnchantmentTeamUpgrade.Data(TeamUpgrades.SHARPNESS, NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, Enchantment.SHARPNESS));
         upgrades.add(new EnchantmentTeamUpgrade.Data(TeamUpgrades.PROTECTION, NamespacedKeys.GAME_ITEM_PROTECTION_AFFECTED, Enchantment.PROTECTION));
         upgrades.add(new PermanentPotionEffectTeamUpgrade.Data(TeamUpgrades.HASTE, PotionEffectType.HASTE, false, false, false));
         upgrades.add(new HealPoolTeamUpgrade.Data(TeamUpgrades.HEAL_POOL));
@@ -3595,5 +3594,251 @@ public final class DefaultConfigValues {
 
         return menu;
     }
+
+    public static @NotNull Map<String, UpgradeEntry> getDefaultTeamUpgradeEntries() {
+        Map<String, UpgradeEntry> upgrades = new HashMap<>();
+
+        upgrades.put("sharpness", new UpgradeEntry(
+                TeamUpgrades.SHARPNESS,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 8),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 16),
+                        3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 32)
+                ),
+                Set.of(new ShopGUIPosition(0, 20)),
+                Map.of(
+                        1, getSharpnessTeamUpgradeItem(0),
+                        2, getSharpnessTeamUpgradeItem(1),
+                        3, getSharpnessTeamUpgradeItem(2),
+                        4, getSharpnessTeamUpgradeItem(3)
+                )
+        ));
+
+        upgrades.put("protection", new UpgradeEntry(
+                TeamUpgrades.PROTECTION,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 5),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 10),
+                        3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 20),
+                        4, new UpgradeEntry.PriceEntry(Material.DIAMOND, 40),
+                        5, new UpgradeEntry.PriceEntry(Material.DIAMOND, 80)
+                ),
+                Set.of(new ShopGUIPosition(0, 22)),
+                Map.of(
+                        1, getProtectionTeamUpgradeItem(0),
+                        2, getProtectionTeamUpgradeItem(1),
+                        3, getProtectionTeamUpgradeItem(2),
+                        4, getProtectionTeamUpgradeItem(3),
+                        5, getProtectionTeamUpgradeItem(4),
+                        6, getProtectionTeamUpgradeItem(5)
+                )
+        ));
+
+        upgrades.put("haste", new UpgradeEntry(
+                TeamUpgrades.HASTE,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 4),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 8)
+                ),
+                Set.of(new ShopGUIPosition(0, 24)),
+                Map.of(
+                        1, getHasteTeamUpgradeItem(0),
+                        2, getHasteTeamUpgradeItem(1),
+                        3, getHasteTeamUpgradeItem(2)
+                )
+        ));
+
+        upgrades.put("generators", new UpgradeEntry(
+                TeamUpgrades.GENERATORS,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 4),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 8),
+                        3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 12),
+                        4, new UpgradeEntry.PriceEntry(Material.DIAMOND, 16),
+                        5, new UpgradeEntry.PriceEntry(Material.DIAMOND, 20)
+                ),
+                Set.of(new ShopGUIPosition(0, 38)),
+                Map.of(
+                        1, getGeneratorTeamUpgradeItem(0),
+                        2, getGeneratorTeamUpgradeItem(1),
+                        3, getGeneratorTeamUpgradeItem(2),
+                        4, getGeneratorTeamUpgradeItem(3),
+                        5, getGeneratorTeamUpgradeItem(4),
+                        6, getGeneratorTeamUpgradeItem(5)
+                )
+        ));
+
+        upgrades.put("heal_pool", new UpgradeEntry(
+                TeamUpgrades.HEAL_POOL,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 3),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 9)
+                ),
+                Set.of(new ShopGUIPosition(0, 40)),
+                Map.of(
+                        1, getHealPoolTeamUpgradeItem(0),
+                        2, getHealPoolTeamUpgradeItem(1),
+                        3, getHealPoolTeamUpgradeItem(2)
+                )
+        ));
+
+        upgrades.put("end_game_buff", new UpgradeEntry(
+                TeamUpgrades.ENDGAME_BUFF,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 20),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 40),
+                        3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 60)
+                ),
+                Set.of(new ShopGUIPosition(0, 42)),
+                Map.of(
+                        1, getEndgameBuffTeamUpgradeItem(0),
+                        2, getEndgameBuffTeamUpgradeItem(1),
+                        3, getEndgameBuffTeamUpgradeItem(2),
+                        4, getEndgameBuffTeamUpgradeItem(3)
+                )
+        ));
+
+        return upgrades;
+    }
+
+    private static @NotNull ItemStack getSharpnessTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.IRON_SWORD,
+                Component.text("Sharpness Upgrade", NamedTextColor.WHITE),
+                List.of(
+                        Component.text("Applies a sharpness enchantment to:", NamedTextColor.GRAY),
+                        Component.text(" - Swords", NamedTextColor.GRAY),
+                        Component.text(" - Axes", NamedTextColor.GRAY)
+                ),
+                List.of(
+                        new TierListEntry(Component.text("Sharpness I"), Component.text("8 Diamonds")),
+                        new TierListEntry(Component.text("Sharpness II"), Component.text("16 Diamonds")),
+                        new TierListEntry(Component.text("Sharpness III"), Component.text("32 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getProtectionTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.IRON_CHESTPLATE,
+                Component.text("Protection Upgrade", NamedTextColor.WHITE),
+                List.of(
+                        Component.text("Applies a protection enchantment to:", NamedTextColor.GRAY),
+                        Component.text(" - Helmets", NamedTextColor.GRAY),
+                        Component.text(" - Chestplates", NamedTextColor.GRAY),
+                        Component.text(" - Leggings", NamedTextColor.GRAY),
+                        Component.text(" - Boots", NamedTextColor.GRAY)
+                ),
+                List.of(
+                        new TierListEntry(Component.text("Protection I"), Component.text("5 Diamonds")),
+                        new TierListEntry(Component.text("Protection II"), Component.text("10 Diamonds")),
+                        new TierListEntry(Component.text("Protection III"), Component.text("20 Diamonds")),
+                        new TierListEntry(Component.text("Protection IV"), Component.text("40 Diamonds")),
+                        new TierListEntry(Component.text("Protection V"), Component.text("80 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getHasteTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.GOLDEN_PICKAXE,
+                Component.text("Haste Upgrade", NamedTextColor.WHITE),
+                List.of(Component.text("Gives all team members the haste effect.", NamedTextColor.GRAY)),
+                List.of(
+                        new TierListEntry(Component.text("Haste I"), Component.text("4 Diamonds")),
+                        new TierListEntry(Component.text("Haste II"), Component.text("8 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getGeneratorTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.FURNACE,
+                Component.text("Generator Upgrade", NamedTextColor.WHITE),
+                List.of(Component.text("Speeds up your generators.", NamedTextColor.GRAY)),
+                List.of(
+                        new TierListEntry(Component.text("Generators"), Component.text("4 Diamonds")),
+                        new TierListEntry(Component.text("Generators"), Component.text("8 Diamonds")),
+                        new TierListEntry(Component.text("Generators"), Component.text("12 Diamonds")),
+                        new TierListEntry(Component.text("Generators"), Component.text("16 Diamonds")),
+                        new TierListEntry(Component.text("Generators"), Component.text("20 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getHealPoolTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.BEACON,
+                Component.text("Heal Pool", NamedTextColor.WHITE),
+                List.of(Component.text("Gives regeneration to all team members in the base.", NamedTextColor.GRAY)),
+                List.of(
+                        new TierListEntry(Component.text("Regeneration I"), Component.text("3 Diamonds")),
+                        new TierListEntry(Component.text("Regeneration II"), Component.text("9 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getEndgameBuffTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.WITHER_SKELETON_SKULL,
+                Component.text("Endgame Buff", NamedTextColor.WHITE),
+                List.of(Component.text("More Endgame Withers for your team.", NamedTextColor.GRAY)),
+                List.of(
+                        new TierListEntry(Component.text("2 Withers"), Component.text("20 Diamonds")),
+                        new TierListEntry(Component.text("3 Withers"), Component.text("40 Diamonds")),
+                        new TierListEntry(Component.text("4 Withers"), Component.text("60 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack generateUpgradeItem(@NotNull Material material, @NotNull Component name, @NotNull List<Component> description, @NotNull List<TierListEntry> tiers, int level) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(name));
+
+        List<Component> lore = new ArrayList<>();
+        lore.addAll(description.stream().map(ItemUtils.CLEARED_LORE_COMPONENT::append).toList());
+        lore.add(Component.empty());
+        lore.addAll(generateTierList(tiers, level).stream().map(ItemUtils.CLEARED_LORE_COMPONENT::append).toList());
+
+        meta.lore(lore);
+
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        item.setAmount(Math.max(Math.min(level, item.getType().getMaxStackSize()), 1));
+
+        return item;
+    }
+
+    private static @NotNull List<Component> generateTierList(@NotNull List<TierListEntry> tiers, int currentLevel) {
+        if (tiers.isEmpty()) return List.of();
+
+        List<Component> out = new ArrayList<>();
+
+        for (int i = 0; i < tiers.size(); i++) {
+            int level = i + 1;
+
+            TierListEntry e = tiers.get(i);
+
+            if (currentLevel >= level) {
+                out.add(Component.empty().append(Component.text("Tier " + level + ": ", NamedTextColor.GREEN).append(e.name().color(NamedTextColor.GREEN)).appendSpace().append(Component.text("✔", NamedTextColor.GREEN))));
+            } else {
+                out.add(Component.empty().append(Component.text("Tier " + level + ": ", NamedTextColor.GRAY).append(e.name().color(NamedTextColor.GRAY)).appendSpace().append(e.price().color(NamedTextColor.GRAY))));
+            }
+
+        }
+
+        return out;
+    }
+
+    private record TierListEntry(@NotNull Component name, @NotNull Component price) {}
 
 }

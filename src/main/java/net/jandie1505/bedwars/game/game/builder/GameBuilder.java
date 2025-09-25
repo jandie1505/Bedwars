@@ -62,6 +62,13 @@ public final class GameBuilder {
         Map<Integer, QuickBuyMenuEntry> quickBuyMenuEntries = getQuickBuyMenuEntriesFromJSON(shopFile.optJSONArray("default_quick_buy_menu", new JSONArray()));
         if (quickBuyMenuEntries.isEmpty()) quickBuyMenuEntries.putAll(DefaultConfigValues.getDefaultQuickBuyMenu());
 
+        // TEAM
+
+        JSONObject teamGUIFile = JSONLoader.loadJSONFromFile(new File(this.plugin.getDataFolder(), "team_gui.json"));
+
+        Map<String, UpgradeEntry> teamUpgradeEntries = getUpgradeEntriesFromJSON(teamGUIFile.optJSONObject("upgrade_entries", new JSONObject()));
+        if (teamUpgradeEntries.isEmpty()) teamUpgradeEntries.putAll(DefaultConfigValues.getDefaultTeamUpgradeEntries());
+
         // CREATE GAME
 
         Game game = new Game(
@@ -71,6 +78,7 @@ public final class GameBuilder {
                 shopEntries,
                 upgradeEntries,
                 quickBuyMenuEntries,
+                teamUpgradeEntries,
                 this.loadTeamUpgradesConfig()
         );
 

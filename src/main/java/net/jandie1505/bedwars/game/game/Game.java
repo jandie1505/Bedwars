@@ -10,7 +10,6 @@ import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.game.game.commands.*;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
-import net.jandie1505.bedwars.game.game.commands.shop.GameShopGiveSubcommand;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.ShopVillager;
@@ -31,6 +30,7 @@ import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
+import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
 import net.jandie1505.bedwars.game.game.team.traps.BedwarsTrap;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgradeManager;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
@@ -43,16 +43,13 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
@@ -76,6 +73,7 @@ public class Game extends GamePart implements ManagedListener {
     private final ShopGUI shopGUI;
     @NotNull private final PlayerUpgradeManager playerUpgradeManager;
     @NotNull private final TeamUpgradeManager teamUpgradeManager;
+    @NotNull private final TeamGUI teamGUI;
     private final TeamUpgradesConfig teamUpgradesConfig;
     private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
@@ -88,7 +86,7 @@ public class Game extends GamePart implements ManagedListener {
 
     // ----- INIT -----
 
-    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, TeamUpgradesConfig teamUpgradesConfig) {
+    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, @NotNull Map<String, UpgradeEntry> teamUpgradeEntries, TeamUpgradesConfig teamUpgradesConfig) {
         super(plugin);
         this.world = world;
         this.data = data;
@@ -102,6 +100,7 @@ public class Game extends GamePart implements ManagedListener {
         this.shopGUI = new ShopGUI(this, defaultQuickBuyMenu);
         this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
         this.teamUpgradeManager = new TeamUpgradeManager(this, () -> false);
+        this.teamGUI = new TeamGUI(this, teamUpgradeEntries, () -> false);
         this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.data.maxTime();
@@ -1460,6 +1459,14 @@ public class Game extends GamePart implements ManagedListener {
      */
     public @NotNull TeamUpgradeManager getTeamUpgradeManager() {
         return teamUpgradeManager;
+    }
+
+    /**
+     * Returns the team gui.
+     * @return team gui
+     */
+    public @NotNull TeamGUI getTeamGUI() {
+        return this.teamGUI;
     }
 
     public Location buildLocationWithWorld(Location old) {
