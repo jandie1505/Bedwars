@@ -3,7 +3,6 @@ package net.jandie1505.bedwars.game.game.builder;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.config.JSONLoader;
-import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
@@ -12,16 +11,11 @@ import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgr
 import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
-import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgrade;
-import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.PermanentPotionEffectTeamUpgrade;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -78,8 +72,7 @@ public final class GameBuilder {
                 shopEntries,
                 upgradeEntries,
                 quickBuyMenuEntries,
-                teamUpgradeEntries,
-                this.loadTeamUpgradesConfig()
+                teamUpgradeEntries
         );
 
         // UPGRADES
@@ -90,97 +83,6 @@ public final class GameBuilder {
         // RETURN
 
         return game;
-    }
-
-    // ----- TEAM UPGRADES -----
-
-    /**
-     * Creates the team upgrades config.
-     * @return TeamUpgradesConfig
-     * @deprecated Will be replaced by a new team upgrade system soon
-     */
-    @Deprecated
-    private @NotNull TeamUpgradesConfig loadTeamUpgradesConfig() {
-        JSONObject shopConfig = this.plugin.getShopConfig().getConfig();
-        return new TeamUpgradesConfig(
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("sharpness", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("protection", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("haste", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("generators", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("healpool", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("endgamebuff", new JSONObject())),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("noTrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("alarmTrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("itsATrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("miningFatigueTrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("countermeasuresTrap")
-        );
-    }
-
-    private net.jandie1505.bedwars.game.game.team.TeamUpgrade getErrorUpgrade() {
-        return new net.jandie1505.bedwars.game.game.team.TeamUpgrade(-1, List.of(), List.of(), List.of());
-    }
-
-    private net.jandie1505.bedwars.game.game.team.TeamUpgrade buildTeamUpgrade(JSONObject teamUpgrade) {
-
-        int itemId = teamUpgrade.optInt("item", -1);
-
-        if (itemId < 0) {
-            this.plugin.getLogger().warning("Shop Config: Missing/wrong item in team upgrade");
-            return this.getErrorUpgrade();
-        }
-
-        JSONArray priceListArray = teamUpgrade.optJSONArray("prices");
-
-        if (priceListArray == null) {
-            this.plugin.getLogger().warning("Shop Config: Missing/Wrong prices in team upgrade");
-            return this.getErrorUpgrade();
-        }
-
-        List<Integer> prices = new ArrayList<>();
-        List<Material> currencies = new ArrayList<>();
-
-        for (int i = 0; i < priceListArray.length(); i++) {
-
-            int price = priceListArray.optInt(i, -1);
-
-            if (price < 0) {
-                this.plugin.getLogger().warning("Shop Config: Wrong price in prices in team upgrade");
-                return this.getErrorUpgrade();
-            }
-
-            prices.add(price);
-            currencies.add(Material.DIAMOND);
-
-        }
-
-        JSONArray levelArray = teamUpgrade.optJSONArray("levels");
-
-        List<Integer> levels = new ArrayList<>();
-
-        if (levelArray == null) {
-
-            for (int i = 0; i < prices.size(); i++) {
-                levels.add(-1);
-            }
-
-        } else {
-
-            for (int i = 0; i < levelArray.length(); i++) {
-
-                int level = levelArray.optInt(i);
-
-                if (level < 0) {
-                    level = -1;
-                }
-
-                levels.add(level);
-
-            }
-
-        }
-
-        return new net.jandie1505.bedwars.game.game.team.TeamUpgrade(itemId, List.copyOf(prices), List.copyOf(currencies), List.copyOf(levels));
     }
 
     // ----- SHOP -----

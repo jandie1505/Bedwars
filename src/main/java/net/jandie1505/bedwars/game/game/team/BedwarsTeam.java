@@ -4,7 +4,6 @@ import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.chaossquad.mclib.WorldUtils;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
-import net.jandie1505.bedwars.game.game.team.traps.BedwarsTrap;
 import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -29,8 +28,7 @@ public class BedwarsTeam {
     @NotNull private final List<Location> bedLocations;
 
     @NotNull private final Map<String, Integer> upgrades;
-    private final BedwarsTrap[] primaryTraps;
-    private final BedwarsTrap[] secondaryTraps;
+
     private boolean disableBed;
 
     public BedwarsTeam(@NotNull Game game, @NotNull TeamData data) {
@@ -47,8 +45,7 @@ public class BedwarsTeam {
 
         this.upgrades = new HashMap<>();
 
-        this.primaryTraps = new BedwarsTrap[2];
-        this.secondaryTraps = new BedwarsTrap[2];
+
 
         this.upgrades.put(TeamUpgrades.SHARPNESS, 0);
         this.upgrades.put(TeamUpgrades.PROTECTION, 0);
@@ -263,144 +260,9 @@ public class BedwarsTeam {
         this.upgrades.put(upgradeId, upgrade);
     }
 
-    public int getAttackDamageUpgrade() {
-        return this.upgrades.getOrDefault(TeamUpgrades.SHARPNESS, 0);
-    }
-
-    @Deprecated(forRemoval = true)
-    public void setAttackDamageUpgrade(int attackDamageUpgrade) {
-        this.upgrades.put(TeamUpgrades.SHARPNESS, attackDamageUpgrade);
-    }
-
-    @Deprecated(forRemoval = true)
-    public int getProtectionUpgrade() {
-        return this.upgrades.getOrDefault(TeamUpgrades.PROTECTION, 0);
-    }
-
-    @Deprecated(forRemoval = true)
-    public void setProtectionUpgrade(int protectionUpgrade) {
-        this.upgrades.put(TeamUpgrades.PROTECTION, protectionUpgrade);
-    }
-
-    @Deprecated(forRemoval = true)
-    public int getHasteUpgrade() {
-        return this.upgrades.getOrDefault(TeamUpgrades.HASTE, 0);
-    }
-
-    @Deprecated(forRemoval = true)
-    public void setHasteUpgrade(int hasteUpgrade) {
-        this.upgrades.put(TeamUpgrades.HASTE, hasteUpgrade);
-    }
-
-    @Deprecated(forRemoval = true)
-    public int getForgeUpgrade() {
-        return this.upgrades.getOrDefault(TeamUpgrades.GENERATORS, 0);
-    }
-
-    @Deprecated(forRemoval = true)
-    public void setForgeUpgrade(int forgeUpgrade) {
-        this.upgrades.put(TeamUpgrades.GENERATORS, forgeUpgrade);
-    }
-
-    @Deprecated(forRemoval = true)
-    public int getHealPoolUpgrade() {
-        return this.upgrades.getOrDefault(TeamUpgrades.HEAL_POOL, 0);
-    }
-
-    @Deprecated(forRemoval = true)
-    public void setHealPoolUpgrade(int healPoolUpgrade) {
-        this.upgrades.put(TeamUpgrades.HEAL_POOL, healPoolUpgrade);
-    }
-
-    @Deprecated(forRemoval = true)
-    public int getEndgameBuffUpgrade() {
-        return this.upgrades.getOrDefault(TeamUpgrades.ENDGAME_BUFF, 0);
-    }
-
-    @Deprecated(forRemoval = true)
-    public void setEndgameBuffUpgrade(int endgameBuffUpgrade) {
-        this.upgrades.put(TeamUpgrades.ENDGAME_BUFF, endgameBuffUpgrade);
-    }
-
-    public int getTeamUpgrade(TeamUpgrade teamUpgrade) {
-
-        if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getSharpnessUpgrade()) {
-            return this.getAttackDamageUpgrade();
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getProtectionUpgrade()) {
-            return this.getProtectionUpgrade();
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHasteUpgrade()) {
-            return this.getHasteUpgrade();
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getForgeUpgrade()) {
-            return this.getForgeUpgrade();
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHealPoolUpgrade()) {
-            return this.getHealPoolUpgrade();
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getEndgameBuffUpgrade()) {
-            return this.getEndgameBuffUpgrade();
-        } else {
-            return -1;
-        }
-
-    }
-
-    public void setTeamUpgrade(TeamUpgrade teamUpgrade, int value) {
-
-        if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getSharpnessUpgrade()) {
-            this.upgrades.put(TeamUpgrades.SHARPNESS, value);
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getProtectionUpgrade()) {
-            this.upgrades.put(TeamUpgrades.PROTECTION, value);
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHasteUpgrade()) {
-            this.upgrades.put(TeamUpgrades.HASTE, value);
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getForgeUpgrade()) {
-            this.upgrades.put(TeamUpgrades.GENERATORS, value);
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getHealPoolUpgrade()) {
-            this.upgrades.put(TeamUpgrades.HEAL_POOL, value);
-        } else if (teamUpgrade == this.getGame().getTeamUpgradesConfig().getEndgameBuffUpgrade()) {
-            this.upgrades.put(TeamUpgrades.ENDGAME_BUFF, value);
-        }
-
-    }
-
     // ----- TRAPS -----
 
-    public BedwarsTrap[] getPrimaryTraps() {
-        return this.primaryTraps;
-    }
 
-    public BedwarsTrap[] getSecondaryTraps() {
-        return this.secondaryTraps;
-    }
-
-    public boolean hasPrimaryTraps() {
-
-        for (int i = 0; i < this.primaryTraps.length; i++) {
-
-            if (this.primaryTraps[i] != null) {
-                return true;
-            }
-
-        }
-
-        return false;
-    }
-
-    public void shiftTraps() {
-
-        if (this.primaryTraps.length < this.secondaryTraps.length) {
-            return;
-        }
-
-        if (this.hasPrimaryTraps()) {
-            return;
-        }
-
-        for (int i = 0; i < this.secondaryTraps.length; i++) {
-
-            this.primaryTraps[i] = this.secondaryTraps[i];
-            this.secondaryTraps[i] = null;
-
-        }
-
-    }
 
     // ----- INFO -----
 
@@ -452,31 +314,6 @@ public class BedwarsTeam {
 
     // ----- STATIC -----
 
-    public static int getTrapsCount(BedwarsTrap[] bedwarsTraps) {
 
-        int count = 0;
 
-        for (int i = 0; i < bedwarsTraps.length; i++) {
-
-            if (bedwarsTraps[i] != null) {
-                count++;
-            }
-
-        }
-
-        return count;
-    }
-
-    public static void addTrap(BedwarsTrap[] bedwarsTraps, BedwarsTrap trap) {
-
-        for (int i = 0; i < bedwarsTraps.length; i++) {
-
-            if (bedwarsTraps[i] == null) {
-                bedwarsTraps[i] = trap;
-                break;
-            }
-
-        }
-
-    }
 }

@@ -3,7 +3,6 @@ package net.jandie1505.bedwars.game.game.timeactions.actions;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.entities.EndgameWither;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
-import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;

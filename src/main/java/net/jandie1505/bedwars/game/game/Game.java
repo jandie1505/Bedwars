@@ -29,9 +29,7 @@ import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
-import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
 import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
-import net.jandie1505.bedwars.game.game.team.traps.BedwarsTrap;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgradeManager;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
@@ -74,7 +72,6 @@ public class Game extends GamePart implements ManagedListener {
     @NotNull private final PlayerUpgradeManager playerUpgradeManager;
     @NotNull private final TeamUpgradeManager teamUpgradeManager;
     @NotNull private final TeamGUI teamGUI;
-    private final TeamUpgradesConfig teamUpgradesConfig;
     private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
     private int time;
@@ -86,7 +83,7 @@ public class Game extends GamePart implements ManagedListener {
 
     // ----- INIT -----
 
-    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, @NotNull Map<String, UpgradeEntry> teamUpgradeEntries, TeamUpgradesConfig teamUpgradesConfig) {
+    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, @NotNull Map<String, UpgradeEntry> teamUpgradeEntries) {
         super(plugin);
         this.world = world;
         this.data = data;
@@ -101,7 +98,6 @@ public class Game extends GamePart implements ManagedListener {
         this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
         this.teamUpgradeManager = new TeamUpgradeManager(this, () -> false);
         this.teamGUI = new TeamGUI(this, teamUpgradeEntries, () -> false);
-        this.teamUpgradesConfig = teamUpgradesConfig;
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.data.maxTime();
         this.publicEmeraldGeneratorLevel = 0;
@@ -171,7 +167,6 @@ public class Game extends GamePart implements ManagedListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::generatorTick, 1, 1, "generators");
         this.getTaskScheduler().scheduleRepeatingTask(this::timeActions, 1, 20, "time_actions");
         this.getTaskScheduler().scheduleRepeatingTask(this::cleanupManagedEntitiesTask, 1, 10*20, "cleanup_managed_entities");
-        this.getTaskScheduler().scheduleRepeatingTask(this::traps, 1, 1, "traps");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndConditions, 1, 1, "game_end_conditions");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndCheck, 1, 1, "game_end_check");
         this.getTaskScheduler().scheduleRepeatingTask(this::timeTask, 1, 20, "time");
@@ -715,67 +710,6 @@ public class Game extends GamePart implements ManagedListener {
 
             if (this.time <= timeAction.getData().time() && !timeAction.isCompleted()) {
                 timeAction.run();
-            }
-
-        }
-
-    }
-
-    private void traps() {
-
-        for (BedwarsTeam team : this.getTeams()) {
-
-            team.shiftTraps();
-
-            if (team.hasPrimaryTraps()) {
-
-                List<Entity> entitiesInRadius = List.copyOf(this.world.getNearbyEntities(team.getBaseCenter(), team.getBaseRadius(), team.getBaseRadius(), team.getBaseRadius()));
-
-                for (Entity entity : entitiesInRadius) {
-
-                    if(!(entity instanceof Player)) {
-                        continue;
-                    }
-
-                    Player player = (Player) entity;
-                    PlayerData playerData = this.players.get(player.getUniqueId());
-
-                    if (playerData == null) {
-                        continue;
-                    }
-
-                    if (!playerData.isAlive()) {
-                        continue;
-                    }
-
-                    if (playerData.getTrapCooldown() > 0) {
-                        continue;
-                    }
-
-                    if (playerData.getMilkTimer() > 0) {
-                        return;
-                    }
-
-                    if (team.getPlayers().contains(player.getUniqueId())) {
-                        continue;
-                    }
-
-                    for (int i = 0; i < team.getPrimaryTraps().length; i++) {
-                        BedwarsTrap trap = team.getPrimaryTraps()[i];
-
-                        if (trap == null) {
-                            continue;
-                        }
-
-                        trap.trigger(player);
-                        playerData.setTrapCooldown(30*20);
-                        team.getPrimaryTraps()[i] = null;
-
-                    }
-
-                    break;
-                }
-
             }
 
         }
@@ -1492,10 +1426,6 @@ public class Game extends GamePart implements ManagedListener {
             return levels.get(levels.size() - 1);
         }
 
-    }
-
-    public TeamUpgradesConfig getTeamUpgradesConfig() {
-        return this.teamUpgradesConfig;
     }
 
     public void setTime(int time) {

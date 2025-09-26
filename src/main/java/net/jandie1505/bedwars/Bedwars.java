@@ -14,7 +14,6 @@ import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyVotemapCommand;
 import net.jandie1505.bedwars.global.listeners.EventListener;
-import net.jandie1505.bedwars.items.ItemStorage;
 import net.jandie1505.bedwars.game.lobby.Lobby;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -46,13 +45,11 @@ import java.util.stream.Stream;
 
 public class Bedwars extends JavaPlugin {
     private ConfigManager configManager;
-    private ConfigManager itemConfig;
     private ConfigManager shopConfig;
     private Set<UUID> bypassingPlayers;
     private EventListenerManager listenerManager;
     private GamePart game;
     private DynamicWorldLoadingSystem dynamicWorldLoadingSystem;
-    private ItemStorage itemStorage;
     private net.jandie1505.bedwars.global.listeners.EventListener eventListener;
     private boolean nextStatus;
     private boolean paused;
@@ -64,23 +61,18 @@ public class Bedwars extends JavaPlugin {
     @Override
     public void onEnable() {
         this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.json");
-        this.itemConfig = new ConfigManager(this, DefaultConfigValues.getItemConfig(), true, "items.json");
         this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop-old.json");
         this.bypassingPlayers = Collections.synchronizedSet(new HashSet<>());
         this.listenerManager = new EventListenerManager(this);
         this.dynamicWorldLoadingSystem = new DynamicWorldLoadingSystem(this);
-        this.itemStorage = new ItemStorage(this);
         this.nextStatus = false;
         this.paused = false;
         this.cloudSystemMode = false;
 
         this.configManager.reloadConfig();
-        this.itemConfig.reloadConfig();
         this.shopConfig.reloadConfig();
 
         this.cloudSystemMode = this.configManager.getConfig().optJSONObject("cloudSystemMode", new JSONObject()).optBoolean("enable", false);
-
-        this.itemStorage.initItems();
 
         try {
             Class.forName("de.myzelyam.api.vanish.VanishAPI");
@@ -406,21 +398,13 @@ public class Bedwars extends JavaPlugin {
         this.getLogger().info("Reloading plugin...");
 
         this.configManager.reloadConfig();
-        this.itemConfig.reloadConfig();
         this.shopConfig.reloadConfig();
-
-        this.itemStorage.clearItems();
-        this.itemStorage.initItems();
 
         this.getLogger().info("Plugin successfully reloaded");
     }
 
     public ConfigManager getConfigManager() {
         return this.configManager;
-    }
-
-    public ConfigManager getItemConfig() {
-        return this.itemConfig;
     }
 
     public ConfigManager getShopConfig() {
@@ -504,10 +488,6 @@ public class Bedwars extends JavaPlugin {
 
     public boolean isPaused() {
         return this.paused;
-    }
-
-    public ItemStorage getItemStorage() {
-        return this.itemStorage;
     }
 
     public boolean isCloudSystemMode() {
