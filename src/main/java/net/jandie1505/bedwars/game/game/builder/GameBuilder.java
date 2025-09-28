@@ -5,17 +5,22 @@ import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.config.JSONLoader;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
+import net.jandie1505.bedwars.game.game.team.traps.TeamTrap;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.PermanentPotionEffectTeamUpgrade;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -79,6 +84,7 @@ public final class GameBuilder {
 
         this.setupPlayerUpgrades(game);
         this.setupTeamUpgrades(game);
+        this.setupTeamTraps(game);
 
         // RETURN
 
@@ -267,6 +273,21 @@ public final class GameBuilder {
         }
 
         getTeamUpgradesFromJSON(teamUpgradesFile.getJSONObject("team_upgrades")).forEach(upgrade -> game.getTeamUpgradeManager().registerUpgrade(upgrade.buildUpgrade(game.getTeamUpgradeManager())));
+    }
+
+    /**
+     * Sets up team traps.
+     * @param game game
+     */
+    private void setupTeamTraps(@NotNull Game game) {
+
+        game.getTeamTrapManager().registerTrap(new TeamTrap(game.getTeamTrapManager(), "test") {
+            @Override
+            public void onTrigger(@NotNull Player player, @NotNull PlayerData playerData) {
+                Bukkit.broadcast(Component.text("Trap " + this.getId() + " has been triggered by " + player.getName()));
+            }
+        });
+
     }
 
 }

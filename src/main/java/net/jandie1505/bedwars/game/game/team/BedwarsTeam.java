@@ -28,7 +28,7 @@ public class BedwarsTeam {
     @NotNull private final List<Location> bedLocations;
 
     @NotNull private final Map<String, Integer> upgrades;
-
+    @NotNull private final LinkedList<TrapSlot> traps;
     private boolean disableBed;
 
     public BedwarsTeam(@NotNull Game game, @NotNull TeamData data) {
@@ -44,8 +44,7 @@ public class BedwarsTeam {
         this.bedLocations = data.bedLocations().stream().map(location -> WorldUtils.locationWithWorld(location, this.game.getWorld())).toList();
 
         this.upgrades = new HashMap<>();
-
-
+        this.traps = new LinkedList<>();
 
         this.upgrades.put(TeamUpgrades.SHARPNESS, 0);
         this.upgrades.put(TeamUpgrades.PROTECTION, 0);
@@ -262,7 +261,39 @@ public class BedwarsTeam {
 
     // ----- TRAPS -----
 
+    /**
+     * Returns the trap list the team currently has.
+     * @return trap list
+     */
+    public @NotNull List<TrapSlot> getTraps() {
+        return this.traps;
+    }
 
+    /**
+     * Gets the traps from the specified slot.
+     * @param slot slot id
+     * @return trap slot entry
+     */
+    public @Nullable TrapSlot getTrap(int slot) {
+        if (slot < 0 || slot >= this.traps.size()) return null;
+        return this.traps.get(slot);
+    }
+
+    /**
+     * Gets and removes the current trap from the list.
+     * @return trap or null if the team has no traps
+     */
+    public @Nullable TrapSlot pullTrap() {
+        return this.traps.removeFirst();
+    }
+
+    /**
+     * Returns true if the team has traps.
+     * @return traps
+     */
+    public boolean hasTraps() {
+        return !this.traps.isEmpty();
+    }
 
     // ----- INFO -----
 
@@ -314,6 +345,17 @@ public class BedwarsTeam {
 
     // ----- STATIC -----
 
+    // ----- INNER CLASSES -----
 
+    public record TrapSlot(@Nullable String first, @Nullable String second) {
+
+        public @NotNull List<String> values() {
+            List<String> values = new ArrayList<>();
+            if (first != null) values.add(first);
+            if (second != null) values.add(second);
+            return values;
+        }
+
+    }
 
 }

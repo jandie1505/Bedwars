@@ -1,6 +1,7 @@
 package net.jandie1505.bedwars.game.game.player.data;
 
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.player.constants.PlayerTimers;
 import net.jandie1505.bedwars.game.game.player.upgrades.constants.PlayerUpgradeKeys;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +14,7 @@ public class PlayerData {
     private final Game game;
     private final Inventory enderchest;
     private final Map<String, Integer> upgrades;
-    private final Map<String, Integer> timers;
+    private final Map<@NotNull String, @NotNull Integer> timers;
     private boolean alive;
     private int respawnCountdown;
     private int team;
@@ -44,6 +45,8 @@ public class PlayerData {
         this.upgrades.put(PlayerUpgradeKeys.ARMOR, 1);
     }
 
+    // ----- UPGRADES -----
+
     public @NotNull Map<String, Integer> getUpgrades() {
         return Map.copyOf(upgrades);
     }
@@ -62,23 +65,50 @@ public class PlayerData {
         this.upgrades.put(id, level);
     }
 
-    public @NotNull Map<String, Integer> getTimers() {
-        return Map.copyOf(timers);
+    // ----- TIMERS -----
+
+    /**
+     * Returns the timer map.
+     * @return timer map
+     */
+    public @NotNull Map<@NotNull String, @NotNull Integer> getTimers() {
+        return this.timers;
     }
 
-    public int getTimer(String id) {
+    /**
+     * Returns a specific timer.
+     * @param id id
+     * @return timer value
+     */
+    public int getTimer(@NotNull String id) {
         return this.timers.getOrDefault(id, 0);
     }
 
-    public void setTimer(String id, int level) {
+    /**
+     * Sets the specified timer.<br/>
+     * Setting to negativ values will remove it.
+     * @param id id
+     * @param t amount
+     */
+    public void setTimer(@NotNull String id, int t) {
 
-        if (level < 0) {
+        if (t < 0) {
             this.timers.remove(id);
             return;
         }
 
-        this.timers.put(id, level);
+        this.timers.put(id, t);
     }
+
+    /**
+     * Removes the specified timer
+     * @param id id
+     */
+    public void removeTimer(@NotNull String id) {
+        this.timers.remove(id);
+    }
+
+    // ----- OTHER -----
 
     public boolean isAlive() {
         return alive;
@@ -154,19 +184,20 @@ public class PlayerData {
 
     @Deprecated
     public int getFireballCooldown() {
-        return this.timers.getOrDefault("item.fireball_cooldown", 0);
+        return this.timers.getOrDefault(PlayerTimers.FIREBALL_COOLDOWN, 0);
     }
 
     @Deprecated
     public void setFireballCooldown(int fireballCooldown) {
-        this.timers.put("item.fireball_cooldown", fireballCooldown);
+        this.timers.put(PlayerTimers.FIREBALL_COOLDOWN, fireballCooldown);
     }
 
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public int getTrapCooldown() {
         return this.timers.getOrDefault("player.trap_cooldown", 0);
     }
 
+    @Deprecated(forRemoval = true)
     public void setTrapCooldown(int trapCooldown) {
         this.timers.put("player.trap_cooldown", trapCooldown);
     }
@@ -197,12 +228,12 @@ public class PlayerData {
 
     @Deprecated
     public int getIronGolemCooldown() {
-        return this.timers.getOrDefault("item.iron_golem_cooldown", 0);
+        return this.timers.getOrDefault(PlayerTimers.BASE_DEFENDER_COOLDOWN, 0);
     }
 
     @Deprecated
     public void setIronGolemCooldown(int ironGolemCooldown) {
-        this.timers.put("item.iron_golem_cooldown", ironGolemCooldown);
+        this.timers.put(PlayerTimers.BASE_DEFENDER_COOLDOWN, ironGolemCooldown);
     }
 
     public int getRewardPoints() {
@@ -215,31 +246,31 @@ public class PlayerData {
 
     @Deprecated
     public int getZapperCooldown() {
-        return this.timers.getOrDefault("item.zapper_cooldown", 0);
+        return this.timers.getOrDefault(PlayerTimers.ZAPPER_COOLDOWN, 0);
     }
 
     @Deprecated
     public void setZapperCooldown(int zapperCooldown) {
-        this.timers.put("item.zapper_cooldown", zapperCooldown);
+        this.timers.put(PlayerTimers.ZAPPER_COOLDOWN, zapperCooldown);
     }
 
     @Deprecated
     public int getTeleportToBaseCooldown() {
-        return this.timers.getOrDefault("item.teleport_to_base_cooldown", 0);
+        return this.timers.getOrDefault(PlayerTimers.SPAWN_DUST_COOLDOWN, 0);
     }
 
     @Deprecated
     public void setTeleportToBaseCooldown(int teleportToBaseCooldown) {
-        this.timers.put("item.teleport_to_base_cooldown", teleportToBaseCooldown);
+        this.timers.put(PlayerTimers.SPAWN_DUST_COOLDOWN, teleportToBaseCooldown);
     }
 
     @Deprecated
     public int getBlackHoleCooldown() {
-        return this.timers.getOrDefault("item.blackhole_cooldown", 0);
+        return this.timers.getOrDefault(PlayerTimers.BLACK_HOLE_COOLDOWN, 0);
     }
 
     @Deprecated
     public void setBlackHoleCooldown(int blackHoleCooldown) {
-        this.timers.put("item.blackhole_cooldown", 0);
+        this.timers.put(PlayerTimers.BLACK_HOLE_COOLDOWN, 0);
     }
 }

@@ -30,6 +30,7 @@ import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
+import net.jandie1505.bedwars.game.game.team.traps.TeamTrapManager;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgradeManager;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
@@ -67,11 +68,12 @@ public class Game extends GamePart implements ManagedListener {
     private final List<TimeAction> timeActions;
     private final BlockProtectionSystem blockProtectionSystem;
     private final Map<UUID, Scoreboard> playerScoreboards;
-    private final ItemShop itemShop;
-    private final ShopGUI shopGUI;
+    @NotNull private final ItemShop itemShop;
+    @NotNull private final ShopGUI shopGUI;
     @NotNull private final PlayerUpgradeManager playerUpgradeManager;
     @NotNull private final TeamUpgradeManager teamUpgradeManager;
     @NotNull private final TeamGUI teamGUI;
+    @NotNull private final TeamTrapManager teamTrapManager;
     private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
     private int time;
@@ -98,6 +100,7 @@ public class Game extends GamePart implements ManagedListener {
         this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
         this.teamUpgradeManager = new TeamUpgradeManager(this, () -> false);
         this.teamGUI = new TeamGUI(this, teamUpgradeEntries, () -> false);
+        this.teamTrapManager = new TeamTrapManager(this, () -> false);
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.data.maxTime();
         this.publicEmeraldGeneratorLevel = 0;
@@ -159,7 +162,7 @@ public class Game extends GamePart implements ManagedListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::inventoryTickTask, 1, 1, "ingame_player_inventory");
         this.getTaskScheduler().scheduleRepeatingTask(this::groupItemsTask, 1, 10*20, "group_items");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerValuesTask, 1, 200, "ingame_player_values");
-        this.getTaskScheduler().scheduleRepeatingTask(this::playerCooldownTask, 1, 1, "ingame_player_cooldowns");
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerTimerTask, 1, 1, "player_timers");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerTrackerTask, 1, 100, "ingame_player_player_tracker");
         this.getTaskScheduler().scheduleRepeatingTask(this::tntParticleTask, 1, 20, "ingame_player_tnt_particles");
 
@@ -464,6 +467,27 @@ public class Game extends GamePart implements ManagedListener {
 
                 }
 
+            }
+
+        }
+
+    }
+
+    private void playerTimerTask() {
+
+        for (PlayerData playerData : this.players.values()) {
+
+            Iterator<Map.Entry<String, Integer>> i = playerData.getTimers().entrySet().iterator();
+            while (i.hasNext()) {
+                Map.Entry<String, Integer> entry = i.next();
+                int nv = entry.getValue() - 1;
+
+                if (nv <= 0) {
+                    i.remove();
+                    return;
+                }
+
+                entry.setValue(nv);
             }
 
         }
@@ -1367,7 +1391,7 @@ public class Game extends GamePart implements ManagedListener {
      * Returns the item shop.
      * @return item shop
      */
-    public ItemShop getItemShop() {
+    public @NotNull ItemShop getItemShop() {
         return this.itemShop;
     }
 
@@ -1375,7 +1399,7 @@ public class Game extends GamePart implements ManagedListener {
      * Returns the shop gui.
      * @return shop gui
      */
-    public ShopGUI getShopGUI() {
+    public @NotNull ShopGUI getShopGUI() {
         return this.shopGUI;
     }
 
@@ -1401,6 +1425,14 @@ public class Game extends GamePart implements ManagedListener {
      */
     public @NotNull TeamGUI getTeamGUI() {
         return this.teamGUI;
+    }
+
+    /**
+     * Returns the team trap manager
+     * @return TeamTrapManager
+     */
+    public @NotNull TeamTrapManager getTeamTrapManager() {
+        return this.teamTrapManager;
     }
 
     public Location buildLocationWithWorld(Location old) {
