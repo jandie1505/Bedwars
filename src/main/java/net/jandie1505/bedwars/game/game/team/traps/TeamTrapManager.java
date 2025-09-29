@@ -52,7 +52,7 @@ public class TeamTrapManager {
         @Nullable BedwarsTeam.TrapSlot trapSlot = team.pullTrap();
         if (trapSlot == null) return;
 
-        this.triggerTrapSlot(player, trapSlot);
+        this.triggerTrapSlot(team, player, trapSlot);
     }
 
     // ----- CHECKS -----
@@ -74,41 +74,49 @@ public class TeamTrapManager {
 
     // ----- TRIGGER -----
 
-    public void triggerTrapSlot(@NotNull Player player, @NotNull BedwarsTeam.TrapSlot trapSlot) {
+    /**
+     * Triggers the traps in this trap slot for the specified player.
+     * @param team team the traps belong to
+     * @param player player that triggers the trap
+     * @param trapSlot trap slot containing the trap ids
+     */
+    public void triggerTrapSlot(@NotNull BedwarsTeam team, @NotNull Player player, @NotNull BedwarsTeam.TrapSlot trapSlot) {
 
         PlayerData playerData = this.game.getPlayerData(player);
         if (playerData == null) return;
 
-        trapSlot.values().forEach(trapId -> this.triggerTrap(player, trapId));
+        trapSlot.values().forEach(trapId -> this.triggerTrap(team, player, trapId));
     }
 
     /**
      * Triggers the trap with the specified id.
+     * @param team the team the trap belongs to
      * @param player player that triggers the trap
      * @param trapId trap id of the trap that should be triggered
      * @return success
      */
     @SuppressWarnings("UnusedReturnValue")
-    public boolean triggerTrap(@NotNull Player player, @NotNull String trapId) {
+    public boolean triggerTrap(@NotNull BedwarsTeam team, @NotNull Player player, @NotNull String trapId) {
 
         TeamTrap trap = this.traps.get(trapId);
         if (trap == null) return false;
 
-        return this.triggerTrap(player, trap);
+        return this.triggerTrap(team, player, trap);
     }
 
     /**
      * Triggers the specified trap.
+     * @param team the team the trap belongs to
      * @param player player that triggers the trap
      * @param trap trap that should be triggered
      * @return success
      */
-    public boolean triggerTrap(@NotNull Player player, @NotNull TeamTrap trap) {
+    public boolean triggerTrap(@NotNull BedwarsTeam team, @NotNull Player player, @NotNull TeamTrap trap) {
 
         PlayerData playerData = this.game.getPlayerData(player);
         if (playerData == null) return false;
 
-        trap.onTrigger(player, playerData);
+        trap.onTrigger(team, player, playerData);
 
         playerData.setTimer(PlayerTimers.TRAP_IMMUNITY, 30*20);
 

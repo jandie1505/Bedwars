@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game.game.team.traps;
 
 import net.chaossquad.mclib.misc.Removable;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
+import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +19,7 @@ public abstract class TeamTrap implements Removable {
     // ----- TRIGGER -----
 
     @ApiStatus.OverrideOnly
-    public void onTrigger(@NotNull Player player, @NotNull PlayerData playerData) {}
+    public void onTrigger(@NotNull BedwarsTeam team, @NotNull Player player, @NotNull PlayerData playerData) {}
 
     // ----- OTHER -----
 

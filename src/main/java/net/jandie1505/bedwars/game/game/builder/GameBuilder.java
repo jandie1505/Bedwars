@@ -12,6 +12,7 @@ import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgr
 import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
+import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.traps.TeamTrap;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
@@ -283,7 +284,7 @@ public final class GameBuilder {
 
         game.getTeamTrapManager().registerTrap(new TeamTrap(game.getTeamTrapManager(), "test") {
             @Override
-            public void onTrigger(@NotNull Player player, @NotNull PlayerData playerData) {
+            public void onTrigger(@NotNull BedwarsTeam team, @NotNull Player player, @NotNull PlayerData playerData) {
                 Bukkit.broadcast(Component.text("Trap " + this.getId() + " has been triggered by " + player.getName()));
             }
         });
