@@ -14,6 +14,11 @@ import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.traps.TeamTrap;
+import net.jandie1505.bedwars.game.game.team.traps.constants.TeamTraps;
+import net.jandie1505.bedwars.game.game.team.traps.types.AlarmTrap;
+import net.jandie1505.bedwars.game.game.team.traps.types.CountermeasuresTrap;
+import net.jandie1505.bedwars.game.game.team.traps.types.ItsATrap;
+import net.jandie1505.bedwars.game.game.team.traps.types.MiningFatigueTrap;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
@@ -282,12 +287,10 @@ public final class GameBuilder {
      */
     private void setupTeamTraps(@NotNull Game game) {
 
-        game.getTeamTrapManager().registerTrap(new TeamTrap(game.getTeamTrapManager(), "test") {
-            @Override
-            public void onTrigger(@NotNull BedwarsTeam team, @NotNull Player player, @NotNull PlayerData playerData) {
-                Bukkit.broadcast(Component.text("Trap " + this.getId() + " has been triggered by " + player.getName()));
-            }
-        });
+        game.getTeamTrapManager().registerTrap(new AlarmTrap(game.getTeamTrapManager(), TeamTraps.ALARM_TRAP));
+        game.getTeamTrapManager().registerTrap(new CountermeasuresTrap(game.getTeamTrapManager(), TeamTraps.COUNTERMEASURES_TRAP));
+        game.getTeamTrapManager().registerTrap(new ItsATrap(game.getTeamTrapManager(), TeamTraps.ITS_A_TRAP));
+        game.getTeamTrapManager().registerTrap(new MiningFatigueTrap(game.getTeamTrapManager(), TeamTraps.MINING_FATIGUE_TRAP));
 
     }
 

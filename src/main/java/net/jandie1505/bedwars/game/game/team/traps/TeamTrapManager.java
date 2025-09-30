@@ -116,7 +116,7 @@ public class TeamTrapManager {
         PlayerData playerData = this.game.getPlayerData(player);
         if (playerData == null) return false;
 
-        trap.onTrigger(team, player, playerData);
+        trap.trigger(team, player, playerData);
 
         playerData.setTimer(PlayerTimers.TRAP_IMMUNITY, 30*20);
 

@@ -18,8 +18,20 @@ public abstract class TeamTrap implements Removable {
 
     // ----- TRIGGER -----
 
+    /**
+     * Triggers the trap.
+     * @param team team the trap belongs to
+     * @param player player that has triggered the trap
+     * @param playerData player data of the player that has triggered the trap
+     */
+    public final void trigger(@NotNull BedwarsTeam team, @NotNull Player player, @NotNull PlayerData playerData) {
+        this.onTrigger(team, player, playerData);
+    }
+
+    // ----- TRIGGER ACTION -----
+
     @ApiStatus.OverrideOnly
-    public void onTrigger(@NotNull BedwarsTeam team, @NotNull Player player, @NotNull PlayerData playerData) {}
+    protected void onTrigger(@NotNull BedwarsTeam team, @NotNull Player player, @NotNull PlayerData playerData) {}
 
     // ----- OTHER -----
 
