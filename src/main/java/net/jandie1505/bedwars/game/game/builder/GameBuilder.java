@@ -13,6 +13,7 @@ import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
 import net.jandie1505.bedwars.game.game.team.traps.TeamTrap;
 import net.jandie1505.bedwars.game.game.team.traps.constants.TeamTraps;
 import net.jandie1505.bedwars.game.game.team.traps.types.AlarmTrap;
@@ -74,6 +75,9 @@ public final class GameBuilder {
         Map<String, UpgradeEntry> teamUpgradeEntries = getUpgradeEntriesFromJSON(teamGUIFile.optJSONObject("upgrade_entries", new JSONObject()));
         if (teamUpgradeEntries.isEmpty()) teamUpgradeEntries.putAll(DefaultConfigValues.getDefaultTeamUpgradeEntries());
 
+        Map<String, TeamGUI.TrapEntry> teamTrapEntries = getTeamTrapEntriesFromJSON(teamGUIFile.optJSONObject("trap_entries", new JSONObject()));
+        if (teamTrapEntries.isEmpty()) teamTrapEntries.putAll(DefaultConfigValues.getDefaultTeamTrapEntries());
+
         // CREATE GAME
 
         Game game = new Game(
@@ -83,7 +87,8 @@ public final class GameBuilder {
                 shopEntries,
                 upgradeEntries,
                 quickBuyMenuEntries,
-                teamUpgradeEntries
+                teamUpgradeEntries,
+                teamTrapEntries
         );
 
         // UPGRADES
@@ -157,6 +162,26 @@ public final class GameBuilder {
             JSONObject entryJSON = entry.getValue().toJSON();
             entryJSON.put("slot", entry.getKey());
             json.put(entryJSON);
+        }
+
+        return json;
+    }
+
+    public static @NotNull Map<String, TeamGUI.TrapEntry> getTeamTrapEntriesFromJSON(@NotNull JSONObject json) {
+        Map<String, TeamGUI.TrapEntry> entries = new HashMap<>();
+
+        for (String key : json.keySet()) {
+            entries.put(key, TeamGUI.TrapEntry.fromJSON(json.getJSONObject(key)));
+        }
+
+        return entries;
+    }
+
+    public static @NotNull JSONObject createJSONFromTeamTrapEntries(@NotNull Map<String, TeamGUI.TrapEntry> entries) {
+        JSONObject json = new JSONObject();
+
+        for (Map.Entry<String, TeamGUI.TrapEntry> entry : entries.entrySet()) {
+            json.put(entry.getKey(), entry.getValue().toJSON());
         }
 
         return json;

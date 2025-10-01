@@ -292,9 +292,10 @@ public class Bedwars extends JavaPlugin {
         if (!teamGUIFile.exists()) {
             teamGUIFile.createNewFile();
 
-            JSONObject shopFileContent = new JSONObject();
-            shopFileContent.put("upgrade_entries", GameBuilder.createJSONFromUpgradeEntries(DefaultConfigValues.getDefaultTeamUpgradeEntries()));
-            JSONLoader.saveJSONToFile(teamGUIFile, shopFileContent, 4);
+            JSONObject teamGUIFileContent = new JSONObject();
+            teamGUIFileContent.put("upgrade_entries", GameBuilder.createJSONFromUpgradeEntries(DefaultConfigValues.getDefaultTeamUpgradeEntries()));
+            teamGUIFileContent.put("trap_entries", GameBuilder.createJSONFromTeamTrapEntries(DefaultConfigValues.getDefaultTeamTrapEntries()));
+            JSONLoader.saveJSONToFile(teamGUIFile, teamGUIFileContent, 4);
 
         }
 

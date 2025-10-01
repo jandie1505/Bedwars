@@ -2,6 +2,7 @@ package net.jandie1505.bedwars.game.game.team.gui;
 
 import net.chaossquad.mclib.ItemUtils;
 import net.chaossquad.mclib.executable.ManagedListener;
+import net.chaossquad.mclib.json.JSONConfigUtils;
 import net.chaossquad.mclib.misc.Removable;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
@@ -33,11 +34,10 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TeamGUI implements ManagedListener, InventoryHolder {
 
@@ -250,8 +250,8 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
 
         // Traps slots ready for purchase
         if (slotIndex == traps.size()) {
-            inventory.setItem(firstSlotId, this.getSlotPurchasableItem());
-            inventory.setItem(secondSlotId, this.getSlotPurchasableItem());
+            inventory.setItem(firstSlotId, this.getSlotPurchasableItem(slotIndex, 0));
+            inventory.setItem(secondSlotId, this.getSlotPurchasableItem(slotIndex, 1));
             return;
         }
 
@@ -265,7 +265,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
     private void buildTrapSlot(@NotNull Inventory inventory, @Nullable String trapId, int slot, int trapSlotIndex, int trapOnSlotIndex) {
 
         if (trapId == null) {
-            inventory.setItem(slot, this.getSlotPurchasableItem());
+            inventory.setItem(slot, this.getSlotPurchasableItem(trapSlotIndex, trapOnSlotIndex));
             return;
         }
 
@@ -365,7 +365,6 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         if (data.has(MENU_TRAP_OVERVIEW_PURCHASE_MENU_BUTTON, PersistentDataType.BOOLEAN)) {
             if (!data.getOrDefault(MENU_TRAP_OVERVIEW_PURCHASE_MENU_BUTTON, PersistentDataType.BOOLEAN, false)) return;
             this.onInventoryClickForOpeningTrapPurchaseMenu(data.getOrDefault(MENU_TRAP_OVERVIEW_SLOT_INDEX, PersistentDataType.INTEGER, -1), data.getOrDefault(MENU_TRAP_OVERVIEW_TRAP, PersistentDataType.INTEGER, -1), event, player, team);
-            Bukkit.broadcastMessage("purchase menu open");
             return;
         }
 
@@ -573,7 +572,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         return item;
     }
 
-    private @NotNull ItemStack getSlotPurchasableItem() {
+    private @NotNull ItemStack getSlotPurchasableItem(int trapSlotIndex, int trapOnSlotIndex) {
         ItemStack item = new ItemStack(Material.GRAY_STAINED_GLASS);
         ItemMeta meta = item.getItemMeta();
 
@@ -581,12 +580,14 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         meta.lore(List.of(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Click to purchase a trap.", NamedTextColor.GRAY))));
         meta.addItemFlags(ItemFlag.values());
         meta.getPersistentDataContainer().set(MENU_TRAP_OVERVIEW_PURCHASE_MENU_BUTTON, PersistentDataType.BOOLEAN, true);
+        meta.getPersistentDataContainer().set(MENU_TRAP_OVERVIEW_SLOT_INDEX, PersistentDataType.INTEGER, trapSlotIndex);
+        meta.getPersistentDataContainer().set(MENU_TRAP_OVERVIEW_TRAP, PersistentDataType.INTEGER, trapOnSlotIndex);
 
         item.setItemMeta(meta);
         return item;
     }
 
-    private @NotNull ItemStack getSlotBrokenItem(int slotIndex, int trapOnSlotIndex) {
+    private @NotNull ItemStack getSlotBrokenItem(int trapSlotIndex, int trapOnSlotIndex) {
         ItemStack item = new ItemStack(Material.SKELETON_SKULL);
         ItemMeta meta = item.getItemMeta();
 
@@ -596,7 +597,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
                 ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Click to delete it", NamedTextColor.GRAY))
         ));
         meta.addItemFlags(ItemFlag.values());
-        meta.getPersistentDataContainer().set(MENU_TRAP_OVERVIEW_SLOT_INDEX, PersistentDataType.INTEGER, slotIndex);
+        meta.getPersistentDataContainer().set(MENU_TRAP_OVERVIEW_SLOT_INDEX, PersistentDataType.INTEGER, trapSlotIndex);
         meta.getPersistentDataContainer().set(MENU_TRAP_OVERVIEW_TRAP, PersistentDataType.INTEGER, trapOnSlotIndex);
 
         item.setItemMeta(meta);
@@ -814,12 +815,12 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
 
     // ----- INNER CLASSES -----
 
-    public record TrapEntry(@NotNull String trapId, @NotNull UpgradeEntry.PriceEntry priceEntry, List<ShopGUIPosition> positions, @NotNull ItemStack icon) {
+    public record TrapEntry(@NotNull String trapId, @NotNull UpgradeEntry.PriceEntry priceEntry, Set<ShopGUIPosition> positions, @NotNull ItemStack icon) {
 
-        public TrapEntry(@NotNull String trapId, @NotNull UpgradeEntry.PriceEntry priceEntry, List<ShopGUIPosition> positions, @NotNull ItemStack icon) {
+        public TrapEntry(@NotNull String trapId, @NotNull UpgradeEntry.PriceEntry priceEntry, Set<ShopGUIPosition> positions, @NotNull ItemStack icon) {
             this.trapId = trapId;
             this.priceEntry = priceEntry;
-            this.positions = List.copyOf(positions);
+            this.positions = Set.copyOf(positions);
             this.icon = icon.clone();
         }
 
@@ -827,6 +828,42 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         public @NotNull ItemStack icon() {
             return icon.clone();
         }
+
+        public static @NotNull TrapEntry fromJSON(JSONObject json) {
+
+            String upgradeId = json.getString("trapId");
+            UpgradeEntry.PriceEntry price = UpgradeEntry.PriceEntry.fromJSON(json.getJSONObject("price"));
+
+            Set<ShopGUIPosition> positions = new HashSet<>();
+            JSONArray guiPositions = json.getJSONArray("positions");
+            for (int i = 0; i < guiPositions.length(); i++) {
+                JSONObject guiPosition = guiPositions.getJSONObject(i);
+                ShopGUIPosition position = ShopGUIPosition.createFromJSON(guiPosition);
+                positions.add(position);
+            }
+
+            ItemStack icon = JSONConfigUtils.deserializeItem(json.getJSONObject("icon"));
+
+            return new TrapEntry(upgradeId, price, positions, icon);
+        }
+
+        public @NotNull JSONObject toJSON() {
+            JSONObject json = new JSONObject();
+
+            json.put("trapId", this.trapId);
+            json.put("price", this.priceEntry.toJSON());
+
+            JSONArray positions = new JSONArray();
+            for (ShopGUIPosition guiPosition : this.positions) {
+                positions.put(ShopGUIPosition.convertToJSON(guiPosition));
+            }
+            json.put("positions", positions);
+
+            json.put("icon", JSONConfigUtils.serializeItem(this.icon()));
+
+            return json;
+        }
+
     }
 
 }

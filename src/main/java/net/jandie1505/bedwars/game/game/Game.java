@@ -87,7 +87,7 @@ public class Game extends GamePart implements ManagedListener {
 
     // ----- INIT -----
 
-    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, @NotNull Map<String, UpgradeEntry> teamUpgradeEntries) {
+    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, @NotNull Map<String, UpgradeEntry> teamUpgradeEntries, @NotNull Map<String, TeamGUI.TrapEntry> teamTrapEntries) {
         super(plugin);
         this.world = world;
         this.data = data;
@@ -101,14 +101,7 @@ public class Game extends GamePart implements ManagedListener {
         this.shopGUI = new ShopGUI(this, defaultQuickBuyMenu);
         this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
         this.teamUpgradeManager = new TeamUpgradeManager(this, () -> false);
-        this.teamGUI = new TeamGUI(this, teamUpgradeEntries, Map.of(
-                TeamTraps.ALARM_TRAP, new TeamGUI.TrapEntry(
-                        TeamTraps.ALARM_TRAP,
-                        new UpgradeEntry.PriceEntry(Material.DIAMOND, 1),
-                        List.of(new ShopGUIPosition(0, 29)),
-                        new ItemStack(Material.REDSTONE_TORCH)
-                )
-        ), () -> false);
+        this.teamGUI = new TeamGUI(this, teamUpgradeEntries, teamTrapEntries, () -> false);
         this.teamTrapManager = new TeamTrapManager(this, () -> false);
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.data.maxTime();

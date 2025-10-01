@@ -10,6 +10,8 @@ import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
+import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
+import net.jandie1505.bedwars.game.game.team.traps.constants.TeamTraps;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
@@ -2875,6 +2877,40 @@ public final class DefaultConfigValues {
 
         return upgrades;
     }
+    
+    public static @NotNull Map<String, TeamGUI.TrapEntry> getDefaultTeamTrapEntries() {
+        Map<String, TeamGUI.TrapEntry> entries = new HashMap<>();
+        
+        entries.put(TeamTraps.ALARM_TRAP, new TeamGUI.TrapEntry(
+                TeamTraps.ALARM_TRAP,
+                new UpgradeEntry.PriceEntry(Material.DIAMOND, 2),
+                Set.of(new ShopGUIPosition(0, 29)),
+                getAlarmTrapItem()
+        ));
+
+        entries.put(TeamTraps.COUNTERMEASURES_TRAP, new TeamGUI.TrapEntry(
+                TeamTraps.COUNTERMEASURES_TRAP,
+                new UpgradeEntry.PriceEntry(Material.DIAMOND, 3),
+                Set.of(new ShopGUIPosition(0, 33)),
+                getCountermeasuresTrapItem()
+        ));
+
+        entries.put(TeamTraps.ITS_A_TRAP, new TeamGUI.TrapEntry(
+                TeamTraps.ITS_A_TRAP,
+                new UpgradeEntry.PriceEntry(Material.DIAMOND, 1),
+                Set.of(new ShopGUIPosition(0, 30)),
+                getItsATrapTrapItem()
+        ));
+
+        entries.put(TeamTraps.MINING_FATIGUE_TRAP, new TeamGUI.TrapEntry(
+                TeamTraps.MINING_FATIGUE_TRAP,
+                new UpgradeEntry.PriceEntry(Material.DIAMOND, 1),
+                Set.of(new ShopGUIPosition(0, 32)),
+                getMiningFatigueTrapItem()
+        ));
+
+        return entries;
+    }
 
     private static @NotNull ItemStack getSharpnessTeamUpgradeItem(int level) {
         return generateUpgradeItem(
@@ -3015,5 +3051,71 @@ public final class DefaultConfigValues {
     }
 
     private record TierListEntry(@NotNull Component name, @NotNull Component price) {}
+    
+    public static @NotNull ItemStack getAlarmTrapItem() {
+        ItemStack item = new ItemStack(Material.REDSTONE_TORCH);
+        ItemMeta meta = item.getItemMeta();
+        
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Alarm Trap")));
+        meta.lore(List.of(
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Features:", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Gives the enemy glowing", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Reveals invisible enemies", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Notifies you and your team", NamedTextColor.GRAY))
+        ));
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static @NotNull ItemStack getCountermeasuresTrapItem() {
+        ItemStack item = new ItemStack(Material.POTION);
+        PotionMeta meta = (PotionMeta) item.getItemMeta();
+
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Countermeasures Trap")));
+        meta.lore(List.of(
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Gives effects to your team:", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Jump Boost", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Speed", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Regeneration", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Absorption", NamedTextColor.GRAY))
+        ));
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static @NotNull ItemStack getItsATrapTrapItem() {
+        ItemStack item = new ItemStack(Material.TRIPWIRE_HOOK);
+        ItemMeta meta = item.getItemMeta();
+
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("It's a Trap")));
+        meta.lore(List.of(
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Gives effects to your enemies:", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Blindness", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Slowness", NamedTextColor.GRAY))
+        ));
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static @NotNull ItemStack getMiningFatigueTrapItem() {
+        ItemStack item = new ItemStack(Material.STONE_PICKAXE);
+        ItemMeta meta = item.getItemMeta();
+
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Mining Fatigue Trap")));
+        meta.lore(List.of(
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Gives Mining Fatigue", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("to your enemies", NamedTextColor.GRAY))
+        ));
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        return item;
+    }
 
 }
