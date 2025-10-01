@@ -25,12 +25,14 @@ import net.jandie1505.bedwars.game.game.shop.ItemShop;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
+import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
 import net.jandie1505.bedwars.game.game.team.traps.TeamTrapManager;
+import net.jandie1505.bedwars.game.game.team.traps.constants.TeamTraps;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgradeManager;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
@@ -99,7 +101,14 @@ public class Game extends GamePart implements ManagedListener {
         this.shopGUI = new ShopGUI(this, defaultQuickBuyMenu);
         this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
         this.teamUpgradeManager = new TeamUpgradeManager(this, () -> false);
-        this.teamGUI = new TeamGUI(this, teamUpgradeEntries, () -> false);
+        this.teamGUI = new TeamGUI(this, teamUpgradeEntries, Map.of(
+                TeamTraps.ALARM_TRAP, new TeamGUI.TrapEntry(
+                        TeamTraps.ALARM_TRAP,
+                        new UpgradeEntry.PriceEntry(Material.DIAMOND, 1),
+                        List.of(new ShopGUIPosition(0, 29)),
+                        new ItemStack(Material.REDSTONE_TORCH)
+                )
+        ), () -> false);
         this.teamTrapManager = new TeamTrapManager(this, () -> false);
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.data.maxTime();
