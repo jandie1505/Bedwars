@@ -765,6 +765,15 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         UpgradeEntry.PriceEntry price = entry.priceEntry();
         if (price.invalid()) return;
 
+        // Check for duplicate
+        BedwarsTeam.TrapSlot slot = team.getTrap(trapSlotIndex);
+        if (slot != null && slot.values().contains(entry.trapId())) {
+            player.sendRichMessage("<red>You cannot purchase the same trap twice on the same slot!");
+            return;
+        }
+
+        // Purchase
+
         if (!freeMode) {
 
             // Get the amount of the currency the player currently has
