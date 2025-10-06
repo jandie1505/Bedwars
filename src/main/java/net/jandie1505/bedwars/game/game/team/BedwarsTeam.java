@@ -10,6 +10,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -354,6 +355,30 @@ public class BedwarsTeam {
             if (first != null) values.add(first);
             if (second != null) values.add(second);
             return values;
+        }
+
+        public @Nullable String get(int slot) {
+            return switch (slot) {
+                case 0 -> this.first;
+                case 1 -> this.second;
+                default -> null;
+            };
+        }
+
+        public @NotNull TrapSlot modify(int slot, @NotNull String value) {
+            return switch (slot) {
+                case 0 -> new TrapSlot(value, this.second);
+                case 1 -> new TrapSlot(this.first, value);
+                default -> new TrapSlot(this.first, this.second);
+            };
+        }
+
+        public boolean closed() {
+            return this.values().isEmpty();
+        }
+
+        public @NotNull TrapSlot clone() {
+            return new TrapSlot(this.first, this.second);
         }
 
     }

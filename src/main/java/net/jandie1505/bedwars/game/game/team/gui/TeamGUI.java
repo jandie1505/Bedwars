@@ -296,6 +296,12 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
 
     private void buildTrapsPurchaseMenu(@NotNull Inventory inventory, @NotNull BedwarsTeam team) {
 
+        // Cancel button
+
+        inventory.setItem(0, this.getTrapPurchaseCancelButton());
+
+        // trap entries
+
         for (int slot = 18; slot < inventory.getSize(); slot++) {
 
             for (Map.Entry<String, TrapEntry> e : this.teamTrapEntries.entrySet()) {
@@ -358,24 +364,24 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
 
         if (data.has(MENU_TRAP_OVERVIEW_CLEAR_BUTTON, PersistentDataType.BOOLEAN)) {
             if (!data.getOrDefault(MENU_TRAP_OVERVIEW_CLEAR_BUTTON, PersistentDataType.BOOLEAN, false)) return;
-            this.onInventoryClickForTrapClear(data.getOrDefault(MENU_TRAP_OVERVIEW_SLOT_INDEX, PersistentDataType.INTEGER, -1), data.getOrDefault(MENU_TRAP_OVERVIEW_TRAP, PersistentDataType.INTEGER, -1), event, player, team);
+            this.onInventoryClickForTrapClear(data.getOrDefault(MENU_TRAP_OVERVIEW_SLOT_INDEX, PersistentDataType.INTEGER, -1), data.getOrDefault(MENU_TRAP_OVERVIEW_TRAP, PersistentDataType.INTEGER, -1), event, player, team, freeMode, fullAccess);
             return;
         }
 
         if (data.has(MENU_TRAP_OVERVIEW_PURCHASE_MENU_BUTTON, PersistentDataType.BOOLEAN)) {
             if (!data.getOrDefault(MENU_TRAP_OVERVIEW_PURCHASE_MENU_BUTTON, PersistentDataType.BOOLEAN, false)) return;
-            this.onInventoryClickForOpeningTrapPurchaseMenu(data.getOrDefault(MENU_TRAP_OVERVIEW_SLOT_INDEX, PersistentDataType.INTEGER, -1), data.getOrDefault(MENU_TRAP_OVERVIEW_TRAP, PersistentDataType.INTEGER, -1), event, player, team);
+            this.onInventoryClickForOpeningTrapPurchaseMenu(data.getOrDefault(MENU_TRAP_OVERVIEW_SLOT_INDEX, PersistentDataType.INTEGER, -1), data.getOrDefault(MENU_TRAP_OVERVIEW_TRAP, PersistentDataType.INTEGER, -1), event, player, team, freeMode, fullAccess);
             return;
         }
 
         if (data.has(MENU_TRAP_PURCHASE_MENU_CANCEL_BUTTON, PersistentDataType.BOOLEAN)) {
             if (!data.getOrDefault(MENU_TRAP_PURCHASE_MENU_CANCEL_BUTTON, PersistentDataType.BOOLEAN, false)) return;
-            player.openInventory(this.getInventory(player, 1));
+            player.openInventory(this.getInventory(player, 1, team, freeMode, fullAccess));
             return;
         }
 
         if (data.has(MENU_TRAP_PURCHASE_MENU_CONFIRM_BUTTON, PersistentDataType.STRING)) {
-            // TODO
+            this.onInventoryClickForPurchasingTrap(data.getOrDefault(MENU_TRAP_PURCHASE_MENU_CONFIRM_BUTTON, PersistentDataType.STRING, ""), event, player, team, currentPage, freeMode, fullAccess);
             return;
         }
 
@@ -392,7 +398,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         return;
     }
 
-    private void onInventoryClickForTrapClear(int trapSlotIndex, int trapOnTrapSlotIndex, @NotNull InventoryClickEvent event, @NotNull Player player, @NotNull BedwarsTeam team) {
+    private void onInventoryClickForTrapClear(int trapSlotIndex, int trapOnTrapSlotIndex, @NotNull InventoryClickEvent event, @NotNull Player player, @NotNull BedwarsTeam team, boolean freeMode, boolean fullAccess) {
         if (trapSlotIndex < 0 || trapOnTrapSlotIndex < 0) return;
 
         BedwarsTeam.TrapSlot slot = team.getTrap(trapSlotIndex);
@@ -400,7 +406,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
 
         if (slot.values().size() < 2) {
             team.getTraps().remove(trapSlotIndex);
-            player.openInventory(this.getInventory(player, 1));
+            player.openInventory(this.getInventory(player, 1, team, freeMode, fullAccess));
             return;
         }
 
@@ -412,13 +418,13 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
             }
         }
 
-        player.openInventory(this.getInventory(player, 1));
+        player.openInventory(this.getInventory(player, 1, team, freeMode, fullAccess));
     }
 
-    private void onInventoryClickForOpeningTrapPurchaseMenu(int trapSlotIndex, int trapOnTrapSlotIndex, @NotNull InventoryClickEvent event, @NotNull Player player, @NotNull BedwarsTeam team) {
+    private void onInventoryClickForOpeningTrapPurchaseMenu(int trapSlotIndex, int trapOnTrapSlotIndex, @NotNull InventoryClickEvent event, @NotNull Player player, @NotNull BedwarsTeam team, boolean freeMode, boolean fullAccess) {
         if (trapSlotIndex < 0 ||  trapOnTrapSlotIndex < 0) return;
 
-        Inventory inventory = this.getInventory(player, 10);
+        Inventory inventory = this.getInventory(player, 10, team, freeMode, fullAccess);
 
         // Update system item to store the trap slot index and slot
         ItemStack systemItem = inventory.getItem(0);
@@ -431,6 +437,25 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
 
         // Open inventory
         player.openInventory(inventory);
+    }
+
+    private void onInventoryClickForPurchasingTrap(@NotNull String trapId, @NotNull InventoryClickEvent event, @NotNull Player player, @NotNull BedwarsTeam team, int currentPage, boolean freeMode, boolean fullAccess) {
+        if (trapId.isEmpty()) return;
+
+        TrapEntry entry = this.teamTrapEntries.get(trapId);
+        if (entry == null) return;
+
+        // Get slot
+        ItemStack systemItem = event.getInventory().getItem(0);
+        if (systemItem == null) return;
+        ItemMeta systemMeta = systemItem.getItemMeta();
+        int trapSlotIndex = systemMeta.getPersistentDataContainer().getOrDefault(MENU_TRAP_OVERVIEW_SLOT_INDEX, PersistentDataType.INTEGER, -1);
+        int trapOnTrapSlotIndex = systemMeta.getPersistentDataContainer().getOrDefault(MENU_TRAP_OVERVIEW_TRAP, PersistentDataType.INTEGER, -1);
+        if (trapSlotIndex < 0 || trapOnTrapSlotIndex < 0) return;
+
+        this.purchaseTrap(player, team, entry, trapSlotIndex, trapOnTrapSlotIndex, freeMode);
+        player.openInventory(this.getInventory(player, 1, team, freeMode, fullAccess));
+        return;
     }
 
     @EventHandler
@@ -464,7 +489,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
 
-        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text((selected ? "•" : "") + "Team Upgrades", NamedTextColor.GOLD)));
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text((selected ? "• " : "") + "Team Upgrades", NamedTextColor.GOLD)));
         meta.lore(List.of(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Enhancements for your team", NamedTextColor.GRAY))));
         ItemUtils.setCustomHeadForSkullMeta(meta, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWEyZDg5MWM2YWU5ZjZiYWEwNDBkNzM2YWI4NGQ0ODM0NGJiNmI3MGQ3ZjFhMjgwZGQxMmNiYWM0ZDc3NyJ9fX0=");
         meta.addItemFlags(ItemFlag.values());
@@ -480,7 +505,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
 
-        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text((selected ? "•" : "") + "Traps", NamedTextColor.GOLD)));
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text((selected ? "• " : "") + "Traps", NamedTextColor.GOLD)));
         meta.lore(List.of(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Defensive measures against enemies", NamedTextColor.GRAY))));
         ItemUtils.setCustomHeadForSkullMeta(meta, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTk5ODNmYTFkOGMzYTA4N2MxMTVhM2JmNDJhY2UyODBiZjhhOTQ5NWEzNzBiNjkzY2UyOTkyY2EyYTdlNmIwMyJ9fX0=");
         meta.addItemFlags(ItemFlag.values());
@@ -496,7 +521,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
 
-        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text((selected ? "•" : "") + "Resource Storage", NamedTextColor.GOLD)));
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text((selected ? "• " : "") + "Resource Storage", NamedTextColor.GOLD)));
         meta.lore(List.of(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Store and retrieve resources", NamedTextColor.GRAY))));
         ItemUtils.setCustomHeadForSkullMeta(meta, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzNiZGJhZWRkN2Q2NDQ0ZTc5YWE4MjIyZjg5ODEyNDAyMDRjYzNjYzFjOTY1NTExODY4NzYxOGRiOGNlYyJ9fX0=");
         meta.addItemFlags(ItemFlag.values());
@@ -605,12 +630,13 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
     }
 
     private @NotNull ItemStack getTrapPurchaseCancelButton() {
-        ItemStack item = new ItemStack(Material.RED_STAINED_GLASS);
-        ItemMeta meta = item.getItemMeta();
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
 
-        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Cancel purchase", NamedTextColor.RED, TextDecoration.BOLD)));
-        meta.addItemFlags(ItemFlag.values());
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Cancel purchase", NamedTextColor.RED)));
         meta.getPersistentDataContainer().set(MENU_TRAP_PURCHASE_MENU_CANCEL_BUTTON, PersistentDataType.BOOLEAN, true);
+        ItemUtils.setCustomHeadForSkullMeta(meta, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjQ3Y2YwZjNiOWVjOWRmMjQ4NWE5Y2Q0Nzk1YjYwYTM5MWM4ZTZlYmFjOTYzNTRkZTA2ZTMzNTdhOWE4ODYwNyJ9fX0=");
+        meta.addItemFlags(ItemFlag.values());
 
         item.setItemMeta(meta);
         return item;
@@ -706,6 +732,54 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         // Give upgrade
         team.setUpgrade(entry.upgradeId(), level);
         player.playSound(player.getLocation().clone(), Sound.BLOCK_STONE_BUTTON_CLICK_ON, 1.0f, 1.0f);
+    }
+
+    private void purchaseTrap(@NotNull Player player, @NotNull BedwarsTeam team, @NotNull TrapEntry entry, int trapSlotIndex, int trapOnTrapSlotIndex, boolean freeMode) {
+
+        UpgradeEntry.PriceEntry price = entry.priceEntry();
+        if (price.invalid()) return;
+
+        if (!freeMode) {
+
+            // Get the amount of the currency the player currently has
+            int availableCurrency = this.getAvailableCurrency(player.getInventory(), price.currency());
+
+            // Check for enough money
+            if (availableCurrency < price.amount()) {
+                player.sendRichMessage("<red>You don't have enough money to purchase the trap!");
+                player.playSound(player.getLocation().clone(), Sound.ENTITY_PLAYER_TELEPORT, 1, 2);
+                return;
+            }
+
+            // Remove amount of money
+            Bedwars.removeSpecificAmountOfItems(player.getInventory(), price.currency(), price.amount());
+
+        }
+
+        // Add trap
+        this.assignTrapForPurchase(team, entry, trapSlotIndex, trapOnTrapSlotIndex);
+    }
+
+    private void assignTrapForPurchase(@NotNull BedwarsTeam team, @NotNull TrapEntry entry, int trapSlotIndex, int trapOnTrapSlotIndex) {
+
+        // Prepare slot
+        BedwarsTeam.TrapSlot slot;
+        if (trapSlotIndex >= team.getTraps().size()) {
+            slot = new BedwarsTeam.TrapSlot(null, null);
+            team.getTraps().add(slot);
+        } else {
+            slot = team.getTraps().get(trapSlotIndex);
+        }
+
+        // Modify the slot
+        slot = slot.modify(trapOnTrapSlotIndex, entry.trapId());
+
+        // Set the modified slot
+        team.getTraps().set(trapSlotIndex, slot);
+
+        // Remove if all null
+        if (slot.closed()) team.getTraps().remove(trapSlotIndex);
+
     }
 
     private int getAvailableCurrency(@NotNull Inventory inventory, @NotNull Material currency) {
