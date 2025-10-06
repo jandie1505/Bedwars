@@ -26,7 +26,7 @@ public class ItsATrap extends TeamTrap {
         player.sendMessage(Component.empty().appendNewline()
                 .append(Component.text("⚠ You have triggered", NamedTextColor.RED)).appendSpace()
                 .append(Component.text("It's a Trap", NamedTextColor.YELLOW)).appendSpace()
-                .append(Component.text("of")).appendSpace()
+                .append(Component.text("of", NamedTextColor.RED)).appendSpace()
                 .append(Component.text("Team", team.getChatColor())).appendSpace()
                 .append(team.getFormattedName())
                 .append(Component.text("!", NamedTextColor.RED)).appendNewline()

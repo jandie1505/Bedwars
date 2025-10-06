@@ -46,7 +46,7 @@ public class AlarmTrap extends TeamTrap {
             member.sendMessage(Component.empty().appendNewline()
                     .append(Component.text("WARNING!", NamedTextColor.RED, TextDecoration.BOLD)).appendNewline()
                     .append(Component.text("The alarm trap has been triggered by", NamedTextColor.RED)).appendSpace()
-                    .append(player.displayName().color(playerTeam.getChatColor())).appendSpace()
+                    .append(player.displayName().color(playerTeam.getChatColor()))
                     .append(Component.text("!", NamedTextColor.RED)).appendNewline()
             );
 
@@ -62,7 +62,7 @@ public class AlarmTrap extends TeamTrap {
 
         // Warning message for triggerer
         player.sendMessage(Component.empty().appendNewline()
-                .append(Component.text("⚠ You have triggered the alarm trap of Team")).appendSpace()
+                .append(Component.text("⚠ You have triggered the alarm trap of Team", NamedTextColor.RED)).appendSpace()
                 .append(team.getFormattedName())
                 .append(Component.text("!", NamedTextColor.RED)).appendNewline()
         );
