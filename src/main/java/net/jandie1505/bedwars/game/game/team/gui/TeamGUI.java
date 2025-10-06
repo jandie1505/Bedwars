@@ -220,6 +220,9 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
 
     private void buildTrapsMenu(@NotNull Inventory inventory, @NotNull BedwarsTeam team) {
 
+        // Help item
+        inventory.setItem(8, this.getTrapHelpItem());
+
         // Trap Slot Column Icons
         inventory.setItem(19, this.getFirstTrapSlotItem());
         inventory.setItem(21, this.getSecondTrapSlotItem());
@@ -636,6 +639,29 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Cancel purchase", NamedTextColor.RED)));
         meta.getPersistentDataContainer().set(MENU_TRAP_PURCHASE_MENU_CANCEL_BUTTON, PersistentDataType.BOOLEAN, true);
         ItemUtils.setCustomHeadForSkullMeta(meta, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjQ3Y2YwZjNiOWVjOWRmMjQ4NWE5Y2Q0Nzk1YjYwYTM5MWM4ZTZlYmFjOTYzNTRkZTA2ZTMzNTdhOWE4ODYwNyJ9fX0=");
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private @NotNull ItemStack getTrapHelpItem() {
+        ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta meta = (SkullMeta) item.getItemMeta();
+
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Trap Help", NamedTextColor.GOLD)));
+        meta.lore(List.of(
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("You can protect your team’s base with traps.", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("A trap is triggered when an enemy enters your base.", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Depending on the trap, the enemy or your team will receive certain effects.", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Traps are bought for trap slots. There are 4 of them.", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("An enemy who enters the base triggers the first slot.", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Once a slot has been triggered, the other slots shift forward.", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("The next enemy would then trigger the second slot (which is now the first one).", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("\"Slot triggered\" means that all traps on this slot are activated for that player.", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("A player who triggered a trap cannot trigger a trap again for the next 30 seconds.", NamedTextColor.GRAY))
+        ));
+        ItemUtils.setCustomHeadForSkullMeta(meta, "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGE5OWIwNWI5YTFkYjRkMjliNWU2NzNkNzdhZTU0YTc3ZWFiNjY4MTg1ODYwMzVjOGEyMDA1YWViODEwNjAyYSJ9fX0=");
         meta.addItemFlags(ItemFlag.values());
 
         item.setItemMeta(meta);
