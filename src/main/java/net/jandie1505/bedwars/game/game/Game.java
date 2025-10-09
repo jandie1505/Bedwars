@@ -6,6 +6,7 @@ import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.chaossquad.mclib.WorldUtils;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.executable.ManagedListener;
+import net.chaossquad.mclib.immutables.ImmutableLocation;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.config.ConfigSetup;
 import net.jandie1505.bedwars.constants.ConfigKeys;
@@ -40,11 +41,10 @@ import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.game.timeactions.provider.TimeActionCreator;
 import net.jandie1505.bedwars.game.game.world.BlockProtectionSystem;
 import net.jandie1505.bedwars.utilities.ItemSimilarityKey;
-import net.jandie1505.datastorage.DataStorage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -57,15 +57,23 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class Game extends GamePart implements ManagedListener {
     private final World world;
-    private final MapData data;
+
+    @NotNull private final String name;
+    private final int respawnCountdown;
+    private final int maxTime;
+    private final int spawnBlockPlaceProtection;
+    private final int villagerBlockPlaceProtection;
+    @NotNull private final ImmutableLocation centerLocation;
+    private final int mapRadius;
+
     private final List<BedwarsTeam> teams;
     private final Map<UUID, PlayerData> players;
     private final List<Generator> generators;
@@ -92,9 +100,18 @@ public class Game extends GamePart implements ManagedListener {
     public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, @NotNull Map<String, UpgradeEntry> teamUpgradeEntries, @NotNull Map<String, TeamGUI.TrapEntry> teamTrapEntries) {
         super(plugin);
         this.world = world;
+
         this.getConfig().merge(ConfigSetup.loadDataStorage(this.getPlugin(), "game.yml"), true);
         this.getConfig().merge(this.getPlugin().config().getSection("game"), true);
-        this.data = data;
+
+        this.name = data.name();
+        this.respawnCountdown = data.respawnCountdown();
+        this.maxTime = data.maxTime();
+        this.spawnBlockPlaceProtection = data.spawnBlockPlaceProtection();
+        this.villagerBlockPlaceProtection = data.villagerBlockPlaceProtection();
+        this.centerLocation = new ImmutableLocation(WorldUtils.locationWithWorld(data.centerLocation().mutableCopy(), this.world));
+        this.mapRadius = data.mapRadius();
+
         this.teams = Collections.synchronizedList(new ArrayList<>());
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.generators = Collections.synchronizedList(new ArrayList<>());
@@ -108,7 +125,7 @@ public class Game extends GamePart implements ManagedListener {
         this.teamGUI = new TeamGUI(this, teamUpgradeEntries, teamTrapEntries, () -> false);
         this.teamTrapManager = new TeamTrapManager(this, () -> false);
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
-        this.time = this.data.maxTime();
+        this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
         this.prepared = false;
@@ -134,8 +151,8 @@ public class Game extends GamePart implements ManagedListener {
 
         // WORLD BORDER
 
-        this.world.getWorldBorder().setCenter(this.data.centerLocation());
-        this.world.getWorldBorder().setSize(this.data.mapRadius() * 2);
+        this.world.getWorldBorder().setCenter(this.centerLocation.mutableCopy());
+        this.world.getWorldBorder().setSize(this.mapRadius * 2);
 
         // GAME RULES
 
@@ -353,7 +370,7 @@ public class Game extends GamePart implements ManagedListener {
      * This task teleports spectators to the game map.
      */
     private void teleportSpectatorsTask() {
-        Location loc = this.data.centerLocation().mutableCopy();
+        Location loc = this.centerLocation.mutableCopy();
         loc.setWorld(this.world);
 
         for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
@@ -408,69 +425,54 @@ public class Game extends GamePart implements ManagedListener {
      */
     private void playerAliveStatusTask() {
 
-        for (UUID playerId : this.getPlayers().keySet()) {
-            PlayerData playerData = this.getPlayer(playerId);
+        for (Player player : this.getOnlinePlayers()) {
+
+            // Get player data
+            PlayerData playerData = this.getPlayerData(player);
             if (playerData == null) continue;
-            Player player = this.getPlugin().getServer().getPlayer(playerId);
-            if (player == null) continue;
+
+            // Get team
             BedwarsTeam team = this.getTeam(playerData.getTeam());
-            if (team == null) continue;
+            if (team == null) return;
 
-            // Check if alive or not
+            if (playerData.isAlive()) { // PLAYER IS ALIVE
 
-            if (playerData.isAlive()) {
-
-                // PLAYER IS ALIVE
-
-                // Set respawn countdown to default
-
-                if (playerData.getRespawnCountdown() != this.data.respawnCountdown()) {
-                    playerData.setRespawnCountdown(this.data.respawnCountdown());
+                // Reset respawn countdown
+                if (playerData.getRespawnCountdown() < this.respawnCountdown) {
+                    playerData.setRespawnCountdown(this.respawnCountdown);
                 }
 
                 // Set gamemode to survival
-
-                if (!this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
+                if (!this.getPlugin().isPlayerBypassing(player) && player.getGameMode() != GameMode.SURVIVAL) {
                     player.setGameMode(GameMode.SURVIVAL);
                 }
 
-            } else {
+            } else { // PLAYER IS DEAD
 
-                // PLAYER IS NOT ALIVE
-
-                // Set spectator
-
-                if (!this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
+                // Set gamemode to spectator
+                if (!this.getPlugin().isPlayerBypassing(player) && player.getGameMode() != GameMode.SPECTATOR) {
                     player.setGameMode(GameMode.SPECTATOR);
                 }
 
                 // Respawn process
+                if (team.canRespawn()) { // Team still has a bed
 
-                if (team.hasBed() > 0) {
-
-                    // TEAM STILL HAS BED
-
-                    // Count down or respawn if countdown is 0
                     if (playerData.getRespawnCountdown() > 0) {
 
-                        player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 25, 0);
-                        player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
+                        player.showTitle(Title.title(
+                                Component.text("DEAD", NamedTextColor.RED, TextDecoration.BOLD),
+                                Component.text("You will respawn in " + playerData.getRespawnCountdown() + " seconds!", NamedTextColor.RED),
+                                Title.Times.times(Duration.ZERO, Duration.ofMillis(1250), Duration.ZERO)
+                        ));
 
                         playerData.setRespawnCountdown(playerData.getRespawnCountdown() - 1);
 
                     } else {
-
                         this.respawnPlayer(player);
-
                     }
 
-                } else {
-
-                    // TEAM HAS NO BED
-
-                    // Display you are dead message, no respawn
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "You are dead"));
-
+                } else { // Team has no bed
+                    player.sendActionBar(Component.text("You are dead", NamedTextColor.RED));
                 }
 
             }
@@ -546,70 +548,6 @@ public class Game extends GamePart implements ManagedListener {
 
             if (player.getUnsaturatedRegenRate() != 0) {
                 player.setUnsaturatedRegenRate(0);
-            }
-
-        }
-
-    }
-
-    /**
-     * Handles player item cooldowns.
-     */
-    private void playerCooldownTask() {
-
-        for (UUID playerId : this.getPlayers().keySet()) {
-            PlayerData playerData = this.getPlayer(playerId);
-            if (playerData == null) continue;
-            Player player = this.getPlugin().getServer().getPlayer(playerId);
-            if (player == null) continue;
-
-            // Fireball Cooldown
-
-            if (playerData.getFireballCooldown() > 0) {
-                playerData.setFireballCooldown(playerData.getFireballCooldown() - 1);
-            }
-
-            // Trap Cooldown
-
-            if (playerData.getTrapCooldown() > 0) {
-                playerData.setTrapCooldown(playerData.getTrapCooldown() - 1);
-            }
-
-            // milk timer
-
-            if (playerData.getMilkTimer() > 0) {
-                playerData.setMilkTimer(playerData.getMilkTimer() - 1);
-            }
-
-            // Iron golem timer
-
-            if (playerData.getIronGolemCooldown() > 0) {
-                playerData.setIronGolemCooldown(playerData.getIronGolemCooldown() - 1);
-            }
-
-            // Zapper Cooldown
-
-            if (playerData.getZapperCooldown() > 0) {
-                playerData.setZapperCooldown(playerData.getZapperCooldown() - 1);
-            }
-
-            // Black Hole Cooldown
-
-            if(playerData.getBlackHoleCooldown() > 0) {
-                playerData.setBlackHoleCooldown(playerData.getBlackHoleCooldown() - 1);
-            }
-
-            // Teleport to Base Cooldown
-
-            if (playerData.getTeleportToBaseCooldown() > 0) {
-
-                if (playerData.getTeleportToBaseCooldown() == 1) {
-                    BedwarsTeam team = this.getTeam(playerData.getTeam());
-                    Location teleportLocation = team.getRandomSpawnpoint();
-                    player.teleport(teleportLocation);
-                }
-
-                playerData.setTeleportToBaseCooldown(playerData.getTeleportToBaseCooldown() - 1);
             }
 
         }
@@ -1334,8 +1272,60 @@ public class Game extends GamePart implements ManagedListener {
         return this.world;
     }
 
-    public MapData getData() {
-        return this.data;
+    /**
+     * Returns the map name.
+     * @return map name
+     */
+    public @NotNull String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the respawn countdown.
+     * @return respawn countdown
+     */
+    public int getRespawnCountdown() {
+        return respawnCountdown;
+    }
+
+    /**
+     * Returns the max time.
+     * @return max time
+     */
+    public int getMaxTime() {
+        return maxTime;
+    }
+
+    /**
+     * Returns the spawn block place protection radius.
+     * @return spawn block place protection radius
+     */
+    public int getSpawnBlockPlaceProtection() {
+        return spawnBlockPlaceProtection;
+    }
+
+    /**
+     * Returns the villager block place protection radius.
+     * @return villager block place protection radius
+     */
+    public int getVillagerBlockPlaceProtection() {
+        return villagerBlockPlaceProtection;
+    }
+
+    /**
+     * Returns the map center location.
+     * @return center location
+     */
+    public @NotNull ImmutableLocation getCenterLocation() {
+        return centerLocation;
+    }
+
+    /**
+     * Returns the map radius.
+     * @return map radius
+     */
+    public int getMapRadius() {
+        return mapRadius;
     }
 
     public List<BedwarsTeam> getTeams() {

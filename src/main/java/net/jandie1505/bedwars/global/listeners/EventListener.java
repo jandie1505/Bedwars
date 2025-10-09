@@ -317,7 +317,7 @@ public class EventListener implements Listener {
             }
 
         } else if (this.plugin.getGame() instanceof Game game) {
-            event.motd(Component.text("INGAME: " + game.getData().name()));
+            event.motd(Component.text("INGAME: " + game.getName()));
         } else if (this.plugin.getGame() instanceof Endlobby) {
             event.motd(Component.text("Endlobby"));
         }

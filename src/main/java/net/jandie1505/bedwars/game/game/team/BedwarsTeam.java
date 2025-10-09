@@ -224,6 +224,14 @@ public class BedwarsTeam {
         return false;
     }
 
+    /**
+     * Returns true if the players of the team can respawn.
+     * @return can respawn
+     */
+    public boolean canRespawn() {
+        return this.getAvailableBedsCount() > 0;
+    }
+
     // ----- UPGRADES -----
 
     /**

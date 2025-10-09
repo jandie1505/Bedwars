@@ -128,16 +128,16 @@ public class GameMiscListener implements ManagedListener {
     @EventHandler
     public void onBlockPlaceForSpawnProtection(@NotNull BlockPlaceEvent event) {
         if (event.isCancelled()) return;
-        if (this.game.getData().spawnBlockPlaceProtection() <= 0 && this.game.getData().villagerBlockPlaceProtection() <= 0) return;
+        if (this.game.getSpawnBlockPlaceProtection() <= 0 && this.game.getVillagerBlockPlaceProtection() <= 0) return;
         if (!this.game.isPlayerIngame(event.getPlayer())) return;
 
         for (BedwarsTeam team : this.game.getTeams()) {
 
-            if (this.game.getData().spawnBlockPlaceProtection() > 0) {
+            if (this.game.getSpawnBlockPlaceProtection() > 0) {
 
                 for (Location location : team.getSpawnpoints()) {
 
-                    if (Bedwars.getBlockDistance(WorldUtils.locationWithWorld(location, this.game.getWorld()), event.getBlock().getLocation()) <= this.game.getData().spawnBlockPlaceProtection()) {
+                    if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= this.game.getSpawnBlockPlaceProtection()) {
                         event.setCancelled(true);
                         event.getPlayer().sendMessage("§cYou cannot place blocks here");
                         return;

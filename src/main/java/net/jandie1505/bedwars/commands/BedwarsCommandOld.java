@@ -965,13 +965,7 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
         sender.sendMessage("§7Players: " + ((Game) this.plugin.getGame()).getPlayers().size() + " (Use players command)");
         sender.sendMessage("§7Generators: " + ((Game) this.plugin.getGame()).getGenerators().size());
         sender.sendMessage("§7Time Actions: " + ((Game) this.plugin.getGame()).getTimeActions().size());
-        sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getData().respawnCountdown());
         sender.sendMessage("§7Player Placed Blocks: " + ((Game) this.plugin.getGame()).getPlayerPlacedBlocks().size());
-        sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getData().maxTime());
-        sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getData().spawnBlockPlaceProtection());
-        sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getData().villagerBlockPlaceProtection());
-        sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getData().centerLocation().getX() + " " + ((Game) this.plugin.getGame()).getData().centerLocation().getY() + " " + ((Game) this.plugin.getGame()).getData().centerLocation().getZ());
-        sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getData().mapRadius());
         sender.sendMessage("§7Time: " + ((Game) this.plugin.getGame()).getTime());
         sender.sendMessage("§7Emerald Generator Level: " + ((Game) this.plugin.getGame()).getPublicEmeraldGeneratorLevel());
         sender.sendMessage("§7Diamond Generator Level: " + ((Game) this.plugin.getGame()).getPublicDiamondGeneratorLevel());
@@ -1058,9 +1052,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
                 }
 
                 break;
-            case "respawncooldown":
-                sender.sendMessage("§7Respawn Cooldown: " + ((Game) this.plugin.getGame()).getData().respawnCountdown());
-                break;
             case "playerblocks":
                 sender.sendMessage("§7Player Placed Blocks:");
 
@@ -1077,21 +1068,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
                     index++;
                 }
 
-                break;
-            case "maxtime":
-                sender.sendMessage("§7Max time: " + ((Game) this.plugin.getGame()).getData().maxTime());
-                break;
-            case "spawnprotection":
-                sender.sendMessage("§7Spawn Protection (radius): " + ((Game) this.plugin.getGame()).getData().spawnBlockPlaceProtection());
-                break;
-            case "villagerprotection":
-                sender.sendMessage("§7Villager Protection (radius): " + ((Game) this.plugin.getGame()).getData().villagerBlockPlaceProtection());
-                break;
-            case "center":
-                sender.sendMessage("§7Map Center: " + ((Game) this.plugin.getGame()).getData().centerLocation().getX() + " " + ((Game) this.plugin.getGame()).getData().centerLocation().getY() + " " + ((Game) this.plugin.getGame()).getData().centerLocation().getZ());
-                break;
-            case "radius":
-                sender.sendMessage("§7Map Radius: " + ((Game) this.plugin.getGame()).getData().mapRadius());
                 break;
             case "time":
                 sender.sendMessage("§7Time: " + ((Game) this.plugin.getGame()).getTime());
