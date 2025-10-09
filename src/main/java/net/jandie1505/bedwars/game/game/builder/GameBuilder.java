@@ -5,16 +5,29 @@ import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.config.JSONLoader;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
+import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
-import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
-import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
-import org.bukkit.Material;
+import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
+import net.jandie1505.bedwars.game.game.team.traps.TeamTrap;
+import net.jandie1505.bedwars.game.game.team.traps.constants.TeamTraps;
+import net.jandie1505.bedwars.game.game.team.traps.types.AlarmTrap;
+import net.jandie1505.bedwars.game.game.team.traps.types.CountermeasuresTrap;
+import net.jandie1505.bedwars.game.game.team.traps.types.ItsATrap;
+import net.jandie1505.bedwars.game.game.team.traps.types.MiningFatigueTrap;
+import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.PermanentPotionEffectTeamUpgrade;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
@@ -55,6 +68,16 @@ public final class GameBuilder {
         Map<Integer, QuickBuyMenuEntry> quickBuyMenuEntries = getQuickBuyMenuEntriesFromJSON(shopFile.optJSONArray("default_quick_buy_menu", new JSONArray()));
         if (quickBuyMenuEntries.isEmpty()) quickBuyMenuEntries.putAll(DefaultConfigValues.getDefaultQuickBuyMenu());
 
+        // TEAM
+
+        JSONObject teamGUIFile = JSONLoader.loadJSONFromFile(new File(this.plugin.getDataFolder(), "team_gui.json"));
+
+        Map<String, UpgradeEntry> teamUpgradeEntries = getUpgradeEntriesFromJSON(teamGUIFile.optJSONObject("upgrade_entries", new JSONObject()));
+        if (teamUpgradeEntries.isEmpty()) teamUpgradeEntries.putAll(DefaultConfigValues.getDefaultTeamUpgradeEntries());
+
+        Map<String, TeamGUI.TrapEntry> teamTrapEntries = getTeamTrapEntriesFromJSON(teamGUIFile.optJSONObject("trap_entries", new JSONObject()));
+        if (teamTrapEntries.isEmpty()) teamTrapEntries.putAll(DefaultConfigValues.getDefaultTeamTrapEntries());
+
         // CREATE GAME
 
         Game game = new Game(
@@ -64,107 +87,19 @@ public final class GameBuilder {
                 shopEntries,
                 upgradeEntries,
                 quickBuyMenuEntries,
-                this.loadTeamUpgradesConfig()
+                teamUpgradeEntries,
+                teamTrapEntries
         );
 
         // UPGRADES
 
         this.setupPlayerUpgrades(game);
+        this.setupTeamUpgrades(game);
+        this.setupTeamTraps(game);
 
         // RETURN
 
         return game;
-    }
-
-    // ----- TEAM UPGRADES -----
-
-    /**
-     * Creates the team upgrades config.
-     * @return TeamUpgradesConfig
-     * @deprecated Will be replaced by a new team upgrade system soon
-     */
-    @Deprecated
-    private @NotNull TeamUpgradesConfig loadTeamUpgradesConfig() {
-        JSONObject shopConfig = this.plugin.getShopConfig().getConfig();
-        return new TeamUpgradesConfig(
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("sharpness", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("protection", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("haste", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("generators", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("healpool", new JSONObject())),
-                this.buildTeamUpgrade(shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optJSONObject("endgamebuff", new JSONObject())),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("noTrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("alarmTrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("itsATrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("miningFatigueTrap"),
-                shopConfig.optJSONObject("teamUpgrades", new JSONObject()).optInt("countermeasuresTrap")
-        );
-    }
-
-    private TeamUpgrade getErrorUpgrade() {
-        return new TeamUpgrade(-1, List.of(), List.of(), List.of());
-    }
-
-    private TeamUpgrade buildTeamUpgrade(JSONObject teamUpgrade) {
-
-        int itemId = teamUpgrade.optInt("item", -1);
-
-        if (itemId < 0) {
-            this.plugin.getLogger().warning("Shop Config: Missing/wrong item in team upgrade");
-            return this.getErrorUpgrade();
-        }
-
-        JSONArray priceListArray = teamUpgrade.optJSONArray("prices");
-
-        if (priceListArray == null) {
-            this.plugin.getLogger().warning("Shop Config: Missing/Wrong prices in team upgrade");
-            return this.getErrorUpgrade();
-        }
-
-        List<Integer> prices = new ArrayList<>();
-        List<Material> currencies = new ArrayList<>();
-
-        for (int i = 0; i < priceListArray.length(); i++) {
-
-            int price = priceListArray.optInt(i, -1);
-
-            if (price < 0) {
-                this.plugin.getLogger().warning("Shop Config: Wrong price in prices in team upgrade");
-                return this.getErrorUpgrade();
-            }
-
-            prices.add(price);
-            currencies.add(Material.DIAMOND);
-
-        }
-
-        JSONArray levelArray = teamUpgrade.optJSONArray("levels");
-
-        List<Integer> levels = new ArrayList<>();
-
-        if (levelArray == null) {
-
-            for (int i = 0; i < prices.size(); i++) {
-                levels.add(-1);
-            }
-
-        } else {
-
-            for (int i = 0; i < levelArray.length(); i++) {
-
-                int level = levelArray.optInt(i);
-
-                if (level < 0) {
-                    level = -1;
-                }
-
-                levels.add(level);
-
-            }
-
-        }
-
-        return new TeamUpgrade(itemId, List.copyOf(prices), List.copyOf(currencies), List.copyOf(levels));
     }
 
     // ----- SHOP -----
@@ -232,7 +167,27 @@ public final class GameBuilder {
         return json;
     }
 
-    // ----- UPGRADES -----
+    public static @NotNull Map<String, TeamGUI.TrapEntry> getTeamTrapEntriesFromJSON(@NotNull JSONObject json) {
+        Map<String, TeamGUI.TrapEntry> entries = new HashMap<>();
+
+        for (String key : json.keySet()) {
+            entries.put(key, TeamGUI.TrapEntry.fromJSON(json.getJSONObject(key)));
+        }
+
+        return entries;
+    }
+
+    public static @NotNull JSONObject createJSONFromTeamTrapEntries(@NotNull Map<String, TeamGUI.TrapEntry> entries) {
+        JSONObject json = new JSONObject();
+
+        for (Map.Entry<String, TeamGUI.TrapEntry> entry : entries.entrySet()) {
+            json.put(entry.getKey(), entry.getValue().toJSON());
+        }
+
+        return json;
+    }
+
+    // ----- PLAYER UPGRADES -----
 
     /**
      * Converts a json to PlayerUpgrade Data.
@@ -288,6 +243,80 @@ public final class GameBuilder {
         }
 
         getPlayerUpgradesFromJSON(playerUpgradesFile).forEach(upgrade -> game.getPlayerUpgradeManager().registerUpgrade(upgrade.buildUpgrade(game.getPlayerUpgradeManager())));
+    }
+
+    // ----- TEAM UPGRADES -----
+
+    /**
+     * Converts a json to TeamUpgrade Data.
+     * @param id id
+     * @param json json
+     * @return PlayerUpgrade Data
+     */
+    public static @Nullable TeamUpgrade.Data deserializeTeamUpgradeDataFromJSON(@NotNull String id, @NotNull JSONObject json) {
+
+        switch (json.getString("type")) {
+            case EnchantmentTeamUpgrade.TYPE -> {
+                return EnchantmentTeamUpgrade.Data.fromJSON(id, json);
+            }
+            case HealPoolTeamUpgrade.TYPE -> {
+                return HealPoolTeamUpgrade.Data.fromJSON(id, json);
+            }
+            case PermanentPotionEffectTeamUpgrade.TYPE -> {
+                return PermanentPotionEffectTeamUpgrade.Data.fromJSON(id, json);
+            }
+            default -> {
+                return null;
+            }
+        }
+
+    }
+
+    /**
+     * Converts a json to list of TeamUpgrade Data.<br/>
+     * The id is the key and the value the other values.
+     * @param json json
+     * @return list of TeamUpgrade Data
+     */
+    public static @NotNull List<TeamUpgrade.Data> getTeamUpgradesFromJSON(@NotNull JSONObject json) {
+        List<TeamUpgrade.Data> teamUpgrades = new ArrayList<>();
+
+        for (String key : json.keySet()) {
+            JSONObject dataJson = json.getJSONObject(key);
+            TeamUpgrade.Data data = deserializeTeamUpgradeDataFromJSON(key, dataJson);
+            if (data == null) throw new IllegalArgumentException("Invalid team upgrade type for " + key);
+            teamUpgrades.add(data);
+        }
+
+        return teamUpgrades;
+    }
+
+    /**
+     * Sets up the team upgrades.
+     * @param game game
+     */
+    private void setupTeamUpgrades(@NotNull Game game) {
+        JSONObject teamUpgradesFile = JSONLoader.loadJSONFromFile(new File(game.getPlugin().getDataFolder(), "team_upgrades.json"));
+
+        if (teamUpgradesFile.isEmpty()) {
+            DefaultConfigValues.getTeamUpgrades().forEach(upgrade -> game.getTeamUpgradeManager().registerUpgrade(upgrade.buildUpgrade(game.getTeamUpgradeManager())));
+            return;
+        }
+
+        getTeamUpgradesFromJSON(teamUpgradesFile.getJSONObject("team_upgrades")).forEach(upgrade -> game.getTeamUpgradeManager().registerUpgrade(upgrade.buildUpgrade(game.getTeamUpgradeManager())));
+    }
+
+    /**
+     * Sets up team traps.
+     * @param game game
+     */
+    private void setupTeamTraps(@NotNull Game game) {
+
+        game.getTeamTrapManager().registerTrap(new AlarmTrap(game.getTeamTrapManager(), TeamTraps.ALARM_TRAP));
+        game.getTeamTrapManager().registerTrap(new CountermeasuresTrap(game.getTeamTrapManager(), TeamTraps.COUNTERMEASURES_TRAP));
+        game.getTeamTrapManager().registerTrap(new ItsATrap(game.getTeamTrapManager(), TeamTraps.ITS_A_TRAP));
+        game.getTeamTrapManager().registerTrap(new MiningFatigueTrap(game.getTeamTrapManager(), TeamTraps.MINING_FATIGUE_TRAP));
+
     }
 
 }

@@ -140,7 +140,7 @@ public class ArmorUpgrade extends ItemUpgrade implements ManagedListener {
         if (meta instanceof LeatherArmorMeta leatherArmorMeta) {
             BedwarsTeam team = this.getManager().getGame().getTeam(playerData.getTeam());
             if (team != null) {
-                leatherArmorMeta.setColor(team.getData().color());
+                leatherArmorMeta.setColor(team.getColor());
             }
         }
 

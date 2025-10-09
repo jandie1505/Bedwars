@@ -3,7 +3,6 @@ package net.jandie1505.bedwars.game.game.entities.entities;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.base.GuiNpc;
-import net.jandie1505.bedwars.game.game.menu.upgrades.UpgradesMenu;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -34,7 +33,8 @@ public class UpgradeVillager extends GuiNpc {
             villager.addScoreboardTag("upgrades.team." + team);
             villager.getPersistentDataContainer().set(NamespacedKeys.ENTITY_PEARL_SWAP_EXCLUDED, PersistentDataType.BOOLEAN, true);
             return villager;
-        }, player -> new UpgradesMenu(game, player.getUniqueId()).getUpgradesMenu());
+        });
+        this.setProvider(player -> this.getGame().getTeamGUI().getInventory(player, null));
         this.team = team;
     }
 

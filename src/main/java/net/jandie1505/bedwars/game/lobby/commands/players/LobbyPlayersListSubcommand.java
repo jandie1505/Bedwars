@@ -51,7 +51,7 @@ public class LobbyPlayersListSubcommand implements TabCompletingCommandExecutor 
                                     .append(Component.text("Player Information:", NamedTextColor.GOLD).appendNewline()
                                             .append(Component.text("UUID: " + playerId, NamedTextColor.YELLOW)).appendNewline()
                                             .append(Component.text("Team: " + playerData.getTeam(), NamedTextColor.YELLOW)).appendNewline()
-                                            .append(Component.text("Vote: ", NamedTextColor.YELLOW)).append(Component.text((playerData.getVote() != null ? playerData.getVote().world() : "---"), playerData.getVote() != null ? NamedTextColor.GREEN : NamedTextColor.RED))
+                                            .append(Component.text("Vote: ", NamedTextColor.YELLOW)).append(Component.text((playerData.getVote() != null ? playerData.getVote() : "---"), playerData.getVote() != null ? NamedTextColor.GREEN : NamedTextColor.RED))
                             )))
             );
 

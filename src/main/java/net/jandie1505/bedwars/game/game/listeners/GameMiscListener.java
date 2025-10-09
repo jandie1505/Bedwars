@@ -6,8 +6,12 @@ import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -32,6 +36,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +65,7 @@ public class GameMiscListener implements ManagedListener {
         }
 
         // Protect own bed(s)
-        for (Location location : this.game.getTeams().get(playerData.getTeam()).getData().bedLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, this.game.getWorld())).toList()) {
+        for (Location location : this.game.getTeams().get(playerData.getTeam()).getBedLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, this.game.getWorld())).toList()) {
 
             if (location.equals(event.getBlock().getLocation()) || location.equals(otherHalf.getLocation())) {
 
@@ -74,12 +79,12 @@ public class GameMiscListener implements ManagedListener {
         // Send bed destroyed message
         for (BedwarsTeam team : this.game.getTeams()) {
 
-            for (Location location : team.getData().bedLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, this.game.getWorld())).toList()) {
+            for (Location location : team.getBedLocations().stream().map(immutableLocation -> WorldUtils.locationWithWorld(immutableLocation, this.game.getWorld())).toList()) {
 
                 if (location.equals(event.getBlock().getLocation()) || location.equals(otherHalf.getLocation())) {
 
                     playerData.setBedsBroken(playerData.getBedsBroken() + 1);
-                    playerData.setRewardPoints(playerData.getRewardPoints() + this.game.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("bedDestroyed", 0));
+                    playerData.setRewardPoints(playerData.getRewardPoints() + this.game.getConfig().optInt(GameConfigKeys.REWARD_BED_DESTROYED, 0));
 
                     for (Player player : this.game.getPlugin().getServer().getOnlinePlayers()) {
 
@@ -88,11 +93,25 @@ public class GameMiscListener implements ManagedListener {
                         BedwarsTeam destroyerTeam = this.game.getTeams().get(playerData.getTeam());
 
                         if (pData != null && pData.getTeam() == team.getId()) {
-                            player.sendMessage("§7Your Bed was destroyed by " + destroyerTeam.getData().chatColor() + event.getPlayer().getName() + "§7!");
-                            player.sendTitle("§cBED DESTROYED", "§7You will no longer respawn!", 5, 3*20, 5);
+                            player.sendMessage(Component.empty()
+                                    .append(Component.text("Your bed was destroyed by ", NamedTextColor.GRAY))
+                                    .append(event.getPlayer().displayName().color(destroyerTeam.getChatColor()))
+                                    .append(Component.text("!", NamedTextColor.GRAY))
+                            );
+                            player.showTitle(Title.title(
+                                    Component.text("BED DESTROYED", NamedTextColor.RED),
+                                    Component.text("You will no longer respawn!", NamedTextColor.RED),
+                                    Title.Times.times(Duration.ofMillis(250), Duration.ofSeconds(3), Duration.ofMillis(250))
+                            ));
                             player.playSound(player, Sound.ENTITY_WITHER_DEATH, 1, 1);
                         } else {
-                            player.sendMessage("§7The Bed of " + team.getData().chatColor() + "Team " + team.getData().chatColor().name() + " §7was destroyed by " + destroyerTeam.getData().chatColor() + event.getPlayer().getName() + "§7!");
+                            player.sendMessage(Component.empty()
+                                    .append(Component.text("The bed of ", NamedTextColor.GRAY))
+                                    .append(Component.text("Team " + team.getName(), team.getChatColor()))
+                                    .append(Component.text(" was destroyed by ", NamedTextColor.GRAY))
+                                    .append(event.getPlayer().displayName().color(destroyerTeam.getChatColor()))
+                                    .append(Component.text("!", NamedTextColor.GRAY))
+                            );
                             player.playSound(player, Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1, 1);
                         }
 
@@ -109,16 +128,16 @@ public class GameMiscListener implements ManagedListener {
     @EventHandler
     public void onBlockPlaceForSpawnProtection(@NotNull BlockPlaceEvent event) {
         if (event.isCancelled()) return;
-        if (this.game.getData().spawnBlockPlaceProtection() <= 0 && this.game.getData().villagerBlockPlaceProtection() <= 0) return;
+        if (this.game.getSpawnBlockPlaceProtection() <= 0 && this.game.getVillagerBlockPlaceProtection() <= 0) return;
         if (!this.game.isPlayerIngame(event.getPlayer())) return;
 
         for (BedwarsTeam team : this.game.getTeams()) {
 
-            if (this.game.getData().spawnBlockPlaceProtection() > 0) {
+            if (this.game.getSpawnBlockPlaceProtection() > 0) {
 
-                for (Location location : team.getData().spawnpoints()) {
+                for (Location location : team.getSpawnpoints()) {
 
-                    if (Bedwars.getBlockDistance(WorldUtils.locationWithWorld(location, this.game.getWorld()), event.getBlock().getLocation()) <= this.game.getData().spawnBlockPlaceProtection()) {
+                    if (Bedwars.getBlockDistance(location, event.getBlock().getLocation()) <= this.game.getSpawnBlockPlaceProtection()) {
                         event.setCancelled(true);
                         event.getPlayer().sendMessage("§cYou cannot place blocks here");
                         return;
@@ -127,6 +146,9 @@ public class GameMiscListener implements ManagedListener {
                 }
 
             }
+
+            /*
+            TODO: Put this stuff into the ShopVillager and UpgradeVillager class
 
             if (this.game.getData().villagerBlockPlaceProtection() > 0) {
 
@@ -145,6 +167,8 @@ public class GameMiscListener implements ManagedListener {
                 }
 
             }
+
+             */
 
         }
     }

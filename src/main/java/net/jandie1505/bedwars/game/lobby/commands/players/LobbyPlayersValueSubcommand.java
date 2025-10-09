@@ -28,15 +28,7 @@ public class LobbyPlayersValueSubcommand extends SubcommandCommand {
         this.lobby = lobby;
 
         this.addSubcommand("team", SubcommandEntry.of(new SingleValueSubcommand<>("team", LobbyPlayerData::getTeam, (lobbyPlayerData, team) -> lobbyPlayerData.setTeam(Objects.requireNonNullElse(team, 0)), s -> s != null ? Integer.parseInt(s) : 0)));
-        this.addSubcommand("vote", SubcommandEntry.of(new SingleValueSubcommand<>("vote", playerData -> playerData.getVote() != null ? playerData.getVote().world() : null, (playerData, value) -> {
-
-            if (value != null) {
-                playerData.setVote(this.lobby.findMapByWorldName(value));
-            } else {
-                playerData.setVote(null);
-            }
-
-        }, value -> value)));
+        this.addSubcommand("vote", SubcommandEntry.of(new SingleValueSubcommand<>("vote", LobbyPlayerData::getVote, LobbyPlayerData::setVote, value -> value)));
     }
 
     private class SingleValueSubcommand<TYPE> implements TabCompletingCommandExecutor {

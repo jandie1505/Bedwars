@@ -5,6 +5,10 @@ import net.jandie1505.bedwars.game.game.entities.base.ExpiringManagedEntity;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -43,7 +47,17 @@ public class SnowDefender extends ExpiringManagedEntity<Snowman> {
 
     private void nameTask() {
         BedwarsTeam team = this.getGame().getTeam(this.teamId);
-        this.getEntity().setCustomName((team != null ? team.getData().chatColor().name() : "") + "SNOW DEFENDER §r§7(" + this.getTime() + ")");
+        if (team != null) {
+            this.getEntity().customName(Component.empty()
+                    .append(Component.text("SNOW DEFENDER", team.getChatColor()))
+                    .append(Component.text(" (" + this.getTime() + "s)", NamedTextColor.GRAY))
+            );
+        } else {
+            this.getEntity().customName(Component.empty()
+                    .append(Component.text("SNOW DEFENDER", NamedTextColor.WHITE, TextDecoration.STRIKETHROUGH))
+                    .append(Component.text(" (" + this.getTime() + "s)", NamedTextColor.GRAY))
+            );
+        }
     }
 
     private void entityTargetUpdateTask() {

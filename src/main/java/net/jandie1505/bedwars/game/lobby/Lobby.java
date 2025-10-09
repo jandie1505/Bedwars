@@ -9,23 +9,24 @@ import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.config.ConfigSetup;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
+import net.jandie1505.bedwars.config.JSONLoader;
+import net.jandie1505.bedwars.constants.ConfigKeys;
+import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.builder.GameBuilder;
-import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
-import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
-import net.jandie1505.bedwars.game.lobby.commands.LobbyPlayersSubcommand;
-import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
+import net.jandie1505.bedwars.game.lobby.commands.*;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
-import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
-import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
-import net.jandie1505.bedwars.game.lobby.commands.LobbyValueSubcommand;
-import net.jandie1505.bedwars.game.lobby.commands.LobbyVotemapCommand;
-import net.jandie1505.bedwars.game.lobby.inventory.VotingMenuListener;
+import net.jandie1505.bedwars.game.lobby.constants.LobbyConfigKeys;
+import net.jandie1505.bedwars.game.lobby.constants.LobbyItems;
+import net.jandie1505.bedwars.game.lobby.gui.MapVoteGUI;
+import net.jandie1505.bedwars.game.lobby.gui.VotingMenuListener;
+import net.jandie1505.bedwars.game.lobby.listeners.LobbyJoinLeaveListener;
 import net.jandie1505.bedwars.game.utils.LobbyChatListener;
 import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
 import net.kyori.adventure.text.Component;
@@ -34,32 +35,38 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scoreboard.Criteria;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.stream.Stream;
 
 public class Lobby extends GamePart {
-    private final List<MapData> maps;
+    private final Map<String, MapData> maps;
     private final Map<UUID, LobbyPlayerData> players;
     private final int mapVoteButtonItemId;
     private final int teamSelectionButtonItemId;
     private final int mapButtonItemId;
+    @NotNull private final MapVoteGUI mapVoteGUI;
     private final List<UUID> loginBypassList;
     private int timeStep;
     private int time;
     private boolean forcestart;
-    private MapData selectedMap;
+    @Nullable private String selectedMap;
     private boolean mapVoting;
     private int requiredPlayers;
     private boolean timerPaused;
@@ -69,62 +76,49 @@ public class Lobby extends GamePart {
 
     public Lobby(Bedwars plugin) {
         super(plugin);
-        this.maps = new ArrayList<>();
+
+        this.getConfig().merge(ConfigSetup.loadDataStorage(this.getPlugin(), "lobby.yml"), true);
+        this.getConfig().merge(this.getPlugin().config().getSection("lobby"), true);
+
+        JSONObject lobbyConfig = JSONLoader.loadJSONFromFile(new File(this.getPlugin().getDataFolder(), "lobby.json"));
+        if (lobbyConfig.isEmpty()) lobbyConfig = DefaultConfigValues.getLobbyConfig();
+
+        this.maps = new HashMap<>();
         this.players = Collections.synchronizedMap(new HashMap<>());
-        this.mapVoteButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapVoteButton", -1);
-        this.teamSelectionButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("teamSelectionButton", -1);
-        this.mapButtonItemId = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("mapButton", -1);
+        this.mapVoteButtonItemId = lobbyConfig.optInt("mapVoteButton", -1);
+        this.teamSelectionButtonItemId = lobbyConfig.optInt("teamSelectionButton", -1);
+        this.mapButtonItemId = lobbyConfig.optInt("mapButton", -1);
+        this.mapVoteGUI = new MapVoteGUI(this);
         this.loginBypassList = Collections.synchronizedList(new ArrayList<>());
         this.timeStep = 0;
         this.time = 120;
         this.forcestart = false;
         this.selectedMap = null;
-        this.mapVoting = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optBoolean("mapVoting", false);
-        this.requiredPlayers = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optInt("requiredPlayers", 2);
+        this.mapVoting = lobbyConfig.optBoolean("mapVoting", false);
+        this.requiredPlayers = lobbyConfig.optInt("requiredPlayers", 2);
         this.timerPaused = false;
-        this.lobbyBorderEnabled = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optBoolean("enable", false);
+        this.lobbyBorderEnabled = lobbyConfig.optJSONObject("border", new JSONObject()).optBoolean("enable", false);
         this.lobbyBorder = new int[]{
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x2", 10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y2", 10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z2", 10)
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("x1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("y1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("z1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("x2", 10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("y2", 10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("z2", 10)
         };
         this.lobbySpawn = new Location(
                 this.getPlugin().getServer().getWorlds().get(0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
         );
 
         // Create map data from config
 
-        JSONArray mapArray = this.getPlugin().getMapConfig().getConfig().optJSONArray("maps");
+        this.loadMaps();
 
-        if (mapArray == null) {
-            mapArray = new JSONArray();
-        }
-
-        int index = -1;
-        for (Object object : mapArray) {
-            index++;
-
-            if (!(object instanceof JSONObject map)) {
-                this.getPlugin().getLogger().warning("Map Config: Index " + index + " is not a json object");
-                continue;
-            }
-            
-            try {
-                this.maps.add(MapData.deserializeFromJSON(map));
-            } catch (IllegalArgumentException e) {
-                this.getPlugin().getLogger().warning("Map Config (at map index + " + index + "): " + e.getMessage());
-            }
-            
-        }
-        
         // Cloud system mode
 
         if (this.mapVoting) {
@@ -138,6 +132,7 @@ public class Lobby extends GamePart {
         this.addDynamicSubcommand("start", SubcommandEntry.of(new LobbyStartSubcommand(plugin), sender -> Permissions.hasPermission(sender, Permissions.START)));
         this.addDynamicSubcommand("value", SubcommandEntry.of(new LobbyValueSubcommand(this)));
         this.addDynamicSubcommand("players", SubcommandEntry.of(new LobbyPlayersSubcommand(this)));
+        this.addDynamicSubcommand("maps", SubcommandEntry.of(new LobbyMapsSubcommand(this)));
         this.addDynamicSubcommand("votemap", SubcommandEntry.of(new LobbyVotemapCommand(plugin)));
 
         // Listeners
@@ -145,11 +140,40 @@ public class Lobby extends GamePart {
         this.registerListener(new LobbyProtectionsListener(this));
         this.registerListener(new VotingMenuListener(this));
         this.registerListener(new LobbyChatListener(this));
+        this.registerListener(new LobbyJoinLeaveListener(this));
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
 
         // Tasks
 
         this.getTaskScheduler().scheduleRepeatingTask(this::lobbyTask, 1, 1, "lobby");
+    }
+
+    private void loadMaps() {
+        final String requiredExtension = ".json";
+
+        Path dir = this.getPlugin().getDataPath().toAbsolutePath().resolve("maps");
+
+        try (Stream<Path> paths = Files.walk(dir).filter(Files::isRegularFile)) {
+            paths.forEach(path -> {
+
+                String fileName = path.getFileName().toString();
+                if (!fileName.endsWith(requiredExtension)) return;
+
+                String mapId = fileName.substring(0, fileName.length() - requiredExtension.length());
+                JSONObject mapJSON = JSONLoader.loadJSONFromFile(path.toFile());
+
+                try {
+                    MapData mapData = MapData.deserializeFromJSON(mapJSON);
+                    this.maps.put(mapId, mapData);
+                } catch (Exception e) {
+                    this.getPlugin().getLogger().log(Level.WARNING, "Failed to load map data from file: " + path, e);
+                }
+
+            });
+        } catch (IOException e) {
+            this.getPlugin().getLogger().warning("Maps file could not be found: " + e.getMessage());
+        }
+
     }
 
     public boolean shouldRun() {
@@ -225,8 +249,10 @@ public class Lobby extends GamePart {
             if (this.timeStep >= 20) {
                 String mapName = "---";
 
-                if (this.selectedMap != null) {
-                    mapName = this.selectedMap.name();
+                MapData selectedMapData = this.selectedMap != null ? this.maps.get(this.selectedMap) : null;
+
+                if (selectedMapData != null) {
+                    mapName = selectedMapData.name();
                 }
 
                 Scoreboard scoreboard = this.getPlugin().getServer().getScoreboardManager().getNewScoreboard();
@@ -255,9 +281,9 @@ public class Lobby extends GamePart {
 
                 objective.getScore("§").setScore(0);
 
-                if (this.selectedMap != null) {
+                if (selectedMapData != null) {
                     if (playerData.getTeam() > 0) {
-                        TeamData team = this.selectedMap.teams().get(playerData.getTeam());
+                        TeamData team = selectedMapData.teams().get(playerData.getTeam());
 
                         if (team != null) {
                             objective.getScore("§7Team: " + team.chatColor() + team.name()).setScore(1);
@@ -278,31 +304,27 @@ public class Lobby extends GamePart {
 
             if (!this.getPlugin().isPlayerBypassing(player.getUniqueId())) {
 
-                ItemStack lobbyVoteHotbarItem = this.getPlugin().getItemStorage().getItem(this.mapVoteButtonItemId);
-                ItemStack lobbyTeamSelectionHotbarItem = this.getPlugin().getItemStorage().getItem(this.teamSelectionButtonItemId);
+                ItemStack lobbyVoteHotbarItem = LobbyItems.mapVotingMenuItem();
+                ItemStack lobbyTeamSelectionHotbarItem = LobbyItems.teamSelectionMenuItem();
 
-                if (lobbyVoteHotbarItem != null && lobbyTeamSelectionHotbarItem != null) {
+                for (ItemStack item : Arrays.copyOf(player.getInventory().getContents(), player.getInventory().getContents().length)) {
 
-                    for (ItemStack item : Arrays.copyOf(player.getInventory().getContents(), player.getInventory().getContents().length)) {
-
-                        if (item == null || item.getType() == Material.AIR) {
-                            continue;
-                        }
-
-                        if (!item.isSimilar(lobbyVoteHotbarItem) && !item.isSimilar(lobbyTeamSelectionHotbarItem)) {
-                            player.getInventory().clear();
-                        }
-
+                    if (item == null || item.getType() == Material.AIR) {
+                        continue;
                     }
 
-                    if (!player.getInventory().contains(lobbyVoteHotbarItem)) {
-                        player.getInventory().setItem(3, lobbyVoteHotbarItem);
+                    if (!item.isSimilar(lobbyVoteHotbarItem) && !item.isSimilar(lobbyTeamSelectionHotbarItem)) {
+                        player.getInventory().clear();
                     }
 
-                    if (!player.getInventory().contains(lobbyTeamSelectionHotbarItem)) {
-                        player.getInventory().setItem(5, lobbyTeamSelectionHotbarItem);
-                    }
+                }
 
+                if (!player.getInventory().contains(lobbyVoteHotbarItem)) {
+                    player.getInventory().setItem(2, lobbyVoteHotbarItem);
+                }
+
+                if (!player.getInventory().contains(lobbyTeamSelectionHotbarItem)) {
+                    player.getInventory().setItem(6, lobbyTeamSelectionHotbarItem);
                 }
 
             }
@@ -363,48 +385,14 @@ public class Lobby extends GamePart {
 
         return true;
     }
-
-    // LISTENERS
-
-    @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent event) {
-
-        if (this.getPlugin().isPlayerBypassing(event.getPlayer())) {
-            event.joinMessage(null);
-            return;
-        }
-
-        event.joinMessage(Component.empty()
-                .append(event.getPlayer().displayName())
-                .appendSpace()
-                .append(Component.text("has joined", NamedTextColor.GRAY))
-        );
-
-        event.getPlayer().teleport(this.getLobbySpawn().clone());
-    }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-
-        if (this.getPlugin().isPlayerBypassing(event.getPlayer())) {
-            event.quitMessage(null);
-            return;
-        }
-
-        event.quitMessage(Component.empty()
-                .append(event.getPlayer().displayName())
-                .appendSpace()
-                .append(Component.text("has left", NamedTextColor.GRAY))
-        );
-    }
     
     // UTILITIES
 
-    private List<MapData> getHighestVotedMaps() {
+    private List<String> getHighestVotedMaps() {
 
         // Get map votes
 
-        Map<MapData, Integer> mapVotes = new HashMap<>();
+        Map<String, Integer> mapVotes = new HashMap<>();
 
         for (UUID playerId : this.getPlayers().keySet()) {
             LobbyPlayerData playerData = this.players.get(playerId);
@@ -423,10 +411,10 @@ public class Lobby extends GamePart {
 
         // Get list of maps with the highest vote count
 
-        List<MapData> highestVotedMaps = new ArrayList<>();
+        List<String> highestVotedMaps = new ArrayList<>();
         int maxVotes = Integer.MIN_VALUE;
 
-        for (Map.Entry<MapData, Integer> entry : mapVotes.entrySet()) {
+        for (Map.Entry<String, Integer> entry : mapVotes.entrySet()) {
             int votes = entry.getValue();
             if (votes > maxVotes) {
                 maxVotes = votes;
@@ -438,16 +426,14 @@ public class Lobby extends GamePart {
         }
 
         return highestVotedMaps;
-
     }
 
     private void autoSelectMap() {
-
-        MapData selectedMap = null;
+        String selectedMap = null;
 
         if (this.mapVoting) {
 
-            List<MapData> highestVotedMaps = this.getHighestVotedMaps();
+            List<String> highestVotedMaps = this.getHighestVotedMaps();
 
             if (!highestVotedMaps.isEmpty()) {
 
@@ -461,30 +447,27 @@ public class Lobby extends GamePart {
 
             if (!this.maps.isEmpty()) {
 
-                selectedMap = this.maps.get(new Random().nextInt(this.maps.size()));
+                selectedMap = this.maps.keySet().stream().toList().get(new Random().nextInt(this.maps.size()));
 
             }
 
         }
 
         this.selectMap(selectedMap);
-
     }
 
     private void displayMap() {
 
         for (UUID playerId : this.getPlayers().keySet()) {
             Player player = this.getPlugin().getServer().getPlayer(playerId);
+            if (player == null) return;
 
-            if (player == null) {
-                continue;
-            }
+            if (this.selectedMap == null) return;
 
-            if (this.selectedMap == null) {
-                return;
-            }
+            MapData selectedMapData = this.getSelectedMapData();
+            if (selectedMapData == null) return;
 
-            player.sendMessage("§bThe map has been set to " + this.selectedMap.name());
+            player.sendMessage("§bThe map has been set to " + selectedMapData.name());
 
         }
 
@@ -492,11 +475,11 @@ public class Lobby extends GamePart {
 
     private void createPartyTeams() {
 
-        if (this.selectedMap == null) {
-            return;
-        }
+        if (this.selectedMap == null) return;
+        MapData selectedMapData = this.getSelectedMapData();
+        if (selectedMapData == null) return;
 
-        if (this.getPlugin().getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("partyandfriends", false)) {
+        if (this.getPlugin().config().optBoolean(ConfigKeys.INTEGRATION_PARTY_AND_FRIENDS, false)) {
 
             try {
                 Class.forName("de.simonsator.partyandfriends.spigot.api.pafplayers.PAFPlayer");
@@ -541,7 +524,7 @@ public class Lobby extends GamePart {
 
                     // check if the party size is higher than the max players per team if enabled
 
-                    int maxPlayers = this.getPlugin().getConfigManager().getConfig().optJSONObject("slotSystem", new JSONObject()).optInt("playersPerTeam", -1);
+                    int maxPlayers = this.getConfig().optInt(LobbyConfigKeys.SLOT_SYSTEM_PLAYERS_PER_TEAM, -1);
 
                     if (maxPlayers > 0 && party.getAllPlayers().size() > maxPlayers) {
                         continue;
@@ -549,8 +532,8 @@ public class Lobby extends GamePart {
 
                     // iterate through all teams to find the right team for the party
 
-                    for (TeamData team : this.selectedMap.teams()) {
-                        int teamId = this.selectedMap.teams().indexOf(team);
+                    for (TeamData team : selectedMapData.teams()) {
+                        int teamId = selectedMapData.teams().indexOf(team);
 
                         if (teamId < 0) {
                             continue;
@@ -573,8 +556,8 @@ public class Lobby extends GamePart {
 
                             boolean otherTeamAvailable = false;
 
-                            for (TeamData anotherTeam : this.selectedMap.teams()) {
-                                int otherTeamId = this.selectedMap.teams().indexOf(anotherTeam);
+                            for (TeamData anotherTeam : selectedMapData.teams()) {
+                                int otherTeamId = selectedMapData.teams().indexOf(anotherTeam);
 
                                 if (otherTeamId < 0) {
                                     continue;
@@ -645,14 +628,20 @@ public class Lobby extends GamePart {
             return null;
         }
 
-        Game game = new GameBuilder(this.getPlugin()).build(this.selectedMap);
+        MapData selectedMapData = this.getSelectedMapData();
+        if (selectedMapData == null) {
+            this.getPlugin().getLogger().warning("Game stopped because map data of selected map does not exist");
+            return null;
+        }
+
+        Game game = new GameBuilder(this.getPlugin()).build(selectedMapData);
 
         for (UUID playerId : this.getPlayers().keySet()) {
             LobbyPlayerData playerData = this.getPlayers().get(playerId);
             Player player = this.getPlugin().getServer().getPlayer(playerId);
 
             if (player != null) {
-                player.sendMessage("§bMap: " + this.selectedMap.name());
+                player.sendMessage("§bMap: " + selectedMapData.name());
             }
 
             if (playerData.getTeam() < 0) {
@@ -678,14 +667,14 @@ public class Lobby extends GamePart {
             this.players.remove(playerId);
         }
 
-        this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.name());
+        this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), selectedMapData.name());
 
         return game;
     }
 
     private void updateCloudNetMotdAndSlots(int maxPlayers, String motd) {
 
-        if (this.getPlugin().getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("cloudnet", false)) {
+        if (this.getPlugin().config().optBoolean(ConfigKeys.INTEGRATION_CLOUDNET, false)) {
 
             try {
 
@@ -729,8 +718,8 @@ public class Lobby extends GamePart {
 
     public int getMaxPlayers() {
 
-        int teams = this.getPlugin().getConfigManager().getConfig().optJSONObject("slotSystem", new JSONObject()).optInt("teamCount", -1);
-        int playersPerTeam = this.getPlugin().getConfigManager().getConfig().optJSONObject("slotSystem", new JSONObject()).optInt("playersPerTeam", -1);
+        int teams = this.getConfig().optInt(LobbyConfigKeys.SLOT_SYSTEM_TEAM_COUNT, -1);
+        int playersPerTeam = this.getConfig().optInt(LobbyConfigKeys.SLOT_SYSTEM_PLAYERS_PER_TEAM, -1);
 
         if (teams <= 0 || playersPerTeam <= 0) {
             return -1;
@@ -822,6 +811,14 @@ public class Lobby extends GamePart {
         return this.players.remove(playerId) != null;
     }
 
+    /**
+     * Returns the map voting gui.
+     * @return MapVoteGUI
+     */
+    public @NotNull MapVoteGUI getMapVoteGUI() {
+        return mapVoteGUI;
+    }
+
     public void addLoginBypassPlayer(UUID playerId) {
         this.loginBypassList.add(playerId);
     }
@@ -838,21 +835,36 @@ public class Lobby extends GamePart {
         this.loginBypassList.clear();
     }
 
-    public List<MapData> getMaps() {
-        return List.copyOf(this.maps);
+    public Map<String, MapData> getMaps() {
+        return Map.copyOf(this.maps);
     }
 
-    public MapData getSelectedMap() {
+    /**
+     * Returns the map with the specified map id.
+     * @param mapId map id
+     * @return map data or null if not found
+     */
+    public @Nullable MapData getMap(@NotNull String mapId) {
+        return this.maps.get(mapId);
+    }
+
+    public @Nullable String getSelectedMap() {
         return this.selectedMap;
     }
 
-    public void selectMap(MapData selectedMap) {
-        this.selectedMap = selectedMap;
+    public @Nullable MapData getSelectedMapData() {
+        return this.selectedMap != null ? this.maps.get(this.selectedMap) : null;
+    }
+
+    public void selectMap(@Nullable String mapId) {
+        this.selectedMap = mapId;
         this.displayMap();
         this.createPartyTeams();
 
-        if (this.selectedMap != null) {
-            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), this.selectedMap.name());
+        MapData selectedMapData = this.getSelectedMapData();
+
+        if (selectedMapData != null) {
+            this.updateCloudNetMotdAndSlots(this.getMaxPlayers(), selectedMapData.name());
         } else {
 
             if (this.mapVoting) {
@@ -868,13 +880,13 @@ public class Lobby extends GamePart {
     /**
      * Searches a map by its world name.
      * @param worldName world name
-     * @return map
+     * @return map id
      */
-    public @Nullable MapData findMapByWorldName(String worldName) {
+    public @Nullable String findMapByWorldName(String worldName) {
 
-        for (MapData mapData : this.maps) {
-            if (mapData.world().equalsIgnoreCase(worldName)) {
-                return mapData;
+        for (Map.Entry<String, MapData> mapData : this.maps.entrySet()) {
+            if (mapData.getValue().world().equalsIgnoreCase(worldName)) {
+                return mapData.getKey();
             }
         }
 
@@ -884,13 +896,13 @@ public class Lobby extends GamePart {
     /**
      * Searches a map by its name.
      * @param mapName map name
-     * @return map
+     * @return map id
      */
-    public @Nullable MapData findMapByName(String mapName) {
+    public @Nullable String findMapByName(String mapName) {
 
-        for (MapData mapData : this.maps) {
-            if (mapData.name().equalsIgnoreCase(mapName)) {
-                return mapData;
+        for (Map.Entry<String, MapData> mapData : this.maps.entrySet()) {
+            if (mapData.getValue().name().equalsIgnoreCase(mapName)) {
+                return mapData.getKey();
             }
         }
 

@@ -146,6 +146,10 @@ public record UpgradeEntry(
             return json;
         }
 
+        public boolean invalid() {
+            return this.amount < 0;
+        }
+
     }
 
 

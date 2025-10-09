@@ -4,6 +4,7 @@ import net.chaossquad.mclib.command.SubcommandCommand;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.commands.bypass.BypassSubcommand;
+import net.jandie1505.bedwars.commands.config.ConfigSubcommand;
 import net.jandie1505.bedwars.commands.game.GameSubcommand;
 import net.jandie1505.bedwars.commands.worlds.WorldsSubcommand;
 import net.jandie1505.bedwars.constants.Permissions;
@@ -21,6 +22,7 @@ public class BedwarsCommand extends SubcommandCommand {
         this.addSubcommand("game", SubcommandEntry.of(new GameSubcommand(plugin), sender -> Permissions.hasPermission(sender, Permissions.ADMIN)));
         this.addSubcommand("worlds", SubcommandEntry.of(new WorldsSubcommand(), sender -> Permissions.hasPermission(sender, Permissions.ADMIN)));
         this.addSubcommand("bypass", SubcommandEntry.of(new BypassSubcommand(plugin), sender -> Permissions.hasPermission(sender, Permissions.ADMIN)));
+        this.addSubcommand("config", SubcommandEntry.of(new ConfigSubcommand(plugin)));
 
         this.addSubcommand("old-command", SubcommandEntry.of(new BedwarsCommandOld(plugin), sender -> Permissions.hasPermission(sender, Permissions.ADMIN))); // TODO: Remove
     }

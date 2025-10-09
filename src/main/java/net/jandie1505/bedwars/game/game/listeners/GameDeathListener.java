@@ -1,13 +1,16 @@
 package net.jandie1505.bedwars.game.game.listeners;
 
+import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.EndgameWither;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.generators.Generator;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import org.bukkit.ChatColor;
 import org.bukkit.GameRule;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -19,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Objects;
 
 public class GameDeathListener implements ManagedListener {
     @NotNull private final Game game;
@@ -99,7 +103,7 @@ public class GameDeathListener implements ManagedListener {
     private void rewardKiller(@Nullable PlayerData killerData) {
         if (killerData == null) return;
         killerData.setKills(killerData.getKills() + 1);
-        killerData.setRewardPoints(killerData.getRewardPoints() + this.game.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("playerKill", 0));
+        killerData.setRewardPoints(killerData.getRewardPoints() + this.game.getConfig().optInt(GameConfigKeys.REWARD_PLAYER_KILL, 0));
     }
 
     private void decreaseUpgrades(@NotNull PlayerData playerData) {
@@ -135,7 +139,7 @@ public class GameDeathListener implements ManagedListener {
             return "";
         }
 
-        String deathMessage = team.getData().chatColor() + event.getEntity().getDisplayName() + "§7 ";
+        String deathMessage = Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(team.getChatColor()), ChatColor.BLACK) + event.getEntity().getDisplayName() + "§7 ";
 
         if (event.getEntity().getLastDamageCause() == null) {
             return deathMessage + "died";
@@ -228,7 +232,7 @@ public class GameDeathListener implements ManagedListener {
                 return deathMessage;
             }
 
-            deathMessage = deathMessage + " " + killerTeam.getData().chatColor() + event.getEntity().getKiller().getDisplayName();
+            deathMessage = deathMessage + " " + Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(killerTeam.getChatColor()), ChatColor.BLACK) + event.getEntity().getKiller().getDisplayName();
 
             return deathMessage;
         } else {
@@ -296,7 +300,7 @@ public class GameDeathListener implements ManagedListener {
         BedwarsTeam baseDefenderTeam = this.game.getTeam(baseDefender.getTeamId());
 
         if (baseDefenderTeam != null) {
-            return "has experienced the BaseDefender of " + baseDefenderTeam.getData().chatColor() + "Team " + baseDefenderTeam.getData().chatColor();
+            return "has experienced the BaseDefender of " + Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(baseDefenderTeam.getChatColor()), ChatColor.BLACK) + "Team " + baseDefenderTeam.getName();
         } else {
             return  "was killed by a BaseDefender";
         }
@@ -309,7 +313,7 @@ public class GameDeathListener implements ManagedListener {
         BedwarsTeam baseDefenderTeam = this.game.getTeam(endgameWither.getTeamId());
 
         if (baseDefenderTeam != null) {
-            return "has experienced the Endgame Wither of " + baseDefenderTeam.getData().chatColor() + "Team " + baseDefenderTeam.getData().name();
+            return "has experienced the Endgame Wither of " + Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(baseDefenderTeam.getChatColor()), ChatColor.BLACK) + "Team " + baseDefenderTeam.getName();
         } else {
             return  "was killed by a Endgame Wither";
         }

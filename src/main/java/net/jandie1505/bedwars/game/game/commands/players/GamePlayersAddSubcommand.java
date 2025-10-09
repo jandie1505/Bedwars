@@ -64,7 +64,7 @@ public class GamePlayersAddSubcommand implements TabCompletingCommandExecutor {
             @Nullable BedwarsTeam team = null;
             for (BedwarsTeam t : this.game.getTeams()) {
 
-                if (t.getData().name().equalsIgnoreCase(name)) {
+                if (t.getName().equalsIgnoreCase(name)) {
                     team = t;
                     break;
                 }
@@ -94,7 +94,7 @@ public class GamePlayersAddSubcommand implements TabCompletingCommandExecutor {
         }
 
         if (args.length == 2) {
-            return this.game.getTeams().stream().map(team -> team.getData().name()).toList();
+            return this.game.getTeams().stream().map(BedwarsTeam::getName).toList();
         }
 
         return List.of();

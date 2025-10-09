@@ -1,12 +1,18 @@
 package net.jandie1505.bedwars.game.endlobby;
 
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.config.DefaultConfigValues;
+import net.jandie1505.bedwars.config.JSONLoader;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.utils.LobbyChatListener;
 import net.jandie1505.bedwars.game.utils.LobbyProtectionsListener;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.title.Title;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -20,6 +26,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -36,22 +44,25 @@ public class Endlobby extends GamePart {
     public Endlobby(Bedwars plugin, Game game) {
         super(plugin);
 
-        this.lobbyBorderEnabled = this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optBoolean("enable", false);
+        JSONObject lobbyConfig = JSONLoader.loadJSONFromFile(new File(this.getPlugin().getDataFolder(), "lobby.json"));
+        if (lobbyConfig.isEmpty()) lobbyConfig = DefaultConfigValues.getLobbyConfig();
+
+        this.lobbyBorderEnabled = lobbyConfig.optJSONObject("border", new JSONObject()).optBoolean("enable", false);
         this.lobbyBorder = new int[]{
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z1", -10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("x2", 10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("y2", 10),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("border", new JSONObject()).optInt("z2", 10)
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("x1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("y1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("z1", -10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("x2", 10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("y2", 10),
+                lobbyConfig.optJSONObject("border", new JSONObject()).optInt("z2", 10)
         };
         this.lobbySpawn = new Location(
                 this.getPlugin().getServer().getWorlds().get(0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
-                this.getPlugin().getConfigManager().getConfig().optJSONObject("lobby", new JSONObject()).optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("x", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("y", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optInt("z", 0),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optFloat("yaw", 0.0F),
+                lobbyConfig.optJSONObject("spawnpoint", new JSONObject()).optFloat("pitch", 0.0F)
         );
 
         this.game = game;
@@ -72,14 +83,14 @@ public class Endlobby extends GamePart {
             // winning team message
 
             if (this.game.getWinner() != null) {
-                player.sendMessage("§7Winner: " + this.game.getWinner().getData().chatColor() + this.game.getWinner().getData().name());
+                player.sendMessage(Component.empty().append(Component.text("Winner: ", NamedTextColor.GRAY)).append(this.game.getWinner().getFormattedName()));
             } else {
-                player.sendMessage("§7No team has won the game");
+                player.sendMessage(Component.text("No team has won the game", NamedTextColor.GRAY));
             }
 
             // get player data
 
-            PlayerData playerData = this.game.getPlayers().get(player.getUniqueId());
+            PlayerData playerData = this.game.getPlayerData(player);
 
             if (playerData == null) {
                 continue;
@@ -92,11 +103,11 @@ public class Endlobby extends GamePart {
             BedwarsTeam team = this.game.getTeam(playerData.getTeam());
 
             if (team != null) {
-                player.sendMessage("§7 Your team: §9" + team.getData().chatColor() + team.getData().name());
+                player.sendMessage(Component.empty().append(Component.text("Your team: ", NamedTextColor.GRAY)).append(team.getFormattedName()));
             }
 
             if (this.game.getWinner() != null && this.game.getWinner().getId() == playerData.getTeam()) {
-                playerData.setRewardPoints(playerData.getRewardPoints() + this.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("victory", 500));
+                playerData.setRewardPoints(playerData.getRewardPoints() + game.getConfig().optInt(GameConfigKeys.REWARD_VICTORY, 500));
                 this.getPlugin().givePointsToPlayer(player, playerData.getRewardPoints(), "§6Reward for this game: + {points} points");
             }
 
@@ -208,7 +219,7 @@ public class Endlobby extends GamePart {
             return;
         }
 
-        PlayerData playerData = this.game.getPlayers().get(player.getUniqueId());
+        PlayerData playerData = this.game.getPlayerData(player);
 
         if (this.time >= 0 && this.time <= 15) {
 
@@ -228,16 +239,29 @@ public class Endlobby extends GamePart {
 
         if (this.time >= 16 && this.time <= 30) {
 
-            if (this.game.getWinner() != null) {
+            BedwarsTeam winner = this.game.getWinner();
+            if (winner != null) {
 
-                if (this.game.getWinner().getPlayers().contains(player.getUniqueId())) {
-                    player.sendTitle("§6§lVICTORY", "§7§lYour team has won the game", 0, 25, 0);
+                if (winner.isMember(player)) {
+                    player.showTitle(Title.title(
+                            Component.text("VICTORY"),
+                            Component.text("Your team has won the game"),
+                            Title.Times.times(Duration.ZERO, Duration.ofSeconds(2), Duration.ZERO)
+                    ));
                 } else {
-                    player.sendTitle(this.game.getWinner().getData().chatColor() + "Team " + this.game.getWinner().getData().name(), "§7has won", 0, 25, 0);
+                    player.showTitle(Title.title(
+                            Component.text("Team " + winner.getName(), winner.getChatColor()),
+                            Component.text("has won!", NamedTextColor.GRAY),
+                            Title.Times.times(Duration.ZERO, Duration.ofSeconds(2), Duration.ZERO)
+                    ));
                 }
 
             } else {
-                player.sendTitle("", "§7§lNo team has won", 0, 25, 0);
+                player.showTitle(Title.title(
+                        Component.text("No team", NamedTextColor.GRAY),
+                        Component.text("has won!", NamedTextColor.GRAY),
+                        Title.Times.times(Duration.ZERO, Duration.ofSeconds(2), Duration.ZERO)
+                ));
             }
 
             return;

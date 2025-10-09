@@ -3,10 +3,7 @@ package net.jandie1505.bedwars.game.game.commands;
 import net.chaossquad.mclib.command.SubcommandCommand;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.commands.teams.GameTeamInfoSubcommand;
-import net.jandie1505.bedwars.game.game.commands.teams.GameTeamPlayersSubcommand;
-import net.jandie1505.bedwars.game.game.commands.teams.GameTeamsListSubcommand;
-import net.jandie1505.bedwars.game.game.commands.teams.GameTeamsValueSubcommand;
+import net.jandie1505.bedwars.game.game.commands.teams.*;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,6 +22,7 @@ public class GameTeamsSubcommand extends SubcommandCommand {
         this.addSubcommand("value", SubcommandEntry.of(new GameTeamsValueSubcommand(game)));
         this.addSubcommand("info", SubcommandEntry.of(new GameTeamInfoSubcommand(game)));
         this.addSubcommand("players", SubcommandEntry.of(new GameTeamPlayersSubcommand(game)));
+        this.addSubcommand("gui", SubcommandEntry.of(new GameTeamGUISubcommand(game)));
     }
 
     /**

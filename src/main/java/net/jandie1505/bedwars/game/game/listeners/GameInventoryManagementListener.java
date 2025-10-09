@@ -4,11 +4,7 @@ import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.menu.upgrades.UpgradesMenu;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
-import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
-import net.jandie1505.bedwars.game.game.team.TeamUpgrade;
-import net.jandie1505.bedwars.game.game.team.traps.*;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -24,9 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
-import java.util.Arrays;
 import java.util.Set;
 
 public class GameInventoryManagementListener implements ManagedListener {
@@ -76,7 +70,7 @@ public class GameInventoryManagementListener implements ManagedListener {
         }
 
         // Prevent putting on armor via shift-right-click
-        if (this.game.getPlugin().getItemStorage().isArmorItem(event.getCurrentItem())) {
+        if (Bedwars.isArmorItem(event.getCurrentItem())) {
             event.setCancelled(true);
             player.sendRichMessage("<red>You need to purchase armor in the item shop!");
             return;
@@ -241,191 +235,9 @@ public class GameInventoryManagementListener implements ManagedListener {
     public void onPlayerInteract(@NotNull PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (this.game.getPlugin().isPlayerBypassing(event.getPlayer().getUniqueId())) return;
-        if (!this.game.getPlugin().getItemStorage().isArmorItem(event.getItem())) return;
+        if (!Bedwars.isArmorItem(event.getItem())) return;
 
         event.setCancelled(true);
-    }
-
-    // ----- STUFF THAT HAS TO BE REFACTORED -----
-    // TODO: Refactor
-
-    @Deprecated
-    @EventHandler
-    public void onInventoryClickForUpgradeMenu(@NotNull InventoryClickEvent event) {
-        if (!(event.getInventory().getHolder() instanceof UpgradesMenu upgradesMenu)) return;
-        event.setCancelled(true);
-
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-
-        PlayerData playerData = this.game.getPlayerData(player);
-        if (playerData == null) return;
-
-        if (!(event.getClick() == ClickType.LEFT || event.getClick() == ClickType.RIGHT)) {
-            return;
-        }
-
-        if (event.getCurrentItem() == null) {
-            return;
-        }
-
-        int itemId = this.game.getPlugin().getItemStorage().getItemId(event.getCurrentItem());
-        if (itemId < 0) return;
-
-        TeamUpgrade teamUpgrade;
-        if (itemId == this.game.getTeamUpgradesConfig().getSharpnessUpgrade().getItemId()) {
-            teamUpgrade = this.game.getTeamUpgradesConfig().getSharpnessUpgrade();
-        } else if (itemId == this.game.getTeamUpgradesConfig().getProtectionUpgrade().getItemId()) {
-            teamUpgrade = this.game.getTeamUpgradesConfig().getProtectionUpgrade();
-        } else if (itemId == this.game.getTeamUpgradesConfig().getHasteUpgrade().getItemId()) {
-            teamUpgrade = this.game.getTeamUpgradesConfig().getHasteUpgrade();
-        } else if (itemId == this.game.getTeamUpgradesConfig().getForgeUpgrade().getItemId()) {
-            teamUpgrade = this.game.getTeamUpgradesConfig().getForgeUpgrade();
-        } else if (itemId == this.game.getTeamUpgradesConfig().getHealPoolUpgrade().getItemId()) {
-            teamUpgrade = this.game.getTeamUpgradesConfig().getHealPoolUpgrade();
-        } else if (itemId == this.game.getTeamUpgradesConfig().getEndgameBuffUpgrade().getItemId()) {
-            teamUpgrade = this.game.getTeamUpgradesConfig().getEndgameBuffUpgrade();
-        } else {
-            teamUpgrade = null;
-        }
-
-        BedwarsTeam team = this.game.getTeams().get(playerData.getTeam());
-        if (team == null) return;
-
-        if (teamUpgrade != null) {
-
-            if (team.getTeamUpgrade(teamUpgrade) >= teamUpgrade.getUpgradePrices().size()) {
-                return;
-            }
-
-            Integer price = teamUpgrade.getUpgradePrices().get(team.getTeamUpgrade(teamUpgrade));
-
-            if (price == null || price < 0) {
-                return;
-            }
-
-            if (team.getTeamUpgrade(teamUpgrade) >= teamUpgrade.getUpgradePriceCurrencies().size()) {
-                return;
-            }
-
-            Material currency = teamUpgrade.getUpgradePriceCurrencies().get(team.getTeamUpgrade(teamUpgrade));
-
-            if (currency == null) {
-                return;
-            }
-
-            if (!this.purchaseItem(event.getWhoClicked().getInventory(), price, currency)) {
-                event.getWhoClicked().sendMessage("§cYou don't have enough " + currency.name() + "S!");
-                return;
-            }
-
-            event.getWhoClicked().sendMessage("§aUpgrade successfully purchased");
-            team.setTeamUpgrade(teamUpgrade, team.getTeamUpgrade(teamUpgrade) + 1);
-            playerData.setRewardPoints(playerData.getRewardPoints() + this.game.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("teamUpgradePurchased", 0));
-            event.getWhoClicked().openInventory(new UpgradesMenu(this.game, event.getWhoClicked().getUniqueId()).getUpgradesMenu());
-
-            return;
-        }
-
-        if (event.getSlot() < 27) {
-
-            BedwarsTrap bedwarsTrap;
-            if (itemId == this.game.getTeamUpgradesConfig().getAlarmTrap()) {
-                bedwarsTrap = new AlarmTrap(team);
-            } else if (itemId == this.game.getTeamUpgradesConfig().getItsATrap()) {
-                bedwarsTrap = new ItsATrap(team);
-            } else if (itemId == this.game.getTeamUpgradesConfig().getMiningFatigueTrap()) {
-                bedwarsTrap = new MiningFatigueTrap(team);
-            } else if (itemId == this.game.getTeamUpgradesConfig().getCountermeasuresTrap()) {
-                bedwarsTrap = new CountermeasuresTrap(team);
-            } else {
-                bedwarsTrap = null;
-            }
-
-            if (bedwarsTrap != null) {
-
-                boolean secondary = event.getClick() == ClickType.RIGHT;
-
-                int price = UpgradesMenu.getTrapPrice(secondary, team);
-
-                if (price < 0) {
-                    return;
-                }
-
-                if (!this.purchaseItem(event.getWhoClicked().getInventory(), price, Material.DIAMOND)) {
-                    event.getWhoClicked().sendMessage("§cYou don't have enough " + Material.DIAMOND + "S!");
-                    return;
-                }
-
-                BedwarsTrap[] trapArray;
-
-                if (secondary) {
-                    trapArray = team.getSecondaryTraps();
-                } else {
-                    trapArray = team.getPrimaryTraps();
-                }
-
-                event.getWhoClicked().sendMessage("§aTrap successfully purchased");
-                BedwarsTeam.addTrap(trapArray, bedwarsTrap);
-                playerData.setRewardPoints(playerData.getRewardPoints() + this.game.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("trapPurchased", 0));
-                event.getWhoClicked().openInventory(new UpgradesMenu(this.game, event.getWhoClicked().getUniqueId()).getUpgradesMenu());
-
-            }
-
-        } else {
-
-            if (event.getSlot() == 38) {
-                team.getPrimaryTraps()[0] = null;
-                event.getWhoClicked().sendMessage("§aTrap successfully removed");
-                event.getWhoClicked().openInventory(new UpgradesMenu(this.game, event.getWhoClicked().getUniqueId()).getUpgradesMenu());
-            } else if (event.getSlot() == 39) {
-                team.getPrimaryTraps()[1] = null;
-                event.getWhoClicked().sendMessage("§aTrap successfully removed");
-                event.getWhoClicked().openInventory(new UpgradesMenu(this.game, event.getWhoClicked().getUniqueId()).getUpgradesMenu());
-            } else if (event.getSlot() == 41) {
-                team.getSecondaryTraps()[0] = null;
-                event.getWhoClicked().sendMessage("§aTrap successfully removed");
-                event.getWhoClicked().openInventory(new UpgradesMenu(this.game, event.getWhoClicked().getUniqueId()).getUpgradesMenu());
-            } else if (event.getSlot() == 42) {
-                team.getSecondaryTraps()[1] = null;
-                event.getWhoClicked().sendMessage("§aTrap successfully removed");
-                event.getWhoClicked().openInventory(new UpgradesMenu(this.game, event.getWhoClicked().getUniqueId()).getUpgradesMenu());
-            }
-
-        }
-
-        return;
-    }
-
-    @Deprecated
-    @EventHandler
-    public void onInventoryDragForUpgradeMenu(@NotNull InventoryDragEvent event) {
-        if (!(event.getInventory().getHolder() instanceof UpgradesMenu)) return;
-        event.setCancelled(true);
-    }
-
-    @Deprecated
-    private boolean purchaseItem(Inventory inventory, int price, Material currency) {
-
-        if (inventory == null) {
-            return false;
-        }
-
-        int availableCurrency = 0;
-
-        for (ItemStack item : Arrays.copyOf(inventory.getContents(), inventory.getContents().length)) {
-
-            if (item != null && item.getType() == currency) {
-                availableCurrency += item.getAmount();
-            }
-
-        }
-
-        if (availableCurrency < price) {
-            return false;
-        }
-
-        Bedwars.removeSpecificAmountOfItems(inventory, currency, price);
-        return true;
     }
 
     // ----- OTHER -----

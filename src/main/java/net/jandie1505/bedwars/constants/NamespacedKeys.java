@@ -1,6 +1,7 @@
 package net.jandie1505.bedwars.constants;
 
 import org.bukkit.NamespacedKey;
+import org.jetbrains.annotations.NotNull;
 
 public interface NamespacedKeys {
     String NAMESPACE = "bedwars";
@@ -13,6 +14,12 @@ public interface NamespacedKeys {
     NamespacedKey GAME_ITEM_UPGRADE_ID = new NamespacedKey(NAMESPACE, "item.game.upgrades.upgrade.id");
     NamespacedKey GAME_ITEM_UPGRADE_LEVEL = new NamespacedKey(NAMESPACE, "item.game.upgrades.upgrade.level");
 
+    NamespacedKey GAME_ITEM_SHARPNESS_AFFECTED = new NamespacedKey(NAMESPACE, "item.game.team.upgrades.affect.sharpness");
+    NamespacedKey GAME_ITEM_PROTECTION_AFFECTED = new NamespacedKey(NAMESPACE, "item.game.team.upgrades.affect.protection");
+
     NamespacedKey ENTITY_TARGETING_ENABLED = new NamespacedKey(NAMESPACE, "entity.game.targeting_enabled");
     NamespacedKey ENTITY_PEARL_SWAP_EXCLUDED = new NamespacedKey(NAMESPACE, "entity.game.pearl_swap_excluded");
+
+    NamespacedKey LOBBY_ITEM_VOTING_MENU = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.lobby.voting_menu");
+    NamespacedKey LOBBY_ITEM_TEAM_SELECTION_MENU = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.lobby.team_selection_menu");
 }

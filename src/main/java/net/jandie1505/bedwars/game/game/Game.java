@@ -2,14 +2,18 @@ package net.jandie1505.bedwars.game.game;
 
 import eu.cloudnetservice.driver.inject.InjectionLayer;
 import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
+import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.chaossquad.mclib.WorldUtils;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.executable.ManagedListener;
+import net.chaossquad.mclib.immutables.ImmutableLocation;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.config.ConfigSetup;
+import net.jandie1505.bedwars.constants.ConfigKeys;
 import net.jandie1505.bedwars.game.game.commands.*;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
-import net.jandie1505.bedwars.game.game.commands.shop.GameShopGiveSubcommand;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.ShopVillager;
@@ -29,50 +33,59 @@ import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
-import net.jandie1505.bedwars.game.game.team.TeamUpgradesConfig;
-import net.jandie1505.bedwars.game.game.team.traps.BedwarsTrap;
+import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
+import net.jandie1505.bedwars.game.game.team.traps.TeamTrapManager;
+import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgradeManager;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.game.timeactions.provider.TimeActionCreator;
 import net.jandie1505.bedwars.game.game.world.BlockProtectionSystem;
 import net.jandie1505.bedwars.utilities.ItemSimilarityKey;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class Game extends GamePart implements ManagedListener {
     private final World world;
-    private final MapData data;
+
+    @NotNull private final String name;
+    private final int respawnCountdown;
+    private final int maxTime;
+    private final int spawnBlockPlaceProtection;
+    private final int villagerBlockPlaceProtection;
+    @NotNull private final ImmutableLocation centerLocation;
+    private final int mapRadius;
+
     private final List<BedwarsTeam> teams;
     private final Map<UUID, PlayerData> players;
     private final List<Generator> generators;
     private final List<TimeAction> timeActions;
-    private final TimeActionCreator timeActionCreator;
     private final BlockProtectionSystem blockProtectionSystem;
     private final Map<UUID, Scoreboard> playerScoreboards;
-    private final ItemShop itemShop;
-    private final ShopGUI shopGUI;
+    @NotNull private final ItemShop itemShop;
+    @NotNull private final ShopGUI shopGUI;
     @NotNull private final PlayerUpgradeManager playerUpgradeManager;
-    private final TeamUpgradesConfig teamUpgradesConfig;
+    @NotNull private final TeamUpgradeManager teamUpgradeManager;
+    @NotNull private final TeamGUI teamGUI;
+    @NotNull private final TeamTrapManager teamTrapManager;
     private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
     private int time;
@@ -82,89 +95,66 @@ public class Game extends GamePart implements ManagedListener {
     private BedwarsTeam winner;
     private boolean noWinnerEnd;
 
-    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, TeamUpgradesConfig teamUpgradesConfig) {
+    // ----- INIT -----
+
+    public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, @NotNull Map<String, UpgradeEntry> teamUpgradeEntries, @NotNull Map<String, TeamGUI.TrapEntry> teamTrapEntries) {
         super(plugin);
         this.world = world;
-        this.data = data;
+
+        this.getConfig().merge(ConfigSetup.loadDataStorage(this.getPlugin(), "game.yml"), true);
+        this.getConfig().merge(this.getPlugin().config().getSection("game"), true);
+
+        this.name = data.name();
+        this.respawnCountdown = data.respawnCountdown();
+        this.maxTime = data.maxTime();
+        this.spawnBlockPlaceProtection = data.spawnBlockPlaceProtection();
+        this.villagerBlockPlaceProtection = data.villagerBlockPlaceProtection();
+        this.centerLocation = new ImmutableLocation(WorldUtils.locationWithWorld(data.centerLocation().mutableCopy(), this.world));
+        this.mapRadius = data.mapRadius();
+
         this.teams = Collections.synchronizedList(new ArrayList<>());
         this.players = Collections.synchronizedMap(new HashMap<>());
         this.generators = Collections.synchronizedList(new ArrayList<>());
         this.timeActions = Collections.synchronizedList(new ArrayList<>());
-        this.timeActionCreator = new TimeActionCreator(this);
         this.blockProtectionSystem = new BlockProtectionSystem(this);
         this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
         this.itemShop = new ItemShop(this);
         this.shopGUI = new ShopGUI(this, defaultQuickBuyMenu);
         this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
-        this.teamUpgradesConfig = teamUpgradesConfig;
+        this.teamUpgradeManager = new TeamUpgradeManager(this, () -> false);
+        this.teamGUI = new TeamGUI(this, teamUpgradeEntries, teamTrapEntries, () -> false);
+        this.teamTrapManager = new TeamTrapManager(this, () -> false);
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
-        this.time = this.data.maxTime();
+        this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
         this.publicDiamondGeneratorLevel = 0;
         this.prepared = false;
         this.winner = null;
         this.noWinnerEnd = false;
 
-        // Shop
+        // SHOP
 
         this.itemShop.getItems().putAll(shopEntries);
         this.itemShop.getUpgrades().putAll(playerUpgradeEntries);
 
-        // Teams
+        // TEAMS
 
-        for (TeamData teamData : List.copyOf(this.data.teams())) {
-            BedwarsTeam team = new BedwarsTeam(this, teamData);
+        this.setupTeams(data.teams());
 
-            this.teams.add(team);
+        // GLOBAL GENERATORS
 
-            for (GeneratorData generatorData : teamData.generators()) {
-                this.generators.add(new TeamGenerator(
-                        this,
-                        generatorData,
-                        team
-                ));
-            }
-        }
+        this.setupGlobalGenerators(data.globalGenerators());
 
-        for (GeneratorData generatorData : this.data.globalGenerators()) {
-            this.generators.add(new PublicGenerator(
-                    this,
-                    generatorData
-            ));
-        }
+        // TIME ACTIONS
 
-        for (TimeActionData timeActionData : this.data.timeActions()) {
-            try {
-                TimeAction timeAction = this.timeActionCreator.createTimeAction(timeActionData);
-                if (timeAction == null) {
-                    this.getPlugin().getLogger().warning("Couldn't create time action: Invalid type");
-                    continue;
-                }
-                this.timeActions.add(timeAction);
-            } catch (Exception e) {
-                this.getPlugin().getLogger().log(Level.WARNING, "Couldn't create time action", e);
-                continue;
-            }
-        }
+        this.setupTimeActions(data.timeActions());
 
-        Collections.sort(this.timeActions);
+        // WORLD BORDER
 
-        for (BedwarsTeam team : this.getTeams()) {
+        this.world.getWorldBorder().setCenter(this.centerLocation.mutableCopy());
+        this.world.getWorldBorder().setSize(this.mapRadius * 2);
 
-            for (Location location : team.getData().shopVillagerLocations()) {
-                new ShopVillager(this, WorldUtils.locationWithWorld(location, this.getWorld()), team.getId());
-            }
-
-            for (Location location : team.getData().upgradeVillagerLocations()) {
-                new UpgradeVillager(this, WorldUtils.locationWithWorld(location, this.getWorld()), team.getId());
-            }
-
-        }
-
-        //this.itemShop.initEntries(shopConfig); // TODO: Replace for new shop
-
-        this.world.getWorldBorder().setCenter(this.data.centerLocation());
-        this.world.getWorldBorder().setSize(this.data.mapRadius() * 2);
+        // GAME RULES
 
         this.world.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         this.world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
@@ -194,9 +184,8 @@ public class Game extends GamePart implements ManagedListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::playerAliveStatusTask, 1, 20, "ingame_player_alive_status");
         this.getTaskScheduler().scheduleRepeatingTask(this::inventoryTickTask, 1, 1, "ingame_player_inventory");
         this.getTaskScheduler().scheduleRepeatingTask(this::groupItemsTask, 1, 10*20, "group_items");
-        this.getTaskScheduler().scheduleRepeatingTask(this::playerTeamUpgradeTask, 1, 20, "ingame_player_team_upgrades");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerValuesTask, 1, 200, "ingame_player_values");
-        this.getTaskScheduler().scheduleRepeatingTask(this::playerCooldownTask, 1, 1, "ingame_player_cooldowns");
+        this.getTaskScheduler().scheduleRepeatingTask(this::playerTimerTask, 1, 1, "player_timers");
         this.getTaskScheduler().scheduleRepeatingTask(this::playerTrackerTask, 1, 100, "ingame_player_player_tracker");
         this.getTaskScheduler().scheduleRepeatingTask(this::tntParticleTask, 1, 20, "ingame_player_tnt_particles");
 
@@ -204,7 +193,6 @@ public class Game extends GamePart implements ManagedListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::generatorTick, 1, 1, "generators");
         this.getTaskScheduler().scheduleRepeatingTask(this::timeActions, 1, 20, "time_actions");
         this.getTaskScheduler().scheduleRepeatingTask(this::cleanupManagedEntitiesTask, 1, 10*20, "cleanup_managed_entities");
-        this.getTaskScheduler().scheduleRepeatingTask(this::traps, 1, 1, "traps");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndConditions, 1, 1, "game_end_conditions");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndCheck, 1, 1, "game_end_check");
         this.getTaskScheduler().scheduleRepeatingTask(this::timeTask, 1, 20, "time");
@@ -221,6 +209,70 @@ public class Game extends GamePart implements ManagedListener {
         this.registerListener(new GameChatListener(this));
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
     }
+
+    private void setupTeams(@NotNull List<TeamData> teams) {
+
+        for (TeamData teamData : List.copyOf(teams)) {
+
+            // Create and add team
+            BedwarsTeam team = new BedwarsTeam(this, teamData);
+            this.teams.add(team);
+
+            // Setup team generators
+            for (GeneratorData generatorData : teamData.generators()) {
+                this.generators.add(new TeamGenerator(
+                        this,
+                        generatorData,
+                        team
+                ));
+            }
+
+            // Setup shop villagers
+            for (Location location : teamData.shopVillagerLocations()) {
+                new ShopVillager(this, WorldUtils.locationWithWorld(location, this.getWorld()), team.getId());
+            }
+
+            // Setup upgrade villagers
+            for (Location location : teamData.upgradeVillagerLocations()) {
+                new UpgradeVillager(this, WorldUtils.locationWithWorld(location, this.getWorld()), team.getId());
+            }
+
+        }
+
+    }
+
+    private void setupGlobalGenerators(@NotNull List<GeneratorData> globalGenerators) {
+
+        for (GeneratorData generatorData : globalGenerators) {
+            this.generators.add(new PublicGenerator(
+                    this,
+                    generatorData
+            ));
+        }
+
+    }
+
+    private void setupTimeActions(@NotNull List<TimeActionData> timeActionDataList) {
+        TimeActionCreator timeActionCreator = new TimeActionCreator(this);
+
+        for (TimeActionData timeActionData : timeActionDataList) {
+            try {
+                TimeAction timeAction = timeActionCreator.createTimeAction(timeActionData);
+                if (timeAction == null) {
+                    this.getPlugin().getLogger().warning("Couldn't create time action: Invalid type");
+                    continue;
+                }
+                this.timeActions.add(timeAction);
+            } catch (Exception e) {
+                this.getPlugin().getLogger().log(Level.WARNING, "Couldn't create time action", e);
+                continue;
+            }
+        }
+
+        Collections.sort(this.timeActions);
+    }
+
+    // ----- ? -----
 
     @Override
     public boolean shouldExecute() {
@@ -318,7 +370,7 @@ public class Game extends GamePart implements ManagedListener {
      * This task teleports spectators to the game map.
      */
     private void teleportSpectatorsTask() {
-        Location loc = this.data.centerLocation().mutableCopy();
+        Location loc = this.centerLocation.mutableCopy();
         loc.setWorld(this.world);
 
         for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
@@ -373,71 +425,77 @@ public class Game extends GamePart implements ManagedListener {
      */
     private void playerAliveStatusTask() {
 
-        for (UUID playerId : this.getPlayers().keySet()) {
-            PlayerData playerData = this.getPlayer(playerId);
+        for (Player player : this.getOnlinePlayers()) {
+
+            // Get player data
+            PlayerData playerData = this.getPlayerData(player);
             if (playerData == null) continue;
-            Player player = this.getPlugin().getServer().getPlayer(playerId);
-            if (player == null) continue;
+
+            // Get team
             BedwarsTeam team = this.getTeam(playerData.getTeam());
-            if (team == null) continue;
+            if (team == null) return;
 
-            // Check if alive or not
+            if (playerData.isAlive()) { // PLAYER IS ALIVE
 
-            if (playerData.isAlive()) {
-
-                // PLAYER IS ALIVE
-
-                // Set respawn countdown to default
-
-                if (playerData.getRespawnCountdown() != this.data.respawnCountdown()) {
-                    playerData.setRespawnCountdown(this.data.respawnCountdown());
+                // Reset respawn countdown
+                if (playerData.getRespawnCountdown() < this.respawnCountdown) {
+                    playerData.setRespawnCountdown(this.respawnCountdown);
                 }
 
                 // Set gamemode to survival
-
-                if (!this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SURVIVAL) {
+                if (!this.getPlugin().isPlayerBypassing(player) && player.getGameMode() != GameMode.SURVIVAL) {
                     player.setGameMode(GameMode.SURVIVAL);
                 }
 
-            } else {
+            } else { // PLAYER IS DEAD
 
-                // PLAYER IS NOT ALIVE
-
-                // Set spectator
-
-                if (!this.getPlugin().isPlayerBypassing(player.getUniqueId()) && player.getGameMode() != GameMode.SPECTATOR) {
+                // Set gamemode to spectator
+                if (!this.getPlugin().isPlayerBypassing(player) && player.getGameMode() != GameMode.SPECTATOR) {
                     player.setGameMode(GameMode.SPECTATOR);
                 }
 
                 // Respawn process
+                if (team.canRespawn()) { // Team still has a bed
 
-                if (team.hasBed() > 0) {
-
-                    // TEAM STILL HAS BED
-
-                    // Count down or respawn if countdown is 0
                     if (playerData.getRespawnCountdown() > 0) {
 
-                        player.sendTitle("§c§lDEAD", "§7§lYou will respawn in " + playerData.getRespawnCountdown() + " seconds", 0, 25, 0);
-                        player.sendMessage("§7Respawn in " + playerData.getRespawnCountdown() + " seconds");
+                        player.showTitle(Title.title(
+                                Component.text("DEAD", NamedTextColor.RED, TextDecoration.BOLD),
+                                Component.text("You will respawn in " + playerData.getRespawnCountdown() + " seconds!", NamedTextColor.RED),
+                                Title.Times.times(Duration.ZERO, Duration.ofMillis(1250), Duration.ZERO)
+                        ));
 
                         playerData.setRespawnCountdown(playerData.getRespawnCountdown() - 1);
 
                     } else {
-
                         this.respawnPlayer(player);
-
                     }
 
-                } else {
-
-                    // TEAM HAS NO BED
-
-                    // Display you are dead message, no respawn
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "You are dead"));
-
+                } else { // Team has no bed
+                    player.sendActionBar(Component.text("You are dead", NamedTextColor.RED));
                 }
 
+            }
+
+        }
+
+    }
+
+    private void playerTimerTask() {
+
+        for (PlayerData playerData : this.players.values()) {
+
+            Iterator<Map.Entry<String, Integer>> i = playerData.getTimers().entrySet().iterator();
+            while (i.hasNext()) {
+                Map.Entry<String, Integer> entry = i.next();
+                int nv = entry.getValue() - 1;
+
+                if (nv <= 0) {
+                    i.remove();
+                    return;
+                }
+
+                entry.setValue(nv);
             }
 
         }
@@ -457,50 +515,6 @@ public class Game extends GamePart implements ManagedListener {
             BedwarsTeam team = this.getTeam(playerData.getTeam());
             if (team == null) continue;
             this.inventoryTick(player, playerData, team);
-        }
-
-    }
-
-    /**
-     * Handles team upgrade behaviors on players.
-     */
-    private void playerTeamUpgradeTask() {
-
-        for (UUID playerId : this.getPlayers().keySet()) {
-            PlayerData playerData = this.getPlayer(playerId);
-            if (playerData == null) continue;
-            Player player = this.getPlugin().getServer().getPlayer(playerId);
-            if (player == null) continue;
-            BedwarsTeam team = this.getTeam(playerData.getTeam());
-            if (team == null) continue;
-
-            // Heal Pool Upgrade
-
-            int healPoolUpgrade = this.getUpgradeLevel(team.getHealPoolUpgrade(), this.teamUpgradesConfig.getHealPoolUpgrade().getUpgradeLevels());
-
-            if (healPoolUpgrade > 0 && Bedwars.getBlockDistance(WorldUtils.locationWithWorld(team.getData().baseCenter(), this.getWorld()), player.getLocation()) <= team.getData().baseRadius() && !player.hasPotionEffect(PotionEffectType.REGENERATION)) {
-                player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 15 * 20, healPoolUpgrade - 1));
-            }
-
-            // Haste Team Upgrade
-
-            int hasteUpgradeLevel = this.getUpgradeLevel(team.getHasteUpgrade(), this.teamUpgradesConfig.getHasteUpgrade().getUpgradeLevels());
-
-            if (hasteUpgradeLevel > 0) {
-
-                if (player.getPotionEffect(PotionEffectType.HASTE) == null || player.getPotionEffect(PotionEffectType.HASTE).getAmplifier() != hasteUpgradeLevel - 1) {
-                    player.removePotionEffect(PotionEffectType.HASTE);
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 3600 * 20, hasteUpgradeLevel - 1));
-                }
-
-            } else {
-
-                if (player.hasPotionEffect(PotionEffectType.HASTE)) {
-                    player.removePotionEffect(PotionEffectType.HASTE);
-                }
-
-            }
-
         }
 
     }
@@ -534,70 +548,6 @@ public class Game extends GamePart implements ManagedListener {
 
             if (player.getUnsaturatedRegenRate() != 0) {
                 player.setUnsaturatedRegenRate(0);
-            }
-
-        }
-
-    }
-
-    /**
-     * Handles player item cooldowns.
-     */
-    private void playerCooldownTask() {
-
-        for (UUID playerId : this.getPlayers().keySet()) {
-            PlayerData playerData = this.getPlayer(playerId);
-            if (playerData == null) continue;
-            Player player = this.getPlugin().getServer().getPlayer(playerId);
-            if (player == null) continue;
-
-            // Fireball Cooldown
-
-            if (playerData.getFireballCooldown() > 0) {
-                playerData.setFireballCooldown(playerData.getFireballCooldown() - 1);
-            }
-
-            // Trap Cooldown
-
-            if (playerData.getTrapCooldown() > 0) {
-                playerData.setTrapCooldown(playerData.getTrapCooldown() - 1);
-            }
-
-            // milk timer
-
-            if (playerData.getMilkTimer() > 0) {
-                playerData.setMilkTimer(playerData.getMilkTimer() - 1);
-            }
-
-            // Iron golem timer
-
-            if (playerData.getIronGolemCooldown() > 0) {
-                playerData.setIronGolemCooldown(playerData.getIronGolemCooldown() - 1);
-            }
-
-            // Zapper Cooldown
-
-            if (playerData.getZapperCooldown() > 0) {
-                playerData.setZapperCooldown(playerData.getZapperCooldown() - 1);
-            }
-
-            // Black Hole Cooldown
-
-            if(playerData.getBlackHoleCooldown() > 0) {
-                playerData.setBlackHoleCooldown(playerData.getBlackHoleCooldown() - 1);
-            }
-
-            // Teleport to Base Cooldown
-
-            if (playerData.getTeleportToBaseCooldown() > 0) {
-
-                if (playerData.getTeleportToBaseCooldown() == 1) {
-                    BedwarsTeam team = this.getTeam(playerData.getTeam());
-                    Location teleportLocation = team.getRandomSpawnpoint();
-                    player.teleport(teleportLocation);
-                }
-
-                playerData.setTeleportToBaseCooldown(playerData.getTeleportToBaseCooldown() - 1);
             }
 
         }
@@ -645,7 +595,7 @@ public class Game extends GamePart implements ManagedListener {
             Player player = this.getPlugin().getServer().getPlayer(playerId);
             if (player == null) continue;
 
-            if (this.getPlugin().getConfigManager().getConfig().optBoolean("tntParticles", false) && player.getInventory().contains(Material.TNT) && playerData.getMilkTimer() <= 0) {
+            if (this.getConfig().optBoolean(GameConfigKeys.TNT_PARTICLES, false) && player.getInventory().contains(Material.TNT) && playerData.getMilkTimer() <= 0) {
                 player.getWorld().spawnParticle(Particle.DUST, player.getLocation().clone().add(0, 2.5, 0), 20, 0, 0, 0, 1, new Particle.DustOptions(Color.RED, 1.0F));
             }
 
@@ -734,67 +684,6 @@ public class Game extends GamePart implements ManagedListener {
 
     }
 
-    private void traps() {
-
-        for (BedwarsTeam team : this.getTeams()) {
-
-            team.shiftTraps();
-
-            if (team.hasPrimaryTraps()) {
-
-                List<Entity> entitiesInRadius = List.copyOf(this.world.getNearbyEntities(team.getData().baseCenter(), team.getData().baseRadius(), team.getData().baseRadius(), team.getData().baseRadius()));
-
-                for (Entity entity : entitiesInRadius) {
-
-                    if(!(entity instanceof Player)) {
-                        continue;
-                    }
-
-                    Player player = (Player) entity;
-                    PlayerData playerData = this.players.get(player.getUniqueId());
-
-                    if (playerData == null) {
-                        continue;
-                    }
-
-                    if (!playerData.isAlive()) {
-                        continue;
-                    }
-
-                    if (playerData.getTrapCooldown() > 0) {
-                        continue;
-                    }
-
-                    if (playerData.getMilkTimer() > 0) {
-                        return;
-                    }
-
-                    if (team.getPlayers().contains(player.getUniqueId())) {
-                        continue;
-                    }
-
-                    for (int i = 0; i < team.getPrimaryTraps().length; i++) {
-                        BedwarsTrap trap = team.getPrimaryTraps()[i];
-
-                        if (trap == null) {
-                            continue;
-                        }
-
-                        trap.trigger(player);
-                        playerData.setTrapCooldown(30*20);
-                        team.getPrimaryTraps()[i] = null;
-
-                    }
-
-                    break;
-                }
-
-            }
-
-        }
-
-    }
-
     private void gameEndConditions() {
 
         List<BedwarsTeam> aliveTeams = new ArrayList<>();
@@ -807,12 +696,12 @@ public class Game extends GamePart implements ManagedListener {
 
         }
 
-        if (this.getPlugin().getConfigManager().getConfig().optBoolean("testingMode", false)) {
+        if (this.getPlugin().config().optBoolean(ConfigKeys.TESTING_MODE, false)) {
 
             if (aliveTeams.size() == 1) {
 
                 for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b§lGAME END CONDITION TRIGGERED: §r" + aliveTeams.get(0).getData().chatColor() + "Team " + aliveTeams.get(0).getData().name() + " §bhas won"));
+                    player.sendActionBar(Component.empty().append(Component.text("GAME END CONDITION TRIGGERED: ", NamedTextColor.AQUA).append(Component.text(aliveTeams.getFirst().getName(), aliveTeams.getFirst().getChatColor())).append(Component.text(" has won", NamedTextColor.AQUA))));
                 }
 
                 return;
@@ -821,7 +710,7 @@ public class Game extends GamePart implements ManagedListener {
             if (aliveTeams.size() < 1) {
 
                 for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
-                    player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("§b§lGAME END CONDITION TRIGGERED: §r§cNo team has won"));
+                    player.sendActionBar(Component.empty().append(Component.text("GAME END CONDITION TRIGGERED: ", NamedTextColor.AQUA).append(Component.text("No team has won", NamedTextColor.RED))));
                 }
 
                 return;
@@ -879,92 +768,12 @@ public class Game extends GamePart implements ManagedListener {
 
             replaceBlockWithTeamColor(item, team);
 
-            // item ids
-
-            int itemId = this.getPlugin().getItemStorage().getItemId(item);
-
-            if (itemId < 0) {
-                continue;
-            }
-
-            // Sharpness Team Upgrade
-
-            if (item != null && (item.getType().toString().endsWith("SWORD") || item.getType().toString().endsWith("AXE"))) {
-
-                if (item.getItemMeta() == null) {
-                    item.setItemMeta(this.getPlugin().getServer().getItemFactory().getItemMeta(item.getType()));
-                }
-
-                int enchantmentLevel = 0;
-
-                if (team.getAttackDamageUpgrade() > 0 && team.getAttackDamageUpgrade() - 1 < this.teamUpgradesConfig.getSharpnessUpgrade().getUpgradeLevels().size()) {
-                    enchantmentLevel = this.teamUpgradesConfig.getSharpnessUpgrade().getUpgradeLevels().get(team.getAttackDamageUpgrade() - 1);
-                }
-
-                if (enchantmentLevel > 0) {
-
-                    Integer level = item.getItemMeta().getEnchants().get(Enchantment.SHARPNESS);
-
-                    if (level == null || level != enchantmentLevel) {
-                        ItemMeta meta = item.getItemMeta();
-                        meta.addEnchant(Enchantment.SHARPNESS, enchantmentLevel, true);
-                        item.setItemMeta(meta);
-                    }
-
-                } else {
-
-                    if (item.getItemMeta().getEnchants().containsKey(Enchantment.SHARPNESS)) {
-                        ItemMeta meta = item.getItemMeta();
-                        meta.removeEnchant(Enchantment.SHARPNESS);
-                        item.setItemMeta(meta);
-                    }
-
-                }
-
-            }
-
-            // Protection Team Upgrade
-
-            if (item != null && this.getPlugin().getItemStorage().isArmorItem(item)) {
-
-                if (item.getItemMeta() == null) {
-                    item.setItemMeta(this.getPlugin().getServer().getItemFactory().getItemMeta(item.getType()));
-                }
-
-                int enchantmentLevel = 0;
-
-                if (team.getProtectionUpgrade() > 0 && team.getProtectionUpgrade() - 1 < this.teamUpgradesConfig.getProtectionUpgrade().getUpgradeLevels().size()) {
-                    enchantmentLevel = this.teamUpgradesConfig.getProtectionUpgrade().getUpgradeLevels().get(team.getProtectionUpgrade() - 1);
-                }
-
-                if (enchantmentLevel > 0) {
-
-                    Integer level = item.getItemMeta().getEnchants().get(Enchantment.PROTECTION);
-
-                    if (level == null || level != enchantmentLevel) {
-                        ItemMeta meta = item.getItemMeta();
-                        meta.addEnchant(Enchantment.PROTECTION, enchantmentLevel, true);
-                        item.setItemMeta(meta);
-                    }
-
-                } else {
-
-                    if (item.getItemMeta().getEnchants().containsKey(Enchantment.PROTECTION)) {
-                        ItemMeta meta = item.getItemMeta();
-                        meta.removeEnchant(Enchantment.PROTECTION);
-                        item.setItemMeta(meta);
-                    }
-
-                }
-
-            }
-
         }
 
     }
 
     private void groupItemsTask() {
-        if (!this.getPlugin().getConfigManager().getConfig().optBoolean("inventorySort", false)) return;
+        if (!this.getConfig().optBoolean(GameConfigKeys.INVENTORY_SORT, false)) return;
 
         for (Player player : this.getOnlinePlayers()) {
             this.groupItemsAlgorithm(player.getInventory());
@@ -1090,8 +899,8 @@ public class Game extends GamePart implements ManagedListener {
             if (team == null) {
 
                 team = scoreboard.registerNewTeam(String.valueOf(bedwarsTeam.getId()));
-                team.setDisplayName(bedwarsTeam.getData().name());
-                team.setColor(bedwarsTeam.getData().chatColor());
+                team.displayName(Component.text(bedwarsTeam.getName()));
+                team.color(bedwarsTeam.getChatColor());
                 team.setAllowFriendlyFire(false);
                 team.setCanSeeFriendlyInvisibles(true);
                 team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
@@ -1215,7 +1024,7 @@ public class Game extends GamePart implements ManagedListener {
                 teamStatusIndicator = teamStatusIndicator + " §7(you)";
             }
 
-            sidebarDisplayStrings.add(iTeam.getData().chatColor() + iTeam.getData().name() + "§r: " + teamStatusIndicator);
+            sidebarDisplayStrings.add(Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(iTeam.getChatColor()), ChatColor.BLACK) + iTeam.getName() + "§r: " + teamStatusIndicator);
 
         }
 
@@ -1254,7 +1063,7 @@ public class Game extends GamePart implements ManagedListener {
                 continue;
             }
 
-            player.sendMessage("§7You are in " + team.getData().chatColor() + "Team " + team.getData().chatColor().name() + "§7.");
+            player.sendMessage("§7You are in " + Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(team.getChatColor()), ChatColor.BLACK) + "Team " + team.getChatColor() + "§7.");
 
             player.setHealth(20);
             player.setFoodLevel(20);
@@ -1274,15 +1083,15 @@ public class Game extends GamePart implements ManagedListener {
 
             // Custom command
 
-            String customCommand = this.getPlugin().getConfigManager().getConfig().optJSONObject("cloudSystemMode", new JSONObject()).optString("switchToIngameCommand", "");
+            String customCommand = this.getConfig().optString(ConfigKeys.CLOUDSYSTEM_INGAME_COMMAND, "");
 
-            if (!customCommand.equalsIgnoreCase("")) {
+            if (customCommand != null && !customCommand.isEmpty()) {
                 this.getPlugin().getServer().dispatchCommand(this.getPlugin().getServer().getConsoleSender(), customCommand);
             }
 
             // CloudNet ingame state
 
-            if (this.getPlugin().getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("cloudnet", false)) {
+            if (this.getPlugin().config().optBoolean(ConfigKeys.INTEGRATION_CLOUDNET, false)) {
 
                 try {
 
@@ -1463,8 +1272,60 @@ public class Game extends GamePart implements ManagedListener {
         return this.world;
     }
 
-    public MapData getData() {
-        return this.data;
+    /**
+     * Returns the map name.
+     * @return map name
+     */
+    public @NotNull String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the respawn countdown.
+     * @return respawn countdown
+     */
+    public int getRespawnCountdown() {
+        return respawnCountdown;
+    }
+
+    /**
+     * Returns the max time.
+     * @return max time
+     */
+    public int getMaxTime() {
+        return maxTime;
+    }
+
+    /**
+     * Returns the spawn block place protection radius.
+     * @return spawn block place protection radius
+     */
+    public int getSpawnBlockPlaceProtection() {
+        return spawnBlockPlaceProtection;
+    }
+
+    /**
+     * Returns the villager block place protection radius.
+     * @return villager block place protection radius
+     */
+    public int getVillagerBlockPlaceProtection() {
+        return villagerBlockPlaceProtection;
+    }
+
+    /**
+     * Returns the map center location.
+     * @return center location
+     */
+    public @NotNull ImmutableLocation getCenterLocation() {
+        return centerLocation;
+    }
+
+    /**
+     * Returns the map radius.
+     * @return map radius
+     */
+    public int getMapRadius() {
+        return mapRadius;
     }
 
     public List<BedwarsTeam> getTeams() {
@@ -1526,7 +1387,7 @@ public class Game extends GamePart implements ManagedListener {
      * Returns the item shop.
      * @return item shop
      */
-    public ItemShop getItemShop() {
+    public @NotNull ItemShop getItemShop() {
         return this.itemShop;
     }
 
@@ -1534,7 +1395,7 @@ public class Game extends GamePart implements ManagedListener {
      * Returns the shop gui.
      * @return shop gui
      */
-    public ShopGUI getShopGUI() {
+    public @NotNull ShopGUI getShopGUI() {
         return this.shopGUI;
     }
 
@@ -1544,6 +1405,30 @@ public class Game extends GamePart implements ManagedListener {
      */
     public @NotNull PlayerUpgradeManager getPlayerUpgradeManager() {
         return this.playerUpgradeManager;
+    }
+
+    /**
+     * Returns the team upgrade manager.
+     * @return team upgrade manager
+     */
+    public @NotNull TeamUpgradeManager getTeamUpgradeManager() {
+        return teamUpgradeManager;
+    }
+
+    /**
+     * Returns the team gui.
+     * @return team gui
+     */
+    public @NotNull TeamGUI getTeamGUI() {
+        return this.teamGUI;
+    }
+
+    /**
+     * Returns the team trap manager
+     * @return TeamTrapManager
+     */
+    public @NotNull TeamTrapManager getTeamTrapManager() {
+        return this.teamTrapManager;
     }
 
     public Location buildLocationWithWorld(Location old) {
@@ -1569,10 +1454,6 @@ public class Game extends GamePart implements ManagedListener {
             return levels.get(levels.size() - 1);
         }
 
-    }
-
-    public TeamUpgradesConfig getTeamUpgradesConfig() {
-        return this.teamUpgradesConfig;
     }
 
     public void setTime(int time) {
@@ -1660,7 +1541,7 @@ public class Game extends GamePart implements ManagedListener {
             typeSuffix = "STAINED_GLASS";
         }
 
-        String blockColor = Bedwars.getBlockColorString(team.getData().chatColor());
+        String blockColor = Bedwars.getBlockColorString(Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(team.getChatColor()), ChatColor.BLACK));
 
         if (blockColor == null) {
             return;

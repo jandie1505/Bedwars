@@ -4,6 +4,9 @@ import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.entities.base.ExpiringManagedEntity;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
@@ -38,9 +41,19 @@ public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
         BedwarsTeam team = this.getGame().getTeam(teamId);
 
         if (team != null) {
-            this.getEntity().setCustomName(team.getData().chatColor() + "§lBASE DEFENDER §7--> " + this.getTargetName() + " §7§l(" + this.getTime() + ")");
+            this.getEntity().customName(Component.empty()
+                    .append(Component.text("BASE DEFENDER", team.getChatColor()))
+                    .append(Component.text(" --> ", NamedTextColor.GRAY))
+                    .append(this.getTargetName())
+                    .append(Component.text(" (" + this.getTime() + "s)", NamedTextColor.GRAY))
+            );
         } else {
-            this.getEntity().setCustomName("§lBASE DEFENDER §7--> " + this.getTargetName() + " §7§l(" + this.getTime() + ")");
+            this.getEntity().customName(Component.empty()
+                    .append(Component.text("BASE DEFENDER", NamedTextColor.WHITE, TextDecoration.STRIKETHROUGH))
+                    .append(Component.text(" --> ", NamedTextColor.GRAY))
+                    .append(this.getTargetName())
+                    .append(Component.text(" (" + this.getTime() + "s)", NamedTextColor.GRAY))
+            );
         }
     }
 
@@ -89,17 +102,17 @@ public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
 
     // UTILITIES
 
-    private String getTargetName() {
-        if (this.getEntity().getTarget() == null) return "§7NONE";
-        if (!(this.getEntity().getTarget() instanceof Player player)) return "§7UNKNOWN";
+    private Component getTargetName() {
+        if (this.getEntity().getTarget() == null) return Component.text("NONE", NamedTextColor.GRAY);
+        if (!(this.getEntity().getTarget() instanceof Player player)) return Component.text("UNKNOWN", NamedTextColor.GRAY);
 
         PlayerData playerData = this.getGame().getPlayerData(player);
-        if (playerData == null) return "§7" + player.getDisplayName();
+        if (playerData == null) return player.displayName().color(NamedTextColor.GRAY);
 
         BedwarsTeam team = this.getGame().getTeam(playerData.getTeam());
-        if (team == null) return "§7" + player.getDisplayName();
+        if (team == null) return player.displayName().color(NamedTextColor.GRAY);
 
-        return team.getData().chatColor() + player.getDisplayName();
+        return player.displayName().color(team.getChatColor());
     }
 
     /**

@@ -48,6 +48,7 @@ dependencies {
     implementation("net.chaossquad:mclib-json:main-05a36246845af9928448b56a45097fab44ba57cd") {
         exclude(group = "net.chaossquad", module = "mclib")
     }
+    implementation("net.jandie1505:DataStorage:1.0-RELEASE")
     implementation("org.json:json:20250107")
     compileOnly("eu.cloudnetservice.cloudnet:bridge:4.0.0-RC10")
     compileOnly("eu.cloudnetservice.cloudnet:wrapper-jvm:4.0.0-RC10")

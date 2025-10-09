@@ -1,16 +1,26 @@
 package net.jandie1505.bedwars.config;
 
+import net.chaossquad.mclib.ItemUtils;
 import net.chaossquad.mclib.MiscUtils;
+import net.jandie1505.bedwars.constants.ConfigKeys;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
-import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
-import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
 import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
+import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
+import net.jandie1505.bedwars.game.game.team.traps.constants.TeamTraps;
+import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.PermanentPotionEffectTeamUpgrade;
+import net.jandie1505.bedwars.game.lobby.constants.LobbyConfigKeys;
+import net.jandie1505.datastorage.DataStorage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -39,19 +49,42 @@ public final class DefaultConfigValues {
             .color(NamedTextColor.WHITE)
             .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
 
-    public static JSONObject getGeneralConfig() {
-        JSONObject config = new JSONObject();
+    public static DataStorage getConfig() {
+        DataStorage config = new DataStorage();
 
-        // General values
+        config.set(ConfigKeys.TESTING_MODE, false);
 
-        config.put("testingMode", false);
-        config.put("backButton", 0);
-        config.put("tntParticles", true);
-        config.put("inventorySort", true);
+        config.set(ConfigKeys.INTEGRATION_CLOUDNET, false);
+        config.set(ConfigKeys.INTEGRATION_SUPERVANISH, true);
+        config.set(ConfigKeys.INTEGRATION_PARTY_AND_FRIENDS, true);
+        config.set(ConfigKeys.INTEGRATION_PLAYERPOINTS, false);
+        config.set(ConfigKeys.INTEGRATION_PLAYERLEVELS, false);
 
-        // Lobby
+        config.set(ConfigKeys.CLOUDSYSTEM_ENABLE, false);
+        config.set(ConfigKeys.CLOUDSYSTEM_INGAME_COMMAND, "");
 
+        config.set(LobbyConfigKeys.section(LobbyConfigKeys.SLOT_SYSTEM_TEAM_COUNT), -1);
+        config.set(LobbyConfigKeys.section(LobbyConfigKeys.SLOT_SYSTEM_PLAYERS_PER_TEAM), -1);
+
+        config.set(LobbyConfigKeys.section(LobbyConfigKeys.CHAT_ADD_PREFIX_SUFFIX), false);
+
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_VICTORY), 500);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_BED_DESTROYED), 100);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_PLAYER_KILL), 20);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_TEAM_UPGRADE_PURCHASE), 10);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_TEAM_TRAP_PURCHASE), 5);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_PLAYER_UPGRADE_PURCHASE), 2);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_LIMIT), 5000);
+
+        config.set(GameConfigKeys.section(GameConfigKeys.TNT_PARTICLES), true);
+        config.set(GameConfigKeys.section(GameConfigKeys.INVENTORY_SORT), true);
+
+        return config;
+    }
+
+    public static @NotNull JSONObject getLobbyConfig() {
         JSONObject lobbyConfig = new JSONObject();
+
         lobbyConfig.put("mapVoting", true);
         lobbyConfig.put("requiredPlayers", 2);
         lobbyConfig.put("mapVoteButton", 1);
@@ -76,61 +109,10 @@ public final class DefaultConfigValues {
         lobbySpawnpoint.put("pitch", 0);
         lobbyConfig.put("spawnpoint", lobbySpawnpoint);
 
-        config.put("lobby", lobbyConfig);
-
-        // Cloudsystem
-
-        JSONObject cloudSystemConfig = new JSONObject();
-
-        cloudSystemConfig.put("enable", false);
-        cloudSystemConfig.put("switchToIngameCommand", "");
-
-        config.put("cloudSystemMode", cloudSystemConfig);
-
-        // integrations
-
-        JSONObject integrationsConfig = new JSONObject();
-
-        integrationsConfig.put("cloudnet", true);
-        integrationsConfig.put("supervanish-premiumvanish", true);
-        integrationsConfig.put("partyandfriends", true);
-        integrationsConfig.put("playerpoints", true);
-
-        config.put("integrations", integrationsConfig);
-
-        // Slot system
-
-        JSONObject slotSystem = new JSONObject();
-
-        slotSystem.put("playersPerTeam", -1);
-        slotSystem.put("teamCount", -1);
-
-        config.put("slotSystem", slotSystem);
-
-        // Rewards
-
-        JSONObject rewardsConfig = new JSONObject();
-
-        rewardsConfig.put("victory", 500);
-        rewardsConfig.put("bedDestroyed", 100);
-        rewardsConfig.put("playerKill", 20);
-        rewardsConfig.put("teamUpgradePurchased", 10);
-        rewardsConfig.put("trapPurchased", 5);
-        rewardsConfig.put("playerUpgradePurchased", 2);
-        rewardsConfig.put("maxRewardsAmount", 5000);
-
-        config.put("rewards", rewardsConfig);
-
-        // Return
-
-        return config;
+        return lobbyConfig;
     }
 
-    public static JSONObject getMapConfig() {
-        JSONObject config = new JSONObject();
-
-        JSONArray maps = new JSONArray();
-
+    public static @NotNull JSONObject getExampleMap() {
         JSONObject minimalistMap = new JSONObject();
 
         minimalistMap.put("name", "Minimalist");
@@ -624,836 +606,7 @@ public final class DefaultConfigValues {
 
         minimalistMap.put("timeActions", timeActions);
 
-        maps.put(minimalistMap);
-
-        config.put("maps", maps);
-
-        return config;
-    }
-
-    public static JSONObject getItemConfig() {
-        JSONObject config = new JSONObject();
-
-        // Back Button
-
-        JSONObject backButton = new JSONObject();
-
-        backButton.put("type", "BARRIER");
-        backButton.put("name", "§c§lBack");
-
-        JSONArray lore = new JSONArray();
-        lore.put("§7Go back");
-        backButton.put("lore", lore);
-
-        config.put("0", backButton);
-
-        // Map Vote Button
-
-        JSONObject mapVotingButton = new JSONObject();
-
-        mapVotingButton.put("type", Material.MAP.name());
-        mapVotingButton.put("name", "§r§b§lMap Voting §r§b(right click)");
-
-        config.put("1", mapVotingButton);
-
-        // Team Selection Button
-
-        JSONObject teamSelectionButton = new JSONObject();
-
-        teamSelectionButton.put("type", "PLAYER_HEAD");
-        teamSelectionButton.put("name", "§r§b§lTeam Selection §r§b(right click)");
-
-        config.put("2", teamSelectionButton);
-
-        // Quick Buy Button
-
-        JSONObject quickBuyButton = new JSONObject();
-
-        quickBuyButton.put("type", "NETHER_STAR");
-        quickBuyButton.put("name", "§bQuick Buy");
-
-        config.put("3", quickBuyButton);
-
-        // Blocks Button
-
-        JSONObject blocksButton = new JSONObject();
-
-        blocksButton.put("type", "BRICKS");
-        blocksButton.put("name", "§bBlocks");
-
-        config.put("4", blocksButton);
-
-        // Melee Weapons Button
-
-        JSONObject meleeWeaponsButton = new JSONObject();
-
-        meleeWeaponsButton.put("type", "DIAMOND_SWORD");
-        meleeWeaponsButton.put("name", "§bMelee Weapons");
-
-        config.put("5", meleeWeaponsButton);
-
-        // Armor Button
-
-        JSONObject armorButton = new JSONObject();
-
-        armorButton.put("type", "IRON_BOOTS");
-        armorButton.put("name", "§bArmor");
-
-        config.put("6", armorButton);
-
-        // Tools Button
-
-        JSONObject toolsButton = new JSONObject();
-
-        toolsButton.put("type", "STONE_PICKAXE");
-        toolsButton.put("name", "§bTools");
-
-        config.put("7", toolsButton);
-
-        // Ranged Weapons Button
-
-        JSONObject rangedWeaponsButton = new JSONObject();
-
-        rangedWeaponsButton.put("type", "BOW");
-        rangedWeaponsButton.put("name", "§bRanged Weapons");
-
-        config.put("8", rangedWeaponsButton);
-
-        // Potions Button
-
-        JSONObject potionsButton = new JSONObject();
-
-        potionsButton.put("type", "POTION");
-        potionsButton.put("name", "§bPotions");
-
-        config.put("9", potionsButton);
-
-        // Special Items Button
-
-        JSONObject specialItemsButton = new JSONObject();
-
-        specialItemsButton.put("type", "TNT");
-        specialItemsButton.put("name", "§bSpecial Items");
-
-        config.put("10", specialItemsButton);
-
-        // Wool
-
-        JSONObject wool = new JSONObject();
-
-        wool.put("type", Material.WHITE_WOOL.toString());
-        wool.put("name", "§rWool");
-        wool.put("amount", 16);
-
-        config.put("100", wool);
-
-        // Terracotta
-
-        JSONObject terracotta = new JSONObject();
-
-        terracotta.put("type", Material.TERRACOTTA.toString());
-        terracotta.put("name", "§rSomething like clay i guess");
-        terracotta.put("amount", 24);
-
-        config.put("101", terracotta);
-
-        // Glass
-
-        JSONObject glass = new JSONObject();
-
-        glass.put("type", Material.WHITE_STAINED_GLASS.toString());
-        glass.put("name", "§rBlast-proof glass");
-        glass.put("amount", 4);
-
-        config.put("102", buildDefaultItem(Material.GLASS, 4));
-
-        // Endstone
-
-        config.put("103", buildDefaultItem(Material.END_STONE, 12));
-
-        // Ladder
-
-        config.put("104", buildDefaultItem(Material.LADDER, 8));
-
-        // Wood
-
-        config.put("105", buildDefaultItem(Material.OAK_PLANKS, 16));
-
-        // Ancient Debris
-
-        config.put("106", buildDefaultItem(Material.ANCIENT_DEBRIS, 4));
-
-        // Obsidian
-
-        config.put("107", buildDefaultItem(Material.OBSIDIAN, 4));
-
-        // Bedrock
-
-        JSONObject bedrock = new JSONObject();
-
-        bedrock.put("type", Material.BEDROCK.toString());
-        bedrock.put("amount", 4);
-        JSONArray bedrockLore = new JSONArray();
-        bedrockLore.put("§r§7If you want to take it serious");
-        bedrock.put("lore", bedrockLore);
-
-        config.put("108", bedrock);
-
-        // Wooden Sword
-
-        config.put("109", buildDefaultItem(Material.WOODEN_SWORD));
-
-        // Stone Sword
-
-        config.put("110", buildDefaultItem(Material.STONE_SWORD));
-
-        // Iron Sword
-
-        config.put("111", buildDefaultItem(Material.IRON_SWORD));
-
-        // Diamond Sword
-
-        config.put("112", buildDefaultItem(Material.DIAMOND_SWORD));
-
-        // Netherite Sword
-
-        config.put("113", buildDefaultItem(Material.NETHERITE_SWORD));
-
-        // Stone Axe
-
-        config.put("114", buildDefaultItem(Material.STONE_AXE));
-
-        // Iron Axe
-
-        config.put("115", buildDefaultItem(Material.IRON_AXE));
-
-        // Diamond Axe
-
-        config.put("116", buildDefaultItem(Material.DIAMOND_AXE));
-
-        // Netherite Axe
-
-        config.put("117", buildDefaultItem(Material.NETHERITE_AXE));
-
-        // Knockback Stick
-
-        JSONObject knockbackStick = new JSONObject();
-
-        knockbackStick.put("type", Material.STICK.toString());
-        knockbackStick.put("name", "Knockback Stick");
-
-        JSONArray knockbackStickEnchantments = new JSONArray();
-
-        JSONObject knockbackStickKnockbackEnchantment = new JSONObject();
-        knockbackStickKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.getName());
-        knockbackStickKnockbackEnchantment.put("level", 1);
-
-        knockbackStickEnchantments.put(knockbackStickKnockbackEnchantment);
-
-        knockbackStick.put("enchantments", knockbackStickEnchantments);
-
-        config.put("118", knockbackStick);
-
-        // Knockback Stick Deluxe
-
-        JSONObject knockbackStickPremium = new JSONObject();
-
-        knockbackStickPremium.put("type", Material.STICK.toString());
-        knockbackStickPremium.put("name", "Knockback Stick Premium");
-
-        JSONArray knockbackStickPremiumEnchantments = new JSONArray();
-
-        JSONObject knockbackStickPremiumKnockbackEnchantment = new JSONObject();
-        knockbackStickPremiumKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.getName());
-        knockbackStickPremiumKnockbackEnchantment.put("level", 2);
-
-        knockbackStickPremiumEnchantments.put(knockbackStickPremiumKnockbackEnchantment);
-
-        knockbackStickPremium.put("enchantments", knockbackStickPremiumEnchantments);
-
-        config.put("119", knockbackStickPremium);
-
-        JSONObject knockbackStickDeluxe = new JSONObject();
-
-        knockbackStickDeluxe.put("type", Material.STICK.toString());
-        knockbackStickDeluxe.put("name", "Knockback Stick Premium Deluxe");
-
-        JSONArray knockbackStickDeluxeEnchantments = new JSONArray();
-
-        JSONObject knockbackStickDeluxeKnockbackEnchantment = new JSONObject();
-        knockbackStickDeluxeKnockbackEnchantment.put("type", Enchantment.KNOCKBACK.getName());
-        knockbackStickDeluxeKnockbackEnchantment.put("level", 3);
-
-        knockbackStickDeluxeEnchantments.put(knockbackStickDeluxeKnockbackEnchantment);
-
-        knockbackStickDeluxe.put("enchantments", knockbackStickDeluxeEnchantments);
-
-        config.put("120", knockbackStickDeluxe);
-
-        // Chainmail Boots
-
-        config.put("121", buildDefaultItem(Material.CHAINMAIL_BOOTS));
-
-        // Iron Boots
-
-        config.put("122", buildDefaultItem(Material.IRON_BOOTS));
-
-        // Diamond Boots
-
-        config.put("123", buildDefaultItem(Material.DIAMOND_BOOTS));
-
-        // Netherite Boots
-
-        config.put("124", buildDefaultItem(Material.NETHERITE_BOOTS));
-
-        // Leather helmet
-
-        config.put("125", buildDefaultItem(Material.LEATHER_HELMET));
-
-        // Leather chestplate
-
-        config.put("126", buildDefaultItem(Material.LEATHER_CHESTPLATE));
-
-        // Leather leggings
-
-        config.put("127", buildDefaultItem(Material.LEATHER_LEGGINGS));
-
-        // Leather boots
-
-        config.put("128", buildDefaultItem(Material.LEATHER_BOOTS));
-
-        // Shears
-
-        config.put("129", buildDefaultItem(Material.SHEARS));
-
-        // Wooden Pickaxe
-
-        config.put("130", buildDefaultItem(Material.WOODEN_PICKAXE));
-
-        // Stone Pickaxe
-
-        JSONObject stonePickaxe = new JSONObject();
-
-        stonePickaxe.put("type", Material.STONE_PICKAXE.toString());
-
-        JSONArray stonePickaxeEnchantments = new JSONArray();
-
-        JSONObject stonePickaxeEfficiencyEnchantment = new JSONObject();
-        stonePickaxeEfficiencyEnchantment.put("type", Enchantment.EFFICIENCY.getName());
-        stonePickaxeEfficiencyEnchantment.put("level", 1);
-        stonePickaxeEnchantments.put(stonePickaxeEfficiencyEnchantment);
-
-        stonePickaxe.put("enchantments", stonePickaxeEnchantments);
-
-        config.put("131", stonePickaxe);
-
-        // Iron Pickaxe
-
-        JSONObject ironPickaxe = new JSONObject();
-
-        ironPickaxe.put("type", Material.IRON_PICKAXE.toString());
-
-        JSONArray ironPickaxeEnchantments = new JSONArray();
-
-        JSONObject ironPickaxeEfficiencyEnchantment = new JSONObject();
-        ironPickaxeEfficiencyEnchantment.put("type", Enchantment.EFFICIENCY.getName());
-        ironPickaxeEfficiencyEnchantment.put("level", 2);
-        ironPickaxeEnchantments.put(ironPickaxeEfficiencyEnchantment);
-
-        ironPickaxe.put("enchantments", ironPickaxeEnchantments);
-
-        config.put("132", ironPickaxe);
-
-        // Golden Pickaxe
-
-        JSONObject goldenPickaxe = new JSONObject();
-
-        goldenPickaxe.put("type", Material.GOLDEN_PICKAXE.toString());
-
-        JSONArray goldenPickaxeEnchantments = new JSONArray();
-
-        JSONObject goldenPickaxeEfficiencyEnchantment = new JSONObject();
-        goldenPickaxeEfficiencyEnchantment.put("type", Enchantment.EFFICIENCY.getName());
-        goldenPickaxeEfficiencyEnchantment.put("level", 3);
-        goldenPickaxeEnchantments.put(goldenPickaxeEfficiencyEnchantment);
-
-        goldenPickaxe.put("enchantments", goldenPickaxeEnchantments);
-
-        config.put("133", goldenPickaxe);
-
-        // Diamond Pickaxe
-
-        JSONObject diamondPickaxe = new JSONObject();
-
-        diamondPickaxe.put("type", Material.DIAMOND_PICKAXE.toString());
-
-        JSONArray diamondPickaxeEnchantments = new JSONArray();
-
-        JSONObject diamondPickaxeEfficiencyEnchantment = new JSONObject();
-        diamondPickaxeEfficiencyEnchantment.put("type", Enchantment.EFFICIENCY.getName());
-        diamondPickaxeEfficiencyEnchantment.put("level", 3);
-        diamondPickaxeEnchantments.put(diamondPickaxeEfficiencyEnchantment);
-
-        diamondPickaxe.put("enchantments", diamondPickaxeEnchantments);
-
-        config.put("134", diamondPickaxe);
-
-        // Bow
-
-        config.put("135", buildDefaultItem(Material.BOW));
-
-        // Enhanced Bow
-
-        JSONObject enhancedBow = new JSONObject();
-
-        enhancedBow.put("type", Material.BOW.toString());
-        enhancedBow.put("name", "Enhanced Bow");
-
-        JSONArray enhancedBowEnchantments = new JSONArray();
-
-        JSONObject enhancedBowPowerEnchantment = new JSONObject();
-        enhancedBowPowerEnchantment.put("type", Enchantment.POWER.getName());
-        enhancedBowPowerEnchantment.put("level", 1);
-        enhancedBowEnchantments.put(enhancedBowPowerEnchantment);
-
-        enhancedBow.put("enchantments", enhancedBowEnchantments);
-
-        config.put("136", enhancedBow);
-
-        // Most Powerful Bow
-
-        JSONObject mostPowerfulBow = new JSONObject();
-
-        mostPowerfulBow.put("type", Material.BOW.toString());
-        mostPowerfulBow.put("name", "Most Powerful Bow");
-
-        JSONArray mostPowerfulBowEnchantments = new JSONArray();
-
-        mostPowerfulBowEnchantments.put(enhancedBowPowerEnchantment);
-
-        JSONObject mostPowerfulBowPunchEnchantment = new JSONObject();
-        mostPowerfulBowPunchEnchantment.put("type", Enchantment.PUNCH.getName());
-        mostPowerfulBowPunchEnchantment.put("level", 1);
-        mostPowerfulBowEnchantments.put(mostPowerfulBowPunchEnchantment);
-
-        mostPowerfulBow.put("enchantments", mostPowerfulBowEnchantments);
-
-        config.put("137", mostPowerfulBow);
-
-        // Arrow
-
-        config.put("138", buildDefaultItem(Material.SPECTRAL_ARROW, 6));
-
-        // Speed Potion
-
-        JSONObject speedPotion = new JSONObject();
-
-        speedPotion.put("type", Material.POTION.name());
-        speedPotion.put("name", "Enhanced Movement Potion");
-        speedPotion.put("color", Color.AQUA.asRGB());
-
-        JSONArray speedPotionEffects = new JSONArray();
-
-        JSONObject speedEffect = new JSONObject();
-        speedEffect.put("type", PotionEffectType.SPEED.getName());
-        speedEffect.put("duration", 30*20);
-        speedEffect.put("amplifier", 0);
-        speedEffect.put("ambient", true);
-        speedEffect.put("particles", true);
-        speedEffect.put("override", false);
-
-        speedPotionEffects.put(speedEffect);
-
-        speedPotion.put("potionEffects", speedPotionEffects);
-
-        config.put("139", speedPotion);
-
-        // Jump Boost Potion
-
-        JSONObject jumpBoostPotion = new JSONObject();
-
-        jumpBoostPotion.put("type", Material.POTION.name());
-        jumpBoostPotion.put("name", "Just **** you if you use this shit");
-        jumpBoostPotion.put("color", Color.YELLOW.asRGB());
-
-        JSONArray jumpBoostPotionEffects = new JSONArray();
-
-        JSONObject jumpBoostEffect = new JSONObject();
-        jumpBoostEffect.put("type", PotionEffectType.JUMP_BOOST.getName());
-        jumpBoostEffect.put("duration", 30*20);
-        jumpBoostEffect.put("amplifier", 0);
-        jumpBoostEffect.put("ambient", true);
-        jumpBoostEffect.put("particles", true);
-        jumpBoostEffect.put("override", false);
-
-        jumpBoostPotionEffects.put(jumpBoostEffect);
-
-        jumpBoostPotion.put("potionEffects", jumpBoostPotionEffects);
-
-        config.put("140", jumpBoostPotion);
-
-        // Invisibility Potion
-
-        JSONObject invisibilityPotion = new JSONObject();
-
-        invisibilityPotion.put("type", Material.POTION.name());
-        invisibilityPotion.put("name", "Stealth Mode Lite");
-        invisibilityPotion.put("color", Color.GRAY.asRGB());
-
-        JSONArray invisibilityPotionEffects = new JSONArray();
-
-        JSONObject invisibilityEffect = new JSONObject();
-        invisibilityEffect.put("type", PotionEffectType.INVISIBILITY.getName());
-        invisibilityEffect.put("duration", 30*20);
-        invisibilityEffect.put("amplifier", 0);
-        invisibilityEffect.put("ambient", true);
-        invisibilityEffect.put("particles", true);
-        invisibilityEffect.put("override", false);
-
-        invisibilityPotionEffects.put(invisibilityEffect);
-
-        invisibilityPotion.put("potionEffects", invisibilityPotionEffects);
-
-        config.put("141", invisibilityPotion);
-
-        // Golden Apple
-
-        config.put("142", buildDefaultItem(Material.GOLDEN_APPLE));
-
-        // Snowball
-
-        config.put("143", buildDefaultItem(Material.SNOWBALL));
-
-        // Iron Golem Spawn Egg
-
-        JSONObject ironGolemSpawnEgg = new JSONObject();
-
-        ironGolemSpawnEgg.put("type", Material.IRON_BLOCK.name());
-        ironGolemSpawnEgg.put("name", "§rBASE DEFENDER");
-
-        JSONArray ironGolemSpawnEggLore = new JSONArray();
-        ironGolemSpawnEggLore.put("§r§fIt will protect your base with its life.");
-        ironGolemSpawnEggLore.put("§r§fPlace the block where you want to spawn it.");
-        ironGolemSpawnEggLore.put("§r§fCan attack: Players");
-        ironGolemSpawnEgg.put("lore", ironGolemSpawnEggLore);
-
-        config.put("144", ironGolemSpawnEgg);
-
-        // Fireball
-
-        JSONObject fireball = new JSONObject();
-
-        fireball.put("type", Material.FIRE_CHARGE.toString());
-        fireball.put("name", "§rFireball");
-
-        config.put("145", fireball);
-
-        // Enhanced Fireball
-
-        JSONObject enhancedFireball = new JSONObject();
-
-        enhancedFireball.put("type", Material.FIRE_CHARGE.toString());
-        enhancedFireball.put("name", "§rEnhanced Fireball");
-
-        config.put("146", enhancedFireball);
-
-        // TNT
-
-        config.put("147", buildDefaultItem(Material.TNT));
-
-        // Ender Pearl
-
-        config.put("148", buildDefaultItem(Material.ENDER_PEARL));
-
-        // Water Bucket
-
-        config.put("149", buildDefaultItem(Material.WATER_BUCKET));
-
-        // Bridge Egg
-
-        JSONObject bridgeEgg = new JSONObject();
-
-        bridgeEgg.put("type", Material.EGG.toString());
-        bridgeEgg.put("name", "§rBridge Egg");
-
-        config.put("150", bridgeEgg);
-
-        // Milk Bucket
-
-        JSONObject magicMilk = new JSONObject();
-
-        magicMilk.put("type", Material.MILK_BUCKET.name());
-        magicMilk.put("name", "§rStealth Milk");
-
-        JSONArray magicMilkLore = new JSONArray();
-        magicMilkLore.put("§r$fPrevents you from triggering");
-        magicMilkLore.put("§r§fenemy traps for 30 seconds.");
-        magicMilk.put("lore", magicMilkLore);
-
-        config.put("151", magicMilk);
-
-        // Sponge
-
-        config.put("152", buildDefaultItem(Material.SPONGE, 6));
-
-        // Safety Plattform
-
-        JSONObject safetyPlatform = new JSONObject();
-
-        safetyPlatform.put("type", Material.BLAZE_ROD.name());
-        safetyPlatform.put("name", "§rSafety Platform");
-
-        JSONArray safetyPlatformLore = new JSONArray();
-        safetyPlatformLore.put("§r§fPlaces a 3x3 platform under your feet.");
-        safetyPlatformLore.put("§r§fPlace in main hand and right-click to deploy.");
-        safetyPlatformLore.put("§r§fPut in offhand and press F (swapping key) to deploy.");
-
-        safetyPlatform.put("lore", safetyPlatformLore);
-
-        config.put("153", safetyPlatform);
-
-        // Enhanced Safety Platform
-
-        JSONObject enhancedSafetyPlatform = new JSONObject();
-
-        enhancedSafetyPlatform.put("type", Material.BLAZE_ROD.name());
-        enhancedSafetyPlatform.put("name", "§rEnhanced Safety Platform");
-
-        JSONArray enhancedSafetyPlatformLore = new JSONArray();
-        enhancedSafetyPlatformLore.put("§r§fPlaces a 31x31 platform under your feet.");
-        enhancedSafetyPlatformLore.put("§r§fPlace in main hand and right-click to deploy.");
-        enhancedSafetyPlatformLore.put("§r§fPut in offhand and press F (swapping key) to deploy.");
-
-        enhancedSafetyPlatform.put("lore", enhancedSafetyPlatformLore);
-
-        config.put("172", enhancedSafetyPlatform);
-
-        // Unprotected Chest
-
-        JSONObject unprotectedChest = new JSONObject();
-
-        unprotectedChest.put("type", Material.CHEST.name());
-        unprotectedChest.put("name", "§rUnprotected Chest");
-
-        config.put("154", unprotectedChest);
-
-        // Player tracker
-
-        JSONObject playerTracker = new JSONObject();
-
-        playerTracker.put("type", Material.COMPASS.name());
-        playerTracker.put("name", "§rPlayer Tracker");
-
-        JSONArray playerTrackerLore = new JSONArray();
-        playerTrackerLore.put("§r$fPoints to a random player from another team.");
-        playerTrackerLore.put("§r§fMust be activated by right-clicking.");
-        playerTrackerLore.put("§r§fTarget can also be changed via right-clicking.");
-        playerTracker.put("lore", playerTrackerLore);
-
-        config.put("155", playerTracker);
-
-        JSONObject replacementBed = new JSONObject();
-
-        replacementBed.put("type", Material.BLACK_BED.name());
-        replacementBed.put("name", "§rReplacement Bed");
-
-        JSONArray replacementBedLore = new JSONArray();
-        replacementBedLore.put("§r$fIn case you lost your own bed or want to");
-        replacementBedLore.put("§r§fgive one th the opponents out of pity.");
-        replacementBedLore.put("§r§fYou need to place it on the original bed");
-        replacementBedLore.put("§r§flocation to activate it.");
-        replacementBedLore.put("§r§fCannot be used after irreplaceable beds gone.");
-        replacementBed.put("lore", replacementBedLore);
-
-        config.put("156", replacementBed);
-
-        // Snow Defender Spawn Item
-
-        JSONObject snowDefenderSpawnEgg = new JSONObject();
-
-        snowDefenderSpawnEgg.put("type", Material.SNOW_BLOCK.name());
-        snowDefenderSpawnEgg.put("name", "§rSNOW DEFENDER");
-
-        JSONArray snowDefenderSpawnEggLore = new JSONArray();
-        snowDefenderSpawnEggLore.put("§r§fThrows snowballs at your enemies.");
-        snowDefenderSpawnEggLore.put("§r§fPlace the block where you want to spawn it.");
-        snowDefenderSpawnEggLore.put("§r§fCan attack: Players, Base Defenders, Endgame Withers");
-        snowDefenderSpawnEgg.put("lore", snowDefenderSpawnEggLore);
-
-        config.put("157", snowDefenderSpawnEgg);
-
-        // Zapper Item
-
-        JSONObject zapper = new JSONObject();
-
-        zapper.put("type", Material.LIGHTNING_ROD.name());
-        zapper.put("name", "§rZapper");
-
-        JSONArray zapperLore = new JSONArray();
-        zapperLore.put("§r§fZapps a random Enemy anywhere");
-        zapperLore.put("§r§fon the Map.");
-        zapper.put("lore", zapperLore);
-
-        config.put("173", zapper);
-
-        // Spawn Dust
-
-        JSONObject spawnDust = new JSONObject();
-
-        spawnDust.put("type", Material.GLOWSTONE_DUST.name());
-        spawnDust.put("name", "§rSpawn Dust");
-
-        JSONArray spawnDustLore = new JSONArray();
-        spawnDustLore.put("§r§fTeleports you back to your Base");
-        spawnDustLore.put("§r§fafter 3 seconds without taking damage.");
-        spawnDust.put("lore", spawnDustLore);
-
-        config.put("174", spawnDust);
-
-        // Black Hole
-
-        JSONObject blackHole = new JSONObject();
-
-        blackHole.put("type", Material.BLACK_CONCRETE.name());
-        blackHole.put("name", "§rBlack Hole");
-
-        JSONArray blackHoleLore = new JSONArray();
-        blackHoleLore.put("§r§fClears all Player placed Blocks");
-        blackHoleLore.put("§r§fin a 15 Block diameter around the");
-        blackHoleLore.put("§r§fBlack Hole.");
-        blackHole.put("lore", blackHoleLore);
-
-        config.put("175", blackHole);
-
-        // Sharpness Upgrade
-
-        JSONObject sharpnessUpgrade = new JSONObject();
-
-        sharpnessUpgrade.put("type", Material.IRON_SWORD.toString());
-        sharpnessUpgrade.put("name", "Sharpness Upgrade (Swords/Axes)");
-
-        config.put("160", sharpnessUpgrade);
-
-        // Protection Upgrade
-
-        JSONObject protectionUpgrade = new JSONObject();
-
-        protectionUpgrade.put("type", Material.IRON_CHESTPLATE.toString());
-        protectionUpgrade.put("name", "Protection Upgrade");
-
-        config.put("161", protectionUpgrade);
-
-        // Haste Upgrade
-
-        JSONObject hasteUpgrade = new JSONObject();
-
-        hasteUpgrade.put("type", Material.GOLDEN_PICKAXE.toString());
-        hasteUpgrade.put("name", "Haste Upgrade");
-
-        config.put("162", hasteUpgrade);
-
-        // Forge Upgrade
-
-        JSONObject generatorUpgrade = new JSONObject();
-
-        generatorUpgrade.put("type", Material.FURNACE.toString());
-        generatorUpgrade.put("name", "Generator Upgrade");
-
-        config.put("163", generatorUpgrade);
-
-        // Heal Pool Upgrade
-
-        JSONObject healPoolUpgrade = new JSONObject();
-
-        healPoolUpgrade.put("type", Material.BEACON.toString());
-        healPoolUpgrade.put("name", "Heal Pool");
-
-        config.put("164", healPoolUpgrade);
-
-        // Endgame Buff Upgrade
-
-        JSONObject dragonBuffUpgrade = new JSONObject();
-
-        dragonBuffUpgrade.put("type", Material.WITHER_SKELETON_SKULL.toString());
-        dragonBuffUpgrade.put("name", "Endgame Buff");
-
-        config.put("165", dragonBuffUpgrade);
-
-        // No Trap Item
-
-        JSONObject noTrap = new JSONObject();
-
-        noTrap.put("type", Material.GRAY_STAINED_GLASS.name());
-        noTrap.put("name", "§rNo Trap");
-
-        config.put("166", noTrap);
-
-        // Alarm Trap
-
-        JSONObject alarmTrap = new JSONObject();
-
-        alarmTrap.put("type", Material.REDSTONE_TORCH.name());
-        alarmTrap.put("name", "§rAlarm Trap");
-
-        JSONArray alarmTrapLore = new JSONArray();
-        alarmTrapLore.put("§r§fReveals invisible players and");
-        alarmTrapLore.put("§r§fgives them glowing for 30 secs.");
-        alarmTrap.put("lore", alarmTrapLore);
-
-        config.put("167", alarmTrap);
-
-        // It's a trap
-
-        JSONObject itsATrap = new JSONObject();
-
-        itsATrap.put("type", Material.TRIPWIRE_HOOK.name());
-        itsATrap.put("name", "§rIt's a trap");
-
-        JSONArray itsATrapLore = new JSONArray();
-        itsATrapLore.put("§r§fGives blindness and slowness");
-        itsATrapLore.put("§r§ffor 10 secsonds.");
-        itsATrap.put("lore", itsATrapLore);
-
-        config.put("168", itsATrap);
-
-        // Mining Fatigue Trap
-
-        JSONObject miningFatigueTrap = new JSONObject();
-
-        miningFatigueTrap.put("type", Material.IRON_PICKAXE.name());
-        miningFatigueTrap.put("name", "§rMining Fatigue Trap");
-
-        JSONArray miningFatigueTrapLore = new JSONArray();
-        miningFatigueTrapLore.put("§r§fGives mining fatigue");
-        miningFatigueTrapLore.put("§r§ffor 20 seconds.");
-        miningFatigueTrap.put("lore", miningFatigueTrapLore);
-
-        config.put("169", miningFatigueTrap);
-
-        // Countermeasures Trap
-
-        JSONObject countermeasuresTrap = new JSONObject();
-
-        countermeasuresTrap.put("type", Material.POTION.name());
-        countermeasuresTrap.put("name", "§rCountermeasures Trap");
-
-        JSONArray countermeasuresTrapLore = new JSONArray();
-        countermeasuresTrapLore.put("§r§fGives the team speed and");
-        countermeasuresTrapLore.put("§r§f jump boost for 30 secs.");
-        countermeasuresTrap.put("lore", countermeasuresTrapLore);
-
-        config.put("170", countermeasuresTrap);
-
-        // Map Button (in votemap)
-
-        config.put("171", buildDefaultItem(Material.GREEN_TERRACOTTA));
-
-        //172 Enhanced Safety Platform
-        //173 Zapper
-        //174 Spawn Dust
-        //175 Black Hole
-
-        return config;
+        return minimalistMap;
     }
 
     public static JSONObject getShopConfig() {
@@ -2095,6 +1248,7 @@ public final class DefaultConfigValues {
         stoneSwordMeta.setLore(List.of("§r§7At least better than fighting with your fists."));
         stoneSwordMeta.setUnbreakable(true);
         stoneSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        stoneSwordMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         stoneSwordItem.setItemMeta(stoneSwordMeta);
 
         entries.put(
@@ -2114,6 +1268,7 @@ public final class DefaultConfigValues {
         ironSwordMeta.setLore(List.of("§r§7A mediocre fighting experience."));
         ironSwordMeta.setUnbreakable(true);
         ironSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        ironSwordMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         ironSwordItem.setItemMeta(ironSwordMeta);
 
         entries.put(
@@ -2133,6 +1288,7 @@ public final class DefaultConfigValues {
         diamondSwordMeta.setLore(List.of("§r§7Full fighting power."));
         diamondSwordMeta.setUnbreakable(true);
         diamondSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        diamondSwordMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         diamondSwordItem.setItemMeta(diamondSwordMeta);
 
         entries.put(
@@ -2152,6 +1308,7 @@ public final class DefaultConfigValues {
         netheriteSwordMeta.setLore(List.of("§r§7To destroy everything."));
         netheriteSwordMeta.setUnbreakable(true);
         netheriteSwordMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        netheriteSwordMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         netheriteSwordItem.setItemMeta(netheriteSwordMeta);
 
         entries.put(
@@ -2171,6 +1328,7 @@ public final class DefaultConfigValues {
         stoneAxeMeta.setLore(List.of("§r§7At least better than fighting with your fists."));
         stoneAxeMeta.setUnbreakable(true);
         stoneAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        stoneAxeMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         stoneAxeItem.setItemMeta(stoneAxeMeta);
 
         entries.put(
@@ -2190,6 +1348,7 @@ public final class DefaultConfigValues {
         ironAxeMeta.setLore(List.of("§r§7A mediocre fighting experience."));
         ironAxeMeta.setUnbreakable(true);
         ironAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        ironAxeMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         ironAxeItem.setItemMeta(ironAxeMeta);
 
         entries.put(
@@ -2209,6 +1368,7 @@ public final class DefaultConfigValues {
         diamondAxeMeta.setLore(List.of("§r§7Full fighting power."));
         diamondAxeMeta.setUnbreakable(true);
         diamondAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        diamondAxeMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         diamondAxeItem.setItemMeta(diamondAxeMeta);
 
         entries.put(
@@ -2228,6 +1388,7 @@ public final class DefaultConfigValues {
         netheriteAxeMeta.setLore(List.of("§r§7To destroy everything."));
         netheriteAxeMeta.setUnbreakable(true);
         netheriteAxeMeta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+        netheriteAxeMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, PersistentDataType.BOOLEAN, true);
         netheriteAxeItem.setItemMeta(netheriteAxeMeta);
 
         entries.put(
@@ -3490,6 +2651,8 @@ public final class DefaultConfigValues {
 
     }
 
+    // PLAYER UPGRADES
+
     public static @NotNull List<PlayerUpgrade.Data> getPlayerUpgrades() {
         List<PlayerUpgrade.Data> upgrades = new ArrayList<>();
 
@@ -3516,15 +2679,59 @@ public final class DefaultConfigValues {
         upgrades.add(new ArmorUpgrade.Data(
                 "armor",
                 List.of(
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.LEATHER_LEGGINGS), new ItemStack(Material.LEATHER_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.CHAINMAIL_LEGGINGS), new ItemStack(Material.CHAINMAIL_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.IRON_LEGGINGS),  new ItemStack(Material.IRON_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.DIAMOND_LEGGINGS), new ItemStack(Material.DIAMOND_BOOTS)),
-                        new ArmorUpgrade.ArmorSet(new ItemStack(Material.LEATHER_HELMET), new ItemStack(Material.LEATHER_CHESTPLATE), new ItemStack(Material.NETHERITE_LEGGINGS), new ItemStack(Material.NETHERITE_BOOTS))
+                        new ArmorUpgrade.ArmorSet(prepareArmor(Material.LEATHER_HELMET), prepareArmor(Material.LEATHER_CHESTPLATE), prepareArmor(Material.LEATHER_LEGGINGS), prepareArmor(Material.LEATHER_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(prepareArmor(Material.LEATHER_HELMET), prepareArmor(Material.LEATHER_CHESTPLATE), prepareArmor(Material.CHAINMAIL_LEGGINGS), prepareArmor(Material.CHAINMAIL_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(prepareArmor(Material.LEATHER_HELMET), prepareArmor(Material.LEATHER_CHESTPLATE), prepareArmor(Material.IRON_LEGGINGS),  prepareArmor(Material.IRON_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(prepareArmor(Material.LEATHER_HELMET), prepareArmor(Material.LEATHER_CHESTPLATE), prepareArmor(Material.DIAMOND_LEGGINGS), prepareArmor(Material.DIAMOND_BOOTS)),
+                        new ArmorUpgrade.ArmorSet(prepareArmor(Material.LEATHER_HELMET), prepareArmor(Material.LEATHER_CHESTPLATE), prepareArmor(Material.NETHERITE_LEGGINGS), prepareArmor(Material.NETHERITE_BOOTS))
                 )
         ));
 
         return upgrades;
+    }
+
+    // TEAM UPGRADES
+
+    public static @NotNull List<TeamUpgrade.Data> getTeamUpgrades() {
+        List<TeamUpgrade.Data> upgrades = new ArrayList<>();
+
+        upgrades.add(new EnchantmentTeamUpgrade.Data(TeamUpgrades.SHARPNESS, NamespacedKeys.GAME_ITEM_SHARPNESS_AFFECTED, Enchantment.SHARPNESS));
+        upgrades.add(new EnchantmentTeamUpgrade.Data(TeamUpgrades.PROTECTION, NamespacedKeys.GAME_ITEM_PROTECTION_AFFECTED, Enchantment.PROTECTION));
+        upgrades.add(new PermanentPotionEffectTeamUpgrade.Data(TeamUpgrades.HASTE, PotionEffectType.HASTE, false, false, false));
+        upgrades.add(new HealPoolTeamUpgrade.Data(TeamUpgrades.HEAL_POOL));
+
+        return upgrades;
+    }
+
+    public static @NotNull JSONObject getDefaultTeamUpgradesFile() {
+        JSONObject teamUpgradesFile = new JSONObject();
+
+        // Team Upgrades
+        JSONObject teamUpgradesSection = new JSONObject();
+        for (TeamUpgrade.Data data : DefaultConfigValues.getTeamUpgrades()) {
+            teamUpgradesSection.put(data.id(), data.toJSON());
+        }
+        teamUpgradesFile.put("team_upgrades", teamUpgradesSection);
+
+        // Traps
+        // ...
+
+        // Return
+        return teamUpgradesFile;
+    }
+
+    // ARMOR
+
+    private static @NotNull ItemStack prepareArmor(@NotNull Material material) {
+        ItemStack item = new ItemStack(material);
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return item;
+
+        meta.getPersistentDataContainer().set(NamespacedKeys.GAME_ITEM_PROTECTION_AFFECTED, PersistentDataType.BOOLEAN, true);
+
+        item.setItemMeta(meta);
+        return item;
     }
 
     public static @NotNull Map<Integer, QuickBuyMenuEntry> getDefaultQuickBuyMenu() {
@@ -3542,6 +2749,352 @@ public final class DefaultConfigValues {
         menu.put(34, new QuickBuyMenuEntry(QuickBuyMenuEntry.Type.ITEM, "water_bucket"));
 
         return menu;
+    }
+
+    public static @NotNull Map<String, UpgradeEntry> getDefaultTeamUpgradeEntries() {
+        Map<String, UpgradeEntry> upgrades = new HashMap<>();
+
+        upgrades.put("sharpness", new UpgradeEntry(
+                TeamUpgrades.SHARPNESS,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 8),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 16),
+                        3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 32)
+                ),
+                Set.of(new ShopGUIPosition(0, 20)),
+                Map.of(
+                        1, getSharpnessTeamUpgradeItem(0),
+                        2, getSharpnessTeamUpgradeItem(1),
+                        3, getSharpnessTeamUpgradeItem(2),
+                        4, getSharpnessTeamUpgradeItem(3)
+                )
+        ));
+
+        upgrades.put("protection", new UpgradeEntry(
+                TeamUpgrades.PROTECTION,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 5),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 10),
+                        3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 20),
+                        4, new UpgradeEntry.PriceEntry(Material.DIAMOND, 40),
+                        5, new UpgradeEntry.PriceEntry(Material.DIAMOND, 80)
+                ),
+                Set.of(new ShopGUIPosition(0, 22)),
+                Map.of(
+                        1, getProtectionTeamUpgradeItem(0),
+                        2, getProtectionTeamUpgradeItem(1),
+                        3, getProtectionTeamUpgradeItem(2),
+                        4, getProtectionTeamUpgradeItem(3),
+                        5, getProtectionTeamUpgradeItem(4),
+                        6, getProtectionTeamUpgradeItem(5)
+                )
+        ));
+
+        upgrades.put("haste", new UpgradeEntry(
+                TeamUpgrades.HASTE,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 4),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 8)
+                ),
+                Set.of(new ShopGUIPosition(0, 24)),
+                Map.of(
+                        1, getHasteTeamUpgradeItem(0),
+                        2, getHasteTeamUpgradeItem(1),
+                        3, getHasteTeamUpgradeItem(2)
+                )
+        ));
+
+        upgrades.put("generators", new UpgradeEntry(
+                TeamUpgrades.GENERATORS,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 4),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 8),
+                        3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 12),
+                        4, new UpgradeEntry.PriceEntry(Material.DIAMOND, 16),
+                        5, new UpgradeEntry.PriceEntry(Material.DIAMOND, 20)
+                ),
+                Set.of(new ShopGUIPosition(0, 38)),
+                Map.of(
+                        1, getGeneratorTeamUpgradeItem(0),
+                        2, getGeneratorTeamUpgradeItem(1),
+                        3, getGeneratorTeamUpgradeItem(2),
+                        4, getGeneratorTeamUpgradeItem(3),
+                        5, getGeneratorTeamUpgradeItem(4),
+                        6, getGeneratorTeamUpgradeItem(5)
+                )
+        ));
+
+        upgrades.put("heal_pool", new UpgradeEntry(
+                TeamUpgrades.HEAL_POOL,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 3),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 9)
+                ),
+                Set.of(new ShopGUIPosition(0, 40)),
+                Map.of(
+                        1, getHealPoolTeamUpgradeItem(0),
+                        2, getHealPoolTeamUpgradeItem(1),
+                        3, getHealPoolTeamUpgradeItem(2)
+                )
+        ));
+
+        upgrades.put("end_game_buff", new UpgradeEntry(
+                TeamUpgrades.ENDGAME_BUFF,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 20),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 40),
+                        3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 60)
+                ),
+                Set.of(new ShopGUIPosition(0, 42)),
+                Map.of(
+                        1, getEndgameBuffTeamUpgradeItem(0),
+                        2, getEndgameBuffTeamUpgradeItem(1),
+                        3, getEndgameBuffTeamUpgradeItem(2),
+                        4, getEndgameBuffTeamUpgradeItem(3)
+                )
+        ));
+
+        return upgrades;
+    }
+    
+    public static @NotNull Map<String, TeamGUI.TrapEntry> getDefaultTeamTrapEntries() {
+        Map<String, TeamGUI.TrapEntry> entries = new HashMap<>();
+        
+        entries.put(TeamTraps.ALARM_TRAP, new TeamGUI.TrapEntry(
+                TeamTraps.ALARM_TRAP,
+                new UpgradeEntry.PriceEntry(Material.DIAMOND, 2),
+                Set.of(new ShopGUIPosition(0, 29)),
+                getAlarmTrapItem()
+        ));
+
+        entries.put(TeamTraps.COUNTERMEASURES_TRAP, new TeamGUI.TrapEntry(
+                TeamTraps.COUNTERMEASURES_TRAP,
+                new UpgradeEntry.PriceEntry(Material.DIAMOND, 3),
+                Set.of(new ShopGUIPosition(0, 33)),
+                getCountermeasuresTrapItem()
+        ));
+
+        entries.put(TeamTraps.ITS_A_TRAP, new TeamGUI.TrapEntry(
+                TeamTraps.ITS_A_TRAP,
+                new UpgradeEntry.PriceEntry(Material.DIAMOND, 1),
+                Set.of(new ShopGUIPosition(0, 30)),
+                getItsATrapTrapItem()
+        ));
+
+        entries.put(TeamTraps.MINING_FATIGUE_TRAP, new TeamGUI.TrapEntry(
+                TeamTraps.MINING_FATIGUE_TRAP,
+                new UpgradeEntry.PriceEntry(Material.DIAMOND, 1),
+                Set.of(new ShopGUIPosition(0, 32)),
+                getMiningFatigueTrapItem()
+        ));
+
+        return entries;
+    }
+
+    private static @NotNull ItemStack getSharpnessTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.IRON_SWORD,
+                Component.text("Sharpness Upgrade", NamedTextColor.WHITE),
+                List.of(
+                        Component.text("Applies a sharpness enchantment to:", NamedTextColor.GRAY),
+                        Component.text(" - Swords", NamedTextColor.GRAY),
+                        Component.text(" - Axes", NamedTextColor.GRAY)
+                ),
+                List.of(
+                        new TierListEntry(Component.text("Sharpness I"), Component.text("8 Diamonds")),
+                        new TierListEntry(Component.text("Sharpness II"), Component.text("16 Diamonds")),
+                        new TierListEntry(Component.text("Sharpness III"), Component.text("32 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getProtectionTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.IRON_CHESTPLATE,
+                Component.text("Protection Upgrade", NamedTextColor.WHITE),
+                List.of(
+                        Component.text("Applies a protection enchantment to:", NamedTextColor.GRAY),
+                        Component.text(" - Helmets", NamedTextColor.GRAY),
+                        Component.text(" - Chestplates", NamedTextColor.GRAY),
+                        Component.text(" - Leggings", NamedTextColor.GRAY),
+                        Component.text(" - Boots", NamedTextColor.GRAY)
+                ),
+                List.of(
+                        new TierListEntry(Component.text("Protection I"), Component.text("5 Diamonds")),
+                        new TierListEntry(Component.text("Protection II"), Component.text("10 Diamonds")),
+                        new TierListEntry(Component.text("Protection III"), Component.text("20 Diamonds")),
+                        new TierListEntry(Component.text("Protection IV"), Component.text("40 Diamonds")),
+                        new TierListEntry(Component.text("Protection V"), Component.text("80 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getHasteTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.GOLDEN_PICKAXE,
+                Component.text("Haste Upgrade", NamedTextColor.WHITE),
+                List.of(Component.text("Gives all team members the haste effect.", NamedTextColor.GRAY)),
+                List.of(
+                        new TierListEntry(Component.text("Haste I"), Component.text("4 Diamonds")),
+                        new TierListEntry(Component.text("Haste II"), Component.text("8 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getGeneratorTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.FURNACE,
+                Component.text("Generator Upgrade", NamedTextColor.WHITE),
+                List.of(Component.text("Speeds up your generators.", NamedTextColor.GRAY)),
+                List.of(
+                        new TierListEntry(Component.text("Generators"), Component.text("4 Diamonds")),
+                        new TierListEntry(Component.text("Generators"), Component.text("8 Diamonds")),
+                        new TierListEntry(Component.text("Generators"), Component.text("12 Diamonds")),
+                        new TierListEntry(Component.text("Generators"), Component.text("16 Diamonds")),
+                        new TierListEntry(Component.text("Generators"), Component.text("20 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getHealPoolTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.BEACON,
+                Component.text("Heal Pool", NamedTextColor.WHITE),
+                List.of(Component.text("Gives regeneration to all team members in the base.", NamedTextColor.GRAY)),
+                List.of(
+                        new TierListEntry(Component.text("Regeneration I"), Component.text("3 Diamonds")),
+                        new TierListEntry(Component.text("Regeneration II"), Component.text("9 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getEndgameBuffTeamUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.WITHER_SKELETON_SKULL,
+                Component.text("Endgame Buff", NamedTextColor.WHITE),
+                List.of(Component.text("More Endgame Withers for your team.", NamedTextColor.GRAY)),
+                List.of(
+                        new TierListEntry(Component.text("2 Withers"), Component.text("20 Diamonds")),
+                        new TierListEntry(Component.text("3 Withers"), Component.text("40 Diamonds")),
+                        new TierListEntry(Component.text("4 Withers"), Component.text("60 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack generateUpgradeItem(@NotNull Material material, @NotNull Component name, @NotNull List<Component> description, @NotNull List<TierListEntry> tiers, int level) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(name));
+
+        List<Component> lore = new ArrayList<>();
+        lore.addAll(description.stream().map(ItemUtils.CLEARED_LORE_COMPONENT::append).toList());
+        lore.add(Component.empty());
+        lore.addAll(generateTierList(tiers, level).stream().map(ItemUtils.CLEARED_LORE_COMPONENT::append).toList());
+
+        meta.lore(lore);
+
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        item.setAmount(Math.max(Math.min(level, item.getType().getMaxStackSize()), 1));
+
+        return item;
+    }
+
+    private static @NotNull List<Component> generateTierList(@NotNull List<TierListEntry> tiers, int currentLevel) {
+        if (tiers.isEmpty()) return List.of();
+
+        List<Component> out = new ArrayList<>();
+
+        for (int i = 0; i < tiers.size(); i++) {
+            int level = i + 1;
+
+            TierListEntry e = tiers.get(i);
+
+            if (currentLevel >= level) {
+                out.add(Component.empty().append(Component.text("Tier " + level + ": ", NamedTextColor.GREEN).append(e.name().color(NamedTextColor.GREEN)).appendSpace().append(Component.text("✔", NamedTextColor.GREEN))));
+            } else {
+                out.add(Component.empty().append(Component.text("Tier " + level + ": ", NamedTextColor.GRAY).append(e.name().color(NamedTextColor.GRAY)).appendSpace().append(e.price().color(NamedTextColor.GRAY))));
+            }
+
+        }
+
+        return out;
+    }
+
+    private record TierListEntry(@NotNull Component name, @NotNull Component price) {}
+    
+    public static @NotNull ItemStack getAlarmTrapItem() {
+        ItemStack item = new ItemStack(Material.REDSTONE_TORCH);
+        ItemMeta meta = item.getItemMeta();
+        
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Alarm Trap")));
+        meta.lore(List.of(
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Features:", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Gives the enemy glowing", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Reveals invisible enemies", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Notifies you and your team", NamedTextColor.GRAY))
+        ));
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static @NotNull ItemStack getCountermeasuresTrapItem() {
+        ItemStack item = new ItemStack(Material.POTION);
+        PotionMeta meta = (PotionMeta) item.getItemMeta();
+
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Countermeasures Trap")));
+        meta.lore(List.of(
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Gives effects to your team:", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Jump Boost", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Speed", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Regeneration", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Absorption", NamedTextColor.GRAY))
+        ));
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static @NotNull ItemStack getItsATrapTrapItem() {
+        ItemStack item = new ItemStack(Material.TRIPWIRE_HOOK);
+        ItemMeta meta = item.getItemMeta();
+
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("It's a Trap")));
+        meta.lore(List.of(
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Gives effects to your enemies:", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Blindness", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text(" - Slowness", NamedTextColor.GRAY))
+        ));
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static @NotNull ItemStack getMiningFatigueTrapItem() {
+        ItemStack item = new ItemStack(Material.STONE_PICKAXE);
+        ItemMeta meta = item.getItemMeta();
+
+        meta.displayName(ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Mining Fatigue Trap")));
+        meta.lore(List.of(
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("Gives Mining Fatigue", NamedTextColor.GRAY)),
+                ItemUtils.CLEARED_LORE_COMPONENT.append(Component.text("to your enemies", NamedTextColor.GRAY))
+        ));
+        meta.addItemFlags(ItemFlag.values());
+
+        item.setItemMeta(meta);
+        return item;
     }
 
 }
