@@ -22,11 +22,8 @@ import org.black_ixx.playerpoints.PlayerPointsAPI;
 import org.bukkit.*;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.RegisteredListener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +34,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.*;
 import java.util.logging.Level;
@@ -45,7 +41,6 @@ import java.util.stream.Stream;
 
 public class Bedwars extends JavaPlugin {
     private ConfigManager configManager;
-    private ConfigManager shopConfig;
     private Set<UUID> bypassingPlayers;
     private EventListenerManager listenerManager;
     private GamePart game;
@@ -61,7 +56,6 @@ public class Bedwars extends JavaPlugin {
     @Override
     public void onEnable() {
         this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.json");
-        this.shopConfig = new ConfigManager(this, DefaultConfigValues.getShopConfig(), true, "shop-old.json");
         this.bypassingPlayers = Collections.synchronizedSet(new HashSet<>());
         this.listenerManager = new EventListenerManager(this);
         this.dynamicWorldLoadingSystem = new DynamicWorldLoadingSystem(this);
@@ -70,7 +64,6 @@ public class Bedwars extends JavaPlugin {
         this.cloudSystemMode = false;
 
         this.configManager.reloadConfig();
-        this.shopConfig.reloadConfig();
 
         this.cloudSystemMode = this.configManager.getConfig().optJSONObject("cloudSystemMode", new JSONObject()).optBoolean("enable", false);
 
@@ -399,17 +392,12 @@ public class Bedwars extends JavaPlugin {
         this.getLogger().info("Reloading plugin...");
 
         this.configManager.reloadConfig();
-        this.shopConfig.reloadConfig();
 
         this.getLogger().info("Plugin successfully reloaded");
     }
 
     public ConfigManager getConfigManager() {
         return this.configManager;
-    }
-
-    public ConfigManager getShopConfig() {
-        return this.shopConfig;
     }
 
     // ----- BYPASSING PLAYERS -----
