@@ -9,8 +9,10 @@ import eu.cloudnetservice.modules.bridge.BridgeServiceHelper;
 import eu.cloudnetservice.wrapper.holder.ServiceInfoHolder;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.config.ConfigSetup;
 import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.config.JSONLoader;
+import net.jandie1505.bedwars.constants.ConfigKeys;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.builder.GameBuilder;
 import net.jandie1505.bedwars.game.lobby.commands.*;
@@ -20,6 +22,7 @@ import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.MapData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
+import net.jandie1505.bedwars.game.lobby.constants.LobbyConfigKeys;
 import net.jandie1505.bedwars.game.lobby.constants.LobbyItems;
 import net.jandie1505.bedwars.game.lobby.gui.MapVoteGUI;
 import net.jandie1505.bedwars.game.lobby.gui.VotingMenuListener;
@@ -73,6 +76,9 @@ public class Lobby extends GamePart {
 
     public Lobby(Bedwars plugin) {
         super(plugin);
+
+        this.getConfig().merge(ConfigSetup.loadDataStorage(this.getPlugin(), "lobby.yml"), true);
+        this.getConfig().merge(this.getPlugin().config().getSection("lobby"), true);
 
         JSONObject lobbyConfig = JSONLoader.loadJSONFromFile(new File(this.getPlugin().getDataFolder(), "lobby.json"));
         if (lobbyConfig.isEmpty()) lobbyConfig = DefaultConfigValues.getLobbyConfig();
@@ -473,7 +479,7 @@ public class Lobby extends GamePart {
         MapData selectedMapData = this.getSelectedMapData();
         if (selectedMapData == null) return;
 
-        if (this.getPlugin().getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("partyandfriends", false)) {
+        if (this.getPlugin().config().optBoolean(ConfigKeys.INTEGRATION_PARTY_AND_FRIENDS, false)) {
 
             try {
                 Class.forName("de.simonsator.partyandfriends.spigot.api.pafplayers.PAFPlayer");
@@ -518,7 +524,7 @@ public class Lobby extends GamePart {
 
                     // check if the party size is higher than the max players per team if enabled
 
-                    int maxPlayers = this.getPlugin().getConfigManager().getConfig().optJSONObject("slotSystem", new JSONObject()).optInt("playersPerTeam", -1);
+                    int maxPlayers = this.getConfig().optInt(LobbyConfigKeys.SLOT_SYSTEM_PLAYERS_PER_TEAM, -1);
 
                     if (maxPlayers > 0 && party.getAllPlayers().size() > maxPlayers) {
                         continue;
@@ -668,7 +674,7 @@ public class Lobby extends GamePart {
 
     private void updateCloudNetMotdAndSlots(int maxPlayers, String motd) {
 
-        if (this.getPlugin().getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("cloudnet", false)) {
+        if (this.getPlugin().config().optBoolean(ConfigKeys.INTEGRATION_CLOUDNET, false)) {
 
             try {
 
@@ -712,8 +718,8 @@ public class Lobby extends GamePart {
 
     public int getMaxPlayers() {
 
-        int teams = this.getPlugin().getConfigManager().getConfig().optJSONObject("slotSystem", new JSONObject()).optInt("teamCount", -1);
-        int playersPerTeam = this.getPlugin().getConfigManager().getConfig().optJSONObject("slotSystem", new JSONObject()).optInt("playersPerTeam", -1);
+        int teams = this.getConfig().optInt(LobbyConfigKeys.SLOT_SYSTEM_TEAM_COUNT, -1);
+        int playersPerTeam = this.getConfig().optInt(LobbyConfigKeys.SLOT_SYSTEM_PLAYERS_PER_TEAM, -1);
 
         if (teams <= 0 || playersPerTeam <= 0) {
             return -1;

@@ -7,9 +7,12 @@ import net.chaossquad.mclib.WorldUtils;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.bedwars.config.ConfigSetup;
+import net.jandie1505.bedwars.constants.ConfigKeys;
 import net.jandie1505.bedwars.game.game.commands.*;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.endlobby.Endlobby;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.ShopVillager;
@@ -25,20 +28,19 @@ import net.jandie1505.bedwars.game.game.shop.ItemShop;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopEntry;
-import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
 import net.jandie1505.bedwars.game.game.team.traps.TeamTrapManager;
-import net.jandie1505.bedwars.game.game.team.traps.constants.TeamTraps;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgradeManager;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
 import net.jandie1505.bedwars.game.game.timeactions.provider.TimeActionCreator;
 import net.jandie1505.bedwars.game.game.world.BlockProtectionSystem;
 import net.jandie1505.bedwars.utilities.ItemSimilarityKey;
+import net.jandie1505.datastorage.DataStorage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.ChatMessageType;
@@ -90,6 +92,8 @@ public class Game extends GamePart implements ManagedListener {
     public Game(Bedwars plugin, World world, MapData data, Map<String, ShopEntry> shopEntries, Map<String, UpgradeEntry> playerUpgradeEntries, @Nullable Map<Integer, QuickBuyMenuEntry> defaultQuickBuyMenu, @NotNull Map<String, UpgradeEntry> teamUpgradeEntries, @NotNull Map<String, TeamGUI.TrapEntry> teamTrapEntries) {
         super(plugin);
         this.world = world;
+        this.getConfig().merge(ConfigSetup.loadDataStorage(this.getPlugin(), "game.yml"), true);
+        this.getConfig().merge(this.getPlugin().config().getSection("game"), true);
         this.data = data;
         this.teams = Collections.synchronizedList(new ArrayList<>());
         this.players = Collections.synchronizedMap(new HashMap<>());
@@ -653,7 +657,7 @@ public class Game extends GamePart implements ManagedListener {
             Player player = this.getPlugin().getServer().getPlayer(playerId);
             if (player == null) continue;
 
-            if (this.getPlugin().getConfigManager().getConfig().optBoolean("tntParticles", false) && player.getInventory().contains(Material.TNT) && playerData.getMilkTimer() <= 0) {
+            if (this.getConfig().optBoolean(GameConfigKeys.TNT_PARTICLES, false) && player.getInventory().contains(Material.TNT) && playerData.getMilkTimer() <= 0) {
                 player.getWorld().spawnParticle(Particle.DUST, player.getLocation().clone().add(0, 2.5, 0), 20, 0, 0, 0, 1, new Particle.DustOptions(Color.RED, 1.0F));
             }
 
@@ -754,7 +758,7 @@ public class Game extends GamePart implements ManagedListener {
 
         }
 
-        if (this.getPlugin().getConfigManager().getConfig().optBoolean("testingMode", false)) {
+        if (this.getPlugin().config().optBoolean(ConfigKeys.TESTING_MODE, false)) {
 
             if (aliveTeams.size() == 1) {
 
@@ -831,7 +835,7 @@ public class Game extends GamePart implements ManagedListener {
     }
 
     private void groupItemsTask() {
-        if (!this.getPlugin().getConfigManager().getConfig().optBoolean("inventorySort", false)) return;
+        if (!this.getConfig().optBoolean(GameConfigKeys.INVENTORY_SORT, false)) return;
 
         for (Player player : this.getOnlinePlayers()) {
             this.groupItemsAlgorithm(player.getInventory());
@@ -1141,15 +1145,15 @@ public class Game extends GamePart implements ManagedListener {
 
             // Custom command
 
-            String customCommand = this.getPlugin().getConfigManager().getConfig().optJSONObject("cloudSystemMode", new JSONObject()).optString("switchToIngameCommand", "");
+            String customCommand = this.getConfig().optString(ConfigKeys.CLOUDSYSTEM_INGAME_COMMAND, "");
 
-            if (!customCommand.equalsIgnoreCase("")) {
+            if (customCommand != null && !customCommand.isEmpty()) {
                 this.getPlugin().getServer().dispatchCommand(this.getPlugin().getServer().getConsoleSender(), customCommand);
             }
 
             // CloudNet ingame state
 
-            if (this.getPlugin().getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("cloudnet", false)) {
+            if (this.getPlugin().config().optBoolean(ConfigKeys.INTEGRATION_CLOUDNET, false)) {
 
                 try {
 

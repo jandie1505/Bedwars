@@ -3,6 +3,7 @@ package net.jandie1505.bedwars.game.game.listeners;
 import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.game.entities.entities.BaseDefender;
 import net.jandie1505.bedwars.game.game.entities.entities.EndgameWither;
 import net.jandie1505.bedwars.game.game.entities.base.ManagedEntity;
@@ -102,7 +103,7 @@ public class GameDeathListener implements ManagedListener {
     private void rewardKiller(@Nullable PlayerData killerData) {
         if (killerData == null) return;
         killerData.setKills(killerData.getKills() + 1);
-        killerData.setRewardPoints(killerData.getRewardPoints() + this.game.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("playerKill", 0));
+        killerData.setRewardPoints(killerData.getRewardPoints() + this.game.getConfig().optInt(GameConfigKeys.REWARD_PLAYER_KILL, 0));
     }
 
     private void decreaseUpgrades(@NotNull PlayerData playerData) {

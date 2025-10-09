@@ -5,6 +5,7 @@ import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.config.JSONLoader;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.utils.LobbyChatListener;
@@ -106,7 +107,7 @@ public class Endlobby extends GamePart {
             }
 
             if (this.game.getWinner() != null && this.game.getWinner().getId() == playerData.getTeam()) {
-                playerData.setRewardPoints(playerData.getRewardPoints() + this.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("victory", 500));
+                playerData.setRewardPoints(playerData.getRewardPoints() + game.getConfig().optInt(GameConfigKeys.REWARD_VICTORY, 500));
                 this.getPlugin().givePointsToPlayer(player, playerData.getRewardPoints(), "§6Reward for this game: + {points} points");
             }
 

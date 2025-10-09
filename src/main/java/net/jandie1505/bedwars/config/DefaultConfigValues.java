@@ -2,7 +2,9 @@ package net.jandie1505.bedwars.config;
 
 import net.chaossquad.mclib.ItemUtils;
 import net.chaossquad.mclib.MiscUtils;
+import net.jandie1505.bedwars.constants.ConfigKeys;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.ArmorUpgrade;
 import net.jandie1505.bedwars.game.game.player.upgrades.types.UpgradableItemUpgrade;
@@ -17,6 +19,8 @@ import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.PermanentPotionEffectTeamUpgrade;
+import net.jandie1505.bedwars.game.lobby.constants.LobbyConfigKeys;
+import net.jandie1505.datastorage.DataStorage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -45,60 +49,35 @@ public final class DefaultConfigValues {
             .color(NamedTextColor.WHITE)
             .decoration(TextDecoration.ITALIC, TextDecoration.State.FALSE);
 
-    public static JSONObject getGeneralConfig() {
-        JSONObject config = new JSONObject();
+    public static DataStorage getConfig() {
+        DataStorage config = new DataStorage();
 
-        // General values
+        config.set(ConfigKeys.TESTING_MODE, false);
 
-        config.put("testingMode", false);
-        config.put("backButton", 0);
-        config.put("tntParticles", true);
-        config.put("inventorySort", true);
+        config.set(ConfigKeys.INTEGRATION_CLOUDNET, false);
+        config.set(ConfigKeys.INTEGRATION_SUPERVANISH, true);
+        config.set(ConfigKeys.INTEGRATION_PARTY_AND_FRIENDS, true);
+        config.set(ConfigKeys.INTEGRATION_PLAYERPOINTS, false);
+        config.set(ConfigKeys.INTEGRATION_PLAYERLEVELS, false);
 
-        // Cloudsystem
+        config.set(ConfigKeys.CLOUDSYSTEM_ENABLE, false);
+        config.set(ConfigKeys.CLOUDSYSTEM_INGAME_COMMAND, "");
 
-        JSONObject cloudSystemConfig = new JSONObject();
+        config.set(LobbyConfigKeys.section(LobbyConfigKeys.SLOT_SYSTEM_TEAM_COUNT), -1);
+        config.set(LobbyConfigKeys.section(LobbyConfigKeys.SLOT_SYSTEM_PLAYERS_PER_TEAM), -1);
 
-        cloudSystemConfig.put("enable", false);
-        cloudSystemConfig.put("switchToIngameCommand", "");
+        config.set(LobbyConfigKeys.section(LobbyConfigKeys.CHAT_ADD_PREFIX_SUFFIX), false);
 
-        config.put("cloudSystemMode", cloudSystemConfig);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_VICTORY), 500);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_BED_DESTROYED), 100);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_PLAYER_KILL), 20);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_TEAM_UPGRADE_PURCHASE), 10);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_TEAM_TRAP_PURCHASE), 5);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_PLAYER_UPGRADE_PURCHASE), 2);
+        config.set(GameConfigKeys.section(GameConfigKeys.REWARD_LIMIT), 5000);
 
-        // integrations
-
-        JSONObject integrationsConfig = new JSONObject();
-
-        integrationsConfig.put("cloudnet", true);
-        integrationsConfig.put("supervanish-premiumvanish", true);
-        integrationsConfig.put("partyandfriends", true);
-        integrationsConfig.put("playerpoints", true);
-
-        config.put("integrations", integrationsConfig);
-
-        // Slot system
-
-        JSONObject slotSystem = new JSONObject();
-
-        slotSystem.put("playersPerTeam", -1);
-        slotSystem.put("teamCount", -1);
-
-        config.put("slotSystem", slotSystem);
-
-        // Rewards
-
-        JSONObject rewardsConfig = new JSONObject();
-
-        rewardsConfig.put("victory", 500);
-        rewardsConfig.put("bedDestroyed", 100);
-        rewardsConfig.put("playerKill", 20);
-        rewardsConfig.put("teamUpgradePurchased", 10);
-        rewardsConfig.put("trapPurchased", 5);
-        rewardsConfig.put("playerUpgradePurchased", 2);
-        rewardsConfig.put("maxRewardsAmount", 5000);
-
-        config.put("rewards", rewardsConfig);
-
-        // Return
+        config.set(GameConfigKeys.section(GameConfigKeys.TNT_PARTICLES), true);
+        config.set(GameConfigKeys.section(GameConfigKeys.INVENTORY_SORT), true);
 
         return config;
     }

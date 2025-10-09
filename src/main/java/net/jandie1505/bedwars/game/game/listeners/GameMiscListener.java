@@ -6,6 +6,7 @@ import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.Bedwars;
 import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.kyori.adventure.text.Component;
@@ -83,7 +84,7 @@ public class GameMiscListener implements ManagedListener {
                 if (location.equals(event.getBlock().getLocation()) || location.equals(otherHalf.getLocation())) {
 
                     playerData.setBedsBroken(playerData.getBedsBroken() + 1);
-                    playerData.setRewardPoints(playerData.getRewardPoints() + this.game.getPlugin().getConfigManager().getConfig().optJSONObject("rewards", new JSONObject()).optInt("bedDestroyed", 0));
+                    playerData.setRewardPoints(playerData.getRewardPoints() + this.game.getConfig().optInt(GameConfigKeys.REWARD_BED_DESTROYED, 0));
 
                     for (Player player : this.game.getPlugin().getServer().getOnlinePlayers()) {
 

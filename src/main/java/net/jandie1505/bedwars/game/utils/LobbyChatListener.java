@@ -6,6 +6,7 @@ import net.chaossquad.mclib.PlayerUtils;
 import net.chaossquad.mclib.executable.ManagedListener;
 import net.jandie1505.bedwars.constants.Permissions;
 import net.jandie1505.bedwars.game.base.GamePart;
+import net.jandie1505.bedwars.game.lobby.constants.LobbyConfigKeys;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -33,7 +34,7 @@ public class LobbyChatListener implements ManagedListener {
             event.message(Component.text(message));
         }
 
-        if (this.game.getPlugin().getConfigManager().getConfig().optBoolean("add_prefix_suffix", false)) {
+        if (this.game.getConfig().optBoolean(LobbyConfigKeys.CHAT_ADD_PREFIX_SUFFIX, false)) {
 
             event.renderer(ChatRenderer.viewerUnaware(((source, sourceDisplayName, msg) -> Component.empty()
                     .append(PlayerUtils.getPlayerPrefix(source).append(sourceDisplayName)).color(NamedTextColor.GRAY)

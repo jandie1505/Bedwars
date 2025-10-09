@@ -27,6 +27,7 @@ public class GameSubcommand extends SubcommandCommand {
         this.addSubcommand("info", SubcommandEntry.of(new GameInfoSubcommand(plugin)));
         this.addSubcommand("pause", SubcommandEntry.of(new GamePauseSubcommand(plugin)));
         this.addSubcommand("tasks", SubcommandEntry.of(new GameTasksSubcommand(plugin)));
+        this.addSubcommand("config", SubcommandEntry.of(new GameConfigSubcommand(plugin)));
         this.addSubcommand("start-lobby", SubcommandEntry.of(new GameStartLobbySubcommand(plugin)));
     }
 

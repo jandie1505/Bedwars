@@ -4,6 +4,7 @@ import net.chaossquad.mclib.command.DynamicSubcommandProvider;
 import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.executable.CoreExecutable;
 import net.jandie1505.bedwars.Bedwars;
+import net.jandie1505.datastorage.DataStorage;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -13,11 +14,13 @@ import java.util.*;
 
 public abstract class GamePart extends CoreExecutable implements DynamicSubcommandProvider {
     @NotNull private final Bedwars plugin;
+    @NotNull private final DataStorage config;
     @NotNull private final Map<String, SubcommandEntry> dynamicSubcommands;
 
     public GamePart(Bedwars plugin) {
         super(plugin.getListenerManager(), plugin.getLogger());
         this.plugin = plugin;
+        this.config = new DataStorage();
         this.dynamicSubcommands = new HashMap<>();
     }
 
@@ -95,10 +98,14 @@ public abstract class GamePart extends CoreExecutable implements DynamicSubcomma
 
     public abstract @Nullable GamePart getNextStatus();
 
-    // ----- OTHER
+    // ----- OTHER -----
 
     public final @NotNull Bedwars getPlugin() {
         return this.plugin;
+    }
+
+    public final @NotNull DataStorage getConfig() {
+        return this.config;
     }
 
 }

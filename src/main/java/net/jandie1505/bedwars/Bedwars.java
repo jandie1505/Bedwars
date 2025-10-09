@@ -5,16 +5,16 @@ import net.chaossquad.mclib.WorldUtils;
 import net.chaossquad.mclib.dynamicevents.EventListenerManager;
 import net.chaossquad.mclib.world.DynamicWorldLoadingSystem;
 import net.jandie1505.bedwars.commands.BedwarsCommand;
-import net.jandie1505.bedwars.config.JSONLoader;
-import net.jandie1505.bedwars.game.game.builder.GameBuilder;
+import net.jandie1505.bedwars.config.ConfigSetup;
+import net.jandie1505.bedwars.constants.ConfigKeys;
+import net.jandie1505.bedwars.game.game.constants.GameConfigKeys;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyStartSubcommand;
-import net.jandie1505.bedwars.config.ConfigManager;
-import net.jandie1505.bedwars.config.DefaultConfigValues;
 import net.jandie1505.bedwars.game.base.GamePart;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.lobby.commands.LobbyVotemapCommand;
 import net.jandie1505.bedwars.global.listeners.EventListener;
 import net.jandie1505.bedwars.game.lobby.Lobby;
+import net.jandie1505.datastorage.DataStorage;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.black_ixx.playerpoints.PlayerPoints;
@@ -28,19 +28,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.stream.Stream;
 
 public class Bedwars extends JavaPlugin {
-    private ConfigManager configManager;
+    private DataStorage config;
     private Set<UUID> bypassingPlayers;
     private EventListenerManager listenerManager;
     private GamePart game;
@@ -55,7 +49,7 @@ public class Bedwars extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        this.configManager = new ConfigManager(this, DefaultConfigValues.getGeneralConfig(), false, "config.json");
+        this.config = new DataStorage();
         this.bypassingPlayers = Collections.synchronizedSet(new HashSet<>());
         this.listenerManager = new EventListenerManager(this);
         this.dynamicWorldLoadingSystem = new DynamicWorldLoadingSystem(this);
@@ -63,9 +57,9 @@ public class Bedwars extends JavaPlugin {
         this.paused = false;
         this.cloudSystemMode = false;
 
-        this.configManager.reloadConfig();
+        ConfigSetup.reloadConfig(this, true, true);
 
-        this.cloudSystemMode = this.configManager.getConfig().optJSONObject("cloudSystemMode", new JSONObject()).optBoolean("enable", false);
+        this.cloudSystemMode = this.config.optBoolean(ConfigKeys.CLOUDSYSTEM_ENABLE, false);
 
         try {
             Class.forName("de.myzelyam.api.vanish.VanishAPI");
@@ -223,7 +217,7 @@ public class Bedwars extends JavaPlugin {
         // Game Configs
 
         try {
-            this.setupGameConfigs();
+            ConfigSetup.setupGameConfigs(this);
         } catch (Exception e) {
             this.getLogger().log(Level.WARNING, "Failed to create game configs", e);
         }
@@ -236,95 +230,6 @@ public class Bedwars extends JavaPlugin {
         }
     }
 
-    /**
-     * Sets up the game config files.<br/>
-     * They are normally loaded by {@link GameBuilder} on game start.
-     * @throws IOException IOException
-     */
-    private void setupGameConfigs() throws IOException {
-
-        // LOBBY
-        this.setupDefaultLobbyConfig();
-
-        // MAPS
-        this.setupDefaultMapConfig();
-
-        // SHOP
-
-        File shopFile = new File(this.getDataFolder(), "shop.json");
-        if (!shopFile.exists()) {
-            shopFile.createNewFile();
-
-            JSONObject shopFileContent = new JSONObject();
-            shopFileContent.put("items", GameBuilder.createJSONFromShopEntries(DefaultConfigValues.getDefaultShopEntries(this)));
-            shopFileContent.put("upgrade_entries", GameBuilder.createJSONFromUpgradeEntries(DefaultConfigValues.getDefaultUpgradeEntries(this)));
-            shopFileContent.put("default_quick_buy_menu", GameBuilder.createJSONFromQuickBuyMenuEntries(DefaultConfigValues.getDefaultQuickBuyMenu()));
-            JSONLoader.saveJSONToFile(shopFile, shopFileContent, 4);
-
-        }
-
-        // UPGRADES
-
-        File playerUpgradesFile = new File(this.getDataFolder(), "player_upgrades.json");
-        if (!playerUpgradesFile.exists()) {
-
-            JSONObject playerUpgradesFileContent = new JSONObject();
-            DefaultConfigValues.getPlayerUpgrades().forEach(upgrade -> playerUpgradesFileContent.put(upgrade.id(), upgrade.toJSON()));
-            JSONLoader.saveJSONToFile(playerUpgradesFile, playerUpgradesFileContent, 4);
-
-        }
-
-        // TEAM UPGRADES
-
-        File teamUpgradesFile = new File(this.getDataFolder(), "team_upgrades.json");
-        if (!teamUpgradesFile.exists()) {
-            JSONLoader.saveJSONToFile(teamUpgradesFile, DefaultConfigValues.getDefaultTeamUpgradesFile(), 4);
-        }
-
-        File teamGUIFile = new File(this.getDataFolder(), "team_gui.json");
-        if (!teamGUIFile.exists()) {
-            teamGUIFile.createNewFile();
-
-            JSONObject teamGUIFileContent = new JSONObject();
-            teamGUIFileContent.put("upgrade_entries", GameBuilder.createJSONFromUpgradeEntries(DefaultConfigValues.getDefaultTeamUpgradeEntries()));
-            teamGUIFileContent.put("trap_entries", GameBuilder.createJSONFromTeamTrapEntries(DefaultConfigValues.getDefaultTeamTrapEntries()));
-            JSONLoader.saveJSONToFile(teamGUIFile, teamGUIFileContent, 4);
-
-        }
-
-    }
-
-    private void setupDefaultLobbyConfig() throws IOException {
-
-        File lobbyConfigFile = new File(this.getDataFolder(), "lobby.json");
-        if (!lobbyConfigFile.exists()) {
-            lobbyConfigFile.createNewFile();
-            JSONLoader.saveJSONToFile(lobbyConfigFile, DefaultConfigValues.getLobbyConfig(), 4);
-        }
-
-    }
-
-    private void setupDefaultMapConfig() throws IOException {
-
-        Path mapDir = this.getDataPath().toAbsolutePath().resolve("maps");
-        if (Files.notExists(mapDir)) {
-            Files.createDirectories(mapDir);
-        }
-
-        if (!Files.isDirectory(mapDir)) {
-            this.getLogger().warning(mapDir + " is not a directory!");
-            return;
-        }
-
-        try (Stream<Path> stream = Files.list(mapDir)) {
-            if (stream.findAny().isPresent()) {
-                return;
-            }
-        }
-
-        JSONLoader.saveJSONToFile(new File(mapDir.toFile(), "minimalist.json"), DefaultConfigValues.getExampleMap(), 4);
-    }
-
     // ----- DISABLE -----
 
     public void onDisable() {
@@ -335,18 +240,6 @@ public class Bedwars extends JavaPlugin {
         this.dynamicWorldLoadingSystem.remove();
 
         this.getLogger().info(this.getName() + " was successfully disabled");
-    }
-
-    // ----- LISTENERS -----
-
-    /**
-     * Register a game listener as event listener.
-     * @param listener game listener
-     * @deprecated Use {@link GamePart#registerListener(net.chaossquad.mclib.executable.ManagedListener)}
-     */
-    @Deprecated(forRemoval = true)
-    public void registerListener(ManagedListener listener) {
-        listener.getGame().registerListener(listener);
     }
 
     // ----- WORLD MANAGEMENT -----
@@ -391,13 +284,17 @@ public class Bedwars extends JavaPlugin {
     public void reloadPlugin() {
         this.getLogger().info("Reloading plugin...");
 
-        this.configManager.reloadConfig();
+        ConfigSetup.reloadConfig(this, true, true);
 
         this.getLogger().info("Plugin successfully reloaded");
     }
 
-    public ConfigManager getConfigManager() {
-        return this.configManager;
+    /**
+     * Returns the plugin's configuration.
+     * @return config
+     */
+    public @NotNull DataStorage config() {
+        return this.config;
     }
 
     // ----- BYPASSING PLAYERS -----
@@ -425,7 +322,7 @@ public class Bedwars extends JavaPlugin {
             return true;
         }
 
-        if (this.getConfigManager().getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("supervanish-premiumvanish", false) && this.svLoaded) {
+        if (this.config.optBoolean(ConfigKeys.INTEGRATION_SUPERVANISH, false) && this.svLoaded) {
 
             Player player = this.getServer().getPlayer(playerId);
 
@@ -491,7 +388,7 @@ public class Bedwars extends JavaPlugin {
 
     public void givePointsToPlayer(Player player, int amount, String message) {
 
-        if (this.configManager.getConfig().optJSONObject("integrations", new JSONObject()).optBoolean("playerpoints", false)) {
+        if (this.config.optBoolean(ConfigKeys.INTEGRATION_PLAYERPOINTS, false)) {
 
             try {
                 Class.forName("org.black_ixx.playerpoints.PlayerPoints");
@@ -503,8 +400,8 @@ public class Bedwars extends JavaPlugin {
                     return;
                 }
 
-                if (amount > this.configManager.getConfig().optJSONObject("rewards", new JSONObject()).optInt("maxRewardsAmount", 5000)) {
-                    amount = this.configManager.getConfig().optJSONObject("rewards", new JSONObject()).optInt("maxRewardsAmount", 5000);
+                if (amount > this.config.optInt(GameConfigKeys.section(GameConfigKeys.REWARD_LIMIT), 5000)) {
+                    amount = this.config.optInt(GameConfigKeys.section(GameConfigKeys.REWARD_LIMIT), 5000);
                 }
 
                 pointsAPI.give(player.getUniqueId(), amount);
