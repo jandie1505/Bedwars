@@ -73,7 +73,7 @@ public class GameDeathListener implements ManagedListener {
             boolean canItemDrop = false;
             for (Generator generator : this.game.getGenerators()) {
 
-                if (generator.getData().item().isSimilar(item)) {
+                if (generator.getItem().isSimilar(item)) {
                     canItemDrop = true;
                     break;
                 }

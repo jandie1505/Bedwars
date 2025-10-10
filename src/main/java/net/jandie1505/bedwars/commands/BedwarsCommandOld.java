@@ -18,7 +18,6 @@ import net.jandie1505.bedwars.game.game.timeactions.actions.WorldborderChangeTim
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import net.jandie1505.bedwars.game.lobby.Lobby;
 import net.jandie1505.bedwars.game.lobby.LobbyPlayerData;
-import net.jandie1505.bedwars.game.game.MapData;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -998,30 +997,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
                 break;
             case "players":
                 sender.sendMessage("§cIse players command for that");
-                break;
-            case "generators":
-                sender.sendMessage("§7Generators:");
-
-                int generatorIndex = 0;
-                for (Generator generator : ((Game) this.plugin.getGame()).getGenerators()) {
-
-                    String out = "[" + generatorIndex + "] " + generator.getData().item() + " " + generator.getLevel() + " " + generator.getSpeed() + " " + generator.isEnabled() + " " + generator.getGeneratorTimer() + " " + generator.getData().location().getX() + " " + generator.getData().location().getY() + " " + generator.getData().location().getZ();
-
-                    if (generator instanceof PublicGenerator) {
-                        out = out + " PUBLIC";
-                    } else if (generator instanceof TeamGenerator) {
-                        out = out + " TEAM " + ((TeamGenerator) generator).getTeam().getId();
-                    } else {
-                        out = out + " UNKNOWN TYPE";
-                    }
-
-                    out = out + ";";
-
-                    sender.sendMessage("§7" + out);
-
-                    generatorIndex++;
-                }
-
                 break;
             case "timeactions":
                 sender.sendMessage("§7Time Actions:");

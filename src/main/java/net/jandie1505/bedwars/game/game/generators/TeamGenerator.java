@@ -4,7 +4,7 @@ import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 
-public class TeamGenerator extends Generator {
+public class TeamGenerator extends LevelGenerator {
     private final BedwarsTeam team;
 
     public TeamGenerator(Game game, GeneratorData generatorData, BedwarsTeam team) {

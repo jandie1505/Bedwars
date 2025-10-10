@@ -172,6 +172,7 @@ public class Game extends GamePart implements ManagedListener {
         this.addDynamicSubcommand("teleport-to-map", SubcommandEntry.of(new GameTeleportToMapSubcommand(this)));
         this.addDynamicSubcommand("finish", SubcommandEntry.of(new GameFinishSubcommand(this)));
         this.addDynamicSubcommand("shop", SubcommandEntry.of(new GameShopSubcommand(this)));
+        this.addDynamicSubcommand("generators", SubcommandEntry.of(new GameGeneratorsSubcommand(this)));
 
         // TASKS
 
