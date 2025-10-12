@@ -998,35 +998,6 @@ public class BedwarsCommandOld implements TabCompletingCommandExecutor {
             case "players":
                 sender.sendMessage("§cIse players command for that");
                 break;
-            case "timeactions":
-                sender.sendMessage("§7Time Actions:");
-
-                int timeActionIndex = 0;
-                for (TimeAction timeAction : ((Game) this.plugin.getGame()).getTimeActions()) {
-
-                    String out = "[" + timeActionIndex + "] " + timeAction.getData().time() + " " + timeAction.isCompleted();
-
-                    if (timeAction instanceof GeneratorUpgradeAction) {
-                        out = out + " EMERALD_UPGRADE (GENERATOR_UPGRADE TYPE 2) " + ((GeneratorUpgradeAction) timeAction).getUpgradeLevel();
-                    } else if (timeAction instanceof GeneratorUpgradeAction) {
-                        out = out + " DIAMOND_UPGRADE (GENERATOR_UPGRADE TYPE 1) " + ((GeneratorUpgradeAction) timeAction).getUpgradeLevel();
-                    } else if (timeAction instanceof DestroyBedsAction) {
-                        out = out + " DESTROY_BEDS " + ((DestroyBedsAction) timeAction).isDisableBeds();
-                    } else if (timeAction instanceof WorldborderChangeTimeAction) {
-                        out = out + " WORLDBORDER_CHANGE " + ((WorldborderChangeTimeAction) timeAction).getRadius();
-                    } else if (timeAction instanceof EndgameWitherTimeAction) {
-                        out = out + " ENDGAME_WITHER";
-                    } else {
-                        out = out + " UNKNOWN";
-                    }
-
-                    out = out + ";";
-                    sender.sendMessage("§7" + out);
-
-                    timeActionIndex++;
-                }
-
-                break;
             case "playerblocks":
                 sender.sendMessage("§7Player Placed Blocks:");
 

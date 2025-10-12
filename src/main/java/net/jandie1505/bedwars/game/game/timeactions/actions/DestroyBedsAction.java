@@ -1,82 +1,110 @@
 package net.jandie1505.bedwars.game.game.timeactions.actions;
 
 import net.jandie1505.bedwars.game.game.Game;
-import net.jandie1505.bedwars.game.game.player.data.PlayerData;
-import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
-import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.title.Title;
 import org.bukkit.Sound;
-import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
-import java.util.Objects;
+import java.time.Duration;
 
 public class DestroyBedsAction extends TimeAction {
-    public static final TimeActionData.DataAccessor<Boolean> DISABLE_BEDS = new TimeActionData.DataAccessor<>("disableBeds");
     private final boolean disableBeds;
 
-    public DestroyBedsAction(Game game, TimeActionData data) {
-        super(game, data);
-        this.disableBeds = Objects.requireNonNullElse(data.getDataField(DISABLE_BEDS), false);
+    public DestroyBedsAction(@NotNull Game game, @NotNull String id, int time, boolean disableBeds) {
+        super(game, id, time);
+        this.disableBeds = disableBeds;
     }
+
+    // ----- DATA -----
 
     @Override
     protected void onRun() {
-        for (Player player : this.getGame().getPlugin().getServer().getOnlinePlayers()) {
+        this.getGame().getTeams().forEach(team -> {
 
-            PlayerData playerData = this.getGame().getPlayers().get(player.getUniqueId());
+            // Send message
+            if (team.getAvailableBedsCount() > 0) {
+                team.getOnlineMembers().forEach(member -> {
 
-            if (playerData != null) {
+                    member.showTitle(Title.title(
+                            Component.text("BEDS DESTROYED!", NamedTextColor.RED),
+                            Component.text("All beds have been destroyed!", NamedTextColor.RED),
+                            Title.Times.times(Duration.ofMillis(25), Duration.ofSeconds(3), Duration.ofMillis(25))
+                    ));
 
-                BedwarsTeam team = this.getGame().getTeams().get(playerData.getTeam());
-
-                if (team == null) {
-                    continue;
-                }
-
-                if (team.hasBed() > 0) {
-                    player.playSound(player, Sound.ENTITY_WITHER_DEATH, 1, 1);
-                    player.sendTitle("§cBED DESTROYED", "§7All beds have been destroyed", 10, 60, 10);
-                } else {
-                    player.playSound(player, Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1, 1);
-                }
-
+                    member.playSound(member.getLocation().clone(), Sound.ENTITY_WITHER_DEATH, 1, 1);
+                });
             } else {
-                player.playSound(player, Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1, 1);
+                team.getOnlineMembers().forEach(member -> member.playSound(member.getLocation().clone(), Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1, 1));
             }
 
-        }
-
-        for (BedwarsTeam team : this.getGame().getTeams()) {
+            // Destroy beds
             team.destroyBeds();
+            if (this.disableBeds) team.setBedDisabled(true);
 
-            if (this.disableBeds) {
-                team.disableBed();
-            }
+        });
+    }
+
+    // ----- MESSAGES -----
+
+    @Override
+    public @NotNull Component getChatMessage() {
+        Component message = Component.empty().appendNewline()
+                .append(Component.text("BEDS DESTROYED!", NamedTextColor.RED, TextDecoration.BOLD)).appendNewline()
+                .append(Component.text("All beds have been destroyed!", NamedTextColor.RED)).appendNewline();
+
+        if (this.disableBeds) {
+            message = message.append(Component.text("They cannot be replaced.", NamedTextColor.RED)).appendNewline();
         }
+
+        return message;
     }
 
     @Override
-    public BaseComponent[] getMessage() {
-        return new BaseComponent[]{new TextComponent("§cAll beds have been destroyed." + (this.disableBeds ? " §cThey cannot be replaced" : ""))};
+    public Component getScoreboardText() {
+        return Component.text("Beds gone");
     }
 
-    @Override
-    public String getScoreboardText() {
-        return "Beds gone";
-    }
+    // ----- OTHER -----
 
     public boolean isDisableBeds() {
         return this.disableBeds;
     }
 
-    public static String isBedReplaceable(boolean disableBeds) {
-        if (disableBeds) {
-            return "[I]";
-        } else {
-            return "";
+    // ----- DATA -----
+
+    public record Data(@NotNull String id, int time, boolean disableBeds) implements TimeAction.Data {
+
+        @Override
+        public @NotNull String type() {
+            return "destroy_beds";
         }
+
+        @Override
+        public @NotNull TimeAction build(@NotNull Game game) {
+            return new DestroyBedsAction(game, this.id(), this.time(), this.disableBeds());
+        }
+
+        @Override
+        public @NotNull JSONObject toJSON() {
+            JSONObject json = new JSONObject();
+
+            json.put("id", this.id());
+            json.put("type", this.type());
+            json.put("time", this.time());
+            json.put("disable_beds", this.disableBeds());
+
+            return json;
+        }
+
+        public static Data fromJSON(@NotNull JSONObject json) {
+            return new Data(json.getString("id"), json.getInt("time"), json.getBoolean("disable_beds"));
+        }
+
     }
 
 }
