@@ -44,6 +44,7 @@ public class GameTimeActionsListSubcommand implements TabCompletingCommandExecut
 
         }
 
+        sender.sendMessage(msg);
         return true;
     }
 

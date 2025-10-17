@@ -70,6 +70,7 @@ public final class WorldborderChangeTimeAction extends TimeAction {
             JSONObject json = new JSONObject();
 
             json.put("id", this.id);
+            json.put("type", this.type());
             json.put("time", this.time);
             json.put("radius", this.radius);
 

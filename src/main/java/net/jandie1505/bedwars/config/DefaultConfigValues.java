@@ -19,6 +19,10 @@ import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.PermanentPotionEffectTeamUpgrade;
+import net.jandie1505.bedwars.game.game.timeactions.actions.DestroyBedsAction;
+import net.jandie1505.bedwars.game.game.timeactions.actions.EndgameWitherTimeAction;
+import net.jandie1505.bedwars.game.game.timeactions.actions.GeneratorUpgradeAction;
+import net.jandie1505.bedwars.game.game.timeactions.actions.WorldborderChangeTimeAction;
 import net.jandie1505.bedwars.game.lobby.constants.LobbyConfigKeys;
 import net.jandie1505.datastorage.DataStorage;
 import net.kyori.adventure.text.Component;
@@ -502,474 +506,96 @@ public final class DefaultConfigValues {
 
         JSONArray timeActions = new JSONArray();
 
-        JSONObject firstDiamondUpgrade = new JSONObject();
-        firstDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
-        firstDiamondUpgrade.put("generatorType", 1);
-        firstDiamondUpgrade.put("generatorLevel", 1);
-        firstDiamondUpgrade.put("time", 3300);
+        timeActions.put(new GeneratorUpgradeAction.Data(
+                "generators_diamond_1",
+                3300,
+                1,
+                1
+        ).toJSON());
 
-        timeActions.put(firstDiamondUpgrade);
+        timeActions.put(new GeneratorUpgradeAction.Data(
+                "generators_diamond_2",
+                3000,
+                1,
+                2
+        ).toJSON());
 
-        JSONObject secondDiamondUpgrade = new JSONObject();
-        secondDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
-        secondDiamondUpgrade.put("generatorType", 1);
-        secondDiamondUpgrade.put("generatorLevel", 2);
-        secondDiamondUpgrade.put("time", 3000);
+        timeActions.put(new GeneratorUpgradeAction.Data(
+                "generators_diamond_3",
+                2700,
+                1,
+                3
+        ).toJSON());
 
-        timeActions.put(secondDiamondUpgrade);
+        timeActions.put(new GeneratorUpgradeAction.Data(
+                "generators_diamond_4",
+                2400,
+                1,
+                4
+        ).toJSON());
 
-        JSONObject thirdDiamondUpgrade = new JSONObject();
-        thirdDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
-        thirdDiamondUpgrade.put("generatorType", 1);
-        thirdDiamondUpgrade.put("generatorLevel", 3);
-        thirdDiamondUpgrade.put("time", 2700);
+        timeActions.put(new GeneratorUpgradeAction.Data(
+                "generators_diamond_5",
+                2100,
+                1,
+                5
+        ).toJSON());
 
-        timeActions.put(thirdDiamondUpgrade);
+        timeActions.put(new GeneratorUpgradeAction.Data(
+                "generators_emerald_1",
+                3300,
+                2,
+                1
+        ).toJSON());
 
-        JSONObject fourthDiamondUpgrade = new JSONObject();
-        fourthDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
-        fourthDiamondUpgrade.put("generatorType", 1);
-        fourthDiamondUpgrade.put("generatorLevel", 4);
-        fourthDiamondUpgrade.put("time", 2400);
+        timeActions.put(new GeneratorUpgradeAction.Data(
+                "generators_emerald_2",
+                3000,
+                2,
+                2
+        ).toJSON());
 
-        timeActions.put(fourthDiamondUpgrade);
+        timeActions.put(new GeneratorUpgradeAction.Data(
+                "generators_emerald_3",
+                2700,
+                2,
+                3
+        ).toJSON());
 
-        JSONObject fifthDiamondUpgrade = new JSONObject();
-        fifthDiamondUpgrade.put("type", "GENERATOR_UPGRADE");
-        fifthDiamondUpgrade.put("generatorType", 1);
-        fifthDiamondUpgrade.put("generatorLevel", 5);
-        fifthDiamondUpgrade.put("time", 2100);
+        timeActions.put(new GeneratorUpgradeAction.Data(
+                "generators_emerald_4",
+                2400,
+                2,
+                4
+        ).toJSON());
 
-        timeActions.put(fifthDiamondUpgrade);
+        timeActions.put(new GeneratorUpgradeAction.Data(
+                "generators_emerald_5",
+                1800,
+                2,
+                5
+        ).toJSON());
 
-        JSONObject firstEmeraldUpgrade = new JSONObject();
-        firstEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
-        firstEmeraldUpgrade.put("generatorType", 2);
-        firstEmeraldUpgrade.put("generatorLevel", 1);
-        firstEmeraldUpgrade.put("time", 3300);
+        timeActions.put(new DestroyBedsAction.Data(
+                "beds_gone",
+                1500,
+                true
+        ).toJSON());
 
-        timeActions.put(firstEmeraldUpgrade);
+        timeActions.put(new WorldborderChangeTimeAction.Data(
+                "first_border",
+                1200,
+                23
+        ).toJSON());
 
-        JSONObject secondEmeraldUpgrade = new JSONObject();
-        secondEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
-        secondEmeraldUpgrade.put("generatorType", 2);
-        secondEmeraldUpgrade.put("generatorLevel", 2);
-        secondEmeraldUpgrade.put("time", 3000);
-
-        timeActions.put(secondEmeraldUpgrade);
-
-        JSONObject thirdEmeraldUpgrade = new JSONObject();
-        thirdEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
-        thirdEmeraldUpgrade.put("generatorType", 2);
-        thirdEmeraldUpgrade.put("generatorLevel", 3);
-        thirdEmeraldUpgrade.put("time", 2700);
-
-        timeActions.put(thirdEmeraldUpgrade);
-
-        JSONObject fourthEmeraldUpgrade = new JSONObject();
-        fourthEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
-        fourthEmeraldUpgrade.put("generatorType", 2);
-        fourthEmeraldUpgrade.put("generatorLevel", 4);
-        fourthEmeraldUpgrade.put("time", 2400);
-
-        timeActions.put(fourthEmeraldUpgrade);
-
-        JSONObject fifthEmeraldUpgrade = new JSONObject();
-        fifthEmeraldUpgrade.put("type", "GENERATOR_UPGRADE");
-        fifthEmeraldUpgrade.put("generatorType", 2);
-        fifthEmeraldUpgrade.put("generatorLevel", 5);
-        fifthEmeraldUpgrade.put("time", 1800);
-
-        timeActions.put(fifthEmeraldUpgrade);
-
-        JSONObject bedsGone = new JSONObject();
-        bedsGone.put("type", "DESTROY_BEDS");
-        bedsGone.put("disableBeds", true);
-        bedsGone.put("time", 1500);
-
-        timeActions.put(bedsGone);
-
-        JSONObject firstBorder = new JSONObject();
-        firstBorder.put("type", "WORLDBORDER_CHANGE");
-        firstBorder.put("radius", 23);
-        firstBorder.put("chatMessage", "§cThe world border is shrinking");
-        firstBorder.put("scoreboardText", "Border");
-        firstBorder.put("time", 1200);
-
-        timeActions.put(firstBorder);
-
-        JSONObject endgameWithers = new JSONObject();
-        endgameWithers.put("type", "ENDGAME_WITHER");
-        endgameWithers.put("time", 600);
-
-        timeActions.put(endgameWithers);
+        timeActions.put(new EndgameWitherTimeAction.Data(
+                "withers",
+                600
+        ).toJSON());
 
         minimalistMap.put("timeActions", timeActions);
 
         return minimalistMap;
-    }
-
-    public static JSONObject getShopConfig() {
-        JSONObject config = new JSONObject();
-
-        // ITEM SHOP
-
-        JSONObject itemShopConfig = new JSONObject();
-
-        // Menu Items (category selection)
-
-        JSONArray menuItems = new JSONArray();
-
-        menuItems.put(3);
-        menuItems.put(4);
-        menuItems.put(5);
-        menuItems.put(6);
-        menuItems.put(7);
-        menuItems.put(8);
-        menuItems.put(9);
-        menuItems.put(10);
-
-        itemShopConfig.put("menuItems", menuItems);
-
-        // Shop Items (items the players can buy)
-
-        JSONArray shopItems = new JSONArray();
-
-        shopItems.put(buildShopEntry(100, 4, Material.IRON_INGOT, 0, 19));
-        shopItems.put(buildShopEntry(110, 10, Material.IRON_INGOT, 0, 20));
-        shopItems.put(buildShopEntry(135, 40, Material.IRON_INGOT, 0, 23));
-        shopItems.put(buildShopEntry(147, 8, Material.GOLD_INGOT, 0, 25));
-        shopItems.put(buildShopEntry(105, 4, Material.GOLD_INGOT, 0, 28));
-        shopItems.put(buildShopEntry(111, 7, Material.GOLD_INGOT, 0, 29));
-        shopItems.put(buildShopEntry(138, 2, Material.GOLD_INGOT, 0, 32));
-        shopItems.put(buildShopEntry(149, 3, Material.GOLD_INGOT, 0, 34));
-
-        shopItems.put(buildShopEntry(100, 4, Material.IRON_INGOT, 1, 19));
-        shopItems.put(buildShopEntry(101, 16, Material.IRON_INGOT, 1, 20));
-        shopItems.put(buildShopEntry(102, 12, Material.IRON_INGOT, 1, 21));
-        shopItems.put(buildShopEntry(103, 24, Material.IRON_INGOT, 1, 22));
-        shopItems.put(buildShopEntry(104, 4, Material.IRON_INGOT, 1, 23));
-        shopItems.put(buildShopEntry(105, 4, Material.GOLD_INGOT, 1, 24));
-        shopItems.put(buildShopEntry(106, 4, Material.EMERALD, 1, 25));
-        shopItems.put(buildShopEntry(107, 6, Material.EMERALD, 1, 28));
-        shopItems.put(buildShopEntry(108, 100, Material.EMERALD, 1, 29));
-
-        shopItems.put(buildShopEntry(110, 10, Material.IRON_INGOT, 2, 19));
-        shopItems.put(buildShopEntry(111, 7, Material.GOLD_INGOT, 2, 20));
-        shopItems.put(buildShopEntry(112, 3, Material.EMERALD, 2, 21));
-        shopItems.put(buildShopEntry(113, 9, Material.EMERALD, 2, 22));
-        shopItems.put(buildShopEntry(114, 12, Material.IRON_INGOT, 2, 28));
-        shopItems.put(buildShopEntry(115, 9, Material.GOLD_INGOT, 2, 29));
-        shopItems.put(buildShopEntry(116, 4, Material.EMERALD, 2, 30));
-        shopItems.put(buildShopEntry(117, 11, Material.EMERALD, 2, 31));
-        shopItems.put(buildShopEntry(118, 5, Material.GOLD_INGOT, 2, 25));
-        shopItems.put(buildShopEntry(119, 5, Material.EMERALD, 2, 34));
-
-        shopItems.put(buildShopEntry(135, 12, Material.GOLD_INGOT, 5, 19));
-        shopItems.put(buildShopEntry(136, 24, Material.GOLD_INGOT, 5, 20));
-        shopItems.put(buildShopEntry(137, 6, Material.EMERALD, 5, 21));
-        shopItems.put(buildShopEntry(138, 2, Material.GOLD_INGOT, 5, 22));
-
-        shopItems.put(buildShopEntry(139, 1, Material.EMERALD, 6, 19));
-        shopItems.put(buildShopEntry(140, 1, Material.EMERALD, 6, 20));
-        shopItems.put(buildShopEntry(141, 2, Material.EMERALD, 6, 21));
-
-        shopItems.put(buildShopEntry(142, 3, Material.GOLD_INGOT, 7, 19));
-        shopItems.put(buildShopEntry(143, 15, Material.IRON_INGOT, 7, 20));
-        shopItems.put(buildShopEntry(144, 256, Material.IRON_INGOT, 7, 21));
-        shopItems.put(buildShopEntry(145, 30, Material.IRON_INGOT, 7, 22));
-        shopItems.put(buildShopEntry(146, 1, Material.EMERALD, 7, 23));
-        shopItems.put(buildShopEntry(147, 8, Material.GOLD_INGOT, 7, 24));
-        shopItems.put(buildShopEntry(148, 2, Material.EMERALD, 7, 25));
-        shopItems.put(buildShopEntry(149, 3, Material.GOLD_INGOT, 7, 28));
-        shopItems.put(buildShopEntry(150, 48, Material.GOLD_INGOT, 7, 29));
-        shopItems.put(buildShopEntry(151, 4, Material.EMERALD, 7, 30));
-        shopItems.put(buildShopEntry(152, 3, Material.GOLD_INGOT, 7, 31));
-        shopItems.put(buildShopEntry(153, 24, Material.GOLD_INGOT, 7, 32));
-        shopItems.put(buildShopEntry(154, 64, Material.IRON_INGOT, 7, 33));
-        shopItems.put(buildShopEntry(155, 2, Material.EMERALD, 7, 34));
-        shopItems.put(buildShopEntry(156, 200, Material.EMERALD, 7, 37));
-        shopItems.put(buildShopEntry(157, 32, Material.GOLD_INGOT, 7, 38));
-        shopItems.put(buildShopEntry(172, 5, Material.EMERALD, 7, 39));
-        shopItems.put(buildShopEntry(173, 5, Material.EMERALD, 7, 40));
-        shopItems.put(buildShopEntry(174, 3, Material.EMERALD, 7, 41));
-        shopItems.put(buildShopEntry(175, 6, Material.EMERALD, 7, 42));
-
-        itemShopConfig.put("shopItems", shopItems);
-
-        // Upgrade Items (armor, pickaxe, shears)
-
-        JSONObject upgradeItems = new JSONObject();
-
-        upgradeItems.put(
-                "armor",
-                buildUpgradeEntry(
-                        List.of(
-                                121,
-                                122,
-                                123,
-                                124
-                        ),
-                        List.of(
-                                40,
-                                12,
-                                6,
-                                15
-                        ),
-                        List.of(
-                                Material.IRON_INGOT,
-                                Material.GOLD_INGOT,
-                                Material.EMERALD,
-                                Material.EMERALD
-                        ),
-                        List.of(
-                                new int[]{0, 21},
-                                new int[]{3, 31}
-                        )
-                )
-        );
-
-        upgradeItems.put(
-                "pickaxe",
-                buildUpgradeEntry(
-                        List.of(
-                                130,
-                                131,
-                                132,
-                                133,
-                                134
-                        ),
-                        List.of(
-                                10,
-                                20,
-                                30,
-                                3,
-                                6
-                        ),
-                        List.of(
-                                Material.IRON_INGOT,
-                                Material.IRON_INGOT,
-                                Material.IRON_INGOT,
-                                Material.GOLD_INGOT,
-                                Material.GOLD_INGOT
-                        ),
-                        List.of(
-                                new int[]{4, 20}
-                        )
-                )
-        );
-
-        upgradeItems.put(
-                "shears",
-                buildUpgradeEntry(
-                        List.of(
-                                129
-                        ),
-                        List.of(
-                                10
-                        ),
-                        List.of(
-                                Material.IRON_INGOT
-                        ),
-                        List.of(
-                                new int[]{0, 31},
-                                new int[]{4, 21}
-                        )
-                )
-        );
-
-        itemShopConfig.put("upgradeItems", upgradeItems);
-
-        // Default armor
-
-        JSONObject armorConfig = new JSONObject();
-
-        armorConfig.put("enableArmorSystem", true);
-
-        armorConfig.put("copyHelmet", false);
-        armorConfig.put("copyChestplate", false);
-        armorConfig.put("copyLeggings", true);
-
-        armorConfig.put("defaultHelmet", 125);
-        armorConfig.put("defaultChestplate", 126);
-        armorConfig.put("defaultLeggings", 127);
-        armorConfig.put("defaultBoots", 128);
-
-        itemShopConfig.put("armorConfig", armorConfig);
-
-        // Special Items
-
-        JSONObject specialItemsConfig = new JSONObject();
-
-        specialItemsConfig.put("defaultWeapon", 109);
-        specialItemsConfig.put("ironGolemSpawnEgg", 144);
-        specialItemsConfig.put("fireball", 145);
-        specialItemsConfig.put("enhancedFireball", 146);
-        specialItemsConfig.put("bridgeEgg", 150);
-        specialItemsConfig.put("safetyPlatform", 153);
-        specialItemsConfig.put("playerTracker", 155);
-        specialItemsConfig.put("snowDefenderSpawnEgg", 157);
-        specialItemsConfig.put("enhancedSafetyPlatform", 172);
-        specialItemsConfig.put("zapper", 173);
-        specialItemsConfig.put("spawnDust", 174);
-        specialItemsConfig.put("blackHole", 175);
-
-        itemShopConfig.put("specialItems", specialItemsConfig);
-
-        // Save item shop
-
-        config.put("itemShop", itemShopConfig);
-
-        // UPGRADES
-
-        JSONObject upgradeConfig = new JSONObject();
-
-        // Sharpness Upgrade
-
-        JSONObject sharpnessUpgrade = new JSONObject();
-
-        JSONArray sharpnessUpgradeLevels = new JSONArray();
-
-        sharpnessUpgradeLevels.put(1);
-        sharpnessUpgradeLevels.put(2);
-
-        sharpnessUpgrade.put("levels", sharpnessUpgradeLevels);
-
-        JSONArray sharpnessUpgradePrices = new JSONArray();
-
-        sharpnessUpgradePrices.put(8);
-        sharpnessUpgradePrices.put(16);
-
-        sharpnessUpgrade.put("prices", sharpnessUpgradePrices);
-
-        sharpnessUpgrade.put("item", 160);
-
-        upgradeConfig.put("sharpness", sharpnessUpgrade);
-
-        // Protection Upgrade
-
-        JSONObject protectionUpgrade = new JSONObject();
-
-        JSONArray protectionUpgradeLevels = new JSONArray();
-
-        protectionUpgradeLevels.put(1);
-        protectionUpgradeLevels.put(2);
-        protectionUpgradeLevels.put(3);
-        protectionUpgradeLevels.put(4);
-
-        protectionUpgrade.put("levels", protectionUpgradeLevels);
-
-        JSONArray protectionUpgradePrices = new JSONArray();
-
-        protectionUpgradePrices.put(5);
-        protectionUpgradePrices.put(10);
-        protectionUpgradePrices.put(20);
-        protectionUpgradePrices.put(30);
-
-        protectionUpgrade.put("prices", protectionUpgradePrices);
-
-        protectionUpgrade.put("item", 161);
-
-        upgradeConfig.put("protection", protectionUpgrade);
-
-        // Haste Upgrade
-
-        JSONObject hasteUpgrade = new JSONObject();
-
-        JSONArray hasteUpgradeLevels = new JSONArray();
-
-        hasteUpgradeLevels.put(1);
-        hasteUpgradeLevels.put(2);
-
-        hasteUpgrade.put("levels", hasteUpgradeLevels);
-
-        JSONArray hasteUpgradePrices = new JSONArray();
-
-        hasteUpgradePrices.put(4);
-        hasteUpgradePrices.put(8);
-
-        hasteUpgrade.put("prices", hasteUpgradePrices);
-
-        hasteUpgrade.put("item", 162);
-
-        upgradeConfig.put("haste", hasteUpgrade);
-
-        // Forge Upgrade
-
-        JSONObject forgeUpgrade = new JSONObject();
-
-        JSONArray forgeUpgradePrices = new JSONArray();
-
-        forgeUpgradePrices.put(4);
-        forgeUpgradePrices.put(8);
-        forgeUpgradePrices.put(12);
-        forgeUpgradePrices.put(16);
-
-        forgeUpgrade.put("prices", forgeUpgradePrices);
-
-        forgeUpgrade.put("item", 163);
-
-        upgradeConfig.put("generators", forgeUpgrade);
-
-        // Heal Pool Upgrade
-
-        JSONObject healPoolUpgrade = new JSONObject();
-
-        JSONArray healPoolUpgradeLevels = new JSONArray();
-
-        healPoolUpgradeLevels.put(1);
-        healPoolUpgradeLevels.put(2);
-
-        healPoolUpgrade.put("levels", healPoolUpgradeLevels);
-
-        JSONArray healPoolUpgradePrices = new JSONArray();
-
-        healPoolUpgradePrices.put(3);
-        healPoolUpgradePrices.put(9);
-
-        healPoolUpgrade.put("prices", healPoolUpgradePrices);
-
-        healPoolUpgrade.put("item", 164);
-
-        upgradeConfig.put("healpool", healPoolUpgrade);
-
-        // Dragon Buff Upgrade
-
-        JSONObject dragonBuffUpgrade = new JSONObject();
-
-        JSONArray dragonBuffUpgradeLevels = new JSONArray();
-
-        dragonBuffUpgradeLevels.put(2);
-        dragonBuffUpgradeLevels.put(4);
-        dragonBuffUpgradeLevels.put(6);
-
-        dragonBuffUpgrade.put("levels", dragonBuffUpgradeLevels);
-
-        JSONArray dragonBuffUpgradePrices = new JSONArray();
-
-        dragonBuffUpgradePrices.put(25);
-        dragonBuffUpgradePrices.put(50);
-        dragonBuffUpgradePrices.put(100);
-
-        dragonBuffUpgrade.put("prices", dragonBuffUpgradePrices);
-
-        dragonBuffUpgrade.put("item", 165);
-
-        upgradeConfig.put("endgamebuff", dragonBuffUpgrade);
-
-        upgradeConfig.put("noTrap", 166);
-        upgradeConfig.put("alarmTrap", 167);
-        upgradeConfig.put("itsATrap", 168);
-        upgradeConfig.put("miningFatigueTrap", 169);
-        upgradeConfig.put("countermeasuresTrap", 170);
-
-        // Save upgradeConfig
-
-        config.put("teamUpgrades", upgradeConfig);
-
-        // return
-
-        return config;
     }
 
     private static JSONObject buildDefaultItem(Material material, int amount) {
@@ -981,60 +607,6 @@ public final class DefaultConfigValues {
         }
 
         return item;
-    }
-
-    private static JSONObject buildDefaultItem(Material material) {
-        return buildDefaultItem(material, 1);
-    }
-
-    public static JSONObject buildShopEntry(int itemId, int price, Material currency, int page, int slot) {
-        JSONObject entry = new JSONObject();
-        entry.put("itemId", itemId);
-        entry.put("price", price);
-        entry.put("currency", currency.toString());
-        entry.put("page", page);
-        entry.put("slot", slot);
-        return entry;
-    }
-
-    public static JSONObject buildUpgradeEntry(List<Integer> itemIdList, List<Integer> priceList, List<Material> currencyList, List<int[]> slotList) {
-        JSONObject entry = new JSONObject();
-
-        JSONArray itemIds = new JSONArray();
-
-        for (int id : itemIdList) {
-            itemIds.put(id);
-        }
-
-        JSONArray prices = new JSONArray();
-
-        for (int price : priceList) {
-            prices.put(price);
-        }
-
-        JSONArray currencies = new JSONArray();
-
-        for (Material material : currencyList) {
-            currencies.put(material.toString());
-        }
-
-        JSONArray slots = new JSONArray();
-
-        for (int[] slot : slotList) {
-            JSONObject slotJSON = new JSONObject();
-
-            slotJSON.put("page", slot[0]);
-            slotJSON.put("slot", slot[1]);
-
-            slots.put(slotJSON);
-        }
-
-        entry.put("ids", itemIds);
-        entry.put("prices", prices);
-        entry.put("currencies", currencies);
-        entry.put("slots", slots);
-
-        return entry;
     }
 
     public static ItemStack buildButton(@NotNull String name, @Nullable List<String> description, @NotNull Material material, boolean enchanted) {

@@ -70,7 +70,6 @@ public class GameValueSubcommand extends SubcommandCommand {
 
         @Override
         public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String @NotNull [] args) {
-            if (args.length == 1) return GameValueSubcommand.this.game.getOnlinePlayers().stream().map(Player::getName).toList();
             return List.of();
         }
 
@@ -84,9 +83,6 @@ public class GameValueSubcommand extends SubcommandCommand {
 
     }
 
-    /**
-     * A subcommand that can modify map values in PlayerData.
-     */
     private class MultiValueSubcommand<TYPE> implements TabCompletingCommandExecutor {
         @NotNull private final String name;
         @NotNull private final ValueGetter<TYPE> getter;

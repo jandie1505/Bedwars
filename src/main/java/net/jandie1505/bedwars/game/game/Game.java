@@ -143,6 +143,10 @@ public class Game extends GamePart implements ManagedListener {
 
         this.setupGlobalGenerators(data.globalGenerators());
 
+        // TIME ACTIONS
+
+        this.setupTimeActions(data.timeActions());
+
         // WORLD BORDER
 
         this.world.getWorldBorder().setCenter(this.centerLocation.mutableCopy());
@@ -246,6 +250,15 @@ public class Game extends GamePart implements ManagedListener {
             ));
         }
 
+    }
+
+    private void setupTimeActions(@NotNull List<TimeAction.Data> timeActions) {
+
+        for (TimeAction.Data timeAction : timeActions) {
+            this.timeActions.add(timeAction.build(this));
+        }
+
+        Collections.sort(this.timeActions); // Sort the time actions to show the time actions in the correct order on the scoreboard.
     }
 
     // ----- ? -----
