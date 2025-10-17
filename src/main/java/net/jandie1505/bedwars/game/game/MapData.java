@@ -4,7 +4,7 @@ import net.chaossquad.mclib.json.JSONConfigUtils;
 import net.chaossquad.mclib.immutables.ImmutableLocation;
 import net.jandie1505.bedwars.game.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.game.team.TeamData;
-import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
+import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -22,12 +22,12 @@ public record MapData(
         int villagerBlockPlaceProtection,
         List<TeamData> teams,
         List<GeneratorData> globalGenerators,
-        List<TimeActionData> timeActions,
+        List<TimeAction.Data> timeActions,
         ImmutableLocation centerLocation,
         int mapRadius
 ) {
 
-    public MapData(String name, String world, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, List<TeamData> teams, List<GeneratorData> globalGenerators, List<TimeActionData> timeActions, ImmutableLocation centerLocation, int mapRadius) {
+    public MapData(String name, String world, int respawnCountdown, int maxTime, int spawnBlockPlaceProtection, int villagerBlockPlaceProtection, List<TeamData> teams, List<GeneratorData> globalGenerators, List<TimeAction.Data> timeActions, ImmutableLocation centerLocation, int mapRadius) {
         this.name = name;
         this.world = world;
         this.respawnCountdown = respawnCountdown;
@@ -107,16 +107,16 @@ public record MapData(
 
         JSONArray timeActionsArray = map.optJSONArray("timeActions");
         if (timeActionsArray == null) throw new IllegalArgumentException("TimeActions array missing in map " + name);
-        List<TimeActionData> timeActions = new ArrayList<>();
+        List<TimeAction.Data> timeActions = new ArrayList<>();
         for (int i = 0; i < timeActionsArray.length(); i++) {
 
             JSONObject timeAction = timeActionsArray.optJSONObject(i);
             if (timeAction == null) throw new IllegalArgumentException("TimeAction json " + i + " in map " + name + " is invalid");
-            TimeActionData timeActionData = TimeActionData.deserializeFromJSON(timeAction);
+
+            TimeAction.Data timeActionData = TimeAction.getDataFromJSONByType(timeAction);
             if (timeActionData == null) throw new IllegalArgumentException("TimeAction data " + i + " in map " + name + " is invalid");
 
             timeActions.add(timeActionData);
-
         }
 
         // CREATE

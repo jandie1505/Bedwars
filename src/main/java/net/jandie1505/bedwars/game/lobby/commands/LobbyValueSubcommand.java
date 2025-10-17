@@ -95,9 +95,6 @@ public class LobbyValueSubcommand extends SubcommandCommand {
 
     }
 
-    /**
-     * A subcommand that can modify map values in PlayerData.
-     */
     private class MultiValueSubcommand<TYPE> implements TabCompletingCommandExecutor {
         @NotNull private final String name;
         @NotNull private final LobbyValueSubcommand.MultiValueSubcommand.ValueGetter<TYPE> getter;

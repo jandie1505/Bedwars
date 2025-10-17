@@ -37,13 +37,12 @@ import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
 import net.jandie1505.bedwars.game.game.team.traps.TeamTrapManager;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgradeManager;
 import net.jandie1505.bedwars.game.game.timeactions.base.TimeAction;
-import net.jandie1505.bedwars.game.game.timeactions.base.TimeActionData;
-import net.jandie1505.bedwars.game.game.timeactions.provider.TimeActionCreator;
 import net.jandie1505.bedwars.game.game.world.BlockProtectionSystem;
 import net.jandie1505.bedwars.utilities.ItemSimilarityKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -60,7 +59,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class Game extends GamePart implements ManagedListener {
@@ -173,6 +171,7 @@ public class Game extends GamePart implements ManagedListener {
         this.addDynamicSubcommand("finish", SubcommandEntry.of(new GameFinishSubcommand(this)));
         this.addDynamicSubcommand("shop", SubcommandEntry.of(new GameShopSubcommand(this)));
         this.addDynamicSubcommand("generators", SubcommandEntry.of(new GameGeneratorsSubcommand(this)));
+        this.addDynamicSubcommand("timeactions", SubcommandEntry.of(new GameTimeActionsSubcommand(this)));
 
         // TASKS
 
@@ -192,7 +191,7 @@ public class Game extends GamePart implements ManagedListener {
 
         this.getTaskScheduler().scheduleRepeatingTask(this::scoreboardCleanup, 1, 1, "scoreboard_cleanup");
         this.getTaskScheduler().scheduleRepeatingTask(this::generatorTick, 1, 1, "generators");
-        this.getTaskScheduler().scheduleRepeatingTask(this::timeActions, 1, 20, "time_actions");
+        this.getTaskScheduler().scheduleRepeatingTask(this::timeActionTask, 1, 20, "time_actions");
         this.getTaskScheduler().scheduleRepeatingTask(this::cleanupManagedEntitiesTask, 1, 10*20, "cleanup_managed_entities");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndConditions, 1, 1, "game_end_conditions");
         this.getTaskScheduler().scheduleRepeatingTask(this::gameEndCheck, 1, 1, "game_end_check");
@@ -253,24 +252,13 @@ public class Game extends GamePart implements ManagedListener {
 
     }
 
-    private void setupTimeActions(@NotNull List<TimeActionData> timeActionDataList) {
-        TimeActionCreator timeActionCreator = new TimeActionCreator(this);
+    private void setupTimeActions(@NotNull List<TimeAction.Data> timeActions) {
 
-        for (TimeActionData timeActionData : timeActionDataList) {
-            try {
-                TimeAction timeAction = timeActionCreator.createTimeAction(timeActionData);
-                if (timeAction == null) {
-                    this.getPlugin().getLogger().warning("Couldn't create time action: Invalid type");
-                    continue;
-                }
-                this.timeActions.add(timeAction);
-            } catch (Exception e) {
-                this.getPlugin().getLogger().log(Level.WARNING, "Couldn't create time action", e);
-                continue;
-            }
+        for (TimeAction.Data timeAction : timeActions) {
+            this.timeActions.add(timeAction.build(this));
         }
 
-        Collections.sort(this.timeActions);
+        Collections.sort(this.timeActions); // Sort the time actions to show the time actions in the correct order on the scoreboard.
     }
 
     // ----- ? -----
@@ -673,16 +661,12 @@ public class Game extends GamePart implements ManagedListener {
     /**
      * Run time actions when the time comes
      */
-    private void timeActions() {
-
-        for (TimeAction timeAction : this.getTimeActions()) {
-
-            if (this.time <= timeAction.getData().time() && !timeAction.isCompleted()) {
-                timeAction.run();
-            }
-
-        }
-
+    private void timeActionTask() {
+        this.timeActions.forEach(action -> {
+            if (action.isCompleted()) return;
+            if (this.getTime() > action.getTime()) return;
+            action.run();
+        });
     }
 
     private void gameEndConditions() {
@@ -992,9 +976,9 @@ public class Game extends GamePart implements ManagedListener {
                 continue;
             }
 
-            int inTime = this.time - timeAction.getData().time();
+            int inTime = this.time - timeAction.getTime();
 
-            sidebarDisplayStrings.add(timeAction.getScoreboardText() + " §rin §a" + Bedwars.getDurationFormat(inTime));
+            sidebarDisplayStrings.add(PlainTextComponentSerializer.plainText().serialize(timeAction.getScoreboardText()) + " §rin §a" + Bedwars.getDurationFormat(inTime));
 
             timeActionCount++;
         }
