@@ -1843,34 +1843,6 @@ public final class DefaultConfigValues {
                 )
         );
 
-        // Unlimited Plattform
-
-        ItemStack unlimitedPlatformItem = new ItemStack(Material.RIB_ARMOR_TRIM_SMITHING_TEMPLATE);
-        ItemMeta unlimitedPlatformMeta = unlimitedPlatformItem.getItemMeta();
-        unlimitedPlatformMeta.setDisplayName("§rUnlimited Plattform");
-        unlimitedPlatformMeta.setLore(List.of(
-                "§r§7- Spawns a 3x3 wool plattform under your feet",
-                "§r§7- Place in main hand and right-click to deploy",
-                "§r§7- Place in off-hand and press swapping key (F) to deploy",
-                "§r§7- Is not placeable when an enemy is in the spawning radius",
-                "§r§7- Item is not consumed when used",
-                "§r§7- Has a §r§ccooldown§r§7 of 3 seconds to prevent spamming"
-        ));
-        unlimitedPlatformMeta.addEnchant(Enchantment.FORTUNE, 0, true);
-        unlimitedPlatformMeta.addItemFlags(ItemFlag.values());
-        if (plugin != null) unlimitedPlatformMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.UNLIMITED_PLATTFORM);
-        unlimitedPlatformItem.setItemMeta(unlimitedPlatformMeta);
-
-        entries.put(
-                "unlimited_platform",
-                new ShopEntry(
-                        unlimitedPlatformItem,
-                        Material.EMERALD,
-                        48,
-                        List.of(new ShopGUIPosition(7, 38))
-                )
-        );
-
         // Battle Plattform
 
         ItemStack battlePlattformItem = new ItemStack(Material.END_ROD);

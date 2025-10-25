@@ -20,6 +20,5 @@ public interface CustomItemValues {
     String SNOW_DEFENDER_SPAWN_EGG = "snow_defender_spawn_egg";
     String SPAWN_DUST = "spawn_dust";
     String STEALTH_POTION = "stealth_potion";
-    String UNLIMITED_PLATTFORM = "unlimited_plattform";
     String ZAPPER = "zapper";
 }
