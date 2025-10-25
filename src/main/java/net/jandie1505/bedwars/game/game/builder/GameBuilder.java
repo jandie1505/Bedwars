@@ -24,6 +24,7 @@ import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.PermanentPotionEffectTeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.TeamChestUpgrade;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -264,6 +265,9 @@ public final class GameBuilder {
             }
             case PermanentPotionEffectTeamUpgrade.TYPE -> {
                 return PermanentPotionEffectTeamUpgrade.Data.fromJSON(id, json);
+            }
+            case TeamChestUpgrade.TYPE -> {
+                return TeamChestUpgrade.Data.fromJSON(id, json);
             }
             default -> {
                 return null;

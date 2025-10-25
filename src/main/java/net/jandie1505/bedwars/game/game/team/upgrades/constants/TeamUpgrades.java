@@ -7,4 +7,5 @@ public interface TeamUpgrades {
     String GENERATORS = "generators";
     String HEAL_POOL = "heal_pool";
     String ENDGAME_BUFF = "end_game_buff";
+    String TEAM_CHEST = "team_chest";
 }

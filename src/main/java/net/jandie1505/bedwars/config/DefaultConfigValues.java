@@ -19,6 +19,7 @@ import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.EnchantmentTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.HealPoolTeamUpgrade;
 import net.jandie1505.bedwars.game.game.team.upgrades.types.PermanentPotionEffectTeamUpgrade;
+import net.jandie1505.bedwars.game.game.team.upgrades.types.TeamChestUpgrade;
 import net.jandie1505.bedwars.game.game.timeactions.actions.DestroyBedsAction;
 import net.jandie1505.bedwars.game.game.timeactions.actions.EndgameWitherTimeAction;
 import net.jandie1505.bedwars.game.game.timeactions.actions.GeneratorUpgradeAction;
@@ -2271,6 +2272,7 @@ public final class DefaultConfigValues {
         upgrades.add(new EnchantmentTeamUpgrade.Data(TeamUpgrades.PROTECTION, NamespacedKeys.GAME_ITEM_PROTECTION_AFFECTED, Enchantment.PROTECTION));
         upgrades.add(new PermanentPotionEffectTeamUpgrade.Data(TeamUpgrades.HASTE, PotionEffectType.HASTE, false, false, false));
         upgrades.add(new HealPoolTeamUpgrade.Data(TeamUpgrades.HEAL_POOL));
+        upgrades.add(new TeamChestUpgrade.Data(TeamUpgrades.TEAM_CHEST));
 
         return upgrades;
     }
@@ -2333,7 +2335,7 @@ public final class DefaultConfigValues {
                         2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 16),
                         3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 32)
                 ),
-                Set.of(new ShopGUIPosition(0, 20)),
+                Set.of(new ShopGUIPosition(0, 19)),
                 Map.of(
                         1, getSharpnessTeamUpgradeItem(0),
                         2, getSharpnessTeamUpgradeItem(1),
@@ -2351,7 +2353,7 @@ public final class DefaultConfigValues {
                         4, new UpgradeEntry.PriceEntry(Material.DIAMOND, 40),
                         5, new UpgradeEntry.PriceEntry(Material.DIAMOND, 80)
                 ),
-                Set.of(new ShopGUIPosition(0, 22)),
+                Set.of(new ShopGUIPosition(0, 21)),
                 Map.of(
                         1, getProtectionTeamUpgradeItem(0),
                         2, getProtectionTeamUpgradeItem(1),
@@ -2368,7 +2370,7 @@ public final class DefaultConfigValues {
                         1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 4),
                         2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 8)
                 ),
-                Set.of(new ShopGUIPosition(0, 24)),
+                Set.of(new ShopGUIPosition(0, 23)),
                 Map.of(
                         1, getHasteTeamUpgradeItem(0),
                         2, getHasteTeamUpgradeItem(1),
@@ -2385,7 +2387,7 @@ public final class DefaultConfigValues {
                         4, new UpgradeEntry.PriceEntry(Material.DIAMOND, 16),
                         5, new UpgradeEntry.PriceEntry(Material.DIAMOND, 20)
                 ),
-                Set.of(new ShopGUIPosition(0, 38)),
+                Set.of(new ShopGUIPosition(0, 25)),
                 Map.of(
                         1, getGeneratorTeamUpgradeItem(0),
                         2, getGeneratorTeamUpgradeItem(1),
@@ -2402,7 +2404,7 @@ public final class DefaultConfigValues {
                         1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 3),
                         2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 9)
                 ),
-                Set.of(new ShopGUIPosition(0, 40)),
+                Set.of(new ShopGUIPosition(0, 38)),
                 Map.of(
                         1, getHealPoolTeamUpgradeItem(0),
                         2, getHealPoolTeamUpgradeItem(1),
@@ -2417,12 +2419,34 @@ public final class DefaultConfigValues {
                         2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 40),
                         3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 60)
                 ),
-                Set.of(new ShopGUIPosition(0, 42)),
+                Set.of(new ShopGUIPosition(0, 40)),
                 Map.of(
                         1, getEndgameBuffTeamUpgradeItem(0),
                         2, getEndgameBuffTeamUpgradeItem(1),
                         3, getEndgameBuffTeamUpgradeItem(2),
                         4, getEndgameBuffTeamUpgradeItem(3)
+                )
+        ));
+
+        upgrades.put("team_chest", new UpgradeEntry(
+                TeamUpgrades.TEAM_CHEST,
+                Map.of(
+                        1, new UpgradeEntry.PriceEntry(Material.DIAMOND, 1),
+                        2, new UpgradeEntry.PriceEntry(Material.DIAMOND, 2),
+                        3, new UpgradeEntry.PriceEntry(Material.DIAMOND, 3),
+                        4, new UpgradeEntry.PriceEntry(Material.DIAMOND, 4),
+                        5, new UpgradeEntry.PriceEntry(Material.DIAMOND, 5),
+                        6, new UpgradeEntry.PriceEntry(Material.DIAMOND, 6)
+                ),
+                Set.of(new ShopGUIPosition(0, 42)),
+                Map.of(
+                        1, getTeamChestUpgradeItem(0),
+                        2, getTeamChestUpgradeItem(1),
+                        3, getTeamChestUpgradeItem(2),
+                        4, getTeamChestUpgradeItem(3),
+                        5, getTeamChestUpgradeItem(4),
+                        6, getTeamChestUpgradeItem(5),
+                        7, getTeamChestUpgradeItem(6)
                 )
         ));
 
@@ -2554,6 +2578,23 @@ public final class DefaultConfigValues {
                         new TierListEntry(Component.text("2 Withers"), Component.text("20 Diamonds")),
                         new TierListEntry(Component.text("3 Withers"), Component.text("40 Diamonds")),
                         new TierListEntry(Component.text("4 Withers"), Component.text("60 Diamonds"))
+                ),
+                level
+        );
+    }
+
+    private static @NotNull ItemStack getTeamChestUpgradeItem(int level) {
+        return generateUpgradeItem(
+                Material.CHEST,
+                Component.text("Team Chest", NamedTextColor.WHITE),
+                List.of(Component.text("Increases the size of the team chest.", NamedTextColor.GRAY)),
+                List.of(
+                        new TierListEntry(Component.text("9 Slots"), Component.text("1 Diamond")),
+                        new TierListEntry(Component.text("18 Slots"), Component.text("2 Diamonds")),
+                        new TierListEntry(Component.text("27 Slots"), Component.text("3 Diamonds")),
+                        new TierListEntry(Component.text("36 Slots"), Component.text("4 Diamonds")),
+                        new TierListEntry(Component.text("45 Slots"), Component.text("5 Diamonds")),
+                        new TierListEntry(Component.text("54 Slots"), Component.text("6 Diamonds"))
                 ),
                 level
         );

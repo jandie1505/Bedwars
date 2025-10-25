@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class EnderchestGUI implements ManagedListener, InventoryHolder {
-    public static @NotNull NamespacedKey BUTTON_ID = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.enderchest_gui.button_id");
+    @NotNull public static final NamespacedKey BUTTON_ID = new NamespacedKey(NamespacedKeys.NAMESPACE, "item.game.enderchest_gui.button_id");
 
     @NotNull private final Game game;
     @NotNull private final Removable removable;
