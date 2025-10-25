@@ -7,10 +7,11 @@ import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.block.data.type.Bed;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +32,7 @@ public class BedwarsTeam {
     @NotNull private final Map<String, Integer> upgrades;
     @NotNull private final LinkedList<TrapSlot> traps;
     private boolean disableBed;
+    @Nullable private Inventory teamChest;
 
     public BedwarsTeam(@NotNull Game game, @NotNull TeamData data) {
         this.game = game;
@@ -55,6 +57,7 @@ public class BedwarsTeam {
         this.upgrades.put(TeamUpgrades.ENDGAME_BUFF, 0);
 
         this.disableBed = false;
+        this.teamChest = null;
     }
 
     // ----- SPAWNING -----
@@ -302,6 +305,64 @@ public class BedwarsTeam {
      */
     public boolean hasTraps() {
         return !this.traps.isEmpty();
+    }
+
+    // ----- TEAM CHEST -----
+
+    /**
+     * Returns the current team chest.<br/>
+     * Can be null if the team does not have a team chest.
+     * @return team chest inventory
+     */
+    public @Nullable Inventory getTeamChest() {
+        return this.teamChest;
+    }
+
+    /**
+     * Returns true if the team has a team chest.
+     * @return team has team chest
+     */
+    public boolean hasTeamChest() {
+        return this.teamChest != null;
+    }
+
+    /**
+     * Returns the level of the team chest.<br/>
+     * If the value is 0, there is no team chest.
+     * @return level
+     */
+    public int getTeamChestLevel() {
+        if (this.teamChest == null) return 0;
+        double teamChestSize = this.teamChest.getSize();
+        return (int) Math.ceil(teamChestSize / 9.0);
+    }
+
+    /**
+     * Sets the team chest level.<br/>
+     * One level is one row in the inventory.<br/>
+     * The maximum level is 6. Setting a higher value will also set the level to 6.<br/>
+     * To remove the team chest, set the level to 0 or below.<br/>
+     * WARNING: If the new chest size is smaller than the old one, all items of the slots higher than the new size will be cleared.
+     * @param level level
+     */
+    public void setTeamChestLevel(int level) {
+
+        if (level <= 0) {
+            this.teamChest = null;
+            return;
+        }
+
+        int slotAmount = Math.min(level * 9, 54);
+
+        Inventory oldTeamChest = this.teamChest;
+        this.teamChest = Bukkit.createInventory(null, slotAmount, Component.text("Team Chest: " + this.getName(), NamedTextColor.DARK_GRAY, TextDecoration.BOLD));
+
+        if (oldTeamChest != null) {
+            for (int slot = 0; slot < Math.min(oldTeamChest.getSize(), this.teamChest.getSize()); slot++) {
+                this.teamChest.setItem(slot, oldTeamChest.getItem(slot));
+            }
+        }
+
     }
 
     // ----- INFO -----

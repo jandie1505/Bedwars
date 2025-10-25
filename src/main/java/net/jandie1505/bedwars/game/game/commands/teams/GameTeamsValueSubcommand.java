@@ -5,6 +5,7 @@ import net.chaossquad.mclib.command.SubcommandEntry;
 import net.chaossquad.mclib.command.TabCompletingCommandExecutor;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.commands.GameTeamsSubcommand;
+import net.jandie1505.bedwars.game.game.commands.teams.value.GameTeamsValueTeamChestSubcommand;
 import net.jandie1505.bedwars.game.game.commands.teams.value.GameTeamsValueTrapsSubcommand;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.kyori.adventure.text.Component;
@@ -29,6 +30,7 @@ public class GameTeamsValueSubcommand extends SubcommandCommand {
 
         this.addSubcommand("upgrades", SubcommandEntry.of(new MultiValueSubcommand<>("upgrades", BedwarsTeam::getUpgrades, BedwarsTeam::setUpgrade, Integer::parseInt)));
         this.addSubcommand("traps", SubcommandEntry.of(new GameTeamsValueTrapsSubcommand(game)));
+        this.addSubcommand("teamchest", SubcommandEntry.of(new GameTeamsValueTeamChestSubcommand(game)));
     }
 
     private class SingleValueSubcommand<TYPE> implements TabCompletingCommandExecutor {
