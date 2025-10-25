@@ -520,7 +520,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         return item;
     }
 
-    private @NotNull ItemStack getResourceStorageIcon(boolean selected) {
+    public @NotNull ItemStack getResourceStorageIcon(boolean selected) {
         ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) item.getItemMeta();
 

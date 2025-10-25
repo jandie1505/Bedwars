@@ -174,20 +174,6 @@ public class GameMiscListener implements ManagedListener {
     }
 
     @EventHandler
-    public void onPlayerInteractForEnderChest(PlayerInteractEvent event) {
-        if (event.useInteractedBlock() == Event.Result.DENY) return;
-        if (!event.getAction().isRightClick()) return;
-        if (event.getClickedBlock() == null) return;
-        if (event.getClickedBlock().getType() != Material.ENDER_CHEST) return;
-
-        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
-        if (playerData == null) return;
-
-        event.setCancelled(true);
-        event.getPlayer().openInventory(playerData.getEnderchest());
-    }
-
-    @EventHandler
     public void onPlayerInteractForBlockingSleep(PlayerInteractEvent event) {
         if (event.useInteractedBlock() == Event.Result.DENY) return;
         if (this.game.getPlugin().isPlayerBypassing(event.getPlayer().getUniqueId())) return;
