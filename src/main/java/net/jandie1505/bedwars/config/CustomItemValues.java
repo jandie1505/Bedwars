@@ -22,7 +22,6 @@ public interface CustomItemValues {
     String GRAPPLING_HOOK = "grappling_hook";
     String MOBILE_CASTLE = "mobile_castle";
     String SAFETY_PLATTFORM = "safety_plattform";
-    String SAFETY_PLATTFORM_ENHANCED = "safety_plattform_enhanced";
     String SINGLE_USE_JETPACK = "single_use_jetpack";
     String SNOW_DEFENDER_SPAWN_EGG = "snow_defender_spawn_egg";
     String SPAWN_DUST = "spawn_dust";
