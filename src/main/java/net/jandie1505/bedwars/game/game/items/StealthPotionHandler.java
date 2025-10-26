@@ -8,8 +8,10 @@ import net.jandie1505.bedwars.game.game.player.constants.PlayerTimers;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
@@ -54,7 +56,7 @@ public class StealthPotionHandler implements ManagedListener {
         int timerBefore = playerData.getTimer(PlayerTimers.TRAP_IMMUNITY);
         playerData.setTimer(PlayerTimers.TRAP_IMMUNITY, timerBefore + (30*20));
 
-        event.getPlayer().getInventory().setItemInMainHand(null);
+        event.setReplacement(new ItemStack(Material.AIR));
 
         event.getPlayer().sendRichMessage("<yellow>You are now invisible to traps for <aqua>" + (playerData.getTimer(PlayerTimers.TRAP_IMMUNITY) / 20) + " seconds<yellow>!");
     }

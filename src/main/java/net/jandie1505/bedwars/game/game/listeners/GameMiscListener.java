@@ -22,16 +22,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
+import org.bukkit.inventory.EquipmentSlotGroup;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
@@ -300,6 +300,16 @@ public class GameMiscListener implements ManagedListener {
     public void onEntitySpawnForMakingNotPersistent(EntitySpawnEvent event) {
         if (event.getEntity().getWorld() != this.game.getWorld()) return;
         event.getEntity().setPersistent(false);
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerItemConsume(PlayerItemConsumeEvent event) {
+        if (event.isCancelled()) return;
+
+        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
+        if (playerData == null) return;
+
+        event.setReplacement(new ItemStack(Material.AIR));
     }
 
     // ----- OTHER -----
