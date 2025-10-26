@@ -7,6 +7,8 @@ import net.jandie1505.bedwars.game.game.MapData;
 import net.jandie1505.bedwars.game.lobby.Lobby;
 import net.kyori.adventure.text.Component;
 import org.bukkit.advancement.Advancement;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,6 +20,10 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerListPingEvent;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.Team;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -269,6 +275,33 @@ public class EventListener implements Listener {
     public void onEntityDamageForUnCancellingVoidDamage(EntityDamageEvent event) {
         if (event.getCause() != EntityDamageEvent.DamageCause.VOID) return;
         event.setCancelled(false); // Void damage MUST NOT be cancelled
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerConsumeItemToAllowSelfDamagingWithInstantDamage(PlayerItemConsumeEvent event) {
+        if (event.isCancelled()) return;
+        if (this.plugin.isPlayerBypassing(event.getPlayer())) return;
+
+        if (!(event.getItem().getItemMeta() instanceof PotionMeta meta)) return;
+
+        Team team = event.getPlayer().getScoreboard().getPlayerTeam(event.getPlayer());
+        if (team == null) return;
+        if (team.allowFriendlyFire()) return;
+
+        int damage = 0;
+
+        switch (meta.getBasePotionType()) {
+            case HARMING -> damage += 6;
+            case STRONG_HARMING -> damage += 12;
+            case null, default -> {}
+        }
+
+        for (PotionEffect effect : meta.getCustomEffects()) {
+            if (effect.getType() != PotionEffectType.INSTANT_DAMAGE) continue;
+            damage += 6 * (effect.getAmplifier() + 1);
+        }
+
+        event.getPlayer().damage(damage, DamageSource.builder(DamageType.MAGIC).build());
     }
 
     // ----- CHECKS -----
