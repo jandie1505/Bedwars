@@ -30,6 +30,8 @@ import net.jandie1505.bedwars.game.game.items.StealthPotionHandler;
 import net.jandie1505.bedwars.game.game.listeners.*;
 import net.jandie1505.bedwars.game.game.player.constants.PlayerTimers;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
+import net.jandie1505.bedwars.game.game.player.scoreboard.GameScoreboardManager;
+import net.jandie1505.bedwars.game.game.player.scoreboard.SidebarBuilder;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
 import net.jandie1505.bedwars.game.game.shop.entries.QuickBuyMenuEntry;
@@ -48,7 +50,6 @@ import net.jandie1505.bedwars.utilities.ItemSimilarityKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -84,7 +85,8 @@ public class Game extends GamePart implements ManagedListener {
     private final List<Generator> generators;
     private final List<TimeAction> timeActions;
     private final BlockProtectionSystem blockProtectionSystem;
-    private final Map<UUID, Scoreboard> playerScoreboards;
+    @NotNull private final GameScoreboardManager scoreboardManager;
+    @NotNull private final SidebarBuilder sidebarBuilder;
     @NotNull private final ItemShop itemShop;
     @NotNull private final ShopGUI shopGUI;
     @NotNull private final PlayerUpgradeManager playerUpgradeManager;
@@ -123,7 +125,8 @@ public class Game extends GamePart implements ManagedListener {
         this.generators = Collections.synchronizedList(new ArrayList<>());
         this.timeActions = Collections.synchronizedList(new ArrayList<>());
         this.blockProtectionSystem = new BlockProtectionSystem(this);
-        this.playerScoreboards = Collections.synchronizedMap(new HashMap<>());
+        this.scoreboardManager = new GameScoreboardManager(this, Component.text("BEDWARS", NamedTextColor.GOLD, TextDecoration.BOLD));
+        this.sidebarBuilder = new SidebarBuilder(this);
         this.itemShop = new ItemShop(this);
         this.shopGUI = new ShopGUI(this, defaultQuickBuyMenu);
         this.playerUpgradeManager = new PlayerUpgradeManager(this, () -> false);
@@ -198,7 +201,6 @@ public class Game extends GamePart implements ManagedListener {
         this.getTaskScheduler().scheduleRepeatingTask(this::playerTrackerTask, 1, 100, "ingame_player_player_tracker");
         this.getTaskScheduler().scheduleRepeatingTask(this::tntParticleTask, 1, 20, "ingame_player_tnt_particles");
 
-        this.getTaskScheduler().scheduleRepeatingTask(this::scoreboardCleanup, 1, 1, "scoreboard_cleanup");
         this.getTaskScheduler().scheduleRepeatingTask(this::generatorTick, 1, 1, "generators");
         this.getTaskScheduler().scheduleRepeatingTask(this::timeActionTask, 1, 20, "time_actions");
         this.getTaskScheduler().scheduleRepeatingTask(this::cleanupManagedEntitiesTask, 1, 10*20, "cleanup_managed_entities");
@@ -292,18 +294,13 @@ public class Game extends GamePart implements ManagedListener {
      */
     private void playerScoreboardTask() {
 
-        for (Player player : this.getPlugin().getServer().getOnlinePlayers()) {
+        this.scoreboardManager.cleanupPlayerScoreboards();
 
-            if (!this.playerScoreboards.containsKey(player.getUniqueId())) {
-                this.playerScoreboards.put(player.getUniqueId(), this.getPlugin().getServer().getScoreboardManager().getNewScoreboard());
-            }
-
-            this.scoreboardTick(
-                    player,
-                    this.getSidebar(this.players.get(player.getUniqueId()))
-            );
-
-        }
+        this.getOnlinePlayers().forEach(player -> {
+            this.scoreboardManager.setupScoreboard(player);
+            this.scoreboardManager.handleScoreboardTeams(player);
+            this.scoreboardManager.handleDisplaySlots(player, this.sidebarBuilder.buildSidebar(player));
+        });
 
     }
 
@@ -652,21 +649,6 @@ public class Game extends GamePart implements ManagedListener {
     }
 
     /**
-     * Cleans up scoreboards of players which are not online
-     */
-    private void scoreboardCleanup() {
-
-        for (UUID playerId : this.getPlayerScoreboards().keySet()) {
-            Player player = this.getPlugin().getServer().getPlayer(playerId);
-
-            if (player == null) {
-                this.playerScoreboards.remove(playerId);
-            }
-        }
-
-    }
-
-    /**
      * Runs the tick function of all generators
      */
     private void generatorTick() {
@@ -846,206 +828,6 @@ public class Game extends GamePart implements ManagedListener {
 
         }
 
-    }
-
-    private void scoreboardTick(Player player, List<String> sidebar) {
-
-        // GET SCOREBOARD
-
-        Scoreboard scoreboard = this.playerScoreboards.get(player.getUniqueId());
-
-        if (scoreboard == null) {
-            return;
-        }
-
-        // RESET SCOREBOARD
-
-        for (String name : List.copyOf(scoreboard.getEntries())) {
-            scoreboard.resetScores(name);
-        }
-
-        // SIDEBAR
-
-        if (scoreboard.getObjective("sidebardisplay") == null) {
-            scoreboard.registerNewObjective("sidebardisplay", Criteria.DUMMY, "§6§lBEDWARS");
-        }
-
-        Objective sidebardisplay = scoreboard.getObjective("sidebardisplay");
-
-        List<String> sidebarDisplayStrings = List.copyOf(sidebar);
-
-        int reverseIsidebar = sidebarDisplayStrings.size();
-        for (String sidebarEntry : sidebarDisplayStrings) {
-
-            if (sidebarEntry.equalsIgnoreCase("")) {
-                String paragraphs = "§";
-                for (int i = 0; i < reverseIsidebar; i++) {
-                    paragraphs = paragraphs + "§";
-                }
-                sidebardisplay.getScore(paragraphs).setScore(reverseIsidebar);
-            } else {
-                sidebardisplay.getScore(sidebarEntry).setScore(reverseIsidebar);
-            }
-
-            reverseIsidebar--;
-        }
-
-        if (sidebardisplay.getDisplaySlot() != DisplaySlot.SIDEBAR) {
-            sidebardisplay.setDisplaySlot(DisplaySlot.SIDEBAR);
-        }
-
-        // TEAMS
-
-        for (BedwarsTeam bedwarsTeam : this.getTeams()) {
-
-            Team team = scoreboard.getTeam(String.valueOf(bedwarsTeam.getId()));
-
-            if (team == null) {
-
-                team = scoreboard.registerNewTeam(String.valueOf(bedwarsTeam.getId()));
-                team.displayName(Component.text(bedwarsTeam.getName()));
-                team.color(bedwarsTeam.getChatColor());
-                team.setAllowFriendlyFire(false);
-                team.setCanSeeFriendlyInvisibles(true);
-                team.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.FOR_OWN_TEAM);
-                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
-
-            }
-
-            for (UUID teamPlayerId : bedwarsTeam.getPlayers()) {
-
-                Player teamPlayer = this.getPlugin().getServer().getPlayer(teamPlayerId);
-
-                if (teamPlayer == player && this.getPlugin().isPlayerBypassing(player.getUniqueId())) {
-
-                    if (team.getEntries().contains(player.getName())) {
-                        team.removeEntry(player.getName());
-                    }
-
-                    continue;
-                }
-
-                if (teamPlayer == null) {
-                    continue;
-                }
-
-                if (!team.getEntries().contains(teamPlayer.getName())) {
-                    team.addEntry(teamPlayer.getName());
-                }
-
-            }
-
-        }
-
-        Team spectatorTeam = scoreboard.getTeam("spectator");
-
-        if (spectatorTeam == null) {
-
-            spectatorTeam = scoreboard.registerNewTeam("spectator");
-            spectatorTeam.setDisplayName("SPECTATOR");
-            spectatorTeam.setColor(ChatColor.DARK_GRAY);
-            spectatorTeam.setAllowFriendlyFire(false);
-            spectatorTeam.setCanSeeFriendlyInvisibles(false);
-            spectatorTeam.setOption(Team.Option.COLLISION_RULE, Team.OptionStatus.NEVER);
-            spectatorTeam.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.NEVER);
-
-        }
-
-        for (Player teamPlayer : this.getPlugin().getServer().getOnlinePlayers()) {
-
-            if (teamPlayer == player && this.getPlugin().isPlayerBypassing(player.getUniqueId())) {
-
-                if (spectatorTeam.getEntries().contains(player.getName())) {
-                    spectatorTeam.removeEntry(player.getName());
-                }
-
-                continue;
-            }
-
-            if (this.players.containsKey(teamPlayer.getUniqueId())) {
-                continue;
-            }
-
-            if (!spectatorTeam.getEntries().contains(teamPlayer.getName())) {
-                spectatorTeam.addEntry(teamPlayer.getName());
-            }
-
-        }
-
-        // SET SCOREBOARD
-
-        if (player.getScoreboard() != scoreboard) {
-            player.setScoreboard(scoreboard);
-        }
-    }
-
-    public List<String> getSidebar(PlayerData playerData) {
-        List<String> sidebarDisplayStrings = new ArrayList<>();
-
-        sidebarDisplayStrings.add("");
-
-        int timeActionCount = 0;
-        for (TimeAction timeAction : this.getTimeActions()) {
-
-            if (timeActionCount >= 2) {
-                break;
-            }
-
-            if (timeAction.getScoreboardText() == null || timeAction.isCompleted()) {
-                continue;
-            }
-
-            int inTime = this.time - timeAction.getTime();
-
-            sidebarDisplayStrings.add(PlainTextComponentSerializer.plainText().serialize(timeAction.getScoreboardText()) + " §rin §a" + Bedwars.getDurationFormat(inTime));
-
-            timeActionCount++;
-        }
-
-        if (timeActionCount < 2) {
-            sidebarDisplayStrings.add("Game End in §a" + Bedwars.getDurationFormat(this.time));
-        }
-
-        sidebarDisplayStrings.add("");
-
-        for (BedwarsTeam iTeam : this.getTeams()) {
-
-            String teamStatusIndicator = "";
-
-            if (iTeam.isAlive()) {
-                if (iTeam.hasBed() > 1) {
-                    teamStatusIndicator = "§a" + iTeam.hasBed() + "§l\u2713";
-                } else if (iTeam.hasBed() == 1) {
-                    teamStatusIndicator = "§a§l\u2713";
-                } else {
-                    teamStatusIndicator = "§6" + iTeam.getPlayers().size();
-                }
-            } else {
-                teamStatusIndicator = "§c\u274C";
-            }
-
-            if (playerData != null && iTeam == this.getTeams().get(playerData.getTeam())) {
-                teamStatusIndicator = teamStatusIndicator + " §7(you)";
-            }
-
-            sidebarDisplayStrings.add(Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(iTeam.getChatColor()), ChatColor.BLACK) + iTeam.getName() + "§r: " + teamStatusIndicator);
-
-        }
-
-        if (playerData != null) {
-            sidebarDisplayStrings.add("");
-            sidebarDisplayStrings.add("Kills: §a" + playerData.getKills());
-            sidebarDisplayStrings.add("Beds broken: §a" + playerData.getBedsBroken());
-            sidebarDisplayStrings.add("Deaths: §a" + playerData.getDeaths());
-        } else {
-            sidebarDisplayStrings.add("");
-            sidebarDisplayStrings.add("You are");
-            sidebarDisplayStrings.add("spectator");
-        }
-
-        sidebarDisplayStrings.add("");
-
-        return List.copyOf(sidebarDisplayStrings);
     }
 
     public void prepareGame() {
@@ -1381,10 +1163,6 @@ public class Game extends GamePart implements ManagedListener {
     @Deprecated(forRemoval = true)
     public Set<Location> getPlayerPlacedBlocks() {
         return this.blockProtectionSystem.getPlayerPlacedBlocks().stream().map(vector -> vector.toLocation(this.world)).collect(Collectors.toSet());
-    }
-
-    public Map<UUID, Scoreboard> getPlayerScoreboards() {
-        return Map.copyOf(this.playerScoreboards);
     }
 
     /**
