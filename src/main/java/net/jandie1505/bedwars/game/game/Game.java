@@ -27,6 +27,7 @@ import net.jandie1505.bedwars.game.game.items.CreeperArrowListener;
 import net.jandie1505.bedwars.game.game.items.EffectImmunityHandler;
 import net.jandie1505.bedwars.game.game.items.StealthPotionHandler;
 import net.jandie1505.bedwars.game.game.listeners.*;
+import net.jandie1505.bedwars.game.game.player.constants.PlayerTimers;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
 import net.jandie1505.bedwars.game.game.player.upgrades.PlayerUpgradeManager;
@@ -56,6 +57,7 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
@@ -597,10 +599,12 @@ public class Game extends GamePart implements ManagedListener {
             Player player = this.getPlugin().getServer().getPlayer(playerId);
             if (player == null) continue;
 
-            if (this.getConfig().optBoolean(GameConfigKeys.TNT_PARTICLES, false) && player.getInventory().contains(Material.TNT) && playerData.getMilkTimer() <= 0) {
-                player.getWorld().spawnParticle(Particle.DUST, player.getLocation().clone().add(0, 2.5, 0), 20, 0, 0, 0, 1, new Particle.DustOptions(Color.RED, 1.0F));
-            }
+            if (!this.getConfig().optBoolean(GameConfigKeys.TNT_PARTICLES, false)) return;
+            if (!player.getInventory().contains(Material.TNT)) return;
+            if (playerData.getTimer(PlayerTimers.TRAP_IMMUNITY) > 0) return;
+            if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) return;
 
+            player.getWorld().spawnParticle(Particle.DUST, player.getLocation().clone().add(0, 2.5, 0), 20, 0, 0, 0, 1, new Particle.DustOptions(Color.RED, 1.0F));
         }
 
     }

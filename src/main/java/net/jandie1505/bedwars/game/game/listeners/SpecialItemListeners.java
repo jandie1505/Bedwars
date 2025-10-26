@@ -534,21 +534,6 @@ public class SpecialItemListeners implements ManagedListener {
         tnt.setFuseTicks(80);
     }
 
-    // ----- STEALTH MILK -----
-
-    @EventHandler
-    public void onItemConsumeForStealthMilk(PlayerItemConsumeEvent event) {
-        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
-        if (playerData == null) return;
-
-        if (event.getItem().getType() != Material.MILK_BUCKET) return;
-        event.setCancelled(true);
-
-        Bedwars.removeSpecificAmountOfItems(event.getPlayer().getInventory(), Material.MILK_BUCKET, 1);
-        playerData.setMilkTimer(30*20);
-        event.getPlayer().sendMessage("§bMilk activated");
-    }
-
     // ----- SNOWBALLS -----
 
     @EventHandler

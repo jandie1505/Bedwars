@@ -50,13 +50,18 @@ public class StealthPotionHandler implements ManagedListener {
 
         event.setCancelled(true);
 
+        if (!event.getPlayer().getInventory().getItemInMainHand().equals(event.getItem())) {
+            event.getPlayer().sendRichMessage("<red>You can't use your offhand to consume this item!");
+            return;
+        }
+
         PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if (playerData == null) return;
 
         int timerBefore = playerData.getTimer(PlayerTimers.TRAP_IMMUNITY);
         playerData.setTimer(PlayerTimers.TRAP_IMMUNITY, timerBefore + (30*20));
 
-        event.setReplacement(new ItemStack(Material.AIR));
+        event.getPlayer().getInventory().setItemInMainHand(null);
 
         event.getPlayer().sendRichMessage("<yellow>You are now invisible to traps for <aqua>" + (playerData.getTimer(PlayerTimers.TRAP_IMMUNITY) / 20) + " seconds<yellow>!");
     }

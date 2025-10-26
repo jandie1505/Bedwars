@@ -218,14 +218,6 @@ public class PlayerData {
         return enderchest;
     }
 
-    public int getMilkTimer() {
-        return milkTimer;
-    }
-
-    public void setMilkTimer(int milkTimer) {
-        this.milkTimer = milkTimer;
-    }
-
     @Deprecated
     public int getIronGolemCooldown() {
         return this.timers.getOrDefault(PlayerTimers.BASE_DEFENDER_COOLDOWN, 0);

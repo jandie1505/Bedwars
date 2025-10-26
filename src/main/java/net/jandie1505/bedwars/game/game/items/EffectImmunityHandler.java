@@ -69,13 +69,18 @@ public class EffectImmunityHandler implements ManagedListener {
 
         event.setCancelled(true);
 
+        if (!event.getPlayer().getInventory().getItemInMainHand().equals(event.getItem())) {
+            event.getPlayer().sendRichMessage("<red>You can't use your offhand to consume this item!");
+            return;
+        }
+
         PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if (playerData == null) return;
 
         int timerBefore = playerData.getTimer(PlayerTimers.EFFECT_IMMUNITY);
         playerData.setTimer(PlayerTimers.EFFECT_IMMUNITY, timerBefore + (30*20));
 
-        event.setReplacement(new ItemStack(Material.AIR));
+        event.getPlayer().getInventory().setItemInMainHand(null);
 
         if (timerBefore > 0) {
             event.getPlayer().sendRichMessage("<yellow>You have increased your effect immunity to <aqua>" + (playerData.getTimer(PlayerTimers.EFFECT_IMMUNITY) / 20) + " seconds<yellow>!");
