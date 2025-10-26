@@ -2,6 +2,8 @@ package net.jandie1505.bedwars;
 
 import de.myzelyam.api.vanish.VanishAPI;
 import net.chaossquad.mclib.WorldUtils;
+import net.chaossquad.mclib.actionbar.manager.ActionBarManager;
+import net.chaossquad.mclib.actionbar.manager.SelfSchedulingActionBarManager;
 import net.chaossquad.mclib.dynamicevents.EventListenerManager;
 import net.chaossquad.mclib.world.DynamicWorldLoadingSystem;
 import net.jandie1505.bedwars.commands.BedwarsCommand;
@@ -15,6 +17,8 @@ import net.jandie1505.bedwars.game.lobby.commands.LobbyVotemapCommand;
 import net.jandie1505.bedwars.global.listeners.EventListener;
 import net.jandie1505.bedwars.game.lobby.Lobby;
 import net.jandie1505.datastorage.DataStorage;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.black_ixx.playerpoints.PlayerPoints;
@@ -40,6 +44,7 @@ public class Bedwars extends JavaPlugin {
     private GamePart game;
     private DynamicWorldLoadingSystem dynamicWorldLoadingSystem;
     private net.jandie1505.bedwars.global.listeners.EventListener eventListener;
+    private ActionBarManager actionBarManager;
     private boolean nextStatus;
     private boolean paused;
     private boolean cloudSystemMode;
@@ -53,6 +58,7 @@ public class Bedwars extends JavaPlugin {
         this.bypassingPlayers = Collections.synchronizedSet(new HashSet<>());
         this.listenerManager = new EventListenerManager(this);
         this.dynamicWorldLoadingSystem = new DynamicWorldLoadingSystem(this);
+        this.actionBarManager = new SelfSchedulingActionBarManager(this, Component.text(" | ", NamedTextColor.DARK_GRAY));
         this.nextStatus = false;
         this.paused = false;
         this.cloudSystemMode = false;
@@ -382,6 +388,10 @@ public class Bedwars extends JavaPlugin {
 
     public void setCloudSystemMode(boolean cloudSystemMode) {
         this.cloudSystemMode = cloudSystemMode;
+    }
+
+    public @NotNull ActionBarManager getActionBarManager() {
+        return this.actionBarManager;
     }
 
     // ----- UTILITIES -----

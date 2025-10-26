@@ -6,17 +6,34 @@ import net.jandie1505.bedwars.constants.NamespacedKeys;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.constants.PlayerTimers;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-public class StealthPotionListener implements ManagedListener {
+public class StealthPotionHandler implements ManagedListener {
     @NotNull private final Game game;
 
-    public StealthPotionListener(@NotNull Game game) {
+    public StealthPotionHandler(@NotNull Game game) {
         this.game = game;
+        this.game.registerListener(this);
+        this.game.getTaskScheduler().scheduleRepeatingTask(this::showStealthPotionActionBar, 1, 20, this, "trap_immunity_action_bar");
+    }
+
+    private void showStealthPotionActionBar() {
+        this.game.getOnlinePlayers().forEach(player -> {
+
+            PlayerData playerData = this.game.getPlayerData(player);
+            if (playerData == null) return;
+
+            int timer = playerData.getTimer(PlayerTimers.TRAP_IMMUNITY);
+            if (timer <= 0) return;
+
+            this.game.getPlugin().getActionBarManager().sendActionBarMessage(player, "trap_immunity", 25, Component.text("\uD83D\uDD73" + (timer / 20), NamedTextColor.YELLOW));
+        });
     }
 
     @EventHandler

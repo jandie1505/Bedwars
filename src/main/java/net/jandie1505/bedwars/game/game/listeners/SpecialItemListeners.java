@@ -462,7 +462,7 @@ public class SpecialItemListeners implements ManagedListener {
         if (playerData.getTeleportToBaseCooldown() <= 0) return;
 
         playerData.setTeleportToBaseCooldown(0);
-        player.sendActionBar(Component.text("Spawn dust teleport cancelled", NamedTextColor.RED));
+        this.game.getPlugin().getActionBarManager().sendActionBarMessage(player, "spawn_dust", 60, Component.text("Spawn dust teleport cancelled", NamedTextColor.RED));
         player.playSound(player.getLocation().clone(), Sound.ENTITY_ITEM_BREAK, 1.0f, 1.0f);
     }
 

@@ -24,8 +24,8 @@ import net.jandie1505.bedwars.game.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.game.items.CreeperArrowListener;
-import net.jandie1505.bedwars.game.game.items.EffectImmunityListener;
-import net.jandie1505.bedwars.game.game.items.StealthPotionListener;
+import net.jandie1505.bedwars.game.game.items.EffectImmunityHandler;
+import net.jandie1505.bedwars.game.game.items.StealthPotionHandler;
 import net.jandie1505.bedwars.game.game.listeners.*;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
@@ -214,9 +214,11 @@ public class Game extends GamePart implements ManagedListener {
         this.registerListener(new GameProtectionsForNotIngamePlayersListener(this));
         this.registerListener(new GameChatListener(this));
 
+        // SPECIAL ITEMS
+
         this.registerListener(new CreeperArrowListener(this));
-        this.registerListener(new EffectImmunityListener(this));
-        this.registerListener(new StealthPotionListener(this));
+        new EffectImmunityHandler(this);
+        new StealthPotionHandler(this);
 
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
     }
@@ -472,7 +474,7 @@ public class Game extends GamePart implements ManagedListener {
                     }
 
                 } else { // Team has no bed
-                    player.sendActionBar(Component.text("You are dead", NamedTextColor.RED));
+                    this.getPlugin().getActionBarManager().sendActionBarMessage(player, "dead", 1, Component.text("You are dead", NamedTextColor.RED));
                 }
 
             }
@@ -697,7 +699,7 @@ public class Game extends GamePart implements ManagedListener {
             if (aliveTeams.size() == 1) {
 
                 for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
-                    player.sendActionBar(Component.empty().append(Component.text("GAME END CONDITION TRIGGERED: ", NamedTextColor.AQUA).append(Component.text(aliveTeams.getFirst().getName(), aliveTeams.getFirst().getChatColor())).append(Component.text(" has won", NamedTextColor.AQUA))));
+                    this.getPlugin().getActionBarManager().sendActionBarMessage(player, "dev_game_end", 25, Component.empty().append(Component.text("GAME END CONDITION TRIGGERED: ", NamedTextColor.AQUA).append(Component.text(aliveTeams.getFirst().getName(), aliveTeams.getFirst().getChatColor())).append(Component.text(" has won", NamedTextColor.AQUA))));
                 }
 
                 return;
@@ -706,7 +708,7 @@ public class Game extends GamePart implements ManagedListener {
             if (aliveTeams.size() < 1) {
 
                 for (Player player : List.copyOf(this.getPlugin().getServer().getOnlinePlayers())) {
-                    player.sendActionBar(Component.empty().append(Component.text("GAME END CONDITION TRIGGERED: ", NamedTextColor.AQUA).append(Component.text("No team has won", NamedTextColor.RED))));
+                    this.getPlugin().getActionBarManager().sendActionBarMessage(player, "dev_game_end", 25, Component.empty().append(Component.text("GAME END CONDITION TRIGGERED: ", NamedTextColor.AQUA).append(Component.text("No team has won", NamedTextColor.RED))));
                 }
 
                 return;
