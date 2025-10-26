@@ -23,10 +23,7 @@ import net.jandie1505.bedwars.game.game.generators.Generator;
 import net.jandie1505.bedwars.game.game.generators.GeneratorData;
 import net.jandie1505.bedwars.game.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.game.generators.TeamGenerator;
-import net.jandie1505.bedwars.game.game.items.CreeperArrowListener;
-import net.jandie1505.bedwars.game.game.items.EffectImmunityHandler;
-import net.jandie1505.bedwars.game.game.items.SingleUseJetpackHandler;
-import net.jandie1505.bedwars.game.game.items.StealthPotionHandler;
+import net.jandie1505.bedwars.game.game.items.*;
 import net.jandie1505.bedwars.game.game.listeners.*;
 import net.jandie1505.bedwars.game.game.player.constants.PlayerTimers;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
@@ -225,6 +222,7 @@ public class Game extends GamePart implements ManagedListener {
         new EffectImmunityHandler(this);
         new StealthPotionHandler(this);
         new SingleUseJetpackHandler(this);
+        new SafetyPlatformHandler(this);
 
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
     }
@@ -1331,7 +1329,7 @@ public class Game extends GamePart implements ManagedListener {
             typeSuffix = "STAINED_GLASS";
         }
 
-        String blockColor = Bedwars.getBlockColorString(Objects.requireNonNullElse(ChatCompatibilityUtils.getChatColorFromTextColor(team.getChatColor()), ChatColor.BLACK));
+        String blockColor = Bedwars.getBlockColorString(team.getChatColor());
 
         if (blockColor == null) {
             return;

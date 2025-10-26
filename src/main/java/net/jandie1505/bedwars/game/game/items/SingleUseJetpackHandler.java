@@ -14,6 +14,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -30,6 +31,7 @@ public class SingleUseJetpackHandler implements ManagedListener {
     public void onPlayerInteractEvent(PlayerInteractEvent event) {
         if (event.useItemInHand() == Event.Result.DENY) return;
         if (!event.getAction().isRightClick()) return;
+        if (event.getHand() != EquipmentSlot.HAND) return;
         if (!CustomItemValues.isCustomItem(event.getItem(), CustomItemValues.SINGLE_USE_JETPACK)) return;
         this.handleSingleUseJetpack(event.getPlayer(), event.getItem());
         event.setCancelled(true);
@@ -63,7 +65,7 @@ public class SingleUseJetpackHandler implements ManagedListener {
     private boolean hasBlockNearby(@NotNull Player player) {
 
         for (int x = player.getLocation().getBlockX() - 1; x <= player.getLocation().getBlockX() + 1; x++) {
-            for (int y = player.getLocation().getBlockY() - 1; y <= player.getLocation().getBlockY(); y++) {
+            for (int y = player.getLocation().getBlockY() - 2; y <= player.getLocation().getBlockY(); y++) {
                 for (int z = player.getLocation().getBlockZ() - 1; z <= player.getLocation().getBlockZ() + 1; z++) {
 
                     Block block = player.getWorld().getBlockAt(player.getLocation().getBlockX(), player.getLocation().getBlockY() - 1, player.getLocation().getBlockZ());

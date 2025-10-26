@@ -19,6 +19,7 @@ import net.jandie1505.bedwars.game.lobby.Lobby;
 import net.jandie1505.datastorage.DataStorage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.black_ixx.playerpoints.PlayerPoints;
@@ -504,45 +505,26 @@ public class Bedwars extends JavaPlugin {
         return (int) Math.round(distance);
     }
 
-    public static String getBlockColorString(ChatColor color) {
-
-        switch (color) {
-            case BLACK:
-                return "BLACK";
-            case DARK_BLUE:
-                return "BLUE";
-            case DARK_GREEN:
-                return "GREEN";
-            case DARK_AQUA:
-                return "CYAN";
-            case DARK_RED:
-                return "RED";
-            case DARK_PURPLE:
-                return "PURPLE";
-            case GOLD:
-                return "ORANGE";
-            case GRAY:
-                return "LIGHT_GRAY";
-            case DARK_GRAY:
-                return "GRAY";
-            case BLUE:
-                return "LIGHT_BLUE";
-            case GREEN:
-                return "LIME";
-            case AQUA:
-                return "CYAN";
-            case RED:
-                return "RED";
-            case LIGHT_PURPLE:
-                return "MAGENTA";
-            case YELLOW:
-                return "YELLOW";
-            case WHITE:
-                return "WHITE";
-            default:
-                return null;
-        }
-
+    public static @Nullable String getBlockColorString(@Nullable TextColor color) {
+        if (color == null) return null;
+        return Map.ofEntries(
+                Map.entry(NamedTextColor.BLACK.value(), "BLACK"),
+                Map.entry(NamedTextColor.DARK_BLUE.value(), "BLUE"),
+                Map.entry(NamedTextColor.DARK_GREEN.value(), "GREEN"),
+                Map.entry(NamedTextColor.DARK_AQUA.value(), "CYAN"),
+                Map.entry(NamedTextColor.DARK_RED.value(), "RED"),
+                Map.entry(NamedTextColor.DARK_PURPLE.value(), "PURPLE"),
+                Map.entry(NamedTextColor.GOLD.value(), "ORANGE"),
+                Map.entry(NamedTextColor.GRAY.value(), "LIGHT_GRAY"),
+                Map.entry(NamedTextColor.DARK_GRAY.value(), "GRAY"),
+                Map.entry(NamedTextColor.BLUE.value(), "LIGHT_BLUE"),
+                Map.entry(NamedTextColor.GREEN.value(), "LIME"),
+                Map.entry(NamedTextColor.AQUA.value(), "CYAN"),
+                Map.entry(NamedTextColor.RED.value(), "RED"),
+                Map.entry(NamedTextColor.LIGHT_PURPLE.value(), "MAGENTA"),
+                Map.entry(NamedTextColor.YELLOW.value(), "YELLOW"),
+                Map.entry(NamedTextColor.WHITE.value(), "WHITE")
+        ).get(color.value());
     }
 
     /**
