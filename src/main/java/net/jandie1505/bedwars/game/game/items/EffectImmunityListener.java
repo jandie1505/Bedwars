@@ -35,14 +35,6 @@ public class EffectImmunityListener implements ManagedListener {
 
         if (playerData.getTimer(PlayerTimers.EFFECT_IMMUNITY) <= 0) return;
 
-        if (!List.of(
-                EntityPotionEffectEvent.Cause.POTION_DRINK,
-                EntityPotionEffectEvent.Cause.POTION_SPLASH,
-                EntityPotionEffectEvent.Cause.AREA_EFFECT_CLOUD,
-                EntityPotionEffectEvent.Cause.ARROW,
-                EntityPotionEffectEvent.Cause.ATTACK).contains(event.getCause())
-        ) return;
-
         if (event.getAction() != EntityPotionEffectEvent.Action.ADDED) return;
 
         event.setCancelled(true);

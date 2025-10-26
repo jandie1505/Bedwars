@@ -25,6 +25,7 @@ import net.jandie1505.bedwars.game.game.generators.PublicGenerator;
 import net.jandie1505.bedwars.game.game.generators.TeamGenerator;
 import net.jandie1505.bedwars.game.game.items.CreeperArrowListener;
 import net.jandie1505.bedwars.game.game.items.EffectImmunityListener;
+import net.jandie1505.bedwars.game.game.items.StealthPotionListener;
 import net.jandie1505.bedwars.game.game.listeners.*;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.ItemShop;
@@ -212,8 +213,11 @@ public class Game extends GamePart implements ManagedListener {
         this.registerListener(new GameMiscListener(this));
         this.registerListener(new GameProtectionsForNotIngamePlayersListener(this));
         this.registerListener(new GameChatListener(this));
+
         this.registerListener(new CreeperArrowListener(this));
         this.registerListener(new EffectImmunityListener(this));
+        this.registerListener(new StealthPotionListener(this));
+
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
     }
 
