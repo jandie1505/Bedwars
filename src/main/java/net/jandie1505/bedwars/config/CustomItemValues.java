@@ -1,5 +1,12 @@
 package net.jandie1505.bedwars.config;
 
+import net.jandie1505.bedwars.constants.NamespacedKeys;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public interface CustomItemValues {
     String AUTOMATICALLY_IGNITING_TNT = "automatically_igniting_tnt";
     String AUTO_BRIDGE = "auto_bridge";
@@ -21,4 +28,17 @@ public interface CustomItemValues {
     String SPAWN_DUST = "spawn_dust";
     String STEALTH_POTION = "stealth_potion";
     String ZAPPER = "zapper";
+
+    static boolean isCustomItem(@Nullable ItemStack item, @NotNull String customItemId) {
+        if (item == null) return false;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return false;
+
+        String specialItemType = meta.getPersistentDataContainer().get(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING);
+        if (specialItemType == null) return false;
+
+        return specialItemType.equals(customItemId);
+    }
+
 }
