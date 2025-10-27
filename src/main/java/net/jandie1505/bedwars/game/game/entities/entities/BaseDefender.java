@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,8 +29,9 @@ public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
         this.teamId = teamId;
 
         this.getEntity().addScoreboardTag("bedwars.basedefender");
-        this.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 3600*20, 0, false, false, false));
         this.getEntity().setCustomNameVisible(true);
+        this.getEntity().getAttribute(Attribute.MAX_HEALTH).setBaseValue(50);
+        this.getEntity().getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(10);
 
         this.scheduleRepeatingTask(this::nameTask, 1, 20, "base_defender_name");
         this.scheduleRepeatingTask(this::targetSelectionTask, 1, 20, "base_defender_target_selection");
@@ -42,7 +44,7 @@ public class BaseDefender extends ExpiringManagedEntity<IronGolem> {
 
         if (team != null) {
             this.getEntity().customName(Component.empty()
-                    .append(Component.text("BASE DEFENDER", team.getChatColor()))
+                    .append(Component.text("BASE DEFENDER", team.getChatColor(), TextDecoration.BOLD))
                     .append(Component.text(" --> ", NamedTextColor.GRAY))
                     .append(this.getTargetName())
                     .append(Component.text(" (" + this.getTime() + "s)", NamedTextColor.GRAY))
