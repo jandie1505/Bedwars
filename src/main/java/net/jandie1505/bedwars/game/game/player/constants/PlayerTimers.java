@@ -9,4 +9,5 @@ public interface PlayerTimers {
     String ZAPPER_COOLDOWN = "item.zapper.cooldown";
     String SPAWN_DUST_COOLDOWN = "item.spawn_dust.cooldown";
     String BLACK_HOLE_COOLDOWN = "item.blackhole.cooldown";
+    String ENVIRONMENT_SCANNER_COOLDOWN = "item.environment_scanner.cooldown";
 }

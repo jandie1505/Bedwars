@@ -67,51 +67,6 @@ public class SpecialItemListeners implements ManagedListener {
         new BridgeEgg(this.game, egg, wool.getType(), 15);
     }
 
-    // ----- PLAYER TRACKER -----
-
-    @EventHandler
-    public void onPlayerInteractForPlayerTracker(PlayerInteractEvent event) {
-        if (event.useItemInHand() == Event.Result.DENY) return;
-        if (!event.getAction().isRightClick()) return;
-        if (!isSpecialItem(event.getItem(), CustomItemValues.ENVIRONMENT_SCANNER)) return;
-
-        event.setCancelled(true);
-
-        PlayerData playerData = this.game.getPlayerData(event.getPlayer());
-        if(playerData == null) return;
-
-        List<UUID> randomPlayerList = new ArrayList<>(this.game.getRegisteredPlayers());
-        Collections.shuffle(randomPlayerList);
-
-        for (UUID trackingPlayerId : randomPlayerList) {
-
-            if (playerData.getTrackingTarget() != null && trackingPlayerId.equals(playerData.getTrackingTarget())) {
-                continue;
-            }
-
-            Player trackingPlayer = this.game.getPlugin().getServer().getPlayer(trackingPlayerId);
-
-            if (trackingPlayer == null) {
-                continue;
-            }
-
-            PlayerData trackingPlayerData = this.game.getPlayerData(trackingPlayer);
-
-            if (trackingPlayerData == null) {
-                continue;
-            }
-
-            if (trackingPlayerData.getTeam() == playerData.getTeam()) {
-                continue;
-            }
-
-            playerData.setTrackingTarget(trackingPlayerId);
-            event.getPlayer().sendMessage("§bTracking target changed to " + trackingPlayer.getName());
-            break;
-
-        }
-    }
-
     // ----- GOLEMS -----
 
     @EventHandler

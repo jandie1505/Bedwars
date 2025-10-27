@@ -224,6 +224,7 @@ public class Game extends GamePart implements ManagedListener {
         new SingleUseJetpackHandler(this);
         new SafetyPlatformHandler(this);
         new FireballHandler(this);
+        new EnvironmentScannerHandler(this);
 
         this.getTaskScheduler().runTaskLater(() -> this.getPlugin().getListenerManager().manageListeners(), 2, "listener_reload_on_start");
     }
