@@ -1993,15 +1993,16 @@ public final class DefaultConfigValues {
         grapplingHookMeta.getPersistentDataContainer().set(NamespacedKeys.GAME_SPECIAL_ITEM, PersistentDataType.STRING, CustomItemValues.GRAPPLING_HOOK);
         grapplingHookItem.setItemMeta(grapplingHookMeta);
 
-        entries.put(
-                "grappling_hook",
-                new ShopEntry(
-                        grapplingHookItem,
-                        Material.EMERALD,
-                        20,
-                        List.of(new ShopGUIPosition(7, 47))
-                )
-        );
+        // Currently disabled because grappling hook is not implemented yet
+        //entries.put(
+        //        "grappling_hook",
+        //        new ShopEntry(
+        //                grapplingHookItem,
+        //                Material.EMERALD,
+        //                20,
+        //                List.of(new ShopGUIPosition(7, 47))
+        //        )
+        //);
 
         // Team Chest Access Point
 
