@@ -112,7 +112,7 @@ public class SafetyPlatformHandler implements ManagedListener {
 
     private @NotNull Location getCenterLocation(@NotNull Player player) {
         Location center = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
-        center.add(0, -2, 0);
+        center.add(0, -3, 0);
         return center;
     }
 
