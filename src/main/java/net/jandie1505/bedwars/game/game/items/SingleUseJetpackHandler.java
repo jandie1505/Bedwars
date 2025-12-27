@@ -41,7 +41,7 @@ public class SingleUseJetpackHandler implements ManagedListener {
     public void onPlayerSwapHandItems(PlayerSwapHandItemsEvent event) {
         if (event.isCancelled()) return;
         if (!CustomItemValues.isCustomItem(event.getMainHandItem(), CustomItemValues.SINGLE_USE_JETPACK)) return;
-        this.handleSingleUseJetpack(event.getPlayer(), event.getMainHandItem());
+        this.handleSingleUseJetpack(event.getPlayer(), event.getPlayer().getInventory().getItemInOffHand());
         event.setCancelled(true);
     }
 

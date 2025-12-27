@@ -16,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -58,7 +59,8 @@ public class SafetyPlatformHandler implements ManagedListener {
         PlayerData playerData = this.game.getPlayerData(event.getPlayer());
         if (playerData == null) return;
 
-        event.getMainHandItem().setAmount(event.getMainHandItem().getAmount() - 1);
+        ItemStack item = event.getPlayer().getInventory().getItemInOffHand();
+        item.setAmount(item.getAmount() - 1);
 
         this.createSafetyPlatform(event.getPlayer(), playerData);
     }
