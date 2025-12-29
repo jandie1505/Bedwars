@@ -4,6 +4,7 @@ import net.chaossquad.mclib.ChatCompatibilityUtils;
 import net.chaossquad.mclib.WorldUtils;
 import net.jandie1505.bedwars.game.game.Game;
 import net.jandie1505.bedwars.game.game.player.data.PlayerData;
+import net.jandie1505.bedwars.game.game.team.storage.ResourceStorage;
 import net.jandie1505.bedwars.game.game.team.upgrades.constants.TeamUpgrades;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -31,8 +32,11 @@ public class BedwarsTeam {
 
     @NotNull private final Map<String, Integer> upgrades;
     @NotNull private final LinkedList<TrapSlot> traps;
+
     private boolean disableBed;
+
     @Nullable private Inventory teamChest;
+    @Nullable private ResourceStorage resourceStorage;
 
     public BedwarsTeam(@NotNull Game game, @NotNull TeamData data) {
         this.game = game;
@@ -58,6 +62,7 @@ public class BedwarsTeam {
 
         this.disableBed = false;
         this.teamChest = null;
+        this.resourceStorage = null;
     }
 
     // ----- SPAWNING -----

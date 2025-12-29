@@ -134,8 +134,11 @@ public class EnderchestGUI implements ManagedListener, InventoryHolder {
                 player.openInventory(playerData.getEnderchest());
             }
             case "resource_storage" -> {
-                player.closeInventory();
-                player.sendRichMessage("<red>Currently not implemented!");
+
+                BedwarsTeam team = this.game.getTeam(playerData.getTeam());
+                if (team == null) return;
+
+                player.openInventory(this.game.getResourceStorageGUI().getInventory(team));
             }
         }
 

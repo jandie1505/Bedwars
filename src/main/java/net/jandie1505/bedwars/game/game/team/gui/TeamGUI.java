@@ -12,6 +12,7 @@ import net.jandie1505.bedwars.game.game.player.data.PlayerData;
 import net.jandie1505.bedwars.game.game.shop.entries.ShopGUIPosition;
 import net.jandie1505.bedwars.game.game.shop.entries.UpgradeEntry;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
+import net.jandie1505.bedwars.game.game.team.gui.enderchest_gui.ResourceStorageGUIManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -73,6 +74,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
     @NotNull private final ItemStack[] menuBarItems;
     @NotNull private final Map<String, UpgradeEntry> teamUpgradeEntries;
     @NotNull private final Map<String, TrapEntry> teamTrapEntries;
+    @NotNull private final ResourceStorageGUIManager resourceStorageGUIManager;
     @NotNull private final Removable removable;
 
     public TeamGUI(@NotNull Game game, @Nullable Map<String, UpgradeEntry> teamUpgradeEntries, @Nullable Map<String, TrapEntry> teamTrapEntries, @NotNull Removable removable) {
@@ -81,6 +83,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         this.game.registerListener(this);
         this.teamUpgradeEntries = teamUpgradeEntries != null ? Map.copyOf(teamUpgradeEntries) : Map.of();
         this.teamTrapEntries = teamTrapEntries != null ? Map.copyOf(teamTrapEntries) : Map.of();
+        this.resourceStorageGUIManager = new ResourceStorageGUIManager(this.game, this, removable);
         this.removable = removable;
     }
 
@@ -105,6 +108,7 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
         switch (page) {
             case 0 -> this.buildTeamUpgradesMenu(inventory, team);
             case 1 -> this.buildTrapsMenu(inventory, team);
+            case 2 -> this.buildResourceStorageMenu(inventory, team);
             case 10 -> this.buildTrapsPurchaseMenu(inventory, team);
         }
 
@@ -320,6 +324,14 @@ public class TeamGUI implements ManagedListener, InventoryHolder {
 
         this.fillUnusedSlotsWithPlaceholderItem(inventory);
 
+    }
+
+    // ----- RESOURCE STORAGE MENU -----
+
+    private void buildResourceStorageMenu(@NotNull Inventory inventory, @NotNull BedwarsTeam team) {
+        ResourceStorageGUIManager.setListenerEnabled(inventory, true);
+        this.resourceStorageGUIManager.buildInventory(inventory, 2, team);
+        this.fillUnusedSlotsWithPlaceholderItem(inventory);
     }
 
     // ----- EVENTS -----

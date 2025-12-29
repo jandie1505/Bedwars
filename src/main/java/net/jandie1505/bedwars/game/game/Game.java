@@ -38,6 +38,7 @@ import net.jandie1505.bedwars.game.game.shop.gui.ShopGUI;
 import net.jandie1505.bedwars.game.game.team.BedwarsTeam;
 import net.jandie1505.bedwars.game.game.team.TeamData;
 import net.jandie1505.bedwars.game.game.team.gui.EnderchestGUI;
+import net.jandie1505.bedwars.game.game.team.gui.enderchest_gui.StandaloneResourceStorageGUI;
 import net.jandie1505.bedwars.game.game.team.gui.TeamGUI;
 import net.jandie1505.bedwars.game.game.team.traps.TeamTrapManager;
 import net.jandie1505.bedwars.game.game.team.upgrades.TeamUpgradeManager;
@@ -58,7 +59,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scoreboard.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -91,6 +91,7 @@ public class Game extends GamePart implements ManagedListener {
     @NotNull private final TeamGUI teamGUI;
     @NotNull private final TeamTrapManager teamTrapManager;
     @NotNull private final EnderchestGUI enderchestGUI;
+    @NotNull private final StandaloneResourceStorageGUI resourceStorageGUI;
     private final List<ManagedEntity<?>> managedEntities;
     private int timeStep;
     private int time;
@@ -131,6 +132,7 @@ public class Game extends GamePart implements ManagedListener {
         this.teamGUI = new TeamGUI(this, teamUpgradeEntries, teamTrapEntries, () -> false);
         this.teamTrapManager = new TeamTrapManager(this, () -> false);
         this.enderchestGUI = new EnderchestGUI(this, () -> false);
+        this.resourceStorageGUI = new StandaloneResourceStorageGUI(this, () -> false);
         this.managedEntities = Collections.synchronizedList(new ArrayList<>());
         this.time = this.maxTime;
         this.publicEmeraldGeneratorLevel = 0;
@@ -1219,6 +1221,14 @@ public class Game extends GamePart implements ManagedListener {
      */
     public @NotNull EnderchestGUI getEnderchestGUI() {
         return this.enderchestGUI;
+    }
+
+    /**
+     * Returns the resource storage gui.
+     * @return Resource Storage GUI
+     */
+    public @NotNull StandaloneResourceStorageGUI getResourceStorageGUI() {
+        return this.resourceStorageGUI;
     }
 
     public Location buildLocationWithWorld(Location old) {
